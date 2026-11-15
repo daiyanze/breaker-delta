@@ -116,6 +116,20 @@ def test_feeds_parse():
     assert quote("示例模型发布.html") in feed  # items link to topic slug pages
 
 
+def test_creator_panel_can_be_switched_off():
+    import importlib
+    import os
+    os.environ["TS_CREATOR"] = "0"
+    try:
+        importlib.reload(publish)
+        out_dir = _build(tempfile.mkdtemp())
+        main = (out_dir / "示例模型发布.html").read_text(encoding="utf-8")
+        assert "创作参考" not in main
+    finally:
+        del os.environ["TS_CREATOR"]
+        importlib.reload(publish)
+
+
 def test_topic_page_has_wave_chart_and_visible_nofollow_links():
     out_dir = _build(tempfile.mkdtemp())
     main = (out_dir / "示例模型发布.html").read_text(encoding="utf-8")

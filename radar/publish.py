@@ -39,6 +39,7 @@ OUT = Path(os.environ.get("TS_OUT", str(ROOT / "site")))
 PER = int(os.environ.get("TS_PAGE_SIZE", "100"))
 ARCHIVE_DAYS = int(os.environ.get("TS_ARCHIVE_DAYS", "7"))
 SOURCES_PER = int(os.environ.get("TS_SOURCES_PAGE", "20"))
+CREATOR = os.environ.get("TS_CREATOR", "1").lower() not in ("0", "false", "no")
 BASE_URL = "https://daiyanze.github.io/breaker-delta/"
 SLOT = {"pilot": ("试跑", 0), "morning": ("早报", 1), "evening": ("晚报", 2)}
 BASE = {"must": 60, "watch": 30, "seed": 10}
@@ -1447,7 +1448,7 @@ def build_site(OUT, editions, topics):
                   f'<table><tr>{thead}</tr>{hist_rows}</table>'
                   f'<div class="detail" style="margin-top:24px"><p>{body_html}</p>{act}'
                   f'<div style="margin-top:12px">{chips}</div>{det}</div></section>'
-                + creator + foot())
+                + (creator if CREATOR else "") + foot())
         ld = {"@context": "https://schema.org", "@type": "NewsArticle",
               "headline": last["title"], "description": (last["body"] or "")[:150],
               "datePublished": t["apps"][0].get("published"),
