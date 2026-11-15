@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.18.0 — 2026-11-15（未发布，Node 迁移 Phase 3）
+
+- **Phase 3 `@breaker-delta/publisher`**：站点生成器全量迁 TS（strict、零运行时依赖，依赖 `@breaker-delta/core`）——数据装载（editions 排序/_heat/_rank、ledger、config 原文块切分与 source 归组）、favicon 缓存与抓取（条件复验、Google 回退、sha256 变更检测、meta.json indent=1）、全部页面（海浪榜+时间滑块+溢出分页、涨潮榜、苗头、分类/等级标签页、数据源+源详情、归档、关于、战绩、投苗、edition 快照、话题页+creator 面板+旧链接跳转桩）、feeds（RSS/Atom，RFC2822 日期按 email.utils 语义）、write_discovery（sitemap/robots/llms）与 data 层（调 core 的 topicsData/alertsData）。入口 `buildSite(options)` 显式参数 + `optionsFromEnv()` 读与 Python 相同的 TS_* 环境变量，数据仓 CI 契约原样可迁；STRINGS/ABOUT/CSS 等大表由 `scripts/make_publisher_literals.py` 从 Python 机械生成、不手工转录。Python 生成器原样保留。
+- **对等验证三层**：① Fixture 逐字节 diff（`scripts/diff_builds.py`，ED1/ED2 + 战绩 fixture）：92 文件全同，favicon meta.json 哈希两边构建前后不变。② 真实数据逐字节 diff（沙箱组装数据仓 5 期 + 台账 + 战绩，生产 base_url/data_repo，共用一份热 favicon 缓存）：第一轮 557 文件 545 同，12 处差异全源于 bloomberg.com 一家——构建时段 Bloomberg 间歇性对 Python 请求返回机器人挑战页（走 Google 回退得 PNG），Node 随后拿到真实 ICO；探针复测两栈响应逐字节相同，背靠背重跑第二轮 **554 文件全同**，favicon 统计两边同为 36 hit / 0 updated / 0 miss（结论留 `~/workspace/bd-pubdiff/DIFF-CONCLUSION.md`）。③ `tests/test_publish.py` 9 个测试在 TS 侧有对应测试（`packages/publisher/test/publish.test.ts`）全过。
+- 根 `package.json` 与各包版本升 0.18.0，根 test/build 脚本串联 core + fetchers + publisher（npm test 共 175 个全过）；Python `pytest` 仍 52 全过。
+
 ## 0.17.0 — 2026-11-15（未发布，Node 迁移 Phase 2）
 
 - **Phase 2 `@breaker-delta/fetchers`**：抓取层全量迁 TS（strict、零运行时依赖，依赖 `@breaker-delta/core`）——`common`（getJson/getText/postJson、parseFeed、fetchFeedBundle、ok/missing、FetchError）、自写 XML 子集解析器（元素/属性/文本/CDATA/实体/命名空间展开，不引第三方包）、config 加载（搜索顺序同 Python）+ YAML 子集解析器（`yamlmini.py` 的逐行移植，子集外构造如锚点/多行字符串抛错而非误读）、全部 25 个 fetcher（注册表顺序与 Python 一致）与最小编排 `runScan`/`summaryLines`（Phase 4 再做正式 CLI）。Python 抓取器原样保留。

@@ -5,11 +5,11 @@
   "name": "breaker-delta",
   "private": true,
   "scripts": {
-    "build": "npm run build -w @breaker-delta/core && npm run build -w @breaker-delta/fetchers",
-    "test": "npm run test -w @breaker-delta/core && npm run test -w @breaker-delta/fetchers"
+    "build": "npm run build -w @breaker-delta/core && npm run build -w @breaker-delta/fetchers && npm run build -w @breaker-delta/publisher",
+    "test": "npm run test -w @breaker-delta/core && npm run test -w @breaker-delta/fetchers && npm run test -w @breaker-delta/publisher"
   },
   "type": "module",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "workspaces": [
     "packages/*",
     "apps/*"
