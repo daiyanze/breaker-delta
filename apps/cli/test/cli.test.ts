@@ -291,7 +291,7 @@ test("publish builds the fixture site; json mode keeps stdout clean", async () =
     "publish", "--out", site, "--base-url", "https://example.com/triple-sigma",
   ]);
   assert.strictEqual(r.status, 0, r.stderr);
-  assert.match(r.stdout, /pages: 22 \| topics: 2 \| latest top heat: 108/);
+  assert.match(r.stdout, /pages: 30 \| topics: 2 \| latest top heat: 108/);
   assert.ok(fs.existsSync(path.join(site, "index.html")));
   assert.ok(fs.existsSync(path.join(site, "data", "topics.json")));
   const tr = fs.readFileSync(path.join(site, "track-record.html"), "utf-8");
@@ -305,10 +305,10 @@ test("publish builds the fixture site; json mode keeps stdout clean", async () =
   ]);
   assert.strictEqual(r2.status, 0, r2.stderr);
   const doc = JSON.parse(r2.stdout); // stdout is exactly one JSON document
-  assert.strictEqual(doc.pages, 66); // +3: seeds.html redirect stubs (one per language) since the 0.22.0 echo rename
+  assert.strictEqual(doc.pages, 90); // 66 pre-docs (incl. +3 seeds.html redirect stubs since the 0.22.0 echo rename) + 24 docs pages (8 per language)
   assert.strictEqual(doc.outDir, site2);
   assert.ok(!r2.stdout.includes("pages:"), "build logs must not pollute json stdout");
-  assert.match(r2.stderr, /pages: 22 \| topics: 2/); // they went to stderr instead
+  assert.match(r2.stderr, /pages: 30 \| topics: 2/); // they went to stderr instead
   assert.deepStrictEqual(listFiles(site2), listFiles(site));
 });
 

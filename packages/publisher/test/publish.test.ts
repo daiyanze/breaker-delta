@@ -151,6 +151,10 @@ test("build writes all outputs", async () => {
     for (const name of [
       "index.html", "rising.html", "echoes.html", "categories.html",
       "sources.html", "archive.html", "about.html",
+      "docs.html", "docs-getting-started.html", "docs-reading.html",
+      "docs-cli.html", "docs-config.html", "docs-skill.html",
+      "docs-extension.html", "docs-deploy.html",
+      "en/docs.html", "en/docs-cli.html", "ja/docs.html",
       "edition-2026-11-12-morning.html",
       "edition-2026-11-12-evening.html",
       "feed.xml", "atom.xml", "sitemap.xml", "robots.txt",
@@ -179,6 +183,36 @@ test("build writes all outputs", async () => {
     assert.ok(fs.existsSync(path.join(b.outDir, "source-官方博客.html")));
     const rising = read(b.outDir, "rising.html");
     assert.ok(rising.includes("本期没有上涨")); // explicit empty state
+  } finally {
+    cleanup(b);
+  }
+});
+
+test("docs pages are bilingual zh/en with ja fallback to en", async () => {
+  const b = await buildFixture();
+  try {
+    const zhDocs = read(b.outDir, "docs.html");
+    assert.ok(zhDocs.includes("这套文档是给谁的"));
+    assert.ok(zhDocs.includes("📖 文档")); // docs tab present in nav
+    assert.ok(zhDocs.includes('class="tagchip on"')); // hub chip highlighted
+    const zhCli = read(b.outDir, "docs-cli.html");
+    assert.ok(zhCli.includes("record review"));
+    const enDocs = read(b.outDir, "en/docs.html");
+    assert.ok(enDocs.includes("Who these docs are for"));
+    const enExt = read(b.outDir, "en/docs-extension.html");
+    assert.ok(enExt.includes("activeTab"));
+    const jaDocs = read(b.outDir, "ja/docs.html");
+    assert.ok(jaDocs.includes("日本語版は準備中です")); // ja notice
+    assert.ok(jaDocs.includes("Who these docs are for")); // en body fallback
+    const index = read(b.outDir, "index.html");
+    assert.ok(
+      index.indexOf("about.html") < index.indexOf("docs.html"),
+      "docs tab comes after about in the top nav",
+    );
+    const sitemap = read(b.outDir, "sitemap.xml");
+    assert.ok(sitemap.includes("docs.html") && sitemap.includes("en/docs-cli.html"));
+    const llms = read(b.outDir, "llms.txt");
+    assert.ok(llms.includes("docs.html"));
   } finally {
     cleanup(b);
   }

@@ -18,7 +18,8 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
    "📡 数据源",
    "🏆 战绩",
    "📚 归档",
-   "ℹ️ 关于"
+   "ℹ️ 关于",
+   "📖 文档"
   ],
   "wave": "浪高",
   "carried": "结转",
@@ -126,6 +127,7 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "desc_rising": "浪高涨幅最大的话题，正在涨潮的热点。",
   "desc_sources": "浪尖雷达的全部数据源与各自贡献的话题统计。",
   "desc_about": "浪尖雷达是什么、浪高算法、页面导览与作者信息。",
+  "desc_docs": "浪尖雷达 Breaker Delta 使用文档：快速开始、看懂站点、CLI、配置、Skill 与 MCP、Chrome 扩展、自建与部署。",
   "desc_track": "浪尖雷达战绩复盘：每一期必看与关注话题的登记台账与 14 天复核结果。",
   "tr_title": "🏆 战绩 · 复盘台账",
   "tr_intro": "把每一期的 🔥必看 / 👀关注 逐条登记，14 天后按预设标准复核命中与否。本页由仓库里的 track-record.md 在构建时生成，台账只登记已发布期次，不事后改判。",
@@ -169,7 +171,8 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
    "📡 Sources",
    "🏆 Track Record",
    "📚 Archive",
-   "ℹ️ About"
+   "ℹ️ About",
+   "📖 Docs"
   ],
   "wave": "Wave",
   "carried": "carried",
@@ -277,6 +280,7 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "desc_rising": "Topics with the biggest wave-height gains.",
   "desc_sources": "All data sources and the topics each one feeds.",
   "desc_about": "What Breaker Delta is, the wave-height formula, page guide and author info.",
+  "desc_docs": "Breaker Delta documentation: getting started, reading the site, CLI, configuration, Skill and MCP, the Chrome extension, and deploying your own instance.",
   "desc_track": "Breaker Delta track record: every Must-read and Watch pick, registered in advance and reviewed after 14 days.",
   "tr_title": "🏆 Track Record",
   "tr_intro": "Every 🔥 Must-read / 👀 Watch pick is registered as published and reviewed 14 days later against criteria set in advance. This page is generated at build time from track-record.md in the repo; entries are never rewritten after the fact.",
@@ -320,7 +324,8 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
    "📡 ソース",
    "🏆 戦績",
    "📚 アーカイブ",
-   "ℹ️ 概要"
+   "ℹ️ 概要",
+   "📖 ドキュメント"
   ],
   "wave": "波高",
   "carried": "繰越",
@@ -428,6 +433,7 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "desc_rising": "波高の伸びが最大のトピック。",
   "desc_sources": "全データソースと各ソースが寄与したトピック。",
   "desc_about": "浪尖レーダーについて、波高の計算式、ページ案内と作者情報。",
+  "desc_docs": "Breaker Delta ドキュメント（英語版）。",
   "desc_track": "浪尖レーダーの戦績：必読・注目の各トピックを事前登録し、14日後に復核した台帳。",
   "tr_title": "🏆 戦績 · 復核台帳",
   "tr_intro": "各号の 🔥必読 / 👀注目 を1件ずつ登録し、14日後に事前に決めた基準で命中かどうかを復核します。このページはリポジトリの track-record.md からビルド時に生成され、登録後に書き換えることはありません。",

@@ -100,6 +100,7 @@ Put a `config.yaml` in your data dir (based on `config.example.yaml`; YAML with 
 
 ## Documentation
 
+- **Site docs (Chinese / English)** — the usage guide built into every instance's site: [Docs overview](https://daiyanze.github.io/breaker-delta-data/docs.html) · [Docs in English](https://daiyanze.github.io/breaker-delta-data/en/docs.html) — getting started, reading the site, CLI reference, configuration, Skill & MCP, the Chrome extension, and deploying your own instance. Source: `packages/publisher/src/docs.ts`; Japanese sites show the English docs for now.
 - [Built-in sources](SOURCES.md) — all 26 fetcher groups and their rules (also in [简体中文](SOURCES.zh-CN.md))
 - [Privacy](PRIVACY.md) — read-only, no accounts, no posting
 - [Changelog](CHANGELOG.md)

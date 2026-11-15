@@ -100,6 +100,7 @@ node apps/cli/dist/breaker-delta.mjs --data-dir /path/to/your-data mcp
 
 ## 文档索引
 
+- **站点内文档（中英双语）** —— 内置在每个实例站点里的用法说明：[文档总览](https://daiyanze.github.io/breaker-delta-data/docs.html) · [English Docs](https://daiyanze.github.io/breaker-delta-data/en/docs.html) —— 快速开始、看懂站点、CLI 参考、配置、Skill 与 MCP、Chrome 扩展、自建与部署。源文件在 `packages/publisher/src/docs.ts`；日文站暂时显示英文版。
 - [自带信息源一览](SOURCES.zh-CN.md) —— 全部 26 个抓取组与各自口径（[English](SOURCES.md)）
 - [Privacy](PRIVACY.md) —— 只读、不登录、不发帖
 - [Changelog](CHANGELOG.md)

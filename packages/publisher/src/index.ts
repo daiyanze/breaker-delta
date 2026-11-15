@@ -5,6 +5,7 @@
 // favicon cache.
 
 export { buildSite, writeDataFiles, writeDiscovery } from "./build.js";
+export { DOC_FILES, DOC_PAGES, docsNav, type DocPage } from "./docs.js";
 export { optionsFromEnv, type BuildOptions, type Ctx } from "./ctx.js";
 export { loadConfigBlocks, loadEditions, sourceBlock, sourceKey, yamlSourceBlocks } from "./load.js";
 export { fetchFavicons } from "./favicon.js";

@@ -163,10 +163,10 @@ export function mast(
   const tl = opts?.tl ?? false;
   const hrefs = [
     "index.html", "rising.html", "echoes.html", "submit.html", "categories.html",
-    "sources.html", "track-record.html", "archive.html", "about.html",
+    "sources.html", "track-record.html", "archive.html", "about.html", "docs.html",
   ];
   const keys = [
-    "index", "rising", "echoes", "submit", "categories", "sources", "track", "archive", "about",
+    "index", "rising", "echoes", "submit", "categories", "sources", "track", "archive", "about", "docs",
   ];
   const tabs = sArr(ctx, "tabs");
   let tabHtml = "";
@@ -443,7 +443,7 @@ export function waveChart(ctx: Ctx, topic: PubTopic, editions: Edition[]): strin
 
 export function foot(ctx: Ctx): string {
   return (
-    `<footer><div class="copy">© 2026 Dai · <a href="about.html">${s(ctx, "foot_about")}</a> · ` +
+    `<footer><div class="copy">© 2026 Dai · <a href="about.html">${s(ctx, "foot_about")}</a> · <a href="docs.html">${sArr(ctx, "tabs")[9]}</a> · ` +
     `<a href="https://github.com/daiyanze/breaker-delta" rel="noopener">GitHub</a> · ` +
     `<a href="https://x.com/daiyanze" rel="noopener">X</a> · ` +
     `<a href="feed.xml">RSS</a> · <a href="atom.xml">Atom</a></div></footer>`

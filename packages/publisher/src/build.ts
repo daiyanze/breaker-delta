@@ -28,6 +28,7 @@ import {
   type BuildOptions,
   type Ctx,
 } from "./ctx.js";
+import { DOC_PAGES, JA_DOCS_NOTICE, docsNav } from "./docs.js";
 import { fetchFavicons } from "./favicon.js";
 import { loadConfigBlocks, loadEditions, sourceBlock, sourceKey } from "./load.js";
 import {
@@ -229,7 +230,7 @@ export function writeDiscovery(ctx: Ctx, editions: Edition[], topics: PubTopic[]
     `## 主要页面\n- [海浪榜](${ctx.baseUrl}index.html)\n- [涨潮榜](${ctx.baseUrl}rising.html)\n` +
     `- [回波](${ctx.baseUrl}echoes.html)\n- [分类](${ctx.baseUrl}categories.html)\n` +
     `- [数据源](${ctx.baseUrl}sources.html)\n- [战绩](${ctx.baseUrl}track-record.html)\n` +
-    `- [投波](${ctx.baseUrl}submit.html)\n- [关于](${ctx.baseUrl}about.html)\n` +
+    `- [投波](${ctx.baseUrl}submit.html)\n- [关于](${ctx.baseUrl}about.html)\n- [文档 Docs](${ctx.baseUrl}docs.html)\n- [Docs (English)](${ctx.baseUrl}en/docs.html)\n` +
     `- [往期归档](${ctx.baseUrl}archive.html)\n- [RSS](${ctx.baseUrl}feed.xml)\n` +
     `- [Atom](${ctx.baseUrl}atom.xml)\n\n## 语言版本\n${langLinks}\n\n## 当前浪高最高的话题\n${topLinks}\n`;
   fs.writeFileSync(path.join(out, "llms.txt"), llms, "utf-8");
@@ -1118,6 +1119,28 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       { path: "about.html", desc: s(ctx, "desc_about"), ld: aboutLd },
     ),
   );
+
+  // docs: usage guide, zh / en only for now. The ja build renders the
+  // English body under a "Japanese coming soon" notice, so the docs
+  // tab and hreflang alternates stay valid in every language.
+  for (const doc of DOC_PAGES) {
+    const docLang = ctx.lang === "zh" ? "zh" : "en";
+    const notice = ctx.lang === "ja" ? JA_DOCS_NOTICE : "";
+    const docBody =
+      mast(ctx, "docs", editions, { fname: doc.file }) +
+      docsNav(ctx.lang, doc.file) +
+      notice +
+      doc.body[docLang] +
+      foot(ctx);
+    write(
+      ctx,
+      doc.file,
+      page(ctx, doc.title[docLang], docBody, {
+        path: doc.file,
+        desc: doc.desc[docLang],
+      }),
+    );
+  }
 
   // track record: generated from track-record.md at build time
   const tr = parseTrackRecordFile(
