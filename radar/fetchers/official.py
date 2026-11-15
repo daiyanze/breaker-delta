@@ -2,7 +2,8 @@
 
 First-hand announcements — OpenAI, DeepMind, Google Research,
 Hugging Face, Mistral, NVIDIA, AWS ML, GitHub Blog, Microsoft
-Research, BAIR — read from
+Research, BAIR, LangChain, Google Blog, Ollama, Databricks,
+Cloudflare, GitHub Changelog, Mozilla — read from
 their own feeds (the T1 tier in AIHOT's source grading). All feeds
 together count as ONE source for resonance: an announcement and its
 own syndication must not look like independent confirmation.
@@ -30,6 +31,12 @@ DEFAULT_FEEDS = [
     {"name": "Microsoft Research", "url": "https://www.microsoft.com/en-us/research/feed/"},
     {"name": "BAIR", "url": "https://bair.berkeley.edu/blog/feed.xml"},
     {"name": "LangChain Blog", "url": "https://blog.langchain.com/rss.xml"},
+    {"name": "Google Blog", "url": "https://blog.google/rss/"},
+    {"name": "Ollama Blog", "url": "https://ollama.com/blog/rss.xml"},
+    {"name": "Databricks Blog", "url": "https://www.databricks.com/feed"},
+    {"name": "Cloudflare Blog", "url": "https://blog.cloudflare.com/rss/"},
+    {"name": "GitHub Changelog", "url": "https://github.blog/changelog/feed/"},
+    {"name": "Mozilla Blog", "url": "https://blog.mozilla.org/en/feed/"},
 ]
 
 

@@ -59,6 +59,15 @@ SOURCE_DOMAINS = {
     "Anthropic": "anthropic.com", "Anthropic 官方": "anthropic.com",
     "DeepMind": "deepmind.google", "CBS": "cbsnews.com",
     "Microsoft Research": "microsoft.com", "LangChain Blog": "langchain.com",
+    "Google Blog": "blog.google", "Ollama Blog": "ollama.com",
+    "Databricks Blog": "databricks.com", "Cloudflare Blog": "cloudflare.com",
+    "GitHub Changelog": "github.blog", "Mozilla Blog": "mozilla.org",
+    "SemiAnalysis": "semianalysis.com", "One Useful Thing": "oneusefulthing.org",
+    "Platformer": "platformer.news", "YC Blog": "ycombinator.com",
+    "LessWrong": "lesswrong.com", "Stack Exchange": "stackexchange.com",
+    "Federal Register": "federalregister.gov",
+    "llama.cpp Releases": "github.com", "vLLM Releases": "github.com",
+    "Claude Code Releases": "github.com",
     "Interconnects": "interconnects.ai", "Ahead of AI": "magazine.sebastianraschka.com",
     "Dwarkesh Podcast": "dwarkesh.com",
     "USA Today": "usatoday.com", "blog.google": "blog.google",
@@ -730,13 +739,21 @@ SRC_ALIASES = {
     "dev.to": "devto", "dev": "devto", "wikipedia": "wikipedia",
     "app store": "app_store", "daily papers": "daily_papers",
     "hf spaces": "hf_spaces", "hugging face spaces": "hf_spaces",
+    "federal register": "federal_register", "stack exchange": "stackexchange",
+    "github releases": "gh_releases", "google blog": "official_blogs",
+    "llama.cpp releases": "gh_releases", "vllm releases": "gh_releases",
+    "claude code releases": "gh_releases",
 }
 OFFICIAL_HINTS = ("官方", "official", "openai", "deepmind", "anthropic",
-                  "mistral", "nvidia", "blog.google", "bair", "langchain")
+                  "mistral", "nvidia", "blog.google", "bair", "langchain",
+                  "ollama", "databricks", "cloudflare", "mozilla",
+                  "federal register", "changelog")
 TECH_HINTS = ("techcrunch", "the verge", "wired", "ars technica", "the decoder",
               "venturebeat", "fortune", "cnbc", "reuters", "bbc", "nyt", "wsj",
               "cbs", "usa today", "the guardian", "bloomberg", "forbes",
-              "technology review", "techmeme", "the information", "semafor")
+              "technology review", "techmeme", "the information", "semafor",
+              "semianalysis", "platformer", "lesswrong", "one useful thing",
+              "y combinator", "yc blog", "stack exchange")
 
 
 def _yaml_source_blocks(text):

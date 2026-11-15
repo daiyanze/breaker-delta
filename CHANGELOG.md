@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.14.0 — 2026-11-15
+
+- **免费信息源第二波扩容**：把实测可用的免 key 源全部接完。official_blogs 新增 6 个（Google Blog、Ollama Blog、Databricks Blog、Cloudflare Blog、GitHub Changelog、Mozilla Blog），tech_media 新增 5 个（SemiAnalysis、One Useful Thing、Platformer、YC Blog、LessWrong）；新增三个抓取组——`gh_releases`（L1，GitHub Releases 观察组：llama.cpp / vLLM / Claude Code，整组算一源）、`federal_register`（L1，美国联邦公告 API，免 key，政策与监管的一手文本）、`stackexchange`（L2，全站热门问题 Atom，免 key）。配置（YAML/JSON 双份）、抓取器默认列表、站点域名映射与归组提示同步更新。实测：official_blogs 候选 55 → 85，tech_media 55 → 80，新组分别返回 15 / 10 / 20 条，零 feed 失败；全套 51 个测试通过。
+- **新增仓库文档 `SOURCES.md`**：自带信息源的完整目录（26 个抓取组，L1/L2/L3 分层、每个 feed 的地址与每个源的判定口径），与站点「数据源」页（实际贡献过话题的源与战绩）分工。
+
 ## 0.13.1 — 2026-11-15
 
 - **alerts 的 surge 口径收紧（Dai 定）**：`data/alerts.json` 的 surge 只针对已有话题（上一时间点已在榜、浪高涨幅 ≥30）；新上榜话题只报 resonance，不再同时产生一条 surge。此口径与涨潮榜不同（涨潮榜仍按新上榜全浪高计涨幅）。本期回放：alerts 由 9 条变为 4 条（全部 resonance，本期无已有话题涨幅 ≥30）。扩展快照同步更新，扩展版本 0.2.1（角标随之变为 4）。

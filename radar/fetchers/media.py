@@ -3,7 +3,9 @@
 The fermentation layer's press side (AIHOT's T2 tier): TechCrunch,
 The Verge, Ars Technica, MIT Technology Review, The Decoder, plus
 independent voices whose posts routinely move topics (Simon
-Willison, Import AI, Latent Space). One story echoed by six outlets
+Willison, Import AI, Latent Space, Interconnects, Ahead of AI,
+Dwarkesh) plus the 0.14.0 wave (SemiAnalysis, One Useful Thing,
+Platformer, YC Blog, LessWrong). One story echoed by six outlets
 is still one source — the bundle counts once for resonance.
 """
 
@@ -26,6 +28,11 @@ DEFAULT_FEEDS = [
     {"name": "Interconnects", "url": "https://www.interconnects.ai/feed"},
     {"name": "Ahead of AI", "url": "https://magazine.sebastianraschka.com/feed"},
     {"name": "Dwarkesh Podcast", "url": "https://www.dwarkesh.com/feed"},
+    {"name": "SemiAnalysis", "url": "https://semianalysis.substack.com/feed"},
+    {"name": "One Useful Thing", "url": "https://www.oneusefulthing.org/feed"},
+    {"name": "Platformer", "url": "https://www.platformer.news/feed"},
+    {"name": "YC Blog", "url": "https://www.ycombinator.com/blog/feed"},
+    {"name": "LessWrong", "url": "https://www.lesswrong.com/feed.xml"},
 ]
 
 

@@ -5,10 +5,10 @@ from datetime import datetime, timezone
 
 from radar import scan as scan_mod
 from radar.fetchers import (appstore, arxiv, bluesky, civitai, common,
-                            dailypapers, devto, github, googlenews, hackernews,
-                            hfspaces, huggingface, lobsters, mastodon,
-                            openrouter, producthunt, reddit, showhn, sitemaps,
-                            wikipedia)
+                            dailypapers, devto, federalregister, github,
+                            googlenews, hackernews, hfspaces, huggingface,
+                            lobsters, mastodon, openrouter, producthunt, reddit,
+                            releases, showhn, sitemaps, stackexchange, wikipedia)
 
 NOW = datetime(2026, 11, 12, tzinfo=timezone.utc)
 
@@ -301,3 +301,28 @@ def test_resonance_needs_two_sources():
     ]
     groups = scan_mod.resonance_groups(results)
     assert len(groups) == 1 and groups[0]["token"] == "zephyr"
+
+
+def test_federal_register_parse():
+    payload = {"results": [
+        {"title": "AI Safety Rule", "html_url": "https://www.federalregister.gov/d/1",
+         "abstract": "A rule about AI.", "publication_date": "2026-11-14",
+         "type": "Rule"},
+        {"title": "", "html_url": "https://www.federalregister.gov/d/2"},
+        {"title": "No URL Doc"},
+    ]}
+    items = federalregister.parse(payload, 10)
+    assert len(items) == 1
+    assert items[0]["source"] == "federal_register"
+    assert items[0]["metrics"]["type"] == "Rule"
+    assert items[0]["detail"] == "A rule about AI."
+
+
+def test_new_fetchers_registered():
+    from radar.fetchers import FETCHERS
+    by_source = {m.SOURCE: m for m in FETCHERS}
+    assert by_source["gh_releases"].LAYER == 1
+    assert by_source["federal_register"].LAYER == 1
+    assert by_source["stackexchange"].LAYER == 2
+    assert len(releases.DEFAULT_FEEDS) == 3
+    assert stackexchange.DEFAULT_FEEDS[0]["url"].endswith("feeds/questions")

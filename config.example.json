@@ -115,6 +115,30 @@
         {
           "name": "LangChain Blog",
           "url": "https://blog.langchain.com/rss.xml"
+        },
+        {
+          "name": "Google Blog",
+          "url": "https://blog.google/rss/"
+        },
+        {
+          "name": "Ollama Blog",
+          "url": "https://ollama.com/blog/rss.xml"
+        },
+        {
+          "name": "Databricks Blog",
+          "url": "https://www.databricks.com/feed"
+        },
+        {
+          "name": "Cloudflare Blog",
+          "url": "https://blog.cloudflare.com/rss/"
+        },
+        {
+          "name": "GitHub Changelog",
+          "url": "https://github.blog/changelog/feed/"
+        },
+        {
+          "name": "Mozilla Blog",
+          "url": "https://blog.mozilla.org/en/feed/"
         }
       ]
     },
@@ -187,6 +211,31 @@
       "layer": 1,
       "rule": "当日新品；无 token 时走公开 Atom feed（无票数）"
     },
+    "gh_releases": {
+      "layer": 1,
+      "per_feed": 5,
+      "rule": "旗舰开源项目的版本发布（llama.cpp / vLLM / Claude Code）；整组只算一个源",
+      "feeds": [
+        {
+          "name": "llama.cpp Releases",
+          "url": "https://github.com/ggml-org/llama.cpp/releases.atom"
+        },
+        {
+          "name": "vLLM Releases",
+          "url": "https://github.com/vllm-project/vllm/releases.atom"
+        },
+        {
+          "name": "Claude Code Releases",
+          "url": "https://github.com/anthropics/claude-code/releases.atom"
+        }
+      ]
+    },
+    "federal_register": {
+      "layer": 1,
+      "term": "artificial intelligence",
+      "limit": 10,
+      "rule": "美国联邦公告一手文本（规则 / 拟议规则 / 通知 / 总统文件）：政策与监管的最早可引来源，免 key"
+    },
     "reddit": {
       "layer": 2,
       "subreddits": [
@@ -246,6 +295,26 @@
         {
           "name": "Dwarkesh Podcast",
           "url": "https://www.dwarkesh.com/feed"
+        },
+        {
+          "name": "SemiAnalysis",
+          "url": "https://semianalysis.substack.com/feed"
+        },
+        {
+          "name": "One Useful Thing",
+          "url": "https://www.oneusefulthing.org/feed"
+        },
+        {
+          "name": "Platformer",
+          "url": "https://www.platformer.news/feed"
+        },
+        {
+          "name": "YC Blog",
+          "url": "https://www.ycombinator.com/blog/feed"
+        },
+        {
+          "name": "LessWrong",
+          "url": "https://www.lesswrong.com/feed.xml"
         }
       ]
     },
@@ -264,6 +333,11 @@
       "instance": "mastodon.social",
       "limit": 20,
       "rule": "trending links/tags 的当日独立账号数 = 社交讨论量（X 无免费 API 时的替代社交信号）"
+    },
+    "stackexchange": {
+      "layer": 2,
+      "per_feed": 20,
+      "rule": "全站热门问题（公开 Atom，免 key）：开发者当下卡住的问题 = 需求信号"
     },
     "wikipedia": {
       "layer": 2,
