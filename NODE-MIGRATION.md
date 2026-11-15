@@ -39,7 +39,7 @@ core 的硬规则：
 - **Phase 1 core**：迁移 scan.py 的 tokens/resonance/topic_weights/item_time/apply_controls、store.py 全部、vocab.py 的判定逻辑（存储注入）、publish.py 的 heat_of/classify/slugify/title_keywords/topic_key/build_topics/parse_track_record/topics_data/alerts_data。TS 测试直接读 golden.json 逐项比对。
 - **Phase 2 fetchers**：common（parse_feed 等）+ 25 个抓取器分批迁，双跑比对候选文件。✅ 已完成（0.17.0-dev，2026-11-15）：`@breaker-delta/fetchers` 全量落地，golden 36 parse 用例 + config 对 PyYAML 全过（TS 57 测试），实网双跑 24/25 源 status 一致、21 源 URL 100% 重合（差异均为活数据漂移/Reddit 限流，详见 CHANGELOG）；双跑修掉 undici 未读 error body 崩进程一处。
 - **Phase 3 publisher**：publish.py 其余部分（HTML/Feed/sitemap），逐页与 Python 构建产物 diff。✅ 已完成（0.18.0-dev，2026-11-15）：`@breaker-delta/publisher` 全量落地，三层对等验证全过——fixture 逐字节 diff 92/92、真实数据逐字节 diff 554/554（首轮 12 处差异全因 bloomberg.com 间歇机器人挑战、非逻辑分歧）、test_publish.py 9 测试 TS 对应版全过（npm 共 175、pytest 52）。
-- **Phase 4 CLI + Skill**：scan/review/record/publish/doctor 五命令，机器可读输出（--json）、退出码、原子写入；打包单文件；SKILL.md 改调 Node CLI，数据目录显式传入。
+- **Phase 4 CLI + Skill**：scan/review/record/publish/doctor 五命令，机器可读输出（--json）、退出码、原子写入；打包单文件；SKILL.md 改调 Node CLI，数据目录显式传入。✅ 已完成（0.19.0-dev，2026-11-15）：`@breaker-delta/cli` 五命令 + `mcp` 对等服务落地，esbuild 单文件约 263 KiB（空目录仅 node 独立运行验收过）；SKILL.md 改调 Node CLI 且方法论未动（git diff 自证），plugin.json 同步改名；npm 共 182 测试全过（cli 新增 7 个集成测试）。
 - **Phase 5 扩展**：extension/ 迁 apps/extension，改引 core，删手抄逻辑；数据仓 CI 顺带打包用户自己的扩展。
 
 ## 本轮范围（Phase 0 + 1）
