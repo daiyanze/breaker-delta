@@ -1,4 +1,4 @@
-# 发布流程 — Releasing Breaker Delta
+# 发布流程
 
 [English](RELEASING.md) · **中文**
 
