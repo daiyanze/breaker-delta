@@ -101,7 +101,8 @@ def test_build_writes_all_outputs():
     level = (out_dir / "level-must.html").read_text(encoding="utf-8")
     assert "tagchip on" in level  # tag group shown, focused tag highlighted
     sources = (out_dir / "sources.html").read_text(encoding="utf-8")
-    assert "cfgchips" in sources and "L1" in sources  # per-source config chips
+    assert "cfgpre" in sources and "per_feed" in sources  # verbatim YAML config
+    assert (out_dir / "source-官方博客.html").exists()  # source detail page
     rising = (out_dir / "rising.html").read_text(encoding="utf-8")
     assert "本期没有上涨" in rising  # explicit empty state when nothing rose
 
@@ -124,3 +125,6 @@ def test_topic_page_has_wave_chart_and_visible_nofollow_links():
     assert 'rel="nofollow noopener"' in main
     assert "https://example.com/release" in main
     assert "Telegram" in main  # default share set is international platforms
+    assert 'href="source-' in main  # history-table sources link to source pages
+    assert "创作参考" in main and "短贴大纲" in main  # creator outlines + tips
+    assert 'class="help"' in main  # collapsible wave-height explainer

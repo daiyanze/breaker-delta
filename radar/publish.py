@@ -106,6 +106,16 @@ STRINGS = {
            "cfg_top": "Top {v}", "cfg_limit": "上限 {v}", "cfg_stars": "日均 ★ ≥ {v}",
            "cfg_acc": "账号 ≥ {v}", "cfg_verify": "仅验证", "cfg_on": "启用", "cfg_off": "已禁用",
            "rising_empty": "本期没有上涨的话题：与上一时间点相比浪高都没有上升（新上榜话题计入涨潮榜）。",
+           "cfg_title": "⚙️ 配置（设置文件原文）", "src_topics_title": "贡献的话题",
+           "src_topic_meta": "出现 {n} 次 · 最近 {d}", "creator_title": "✍️ 创作参考",
+           "ol_short": "短贴大纲", "ol_long": "长文大纲", "tips_title": "写作 tips",
+           "ol_hook": "钩子", "ol_fact": "核心事实", "ol_why": "为什么重要",
+           "ol_data": "数据", "ol_src": "出处", "ol_title2": "标题", "ol_lead": "导语",
+           "ol_timeline": "事件时间线", "ol_detail": "关键细节", "ol_impact": "影响与判断",
+           "ol_next": "后续观察", "ol_next_txt": "关注后续扫描里浪高和排名的变化",
+           "resonance": "{n} 个来源共振", "wave_rank": "浪高 {h} · 排名 #{r}",
+           "heat_help_t": "浪高是怎么计算的？",
+           "heat_help": "<b>浪高</b> = 基础分 + 共振 + 证据 + 首现加分，不设上限。基础分按等级：🔥必看 60、👀关注 30、🌱苗头 10；每多一个<b>独立来源</b> +20（同一来源组的多个链接只算一个来源）；每条<b>原文链接</b> +8；话题<b>第一次出现</b> +25。一个话题至少要有 2 个独立来源才算热点，单来源只记为苗头。某一期没有新动态的话题，按上一次的浪高<b>结转</b>进当前榜单，涨跌是和上一个时间点的全榜相比。",
            "slider": "时间滑块", "current": "当前", "hist": "历史快照",
            "count": "共 {n} 条", "board_title": "🌊 海浪榜 · 全部话题",
            "seeds_title": "🌱 苗头", "seeds_r": "单源或早期信号 · 近 3 期",
@@ -134,6 +144,18 @@ STRINGS = {
            "cfg_stars": "★/day ≥ {v}", "cfg_acc": "accounts ≥ {v}", "cfg_verify": "verify only",
            "cfg_on": "enabled", "cfg_off": "disabled",
            "rising_empty": "No topics rose versus the previous time point (new entries count as rising).",
+           "cfg_title": "⚙️ Config (verbatim from the settings file)",
+           "src_topics_title": "Contributed topics",
+           "src_topic_meta": "{n} appearances · latest {d}", "creator_title": "✍️ For creators",
+           "ol_short": "Short-post outline", "ol_long": "Long-form outline",
+           "tips_title": "Writing tips", "ol_hook": "Hook", "ol_fact": "Key facts",
+           "ol_why": "Why it matters", "ol_data": "Data", "ol_src": "Sources",
+           "ol_title2": "Title", "ol_lead": "Lead", "ol_timeline": "Timeline",
+           "ol_detail": "Key details", "ol_impact": "Impact & take",
+           "ol_next": "What to watch", "ol_next_txt": "Watch how its wave height and rank move in later scans",
+           "resonance": "{n} sources in resonance", "wave_rank": "Wave {h} · rank #{r}",
+           "heat_help_t": "How is wave height calculated?",
+           "heat_help": "<b>Wave height</b> = base + resonance + evidence + first-appearance bonus, uncapped. Base by level: 🔥 Must-see 60, 👀 Watch 30, 🌱 Seed 10; +20 per <b>independent source</b> (multiple links from one source group count once); +8 per <b>original link</b>; +25 on a topic's <b>first appearance</b>. A topic needs at least 2 independent sources to count as a hotspot; a single source stays a seed. Topics with no new development are <b>carried forward</b> at their last wave height, and deltas compare against the previous time point's full board.",
            "slider": "Time slider", "current": "current", "hist": "snapshot",
            "count": "{n} topics", "board_title": "🌊 Wave Board · All topics",
            "seeds_title": "🌱 Seeds", "seeds_r": "Single-source / early signals · last 3 editions",
@@ -161,6 +183,17 @@ STRINGS = {
            "cfg_top": "Top {v}", "cfg_limit": "上限 {v}", "cfg_stars": "★/日 ≥ {v}",
            "cfg_acc": "アカウント ≥ {v}", "cfg_verify": "検証のみ", "cfg_on": "有効", "cfg_off": "無効",
            "rising_empty": "前期比で上昇したトピックはありません（新規登場は上昇として数えます）。",
+           "cfg_title": "⚙️ 設定（設定ファイル原文）", "src_topics_title": "寄与したトピック",
+           "src_topic_meta": "{n} 回登場 · 最新 {d}", "creator_title": "✍️ クリエイター向け",
+           "ol_short": "短文アウトライン", "ol_long": "長文アウトライン",
+           "tips_title": "執筆 tips", "ol_hook": "フック", "ol_fact": "要点",
+           "ol_why": "なぜ重要か", "ol_data": "データ", "ol_src": "出典",
+           "ol_title2": "タイトル", "ol_lead": "リード", "ol_timeline": "タイムライン",
+           "ol_detail": "詳細", "ol_impact": "影響と見方", "ol_next": "今後の注目点",
+           "ol_next_txt": "後のスキャンで波高と順位がどう動くか注目",
+           "resonance": "{n} ソースが共振", "wave_rank": "波高 {h}・順位 #{r}",
+           "heat_help_t": "波高はどう計算される？",
+           "heat_help": "<b>波高</b> = 基礎点 + 共振 + 証拠 + 初登場ボーナス（上限なし）。基礎点はレベル別：🔥必見 60、👀注目 30、🌱芽生え 10。<b>独立ソース</b>1つにつき +20（同一グループの複数リンクは1つとして計算）、<b>原文リンク</b>1件につき +8、<b>初登場</b>で +25。ホットな話題には独立ソースが2つ以上必要で、単一ソースは芽生え扱い。新しい動きがない話題は前回の波高で<b>繰り越し</b>され、増減は前時点の全ボードとの比較です。",
            "slider": "時間スライダー", "current": "現在", "hist": "スナップショット",
            "count": "{n} 件", "board_title": "🌊 ウェーブボード · 全トピック",
            "seeds_title": "🌱 芽生え", "seeds_r": "単一ソース・初期シグナル · 直近3号",
@@ -384,7 +417,7 @@ nav.tabs a.on{color:var(--ink);border-color:var(--teal);background:rgba(94,234,2
 .tick.on a{color:var(--beam,#f5d97e);font-weight:700}
 .tick.on::before{background:#f5d97e;border-color:#f5d97e}
 .tl-label{color:var(--faint);font-size:12px;margin-top:14px}
-.panel{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 16px 10px;margin-top:12px}
+.panel{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 16px 14px;margin-top:18px}
 .panel-h{display:flex;justify-content:space-between;padding:10px 0 6px;font-weight:700;font-size:15px}
 .panel-h .r{color:var(--faint);font-weight:400;font-size:12.5px}
 .row{display:flex;align-items:center;gap:13px;padding:11px 0;border-top:1px solid rgba(255,255,255,.05)}
@@ -440,8 +473,8 @@ nav.tabs a.on{color:var(--ink);border-color:var(--teal);background:rgba(94,234,2
 .dchip.up{color:var(--green);border-color:rgba(74,222,128,.4)}
 .dchip.down{color:var(--red);border-color:rgba(251,113,133,.4)}
 .dchip.new{color:var(--amber);border-color:rgba(245,184,61,.45)}
-table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
-th,td{border-top:1px solid rgba(255,255,255,.06);padding:7px 8px;text-align:left}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:12px;line-height:1.55}
+th,td{border-top:1px solid rgba(255,255,255,.06);padding:11px 12px;text-align:left;vertical-align:top}
 th{color:var(--faint);font-weight:600;font-size:12px}
 td.n,th.n{font-family:var(--mono)}
 .badge{display:inline-block;font-size:11.5px;font-weight:700;padding:1.5px 9px;border:1px solid var(--line);
@@ -500,6 +533,17 @@ a.badge{text-decoration:none;color:inherit}
 .cfg{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--sub);font-family:var(--mono)}
 .cfg.off{color:var(--red);border-color:var(--red)}
 .cfgrule{margin:0 0 4px 43px}
+.cfgpre{font-family:var(--mono);font-size:12px;line-height:1.6;white-space:pre;overflow-x:auto;background:rgba(127,127,127,.07);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:6px 0 12px 43px;color:var(--sub)}
+.cfgpre.full{margin-left:0}
+.subh{font-weight:700;margin:16px 0 2px}
+.ol-list{margin:6px 0 4px;padding-left:20px}
+.ol-list li{margin:6px 0;line-height:1.65}
+.tips{margin:6px 0 4px;padding-left:18px}
+.tips li{margin:5px 0;line-height:1.65}
+.help{margin:12px 0 4px}
+.help summary{cursor:pointer;color:var(--teal);font-size:13.5px}
+.helpbody{color:var(--sub);font-size:13.5px;line-height:1.75;padding:8px 2px 2px}
+.helpbody b{color:var(--ink)}
 td a{color:var(--teal)}
 .note{color:var(--faint);font-size:12.5px}
 .slider-box{display:flex;align-items:center;gap:14px;border:1px solid var(--line);
@@ -520,6 +564,24 @@ def tokens(s):
     return set(re.findall(r"[A-Za-z0-9]+|[一-鿿]", (s or "").lower()))
 
 
+TIPS = {
+    "zh": ["先点开原文链接核对再写，引用时标明来源。",
+           "浪高和排名是本站的追踪信号，写的时候可以注明「据浪尖雷达追踪」。",
+           "短贴第一句就给结论；长文导语别超过三句。",
+           "加上你自己的判断或经历，别只做搬运。",
+           "苗头级话题用「据 X 报道」的口径留余地，别写成定论。"],
+    "en": ["Open the original links and verify before writing; credit sources when you quote.",
+           "Wave height and rank are this site's tracking signals — cite them as tracked by Breaker Delta.",
+           "Short posts: lead with the conclusion. Long-form: keep the lead under three sentences.",
+           "Add your own take or experience; don't just repost.",
+           "For seed-level topics, hedge with 'reported by X' instead of stating conclusions."],
+    "ja": ["書く前に原文リンクを開いて確認し、引用時は出典を明示。",
+           "波高と順位は本サイトの追跡シグナル。「Breaker Delta の追跡によると」と添えられます。",
+           "短文は最初の一文で結論を。長文のリードは三文以内に。",
+           "そのまま転載せず、自分の見方や経験を加える。",
+           "芽生え級の話題は「X によると」と留保し、断定しない。"],
+}
+
 SRC_ALIASES = {
     "hacker news": "hackernews", "show hn": "show_hn", "github": "github",
     "github trending": "github", "x": "x", "product hunt": "producthunt",
@@ -539,21 +601,62 @@ TECH_HINTS = ("techcrunch", "the verge", "wired", "ars technica", "the decoder",
               "technology review", "techmeme", "the information", "semafor")
 
 
-def load_source_configs():
-    """Per-source configs for the sources page: config.json wins over the
-    shipped config.example.json. Missing/unreadable -> no config shown."""
+def _yaml_source_blocks(text):
+    """Split the sources: section of a YAML config into per-group blocks,
+    dedented, exactly as written in the settings file."""
+    blocks, cur, buf = {}, None, []
+
+    def flush():
+        if cur is not None:
+            blocks[cur] = "\n".join(buf).rstrip()
+
+    in_sources = False
+    for ln in text.split("\n"):
+        if re.match(r"^sources:\s*$", ln):
+            in_sources = True
+            continue
+        if not in_sources:
+            continue
+        if ln and not ln.startswith((" ", "#", "\t")):
+            break  # next top-level key ends the sources section
+        m = re.match(r"^  ([A-Za-z0-9_]+):\s*$", ln)
+        if m:
+            flush()
+            cur, buf = m.group(1), [ln[2:]]
+            continue
+        if cur is not None:
+            buf.append(ln[2:] if ln.startswith("  ") else ln)
+    flush()
+    return blocks
+
+
+def load_config_blocks():
+    """Per-source-group config text, verbatim from the settings file:
+    config.yaml/.yml wins, then config.example.yaml; JSON configs fall
+    back to a per-group JSON dump."""
+    for name in ("config.yaml", "config.yml", "config.example.yaml",
+                 "config.example.yml"):
+        p = ROOT / name
+        if p.exists():
+            try:
+                return _yaml_source_blocks(p.read_text(encoding="utf-8"))
+            except Exception:
+                return {}
     for name in ("config.json", "config.example.json"):
         p = ROOT / name
         if p.exists():
             try:
-                return json.loads(p.read_text(encoding="utf-8")).get("sources") or {}
+                srcs = json.loads(p.read_text(encoding="utf-8")).get("sources") or {}
+                return {k: json.dumps({k: v}, ensure_ascii=False, indent=2)
+                        for k, v in srcs.items()}
             except Exception:
                 return {}
     return {}
 
 
-def source_config(name, cfgs):
-    """Map an edition's display source name to its fetcher-group config."""
+def source_block(name, blocks):
+    """Map an edition's display source name to its fetcher-group config
+    block (verbatim settings text), or None when it has no config."""
     low = name.lower()
     key = SRC_ALIASES.get(low)
     if not key and low.startswith("reddit"):
@@ -566,35 +669,7 @@ def source_config(name, cfgs):
         key = "tech_media"
     if not key and "sitemap" in low:
         key = "sitemaps"
-    return cfgs.get(key) if key else None
-
-
-def cfg_chips(cfg):
-    """Render a source's config as chips (layer / enabled / caps / thresholds)
-    plus its rule text, as configured in config(.example).json."""
-    if not cfg:
-        return ""
-    parts = []
-    if cfg.get("layer") in (1, 2, 3):
-        parts.append((f"L{cfg['layer']} " + s(f"ly{cfg['layer']}"), "cfg"))
-    if "enabled" in cfg:
-        parts.append((s("cfg_on") if cfg["enabled"] else s("cfg_off"),
-                      "cfg" if cfg["enabled"] else "cfg off"))
-    for k, tpl in (("per_feed", "cfg_per"), ("top_n", "cfg_top"),
-                   ("limit", "cfg_limit"), ("max_items", "cfg_limit"),
-                   ("max_results", "cfg_limit"), ("per_page", "cfg_limit"),
-                   ("min_stars_per_day", "cfg_stars"), ("min_accounts", "cfg_acc")):
-        if cfg.get(k) is not None:
-            parts.append((s(tpl).format(v=cfg[k]), "cfg"))
-    if cfg.get("verify_only"):
-        parts.append((s("cfg_verify"), "cfg"))
-    if not parts:
-        return ""
-    body = "".join(f'<span class="{c}">{html.escape(t)}</span>' for t, c in parts)
-    rule = cfg.get("rule")
-    rule_html = (f'<div class="note cfgrule">{html.escape(str(rule)[:110])}</div>'
-                 if rule else "")
-    return f'<div class="cfgchips">{body}</div>{rule_html}'
+    return blocks.get(key) if key else None
 
 
 def load(editions_dir=None):
@@ -1035,6 +1110,13 @@ def build_site(OUT, editions, topics):
     latest_ei = len(editions) - 1
     latest = editions[latest_ei]
 
+    def heat_help():
+        """Collapsible explainer: how 浪高 is calculated. Auxiliary content —
+        hidden until clicked."""
+        return (f'<details class="help"><summary>{s("heat_help_t")}</summary>'
+                f'<div class="helpbody">{s("heat_help")}</div></details>')
+
+
     def app_of(t, ei):
         return next((a for a in t["apps"] if a["edition"] == ei), None)
 
@@ -1173,7 +1255,7 @@ def build_site(OUT, editions, topics):
             + slider
             + f'<section class="panel"><div class="panel-h"><span>{s("board_title")}</span>'
               f'<span class="r" id="tcount">{s("count").format(n=counts[latest_ei])}</span></div>'
-              f'<div id="board">{latest_rows_html}</div></section>' + pager + foot() + script)
+              f'<div id="board">{latest_rows_html}</div></section>' + pager + heat_help() + foot() + script)
     site_ld = {"@context": "https://schema.org", "@type": "WebSite",
                "name": s("site_name"), "url": BASE_URL + lang_prefix(),
                "inLanguage": HTML_LANG[CUR["lang"]]}
@@ -1240,6 +1322,39 @@ def build_site(OUT, editions, topics):
             (OUT / f"board-{p + 1}.html").write_text(
                 page(f"{s('tabs')[0]} · {p + 1}", body, path=f"board-{p + 1}.html"), encoding="utf-8")
 
+    # source stats + detail-page filenames (topic pages link to them)
+    sstat = {}
+    for t in topics:
+        for a in t["apps"]:
+            for src in a["sources"]:
+                e = sstat.setdefault(src, {"apps": 0, "topics": {}, "last_ei": -1,
+                                           "first_ei": 10 ** 9, "eds": set(),
+                                           "topic_apps": {}, "topic_last": {}})
+                e["apps"] += 1
+                e["topics"][t["slug"]] = t
+                e["last_ei"] = max(e["last_ei"], a["edition"])
+                e["first_ei"] = min(e["first_ei"], a["edition"])
+                e["eds"].add(a["edition"])
+                e["topic_apps"][t["slug"]] = e["topic_apps"].get(t["slug"], 0) + 1
+                e["topic_last"][t["slug"]] = max(
+                    e["topic_last"].get(t["slug"], -1), a["edition"])
+    SRC_FILES = {}
+    _used_src = set(RESERVED_FILES)
+    for src in sstat:
+        base = "source-" + slugify(src, "src")
+        fn, n = base + ".html", 2
+        while fn in _used_src:
+            fn, n = f"{base}-{n}.html", n + 1
+        _used_src.add(fn)
+        SRC_FILES[src] = fn
+
+    def src_href(src):
+        return quote(SRC_FILES[src], safe="-._~") if src in SRC_FILES else None
+
+    def src_link(x):
+        h = src_href(x)
+        return f'<a href="{h}">{html.escape(x)}</a>' if h else html.escape(x)
+
     # topic pages
     for t in topics:
         last = t["apps"][-1]
@@ -1257,7 +1372,7 @@ def build_site(OUT, editions, topics):
                 rd = a["board_rank_delta"] or 0
                 chg = (f"{s('wave')} {'+' if a['heat_delta'] > 0 else ''}{a['heat_delta']} · "
                        f"{s('rank')} {'▲' + str(rd) if rd > 0 else '▼' + str(-rd) if rd < 0 else '→'}")
-            src_txt = "、".join(html.escape(s) for s in a["sources"])
+            src_txt = "、".join(src_link(x) for x in a["sources"])
             lnk = " · ".join(
                 f'<a href="{html.escape(l, quote=True)}" rel="nofollow noopener" target="_blank">'
                 f'{html.escape(urlparse(l).netloc or "原文")}</a>'
@@ -1275,6 +1390,45 @@ def build_site(OUT, editions, topics):
         chips = "".join(f'<span class="more-n">{html.escape(s)}</span>' for s in last["sources"])
         body_html = html.escape(last["body"]).replace("\n", "<br>")
         act = f'<p><b>{s("action")}</b>：{html.escape(last["action"])}</p>' if last["action"] else ""
+        # creator reference: short-post & long-form outlines + writing tips,
+        # generated from this topic's own data (body, action, timeline, sources)
+        hook = re.split(r"(?<=[。！？.!?])\s*", (last["body"] or "").strip(),
+                        maxsplit=1)[0][:90]
+        all_srcs = sorted({x for a in t["apps"] for x in a["sources"]})
+        doms = []
+        for a in t["apps"]:
+            for u in a["links"]:
+                d = urlparse(u).netloc
+                if d and d not in doms:
+                    doms.append(d)
+        src_line = " · ".join(doms) if doms else "—"
+        data_line = (s("wave_rank").format(h=last["heat"], r=last["board_rank"])
+                     + " · " + s("resonance").format(n=len(all_srcs)))
+        why_li = (f'<li><b>{s("ol_why")}</b>：{html.escape(last["action"])}</li>'
+                  if last["action"] else "")
+        impact_li = (f'<li><b>{s("ol_impact")}</b>：{html.escape(last["action"])}</li>'
+                     if last["action"] else "")
+        tl_items = "".join(
+            f'<li>{ed_label(editions[a["edition"]])}：{html.escape(a["title"])}'
+            f'（{s("wave")} {a["heat"]}）</li>' for a in t["apps"])
+        short_ol = ('<ol class="ol-list">'
+                    f'<li><b>{s("ol_hook")}</b>：{html.escape(hook)}</li>'
+                    f'<li><b>{s("ol_fact")}</b>：{body_html}</li>' + why_li
+                    + f'<li><b>{s("ol_data")}</b>：{data_line}</li>'
+                    + f'<li><b>{s("ol_src")}</b>：{html.escape(src_line)}</li></ol>')
+        long_ol = ('<ol class="ol-list">'
+                   f'<li><b>{s("ol_title2")}</b>：{html.escape(t["name"])}</li>'
+                   f'<li><b>{s("ol_lead")}</b>：{html.escape(hook)}</li>'
+                   f'<li><b>{s("ol_timeline")}</b>：<ul class="ol-list">{tl_items}</ul></li>'
+                   f'<li><b>{s("ol_detail")}</b>：{body_html}</li>' + impact_li
+                   + f'<li><b>{s("ol_next")}</b>：{s("ol_next_txt")}</li>'
+                   + f'<li><b>{s("ol_src")}</b>：{html.escape(src_line)}</li></ol>')
+        tips_ul = "".join(f"<li>{html.escape(x)}</li>" for x in TIPS[CUR["lang"]])
+        creator = (f'<section class="panel"><div class="panel-h"><span>{s("creator_title")}</span></div>'
+                   f'<div class="subh">{s("ol_short")}</div>{short_ol}'
+                   f'<div class="subh">{s("ol_long")}</div>{long_ol}'
+                   f'<div class="subh">{s("tips_title")}</div>'
+                   f'<ul class="tips">{tips_ul}</ul></section>')
         ths = s("th")
         thead = (f'<th>{ths[0]}</th><th class="n">{ths[1]}</th><th class="n">{ths[2]}</th>'
                  + "".join(f'<th>{x}</th>' for x in ths[3:]))
@@ -1288,10 +1442,12 @@ def build_site(OUT, editions, topics):
                   f'<div class="note">{s("board_rank")} ({ed_label(editions[last["edition"]])})</div></div>'
                   f'<div class="deltas">{delta_chips(last_disp)}</div></div>'
                   f'<div class="share"><span class="note">{s("share")}</span>{share}</div>'
-                  f'<h3 style="margin:16px 0 0">{s("chart")}</h3>{wave_chart(t, editions)}'
+                  f'{heat_help()}'
+                  f'<h3 style="margin:26px 0 6px">{s("chart")}</h3>{wave_chart(t, editions)}'
                   f'<table><tr>{thead}</tr>{hist_rows}</table>'
-                  f'<div class="detail" style="margin-top:14px"><p>{body_html}</p>{act}'
-                  f'<div style="margin-top:8px">{chips}</div>{det}</div></section>' + foot())
+                  f'<div class="detail" style="margin-top:24px"><p>{body_html}</p>{act}'
+                  f'<div style="margin-top:12px">{chips}</div>{det}</div></section>'
+                + creator + foot())
         ld = {"@context": "https://schema.org", "@type": "NewsArticle",
               "headline": last["title"], "description": (last["body"] or "")[:150],
               "datePublished": t["apps"][0].get("published"),
@@ -1345,7 +1501,7 @@ def build_site(OUT, editions, topics):
                f'<span class="r">{ed_label(latest)} · '
                f'{s("rising_r").format(n=len(rising))}</span></div>')
     write_paged("rising.html", s("tabs")[1], "rising", rheader, rchunks, PER,
-                desc=s("desc_rising"))
+                desc=s("desc_rising"), prefix=heat_help())
 
     # categories & levels: tag index page + one page per category / level
     cat_order = [c for c, _ in CAT_RULES] + ["行业动态"]
@@ -1415,20 +1571,9 @@ def build_site(OUT, editions, topics):
     write_paged("archive.html", s("tabs")[5], "archive", aheader, date_blocks,
                 ARCHIVE_DAYS)
 
-    # sources: one row per data source with contribution stats
-    sstat = {}
-    for t in topics:
-        for a in t["apps"]:
-            for src in a["sources"]:
-                e = sstat.setdefault(src, {"apps": 0, "topics": {}, "last_ei": -1,
-                                           "first_ei": 10 ** 9, "eds": set()})
-                e["apps"] += 1
-                e["topics"][t["slug"]] = t
-                e["last_ei"] = max(e["last_ei"], a["edition"])
-                e["first_ei"] = min(e["first_ei"], a["edition"])
-                e["eds"].add(a["edition"])
+    # sources list (sstat was computed before the topic pages)
     schunks = []
-    cfgs = load_source_configs()
+    blocks = load_config_blocks()
     for src, e in sorted(sstat.items(), key=lambda kv: (-kv[1]["apps"], kv[0])):
         dom = SOURCE_DOMAINS.get(src)
         if dom and dom in FAV_FILES:
@@ -1437,23 +1582,61 @@ def build_site(OUT, editions, topics):
             hue = sum(ord(c) for c in src) % 360
             icon = (f'<span class="av src-ic" style="background:hsl({hue} 65% 72%);margin-left:0">'
                     f'{html.escape(next((c for c in src if c.isalnum()), src[:1]))}</span>')
-        name_html = (f'<a href="https://{dom}" rel="noopener">{html.escape(src)}</a>'
-                     if dom else html.escape(src))
+        name_html = (f'<a href="{src_href(src)}">{html.escape(src)}</a>'
+                     + (f' <a href="https://{dom}" rel="noopener" class="note">↗</a>'
+                        if dom else ""))
         tops = sorted(e["topics"].values(), key=lambda x: -x["apps"][-1]["heat"])
         tlinks = " · ".join(
             f'<a href="{topic_href(x)}">{html.escape(x["name"][:22])}</a>' for x in tops)
         stats = s("src_stats").format(
             dom=dom or "—", a=len(e["topics"]), b=e["apps"], c=len(e["eds"]),
             d=ed_label(editions[e["first_ei"]]), e=ed_label(editions[e["last_ei"]]))
+        blk = source_block(src, blocks)
         schunks.append(f'<div class="row">{icon}'
                        f'<span class="rtitle">{name_html}</span>'
                        f'<span class="note">{html.escape(stats)}</span></div>'
-                       + cfg_chips(source_config(src, cfgs))
+                       + (f'<pre class="cfgpre">{html.escape(blk)}</pre>' if blk else "")
                        + f'<div class="srctops" style="padding:0 0 10px 43px">{tlinks}</div>')
     srcheader = (f'<div class="panel-h"><span>{s("sources_title")}</span>'
                  f'<span class="r">{s("sources_r").format(n=len(sstat))}</span></div>')
     write_paged("sources.html", s("tabs")[4], "sources", srcheader, schunks,
                 SOURCES_PER, desc=s("desc_sources"))
+
+    # one detail page per source: stats, verbatim config, contributed topics
+    for src, e in sorted(sstat.items(), key=lambda kv: (-kv[1]["apps"], kv[0])):
+        dom = SOURCE_DOMAINS.get(src)
+        if dom and dom in FAV_FILES:
+            icon = f'<img class="avimg src-ic" src="favicons/{FAV_FILES[dom]}" alt="">'
+        else:
+            hue = sum(ord(c) for c in src) % 360
+            icon = (f'<span class="av src-ic" style="background:hsl({hue} 65% 72%);margin-left:0">'
+                    f'{html.escape(next((c for c in src if c.isalnum()), src[:1]))}</span>')
+        stats = s("src_stats").format(
+            dom=dom or "—", a=len(e["topics"]), b=e["apps"], c=len(e["eds"]),
+            d=ed_label(editions[e["first_ei"]]), e=ed_label(editions[e["last_ei"]]))
+        tops_sorted = sorted(e["topics"].values(), key=lambda x: -x["apps"][-1]["heat"])
+        trows = ""
+        for i, x in enumerate(tops_sorted, 1):
+            xa = x["apps"][-1]
+            trows += (f'<div class="row"><span class="rank">{i}</span>'
+                      f'<span class="rtitle"><a href="{topic_href(x)}">{html.escape(x["name"])}</a></span>'
+                      f'<a class="tag" href="{cat_file(xa["category"])}">{html.escape(cat_name(xa["category"]))}</a>'
+                      f'<span class="note">{s("src_topic_meta").format(n=e["topic_apps"][x["slug"]], d=ed_label(editions[e["topic_last"][x["slug"]]]))}</span>'
+                      f'<span class="heat"><span class="hv"><b>{xa["heat"]}</b> <span>{s("wave")}</span></span></span></div>')
+        blk = source_block(src, blocks)
+        cfg_panel = (f'<section class="panel"><div class="panel-h"><span>{s("cfg_title")}</span></div>'
+                     f'<pre class="cfgpre full">{html.escape(blk)}</pre></section>') if blk else ""
+        dbody = (mast("sources", editions, fname=SRC_FILES[src])
+                 + f'<section class="panel"><div class="panel-h"><span>{icon} {html.escape(src)}</span>'
+                 + (f'<span><a href="https://{dom}" rel="noopener">{html.escape(dom)} ↗</a></span>'
+                    if dom else "")
+                 + f'</div><p class="note">{html.escape(stats)}</p></section>'
+                 + cfg_panel
+                 + f'<section class="panel"><div class="panel-h"><span>{s("src_topics_title")}</span>'
+                   f'<span class="r">{s("count").format(n=len(tops_sorted))}</span></div>'
+                 + trows + "</section>" + foot())
+        (OUT / SRC_FILES[src]).write_text(
+            page(src, dbody, path=SRC_FILES[src], desc=stats), encoding="utf-8")
 
     # about: site explanation (the old footer text lives here now)
     body = mast("about", editions, fname="about.html") + ABOUT[CUR["lang"]] + foot()
