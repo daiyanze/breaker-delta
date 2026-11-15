@@ -23,6 +23,9 @@ DEFAULT_FEEDS = [
     {"name": "Simon Willison", "url": "https://simonwillison.net/atom/everything/"},
     {"name": "Import AI", "url": "https://importai.substack.com/feed"},
     {"name": "Latent Space", "url": "https://www.latent.space/feed"},
+    {"name": "Interconnects", "url": "https://www.interconnects.ai/feed"},
+    {"name": "Ahead of AI", "url": "https://magazine.sebastianraschka.com/feed"},
+    {"name": "Dwarkesh Podcast", "url": "https://www.dwarkesh.com/feed"},
 ]
 
 

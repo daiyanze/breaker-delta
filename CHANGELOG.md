@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.12.0 — 2026-11-15
+
+- **第一档新源接入（均为实测可用后才收）**：official_blogs 增加 **LangChain Blog**（Agent 框架一手动态）；tech_media 增加 **Interconnects**（Nathan Lambert，模型发布解读）、**Ahead of AI**（Sebastian Raschka，论文/模型深读）、**Dwarkesh Podcast**（长访谈）。配置（YAML/JSON 双份）、抓取器默认列表、站点域名映射与归组提示同步更新。实测：official_blogs 候选 50 → 55，tech_media 40 → 55，四个新 feed 各出满单源上限 5 条。
+
 ## 0.11.0 — 2026-11-15
 
 - **AIHOT 示范信源补齐**：对照 KKKKhazix/AIHOT 开源仓库的 `industry/sources.json`（18 个示范源）逐项核对——其中 17 个已在 0.3.0 源扩展时集成（official_blogs 的 OpenAI/DeepMind/Google Research/Hugging Face/Mistral/NVIDIA/AWS/GitHub/BAIR 与 tech_media 全部 8 个，地址逐字一致）；本次补上唯一缺口 **Microsoft Research**（`microsoft.com/en-us/research/feed/`），加入 official_blogs 配置（YAML/JSON 双份）、抓取器默认列表与站点域名映射。实测抓取器当场返回该源 5 条候选（组上限）。

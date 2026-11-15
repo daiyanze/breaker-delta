@@ -29,6 +29,7 @@ DEFAULT_FEEDS = [
     {"name": "GitHub Blog · AI & ML", "url": "https://github.blog/ai-and-ml/feed/"},
     {"name": "Microsoft Research", "url": "https://www.microsoft.com/en-us/research/feed/"},
     {"name": "BAIR", "url": "https://bair.berkeley.edu/blog/feed.xml"},
+    {"name": "LangChain Blog", "url": "https://blog.langchain.com/rss.xml"},
 ]
 
 

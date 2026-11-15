@@ -111,6 +111,10 @@
         {
           "name": "BAIR",
           "url": "https://bair.berkeley.edu/blog/feed.xml"
+        },
+        {
+          "name": "LangChain Blog",
+          "url": "https://blog.langchain.com/rss.xml"
         }
       ]
     },
@@ -230,6 +234,18 @@
         {
           "name": "Latent Space",
           "url": "https://www.latent.space/feed"
+        },
+        {
+          "name": "Interconnects",
+          "url": "https://www.interconnects.ai/feed"
+        },
+        {
+          "name": "Ahead of AI",
+          "url": "https://magazine.sebastianraschka.com/feed"
+        },
+        {
+          "name": "Dwarkesh Podcast",
+          "url": "https://www.dwarkesh.com/feed"
         }
       ]
     },

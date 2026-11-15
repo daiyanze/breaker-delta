@@ -58,7 +58,9 @@ SOURCE_DOMAINS = {
     "OpenRouter": "openrouter.ai", "VentureBeat": "venturebeat.com",
     "Anthropic": "anthropic.com", "Anthropic 官方": "anthropic.com",
     "DeepMind": "deepmind.google", "CBS": "cbsnews.com",
-    "Microsoft Research": "microsoft.com",
+    "Microsoft Research": "microsoft.com", "LangChain Blog": "langchain.com",
+    "Interconnects": "interconnects.ai", "Ahead of AI": "magazine.sebastianraschka.com",
+    "Dwarkesh Podcast": "dwarkesh.com",
     "USA Today": "usatoday.com", "blog.google": "blog.google",
     "Google 官方博客": "blog.google", "Google 官方": "blog.google",
     "Bloomberg": "bloomberg.com", "Bluesky": "bsky.app",
@@ -664,7 +666,7 @@ SRC_ALIASES = {
     "hf spaces": "hf_spaces", "hugging face spaces": "hf_spaces",
 }
 OFFICIAL_HINTS = ("官方", "official", "openai", "deepmind", "anthropic",
-                  "mistral", "nvidia", "blog.google", "bair")
+                  "mistral", "nvidia", "blog.google", "bair", "langchain")
 TECH_HINTS = ("techcrunch", "the verge", "wired", "ars technica", "the decoder",
               "venturebeat", "fortune", "cnbc", "reuters", "bbc", "nyt", "wsj",
               "cbs", "usa today", "the guardian", "bloomberg", "forbes",

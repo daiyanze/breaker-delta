@@ -96,6 +96,7 @@ sources:
       - {name: "GitHub Blog · AI & ML", url: "https://github.blog/ai-and-ml/feed/"}
       - {name: "Microsoft Research", url: "https://www.microsoft.com/en-us/research/feed/"}
       - {name: "BAIR", url: "https://bair.berkeley.edu/blog/feed.xml"}
+      - {name: "LangChain Blog", url: "https://blog.langchain.com/rss.xml"}
   github:
     layer: 1
     max_age_days: 14
@@ -166,6 +167,9 @@ sources:
       - {name: "Simon Willison", url: "https://simonwillison.net/atom/everything/"}
       - {name: "Import AI", url: "https://importai.substack.com/feed"}
       - {name: "Latent Space", url: "https://www.latent.space/feed"}
+      - {name: "Interconnects", url: "https://www.interconnects.ai/feed"}
+      - {name: "Ahead of AI", url: "https://magazine.sebastianraschka.com/feed"}
+      - {name: "Dwarkesh Podcast", url: "https://www.dwarkesh.com/feed"}
   devto:
     layer: 2
     top_days: 1
