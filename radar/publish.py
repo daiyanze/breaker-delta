@@ -988,8 +988,9 @@ def alerts_data(editions, topics):
     """data/alerts.json payload (C1): deterministic alerts for the latest
     edition. resonance = topic first seen in the latest edition with
     >=2 independent sources; surge = board heat gain >= 30 versus the
-    previous time point (the same口径 as the Rising board: a topic new
-    to the board counts its full heat as the gain)."""
+    previous time point, existing topics only (Dai 2026-11-15: a topic
+    new to the board reports resonance only, never surge — this differs
+    from the Rising board, which counts a new topic's full heat)."""
     if not editions:
         return {"generated_at": "", "alerts": []}
     latest_ei = len(editions) - 1
@@ -1025,9 +1026,10 @@ def alerts_data(editions, topics):
             add(t, "resonance", 0, first["heat"])
     for key, heat in states[-1].items():
         before = prev_state.get(key)
-        gain = heat - before if before is not None else heat
-        if gain >= 30:
-            add(by_key[key], "surge", before or 0, heat)
+        if before is None:
+            continue  # new to the board: resonance only, no surge
+        if heat - before >= 30:
+            add(by_key[key], "surge", before, heat)
     alerts.sort(key=lambda a: (a["topic_slug"], a["reason"]))
     return {"generated_at": gen, "alerts": alerts}
 

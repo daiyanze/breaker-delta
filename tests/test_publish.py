@@ -191,6 +191,8 @@ def test_data_files_structure_and_dedup():
     assert len(keys) == len(set(keys)), "alert dedupe keys must be unique"
     for a in alerts["alerts"]:
         assert a["reason"] in ("resonance", "surge")
+        if a["heat_before"] == 0:
+            assert a["reason"] == "resonance"  # surge is existing topics only
         assert a["dedupe_key"] == f"{a['topic_slug']}:{a['reason']}:2026-11-12-evening"
         for key in ("topic_slug", "title", "heat_before", "heat_after", "edition"):
             assert key in a, key
