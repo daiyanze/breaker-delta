@@ -37,7 +37,7 @@ from urllib.parse import quote, urlparse
 ROOT = Path(__file__).resolve().parent.parent
 OUT = Path(os.environ.get("TS_OUT", str(ROOT / "site")))
 PER = int(os.environ.get("TS_PAGE_SIZE", "100"))
-BASE_URL = "https://daiyanze.github.io/triple-sigma/"
+BASE_URL = "https://daiyanze.github.io/breaker-delta/"
 SLOT = {"pilot": ("试跑", 0), "morning": ("早报", 1), "evening": ("晚报", 2)}
 BASE = {"must": 60, "watch": 30, "seed": 10}
 LEVELS = {"must": ("🔥", "必看"), "watch": ("👀", "关注"), "seed": ("🌱", "苗头")}
@@ -99,6 +99,7 @@ STRINGS = {
     "zh": {"site_name": "浪尖雷达 triple-sigma", "pg_title": "浪尖雷达",
            "tabs": ["🌊 海浪榜", "📈 涨潮榜", "🌱 苗头", "🗂️ 分类", "📡 数据源", "📚 归档", "ℹ️ 关于"],
            "wave": "浪高", "carried": "结转", "new": "NEW 首现", "rank": "排名", "prev": "前",
+           "tags_title": "🏷️ 标签", "editions_n": "{n} 期", "copy_link": "复制链接", "copied": "已复制",
            "slider": "时间滑块", "current": "当前", "hist": "历史快照",
            "count": "共 {n} 条", "board_title": "🌊 海浪榜 · 全部话题",
            "seeds_title": "🌱 苗头", "seeds_r": "单源或早期信号 · 近 3 期",
@@ -121,6 +122,7 @@ STRINGS = {
     "en": {"site_name": "Triple-Sigma", "pg_title": "Triple-Sigma",
            "tabs": ["🌊 Wave Board", "📈 Rising", "🌱 Seeds", "🗂️ Categories", "📡 Sources", "📚 Archive", "ℹ️ About"],
            "wave": "Wave", "carried": "carried", "new": "NEW", "rank": "Rank", "prev": "was",
+           "tags_title": "🏷️ Tags", "editions_n": "{n} editions", "copy_link": "Copy link", "copied": "Copied",
            "slider": "Time slider", "current": "current", "hist": "snapshot",
            "count": "{n} topics", "board_title": "🌊 Wave Board · All topics",
            "seeds_title": "🌱 Seeds", "seeds_r": "Single-source / early signals · last 3 editions",
@@ -143,6 +145,7 @@ STRINGS = {
     "ja": {"site_name": "浪尖レーダー triple-sigma", "pg_title": "浪尖レーダー",
            "tabs": ["🌊 ウェーブボード", "📈 上昇", "🌱 芽生え", "🗂️ カテゴリ", "📡 ソース", "📚 アーカイブ", "ℹ️ 概要"],
            "wave": "波高", "carried": "繰越", "new": "NEW", "rank": "順位", "prev": "前",
+           "tags_title": "🏷️ タグ", "editions_n": "{n} 号", "copy_link": "リンクをコピー", "copied": "コピー済み",
            "slider": "時間スライダー", "current": "現在", "hist": "スナップショット",
            "count": "{n} 件", "board_title": "🌊 ウェーブボード · 全トピック",
            "seeds_title": "🌱 芽生え", "seeds_r": "単一ソース・初期シグナル · 直近3号",
@@ -176,7 +179,7 @@ ABOUT = {
 <h3 style="margin:16px 0 6px">技术说明</h3>
 <p>每一期的内容以 Markdown 保存在 GitHub 仓库里，可以直接阅读；站点由 Python 在构建时生成静态 HTML。话题页的原文链接带 nofollow。列表里的来源图标是各站的 favicon，构建时抓取并缓存在本地，每次构建用条件请求校验，站点换了图标缓存会自动更新。海浪榜首页有一段小脚本驱动时间滑块（无第三方库），其余页面没有可执行脚本；禁用 JS 时首页显示最新一期，时间轴链接照常打开每期快照。界面语言在构建设置里选择（TS_LANGS），构建出两种以上语言时页面上才显示语言切换。</p>
 <h3 style="margin:16px 0 6px">作者与订阅</h3>
-<p>作者 Dai：<a href="https://github.com/daiyanze/triple-sigma" rel="noopener">GitHub 仓库</a> · <a href="https://x.com/daiyanze" rel="noopener">X @daiyanze</a> · <a href="feed.xml">RSS</a> · <a href="atom.xml">Atom</a></p>
+<p>作者 Dai：<a href="https://github.com/daiyanze/breaker-delta" rel="noopener">GitHub 仓库</a> · <a href="https://x.com/daiyanze" rel="noopener">X @daiyanze</a> · <a href="feed.xml">RSS</a> · <a href="atom.xml">Atom</a></p>
 <p class="note">© 2026 Dai</p>
 </div></section>""",
     "en": """<section class="panel"><div class="panel-h"><span>About Triple-Sigma</span></div>
@@ -191,7 +194,7 @@ ABOUT = {
 <h3 style="margin:16px 0 6px">Tech notes</h3>
 <p>Editions are kept as Markdown in the GitHub repo and built into static HTML by Python. Original links on topic pages are nofollow. Source icons are each site's favicon, fetched and cached at build time with conditional revalidation. The board's time slider is one small script (no libraries); other pages run no scripts. Interface languages are a build setting (TS_LANGS); the language switcher appears only when more than two languages are built.</p>
 <h3 style="margin:16px 0 6px">Author & feeds</h3>
-<p>By Dai: <a href="https://github.com/daiyanze/triple-sigma" rel="noopener">GitHub</a> · <a href="https://x.com/daiyanze" rel="noopener">X @daiyanze</a> · <a href="feed.xml">RSS</a> · <a href="atom.xml">Atom</a></p>
+<p>By Dai: <a href="https://github.com/daiyanze/breaker-delta" rel="noopener">GitHub</a> · <a href="https://x.com/daiyanze" rel="noopener">X @daiyanze</a> · <a href="feed.xml">RSS</a> · <a href="atom.xml">Atom</a></p>
 <p class="note">© 2026 Dai</p>
 </div></section>""",
     "ja": """<section class="panel"><div class="panel-h"><span>浪尖レーダーについて</span></div>
@@ -206,7 +209,7 @@ ABOUT = {
 <h3 style="margin:16px 0 6px">技術メモ</h3>
 <p>各号の内容は Markdown として GitHub リポジトリに保存され、Python が静的 HTML にビルドします。原文リンクは nofollow。ソースのアイコンは各サイトの favicon で、ビルド時に取得してローカルにキャッシュし、条件付きリクエストで検証します。時間スライダーは小さなスクリプト1つ（ライブラリなし）で、その他のページにスクリプトはありません。表示言語はビルド設定（TS_LANGS）で選び、3言語以上ビルドしたときだけ言語切替が表示されます。</p>
 <h3 style="margin:16px 0 6px">作者とフィード</h3>
-<p>作者 Dai：<a href="https://github.com/daiyanze/triple-sigma" rel="noopener">GitHub</a> · <a href="https://x.com/daiyanze" rel="noopener">X @daiyanze</a> · <a href="feed.xml">RSS</a> · <a href="atom.xml">Atom</a></p>
+<p>作者 Dai：<a href="https://github.com/daiyanze/breaker-delta" rel="noopener">GitHub</a> · <a href="https://x.com/daiyanze" rel="noopener">X @daiyanze</a> · <a href="feed.xml">RSS</a> · <a href="atom.xml">Atom</a></p>
 <p class="note">© 2026 Dai</p>
 </div></section>""",
 }
@@ -468,6 +471,15 @@ footer{margin-top:26px;color:var(--faint);font-size:12.5px;border-top:1px solid 
 .sh{border:1px solid var(--line);border-radius:6px;padding:4px 11px;font-size:12.5px;
  color:var(--sub);background:none;cursor:pointer;font-family:inherit;text-decoration:none}
 .sh:hover{color:var(--teal);border-color:var(--teal)}
+.sh{display:inline-flex;align-items:center;gap:5px}
+.sh svg{flex:none}
+a.tag{text-decoration:none}
+a.badge{text-decoration:none;color:inherit}
+.tagchips{display:flex;flex-wrap:wrap;gap:8px}
+.tagchip{border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px;color:var(--sub);text-decoration:none}
+.tagchip:hover{color:var(--teal);border-color:var(--teal)}
+.orig ul{margin:6px 0 0;padding-left:18px}
+.orig li{margin:3px 0;word-break:break-all;font-size:13.5px}
 td a{color:var(--teal)}
 .note{color:var(--faint);font-size:12.5px}
 .slider-box{display:flex;align-items:center;gap:14px;border:1px solid var(--line);
@@ -543,9 +555,18 @@ def build_topics(editions, ledger):
                 "body": it.get("body") or "", "action": it.get("action") or "",
                 "is_new": bool(it.get("is_new")),
             })
+    used_slugs = set()
     for i, key in enumerate(order, 1):
         t = topics[key]
-        t["slug"] = f"t{i:02d}"
+        t["id"] = f"t{i:02d}"
+        base = slugify(t["apps"][0]["title"], t["id"])
+        slug, n = base, 2
+        while (slug in used_slugs or slug in RESERVED_FILES
+               or slug.startswith(("edition-", "category-", "level-", "board-"))):
+            slug = f"{base}-{n}"
+            n += 1
+        used_slugs.add(slug)
+        t["slug"] = slug
         t["name"] = t["apps"][-1]["title"] if not key.startswith("arc:") else t["name"]
         for j, app in enumerate(t["apps"]):
             if j == 0:
@@ -564,6 +585,80 @@ def ed_label(ed):
 
 def ed_file(ed):
     return f"edition-{ed['date']}-{ed.get('slot')}.html"
+
+
+CAT_KEYS = {"安全": "security", "政策与监管": "policy", "开源": "open-source",
+            "商业与资本": "business", "Agent 与应用": "agent",
+            "AI 模型": "ai-models", "行业动态": "industry"}
+
+
+def cat_key(cat):
+    return CAT_KEYS.get(cat, "industry")
+
+
+def cat_file(cat):
+    return f"category-{cat_key(cat)}.html"
+
+
+RESERVED_FILES = {"index", "rising", "seeds", "categories", "sources",
+                  "archive", "about", "feed", "sitemap", "robots", "llms"}
+
+
+def slugify(title, fallback):
+    s = re.sub(r"[^a-z0-9\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]+",
+               "-", (title or "").lower())
+    s = re.sub(r"-+", "-", s).strip("-")[:48].strip("-")
+    return s or fallback
+
+
+def topic_file(t):
+    return f"{t['slug']}.html"
+
+
+def topic_href(t):
+    return quote(topic_file(t), safe="-._~")
+
+
+SHARE_ICONS = {
+    "x": '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M17.8 3h3.1l-6.8 7.8L22 21h-6.3l-4.9-6.4L5.2 21H2.1l7.3-8.3L2 3h6.4l4.4 5.9L17.8 3zm-1.1 16.1h1.7L7.4 4.8H5.6l11.1 14.3z"/></svg>',
+    "facebook": '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7.5h2.5l.4-3h-2.9V8.6c0-.9.3-1.5 1.6-1.5h1.4V4.4c-.3 0-1.1-.1-2.1-.1-2.1 0-3.6 1.3-3.6 3.7v2.5H8.3v3h2.5V21h2.7z"/></svg>',
+    "linkedin": '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><rect x="3" y="9" width="3.4" height="9.5"/><circle cx="4.7" cy="4.9" r="1.9"/><path d="M9.5 18.5V9h3v1.4c.5-.9 1.6-1.7 3.3-1.7 2.6 0 4.2 1.7 4.2 5.1v4.7h-3.4v-4.3c0-1.5-.6-2.5-2-2.5-1.4 0-2.3.9-2.3 2.5v4.3H9.5z"/></svg>',
+    "telegram": '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M21.9 3.3l-3.1 14.6c-.2 1-.8 1.3-1.7.8l-4.7-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.7-4.8 8.8-7.9c.4-.3-.1-.5-.6-.2L7.2 11.6 2.7 10.2c-1-.3-1-1 .2-1.4l17.6-6.8c.8-.3 1.5.2 1.4 1.3z"/></svg>',
+    "email": '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M3 5h18c.6 0 1 .4 1 1v12c0 .6-.4 1-1 1H3c-.6 0-1-.4-1-1V6c0-.6.4-1 1-1zm9 7.4L4.2 7h15.6L12 12.4z"/></svg>',
+    "reddit": '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><circle cx="12" cy="13.2" r="6.8"/><path d="M12 6.4l1.1-3.6 3.4.8" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="18.6" cy="3.4" r="1.4"/></svg>',
+    "weibo": "",
+    "copy": '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M10.6 13.4a4 4 0 005.7 0l3-3a4 4 0 10-5.7-5.7l-1.5 1.5 1.4 1.4 1.5-1.5a2 2 0 112.9 2.9l-3 3a2 2 0 01-2.9 0 2 2 0 010-2.9l1.5-1.5-1.4-1.4-1.5 1.5a4 4 0 000 5.8zM13.4 10.6a4 4 0 00-5.7 0l-3 3a4 4 0 105.7 5.7l1.5-1.5-1.4-1.4-1.5 1.5a2 2 0 11-2.9-2.9l3-3a2 2 0 012.9 0 2 2 0 010 2.9l-1.5 1.5 1.4 1.4 1.5-1.5a4 4 0 000-5.8z"/></svg>',
+}
+SHARE_PLATFORMS = {
+    "x": ("X", "https://twitter.com/intent/tweet?text={t}&url={u}"),
+    "facebook": ("Facebook", "https://www.facebook.com/sharer/sharer.php?u={u}"),
+    "linkedin": ("LinkedIn", "https://www.linkedin.com/sharing/share-offsite/?url={u}"),
+    "telegram": ("Telegram", "https://t.me/share/url?url={u}&text={t}"),
+    "reddit": ("Reddit", "https://www.reddit.com/submit?url={u}&title={t}"),
+    "email": ("Email", "mailto:?subject={t}&body={u}"),
+    "weibo": ("微博", "https://service.weibo.com/share/share.php?url={u}&title={t}"),
+}
+SHARE_KEYS = [k.strip() for k in
+              os.environ.get("TS_SHARE", "x,facebook,linkedin,telegram,reddit,email,copy").split(",")
+              if k.strip()]
+
+
+def share_links(url, text):
+    q_url, q_text = quote(url, safe=""), quote(text)
+    out = []
+    for key in SHARE_KEYS:
+        if key == "copy":
+            out.append(
+                '<button class="sh" type="button" onclick="if(navigator.clipboard)'
+                'navigator.clipboard.writeText(location.href);this.lastChild.textContent=\''
+                + s("copied") + '\'">' + SHARE_ICONS["copy"]
+                + f'<span>{s("copy_link")}</span></button>')
+        elif key in SHARE_PLATFORMS:
+            label, tpl = SHARE_PLATFORMS[key]
+            href = tpl.format(u=q_url, t=q_text)
+            out.append(f'<a class="sh" href="{href}" target="_blank" rel="noopener">'
+                       f'{SHARE_ICONS.get(key, "")}<span>{label}</span></a>')
+    return "".join(out)
 
 
 def favicon():
@@ -640,9 +735,11 @@ def tstamp(app):
 
 def row_html(rank, topic, app, show_level=False):
     emoji = LEVELS.get(app["level"], LEVELS["seed"])[0]
-    badge = f' <span class="badge">{emoji}{level_label(app["level"])}</span>' if show_level else ""
+    badge = (f' <a class="badge" href="level-{app["level"]}.html">{emoji}{level_label(app["level"])}</a>'
+             if show_level else "")
     carried = f' <span class="note">{s("carried")}</span>' if app.get("carried") else ""
-    tag = f'<span class="tag">{html.escape(cat_name(app["category"]))}</span>' if app.get("category") else ""
+    tag = (f'<a class="tag" href="{cat_file(app["category"])}">{html.escape(cat_name(app["category"]))}</a>'
+           if app.get("category") else "")
     time = f'<span class="time">{tstamp(app)}</span>'
     spark = spark_svg(trend_points(topic, app))
     rd = app.get("rank_delta")
@@ -668,7 +765,7 @@ def row_html(rank, topic, app, show_level=False):
     else:
         hdelta = '<span class="hdelta">→0</span>'
     return f"""<div class="row"><span class="rank {'top' if rank <= 3 else ''}">{rank}{rdelta}{prank}</span>
-<span class="rtitle"><a href="topic-{topic['slug']}.html">{html.escape(app['title'])}</a>{badge}{carried}</span>
+<span class="rtitle"><a href="{topic_href(topic)}">{html.escape(app['title'])}</a>{badge}{carried}</span>
 {tag}{time}
 {avatar_stack(app['sources'])}
 <span class="heat"><span class="spark">{spark}</span><span class="hv"><b>{app['heat']}</b> <span>{s('wave')}</span> {hdelta}</span></span></div>"""
@@ -678,7 +775,7 @@ def page(title, body, desc=None, path="index.html", ld=None):
     desc = desc or s("desc_default")
     url = BASE_URL + lang_prefix() + path
     e = lambda s: html.escape(s or "", quote=True)
-    otype = "article" if path.startswith("topic-") else "website"
+    otype = "article" if (ld or {}).get("@type") == "NewsArticle" else "website"
     og_img = (f'<meta property="og:image" content="{BASE_URL}og-image.png">'
               f'<meta name="twitter:image" content="{BASE_URL}og-image.png">') if OG_IMG else ""
     ld_html = (f'<script type="application/ld+json">'
@@ -721,9 +818,12 @@ def wave_chart(topic, editions):
     W, H, L, R, T, B = 1020, 300, 46, 30, 18, 34
     iw, ih = W - L - R, H - T - B
     vmax = max(a["heat"] for a in apps) * 1.15 or 1
-    xs = {a["edition"]: L + a["edition"] * iw / max(1, len(editions) - 1) for a in apps}
+    xs = {a["edition"]: L + a["edition"] * iw * (2 / 3) / max(1, len(editions) - 1) for a in apps}
     y = lambda v: T + ih - v / vmax * ih
-    out = [f'<svg viewBox="0 0 {W} {H}" width="100%" role="img">']
+    out = [f'<svg viewBox="0 0 {W} {H}" width="100%" role="img">',
+           '<defs><linearGradient id="wgrad" x1="0" y1="0" x2="0" y2="1">'
+           '<stop offset="0" stop-color="#5eead4" stop-opacity=".38"/>'
+           '<stop offset="1" stop-color="#5eead4" stop-opacity=".03"/></linearGradient></defs>']
     for gv in (0, 0.25, 0.5, 0.75, 1.0):
         v = vmax * gv
         out.append(f'<line x1="{L}" y1="{y(v):.0f}" x2="{W-R}" y2="{y(v):.0f}" stroke="rgba(255,255,255,.07)"/>'
@@ -732,7 +832,7 @@ def wave_chart(topic, editions):
     if len(pts) >= 2:
         line = " ".join(f"{a:.0f},{b:.0f}" for a, b in pts)
         area = f"M{pts[0][0]:.0f},{y(0):.0f} " + " ".join(f"L{a:.0f},{b:.0f}" for a, b in pts) + f" L{pts[-1][0]:.0f},{y(0):.0f} Z"
-        out.append(f'<path d="{area}" fill="rgba(94,234,212,.10)"/>')
+        out.append(f'<path d="{area}" fill="url(#wgrad)"/>')
         out.append(f'<polyline points="{line}" fill="none" stroke="#5eead4" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>')
     for a, (px, py) in zip(apps, pts):
         out.append(f'<a href="{ed_file(editions[a["edition"]])}"><circle cx="{px:.0f}" cy="{py:.0f}" r="5" fill="#0a0e13" stroke="#5eead4" stroke-width="2.4"/></a>'
@@ -744,7 +844,7 @@ def wave_chart(topic, editions):
 
 def foot():
     return (f'<footer><div class="copy">© 2026 Dai · <a href="about.html">{s("foot_about")}</a> · '
-            f'<a href="https://github.com/daiyanze/triple-sigma" rel="noopener">GitHub</a> · '
+            f'<a href="https://github.com/daiyanze/breaker-delta" rel="noopener">GitHub</a> · '
             f'<a href="https://x.com/daiyanze" rel="noopener">X</a> · '
             f'<a href="feed.xml">RSS</a> · <a href="atom.xml">Atom</a></div></footer>')
 
@@ -793,7 +893,7 @@ def main():
 def write_discovery(editions, topics):
     latest = editions[-1]
     default_mod = (latest.get("published_at") or "")[:10]
-    mod_map = {f"topic-{t['slug']}.html": (t["apps"][-1].get("published") or default_mod)[:10]
+    mod_map = {topic_file(t): (t["apps"][-1].get("published") or default_mod)[:10]
                for t in topics}
     mod_map.update({ed_file(ed): (ed.get("published_at") or default_mod)[:10] for ed in editions})
     sm = ['<?xml version="1.0" encoding="UTF-8"?>',
@@ -802,7 +902,9 @@ def write_discovery(editions, topics):
         prefix = "" if lang == "zh" else lang + "/"
         folder = OUT if lang == "zh" else OUT / lang
         for f in sorted(folder.glob("*.html")):
-            sm.append(f"<url><loc>{BASE_URL}{prefix}{f.name}</loc>"
+            if re.fullmatch(r"topic-t\d+\.html", f.name):
+                continue  # redirect stub, noindex
+            sm.append(f"<url><loc>{BASE_URL}{prefix}{quote(f.name, safe='-._~')}</loc>"
                       f"<lastmod>{mod_map.get(f.name, default_mod)}</lastmod></url>")
     sm.append("</urlset>")
     (OUT / "sitemap.xml").write_text("\n".join(sm), encoding="utf-8")
@@ -810,7 +912,7 @@ def write_discovery(editions, topics):
         f"User-agent: *\nAllow: /\nSitemap: {BASE_URL}sitemap.xml\n", encoding="utf-8")
     sts = sorted(topics, key=lambda t: -t["apps"][-1]["heat"])[:10]
     top_links = "\n".join(
-        f"- [{t['apps'][-1]['title']}]({BASE_URL}topic-{t['slug']}.html)" for t in sts)
+        f"- [{t['apps'][-1]['title']}]({BASE_URL}{topic_href(t)})" for t in sts)
     lang_links = "\n".join(
         f"- [{HTML_LANG[L]}]({BASE_URL}{'' if L == 'zh' else L + '/'}index.html)" for L in LANGS)
     llms = (f"# 浪尖雷达 triple-sigma\n\n> 用「浪高」量化话题走势的热点雷达：海浪榜（全部话题按浪高排名）、"
@@ -903,8 +1005,8 @@ def build_site(OUT, editions, topics):
             else:
                 srcs.append({"ch": next((c for c in src if c.isalnum()), src[:1]),
                              "hue": sum(ord(c) for c in src) % 360, "n": src})
-        return {"r": st["rank"], "slug": st["topic"]["slug"], "title": a["title"],
-                "cat": cat_name(a["category"]), "time": tstamp(a),
+        return {"r": st["rank"], "file": topic_href(st["topic"]), "title": a["title"],
+                "cat": cat_name(a["category"]), "ck": cat_key(a["category"]), "time": tstamp(a),
                 "pr": (st["rank"] + st["rank_delta"]) if st["rank_delta"] is not None else None,
                 "heat": a["heat"], "hd": st["heat_delta"], "rd": st["rank_delta"],
                 "carried": st["carried"], "srcs": srcs,
@@ -951,7 +1053,7 @@ def build_site(OUT, editions, topics):
                 "if(d.rd<0)return '<span class=\"hdelta down\">▼'+(-d.rd)+'</span>';"
                 "return '<span class=\"hdelta\">→</span>'}"
                 "function row(d){return '<div class=\"row\"><span class=\"rank'+(d.r<=3?' top':'')+'\">'+d.r+rdHtml(d)+(d.pr!==null?'<span class=\"prank\">'+T.prev+' '+d.pr+'</span>':'')+'</span>'"
-                "+'<span class=\"rtitle\"><a href=\"topic-'+d.slug+'.html\">'+esc(d.title)+'</a>'+(d.carried?' <span class=\"note\">'+T.carried+'</span>':'')+'</span>'"
+                "+'<span class=\"rtitle\"><a href=\"'+d.file+'\">'+esc(d.title)+'</a>'+(d.carried?' <span class=\"note\">'+T.carried+'</span>':'')+'</span>'"
                 "+'<span class=\"tag\">'+esc(d.cat)+'</span><span class=\"time\">'+d.time+'</span>'+avs(d)"
                 "+'<span class=\"heat\"><span class=\"spark\">'+spark(d.sp)+'</span><span class=\"hv\"><b>'+d.heat+'</b> <span>'+T.wave+'</span> '+hdHtml(d)+'</span></span></div>'}"
                 "let raf=0;function show(i){"
@@ -1029,15 +1131,8 @@ def build_site(OUT, editions, topics):
         last_disp["rank_delta"] = last["board_rank_delta"]
         emoji = LEVELS.get(last["level"], LEVELS["seed"])[0]
         label = level_label(last["level"])
-        t_url = f"{BASE_URL}{lang_prefix()}topic-{t['slug']}.html"
-        sh_text = quote(f"{t['name']} · {s('wave')} {last['heat']}｜{s('pg_title')}")
-        sh_url = quote(t_url, safe="")
-        share = (
-            f'<a class="sh" href="https://twitter.com/intent/tweet?text={sh_text}&url={sh_url}" target="_blank" rel="noopener">𝕏 发帖</a>'
-            f'<a class="sh" href="https://www.facebook.com/sharer/sharer.php?u={sh_url}" target="_blank" rel="noopener">Facebook</a>'
-            f'<a class="sh" href="https://www.linkedin.com/sharing/share-offsite/?url={sh_url}" target="_blank" rel="noopener">LinkedIn</a>'
-            f'<a class="sh" href="https://service.weibo.com/share/share.php?url={sh_url}&title={sh_text}" target="_blank" rel="noopener">微博</a>'
-            '<button class="sh" type="button" onclick="if(navigator.clipboard)navigator.clipboard.writeText(location.href);this.textContent=\'已复制\'">复制链接</button>')
+        t_url = f"{BASE_URL}{lang_prefix()}{topic_href(t)}"
+        share = share_links(t_url, f"{t['name']} · {s('wave')} {last['heat']}｜{s('pg_title')}")
         hist_rows = ""
         for a in t["apps"]:
             if a["heat_delta"] is None:
@@ -1059,17 +1154,18 @@ def build_site(OUT, editions, topics):
         det = ""
         if links:
             lis = "".join(f'<li><a href="{html.escape(u)}" rel="nofollow noopener">{html.escape(u)}</a></li>' for u in links)
-            det = f'<details><summary>{s("orig_links")} ({len(links)})</summary><ul>{lis}</ul></details>'
+            det = (f'<div class="orig"><div class="note">{s("orig_links")} ({len(links)})</div>'
+                   f'<ul>{lis}</ul></div>')
         chips = "".join(f'<span class="more-n">{html.escape(s)}</span>' for s in last["sources"])
         body_html = html.escape(last["body"]).replace("\n", "<br>")
         act = f'<p><b>{s("action")}</b>：{html.escape(last["action"])}</p>' if last["action"] else ""
         ths = s("th")
         thead = (f'<th>{ths[0]}</th><th class="n">{ths[1]}</th><th class="n">{ths[2]}</th>'
                  + "".join(f'<th>{x}</th>' for x in ths[3:]))
-        body = (mast("", editions, fname=f"topic-{t['slug']}.html")
+        body = (mast("", editions, fname=topic_file(t))
                 + f'<section class="panel"><div class="panel-h"><span>{html.escape(t["name"])}</span>'
-                  f'<span><span class="tag">{html.escape(cat_name(last["category"]))}</span> '
-                  f'<span class="badge">{emoji} {label}</span></span></div>'
+                  f'<span><a class="tag" href="{cat_file(last["category"])}">{html.escape(cat_name(last["category"]))}</a> '
+                  f'<a class="badge" href="level-{last["level"]}.html">{emoji} {label}</a></span></div>'
                   f'<div style="display:flex;gap:26px;align-items:flex-end;padding:6px 0 2px">'
                   f'<div><div class="big-heat">{last["heat"]}</div><div class="note">{s("cur_wave")}</div></div>'
                   f'<div><div style="font-family:var(--mono);font-size:26px;font-weight:700">#{last["board_rank"]}</div>'
@@ -1087,9 +1183,16 @@ def build_site(OUT, editions, topics):
               "author": {"@type": "Person", "name": "Dai", "url": "https://x.com/daiyanze"},
               "publisher": {"@type": "Organization", "name": s("site_name"), "url": BASE_URL},
               "mainEntityOfPage": t_url}
-        (OUT / f"topic-{t['slug']}.html").write_text(
+        (OUT / topic_file(t)).write_text(
             page(t["name"], body, desc=(last["body"] or "")[:110],
-                 path=f"topic-{t['slug']}.html", ld=ld), encoding="utf-8")
+                 path=topic_file(t), ld=ld), encoding="utf-8")
+        (OUT / f"topic-{t['id']}.html").write_text(
+            '<!DOCTYPE html><html><head><meta charset="utf-8">'
+            f'<meta http-equiv="refresh" content="0; url={topic_href(t)}">'
+            f'<link rel="canonical" href="{t_url}"><meta name="robots" content="noindex">'
+            f'<title>{html.escape(t["name"])}</title></head>'
+            f'<body><a href="{topic_href(t)}">{html.escape(t["name"])}</a></body></html>',
+            encoding="utf-8")
 
     # edition snapshots
     for ei, ed in enumerate(editions):
@@ -1123,29 +1226,65 @@ def build_site(OUT, editions, topics):
     (OUT / "rising.html").write_text(page(s("tabs")[1], body, path="rising.html",
                                      desc=s("desc_rising")), encoding="utf-8")
 
-    # categories: one panel per category, topics by latest 浪高
+    # categories & levels: tag index page + one page per category / level
     cat_order = [c for c, _ in CAT_RULES] + ["行业动态"]
+    cat_sts = {cat: [st for st in sts_latest if st["app"]["category"] == cat]
+               for cat in cat_order}
+    lv_sts = {lv: [st for st in sts_latest if st["app"]["level"] == lv]
+              for lv in ("must", "watch", "seed")}
+    chips = "".join(
+        f'<a class="tagchip" href="{cat_file(cat)}">{html.escape(cat_name(cat))} · {len(cat_sts[cat])}</a>'
+        for cat in cat_order if cat_sts[cat])
+    chips += "".join(
+        f'<a class="tagchip" href="level-{lv}.html">{LEVELS[lv][0]}{level_label(lv)} · {len(lv_sts[lv])}</a>'
+        for lv in ("must", "watch", "seed") if lv_sts[lv])
+    index_panel = (f'<section class="panel"><div class="panel-h"><span>{s("tags_title")}</span></div>'
+                   f'<div class="tagchips">{chips}</div></section>')
     cat_sections = ""
     for cat in cat_order:
-        sts = [st for st in sts_latest if st["app"]["category"] == cat]
+        sts = cat_sts[cat]
         if not sts:
             continue
         crows = "".join(state_row(st) for st in sts)
-        cat_sections += (f'<section class="panel"><div class="panel-h"><span>{html.escape(cat_name(cat))}</span>'
+        cat_sections += (f'<section class="panel"><div class="panel-h"><span><a href="{cat_file(cat)}">{html.escape(cat_name(cat))}</a></span>'
                          f'<span class="r">{s("cat_r").format(n=len(sts))}</span></div>{crows}</section>')
-    body = mast("categories", editions, fname="categories.html") + cat_sections + foot()
+        cbody = (mast("categories", editions, fname=cat_file(cat))
+                 + f'<section class="panel"><div class="panel-h"><span>{html.escape(cat_name(cat))}</span>'
+                   f'<span class="r">{s("cat_r").format(n=len(sts))}</span></div>{crows}</section>' + foot())
+        (OUT / cat_file(cat)).write_text(
+            page(cat_name(cat), cbody, path=cat_file(cat)), encoding="utf-8")
+    for lv in ("must", "watch", "seed"):
+        sts = lv_sts[lv]
+        if not sts:
+            continue
+        lrows = "".join(state_row(st) for st in sts)
+        ltitle = f"{LEVELS[lv][0]} {level_label(lv)}"
+        lbody = (mast("categories", editions, fname=f"level-{lv}.html")
+                 + f'<section class="panel"><div class="panel-h"><span>{ltitle}</span>'
+                   f'<span class="r">{s("cat_r").format(n=len(sts))}</span></div>{lrows}</section>' + foot())
+        (OUT / f"level-{lv}.html").write_text(
+            page(ltitle, lbody, path=f"level-{lv}.html"), encoding="utf-8")
+    body = mast("categories", editions, fname="categories.html") + index_panel + cat_sections + foot()
     (OUT / "categories.html").write_text(page(s("tabs")[3], body, path="categories.html"), encoding="utf-8")
 
-    # archive: every edition snapshot with its top topic
+    # archive: grouped by date; editions within a date ordered by time
+    by_date = {}
+    for ed in editions:
+        by_date.setdefault(ed["date"], []).append(ed)
     arows = ""
-    for ei in range(len(editions) - 1, -1, -1):
-        ed = editions[ei]
-        top = max(ed["items"], key=lambda x: x["_heat"])
-        arows += (f'<div class="row"><span class="rtitle"><a href="{ed_file(ed)}">'
-                  f'{ed["date"]} {SLOT.get(ed.get("slot"), (ed.get("slot") or "", 0))[0]} · '
-                  f'{html.escape(ed.get("title") or "")}</a></span>'
-                  f'<span class="note">{s("archive_row").format(n=len(ed["items"]))}{html.escape(top["title"][:30])}</span>'
-                  f'<span class="heat"><span class="hv"><b>{top["_heat"]}</b> <span>{s("wave")}</span></span></span></div>')
+    for date in sorted(by_date, reverse=True):
+        eds = sorted(by_date[date], key=lambda e: e.get("published_at") or "", reverse=True)
+        arows += (f'<div class="panel-h" style="margin-top:16px"><span>{date}</span>'
+                  f'<span class="r">{s("editions_n").format(n=len(eds))}</span></div>')
+        for ed in eds:
+            top = max(ed["items"], key=lambda x: x["_heat"])
+            tim = (ed.get("published_at") or "")[11:16]
+            arows += (f'<div class="row"><span class="time">{tim}</span>'
+                      f'<span class="rtitle"><a href="{ed_file(ed)}">'
+                      f'{SLOT.get(ed.get("slot"), (ed.get("slot") or "", 0))[0]} · '
+                      f'{html.escape(ed.get("title") or "")}</a></span>'
+                      f'<span class="note">{s("archive_row").format(n=len(ed["items"]))}{html.escape(top["title"][:30])}</span>'
+                      f'<span class="heat"><span class="hv"><b>{top["_heat"]}</b> <span>{s("wave")}</span></span></span></div>')
     body = (mast("archive", editions, fname="archive.html")
             + f'<section class="panel"><div class="panel-h"><span>{s("archive_title")}</span>'
               f'<span class="r">{s("archive_r").format(n=len(editions))}</span></div>' + arows + "</section>" + foot())
@@ -1176,7 +1315,7 @@ def build_site(OUT, editions, topics):
                      if dom else html.escape(src))
         tops = sorted(e["topics"].values(), key=lambda x: -x["apps"][-1]["heat"])
         tlinks = " · ".join(
-            f'<a href="topic-{x["slug"]}.html">{html.escape(x["name"][:22])}</a>' for x in tops)
+            f'<a href="{topic_href(x)}">{html.escape(x["name"][:22])}</a>' for x in tops)
         stats = s("src_stats").format(
             dom=dom or "—", a=len(e["topics"]), b=e["apps"], c=len(e["eds"]),
             d=ed_label(editions[e["first_ei"]]), e=ed_label(editions[e["last_ei"]]))
@@ -1208,7 +1347,7 @@ def build_site(OUT, editions, topics):
     items_xml, entries_xml = "", ""
     for st in sts_latest[:30]:
         a, t = st["app"], st["topic"]
-        link = f"{BASE_URL}{lang_prefix()}topic-{t['slug']}.html"
+        link = f"{BASE_URL}{lang_prefix()}{topic_href(t)}"
         pub = a.get("published") or ""
         try:
             rfc = email.utils.format_datetime(datetime.fromisoformat(pub))

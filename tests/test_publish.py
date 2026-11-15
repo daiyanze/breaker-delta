@@ -5,6 +5,7 @@ import json
 import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from urllib.parse import quote
 
 from radar import publish
 
@@ -85,13 +86,18 @@ def test_build_writes_all_outputs():
                  "edition-2026-11-12-evening.html",
                  "feed.xml", "atom.xml", "sitemap.xml", "robots.txt",
                  "llms.txt", "favicon.svg", "og-image.png",
-                 "en/index.html", "ja/index.html"):
+                 "en/index.html", "ja/index.html",
+                 "示例模型发布.html",      # topic page: title slug URL
+                 "topic-t01.html",          # legacy redirect stub
+                 "level-must.html", "level-seed.html"):
         assert (out_dir / name).exists(), name
-    topics = list(out_dir.glob("topic-*.html"))
-    assert topics, "topic pages written"
+    assert list(out_dir.glob("category-*.html")), "category pages written"
     index = (out_dir / "index.html").read_text(encoding="utf-8")
     assert "示例模型发布" in index and "浪尖雷达" in index
     assert "https://example.com/triple-sigma/" in index  # canonical base used
+    assert quote("示例模型发布.html") in index  # rows link to the slug URL
+    archive = (out_dir / "archive.html").read_text(encoding="utf-8")
+    assert "2026-11-12" in archive  # grouped by date
 
 
 def test_feeds_parse():
@@ -100,14 +106,15 @@ def test_feeds_parse():
     ET.parse(out_dir / "atom.xml")
     feed = (out_dir / "feed.xml").read_text(encoding="utf-8")
     assert "示例模型发布" in feed
-    assert "topic-" in feed  # feed items link to topic pages
+    assert quote("示例模型发布.html") in feed  # items link to topic slug pages
 
 
-def test_topic_page_has_wave_chart_and_nofollow_links():
+def test_topic_page_has_wave_chart_and_visible_nofollow_links():
     out_dir = _build(tempfile.mkdtemp())
-    pages = {p.name: p.read_text(encoding="utf-8")
-             for p in out_dir.glob("topic-*.html")}
-    main = next(txt for txt in pages.values() if "示例模型发布" in txt)
+    main = (out_dir / "示例模型发布.html").read_text(encoding="utf-8")
     assert "海浪图" in main
+    assert "url(#wgrad)" in main  # area chart gradient fill
+    assert 'class="orig"' in main and "<details>" not in main  # links shown directly
     assert 'rel="nofollow noopener"' in main
     assert "https://example.com/release" in main
+    assert "Telegram" in main  # default share set is international platforms
