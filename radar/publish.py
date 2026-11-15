@@ -103,7 +103,7 @@ LANG_LABEL = {"zh": "中文", "en": "EN", "ja": "日本語"}
 
 STRINGS = {
     "zh": {"site_name": "浪尖雷达 Breaker Delta", "pg_title": "浪尖雷达",
-           "tabs": ["🌊 海浪榜", "📈 涨潮榜", "🌱 苗头", "🗂️ 分类", "📡 数据源", "📚 归档", "ℹ️ 关于"],
+           "tabs": ["🌊 海浪榜", "📈 涨潮榜", "🌱 苗头", "🗂️ 分类", "📡 数据源", "🏆 战绩", "📚 归档", "ℹ️ 关于"],
            "wave": "浪高", "carried": "结转", "new": "NEW 首现", "rank": "排名", "prev": "前",
            "tags_title": "🏷️ 标签", "editions_n": "{n} 期", "copy_link": "复制链接", "copied": "已复制",
            "ly1": "源头层", "ly2": "发酵层", "ly3": "验证层", "cfg_per": "每源 {v} 条",
@@ -149,9 +149,31 @@ STRINGS = {
            "desc_seeds": "最近三期里首次出现、还在发酵的话题苗头。",
            "desc_rising": "浪高涨幅最大的话题，正在涨潮的热点。",
            "desc_sources": "浪尖雷达的全部数据源与各自贡献的话题统计。",
-           "desc_about": "浪尖雷达是什么、浪高算法、页面导览与作者信息。"},
+           "desc_about": "浪尖雷达是什么、浪高算法、页面导览与作者信息。",
+           "desc_track": "浪尖雷达战绩复盘：每一期必看与关注话题的登记台账与 14 天复核结果。",
+           "tr_title": "🏆 战绩 · 复盘台账",
+           "tr_intro": "把每一期的 🔥必看 / 👀关注 逐条登记，14 天后按预设标准复核命中与否。本页由仓库里的 track-record.md 在构建时生成，台账只登记已发布期次，不事后改判。",
+           "tr_total": "已登记", "tr_reviewed": "已复核", "tr_hit_rate": "命中率",
+           "tr_first_review": "首批复核 {d}（到期后回填结果，未到期不提前计算命中率）",
+           "tr_criteria_t": "判定标准",
+           "tr_criteria": "<ul class=\"tips\"><li><b>命中</b>：复核日时，该话题在追踪源内持续发酵（后续期次再现 / 讨论量级维持或上升），或预设的事件检查点如期发生并获得主流覆盖。</li><li><b>未命中</b>：14 天内无后续声量、无事件进展，或事实被证伪。</li><li><b>话题弧合并</b>：同一话题跨多期出现时，按首次上榜日期计，复核时合并为一个话题弧评分，各期条目保留。</li><li><b>事实核查优先</b>：标注事实核查优先的条目，以官方 / 主流媒体证实或证伪直接定命中 / 未命中。</li></ul>",
+           "tr_th": ["级别", "话题", "复核标准", "复核日", "结果"],
+           "tr_pending": "待复核",
+           "desc_submit": "向浪尖雷达投苗：提交单源、新鲜、有一手链接的早期信号。",
+           "sub_title": "🌱 投苗 · 提交一个苗头",
+           "sub_intro": "你刷到一个还没热起来、但可能是种子的信号？投给雷达。投来的苗头先进收件清单，下一期扫描时去重、查共振，够格才进苗头榜——不承诺收录。",
+           "sub_good_t": "什么算好苗头",
+           "sub_good": "<ul class=\"tips\"><li><b>单源</b>：目前只有一处在说，还没有多家跟进——这正是苗头的样子。</li><li><b>新</b>：刚出现不久（仓库、帖子、产品、论文越新越好），不是已经上热搜的旧闻。</li><li><b>有一手链接</b>：给出原始页面（仓库 / 原帖 / 官网 / 论文），不要二手搬运合集。</li><li><b>一句话理由</b>：为什么你觉得它会长大，一句话就够。</li></ul>",
+           "sub_issue_t": "方式一 · GitHub Issue 投苗",
+           "sub_issue_btn": "去 GitHub 提投苗 Issue →",
+           "sub_issue_note": "链接已预填标题与正文模板（标题 / 链接 / 理由），补齐即可提交。没有 GitHub 账号时，用下方书签工具生成同样格式的文本，发给作者代投。",
+           "sub_bm_t": "方式二 · 书签小工具（bookmarklet）",
+           "sub_bm_btn": "🌱 投苗到浪尖雷达",
+           "sub_bm_note": "把这个链接拖到浏览器书签栏；在任意页面点它，就会带着当前页标题 + 链接打开本页，并生成下面这份可复制的投苗文本。",
+           "sub_prefill_t": "投苗文本（可复制）",
+           "sub_cta": "🌱 发现一个还没热起来的信号？点这里投苗 →"},
     "en": {"site_name": "Breaker Delta", "pg_title": "Breaker Delta",
-           "tabs": ["🌊 Wave Board", "📈 Rising", "🌱 Seeds", "🗂️ Categories", "📡 Sources", "📚 Archive", "ℹ️ About"],
+           "tabs": ["🌊 Wave Board", "📈 Rising", "🌱 Seeds", "🗂️ Categories", "📡 Sources", "🏆 Track Record", "📚 Archive", "ℹ️ About"],
            "wave": "Wave", "carried": "carried", "new": "NEW", "rank": "Rank", "prev": "was",
            "tags_title": "🏷️ Tags", "editions_n": "{n} editions", "copy_link": "Copy link", "copied": "Copied",
            "ly1": "source layer", "ly2": "fermentation layer", "ly3": "verification layer",
@@ -200,9 +222,31 @@ STRINGS = {
            "desc_seeds": "Topics that first appeared in the last three editions and are still brewing.",
            "desc_rising": "Topics with the biggest wave-height gains.",
            "desc_sources": "All data sources and the topics each one feeds.",
-           "desc_about": "What Breaker Delta is, the wave-height formula, page guide and author info."},
+           "desc_about": "What Breaker Delta is, the wave-height formula, page guide and author info.",
+           "desc_track": "Breaker Delta track record: every Must-read and Watch pick, registered in advance and reviewed after 14 days.",
+           "tr_title": "🏆 Track Record",
+           "tr_intro": "Every 🔥 Must-read / 👀 Watch pick is registered as published and reviewed 14 days later against criteria set in advance. This page is generated at build time from track-record.md in the repo; entries are never rewritten after the fact.",
+           "tr_total": "Registered", "tr_reviewed": "Reviewed", "tr_hit_rate": "Hit rate",
+           "tr_first_review": "First review batch due {d} (results are filled in when due — no hit rate is computed before then)",
+           "tr_criteria_t": "Judgement criteria",
+           "tr_criteria": "<ul class=\"tips\"><li><b>Hit</b>: at review time the topic is still developing in the tracked sources (reappears in later editions / discussion holds or grows), or its preset event checkpoint happens on schedule with mainstream coverage.</li><li><b>Miss</b>: no follow-up signal within 14 days, no event progress, or the facts are debunked.</li><li><b>Topic arcs merged</b>: a topic appearing across editions is dated from its first appearance and scored as one arc at review time; every edition's entry is kept.</li><li><b>Fact-check first</b>: entries marked fact-check first are decided directly by official / mainstream confirmation or debunking.</li></ul>",
+           "tr_th": ["Level", "Topic", "Review criteria", "Review date", "Result"],
+           "tr_pending": "Pending",
+           "desc_submit": "Submit a seed to Breaker Delta: a single-source, fresh signal with a first-hand link.",
+           "sub_title": "🌱 Submit a seed",
+           "sub_intro": "Spotted a signal that has not heated up yet but might be a seed? Send it to the radar. Submissions land in an inbox first; the next scan deduplicates and checks for resonance — only qualifying seeds reach the Seeds board, and inclusion is not promised.",
+           "sub_good_t": "What makes a good seed",
+           "sub_good": "<ul class=\"tips\"><li><b>Single-source</b>: only one place is talking about it so far — that is exactly what a seed looks like.</li><li><b>Fresh</b>: newly appeared (the newer the repo, post, product or paper, the better), not yesterday's headline.</li><li><b>First-hand link</b>: link the original page (repo / original post / official site / paper), not a roundup.</li><li><b>One-line reason</b>: why you think it will grow, in one sentence.</li></ul>",
+           "sub_issue_t": "Option 1 · Submit via GitHub Issue",
+           "sub_issue_btn": "Open a seed Issue on GitHub →",
+           "sub_issue_note": "The link prefills the title and body template (title / link / reason) — just fill it in. Without a GitHub account, use the bookmarklet below to generate the same format and send it to the author.",
+           "sub_bm_t": "Option 2 · Bookmarklet",
+           "sub_bm_btn": "🌱 Send seed to Breaker Delta",
+           "sub_bm_note": "Drag this link to your bookmarks bar. On any page, clicking it opens this page with that page's title + URL and generates the copyable seed text below.",
+           "sub_prefill_t": "Seed text (copyable)",
+           "sub_cta": "🌱 Spotted a signal that has not heated up yet? Submit a seed →"},
     "ja": {"site_name": "浪尖レーダー Breaker Delta", "pg_title": "浪尖レーダー",
-           "tabs": ["🌊 ウェーブボード", "📈 上昇", "🌱 芽生え", "🗂️ カテゴリ", "📡 ソース", "📚 アーカイブ", "ℹ️ 概要"],
+           "tabs": ["🌊 ウェーブボード", "📈 上昇", "🌱 芽生え", "🗂️ カテゴリ", "📡 ソース", "🏆 戦績", "📚 アーカイブ", "ℹ️ 概要"],
            "wave": "波高", "carried": "繰越", "new": "NEW", "rank": "順位", "prev": "前",
            "tags_title": "🏷️ タグ", "editions_n": "{n} 号", "copy_link": "リンクをコピー", "copied": "コピー済み",
            "ly1": "一次ソース", "ly2": "発酵層", "ly3": "検証層", "cfg_per": "各 {v} 件",
@@ -249,7 +293,29 @@ STRINGS = {
            "desc_seeds": "直近3号で初登場し、まだ発酵中のトピック。",
            "desc_rising": "波高の伸びが最大のトピック。",
            "desc_sources": "全データソースと各ソースが寄与したトピック。",
-           "desc_about": "浪尖レーダーについて、波高の計算式、ページ案内と作者情報。"},
+           "desc_about": "浪尖レーダーについて、波高の計算式、ページ案内と作者情報。",
+           "desc_track": "浪尖レーダーの戦績：必読・注目の各トピックを事前登録し、14日後に復核した台帳。",
+           "tr_title": "🏆 戦績 · 復核台帳",
+           "tr_intro": "各号の 🔥必読 / 👀注目 を1件ずつ登録し、14日後に事前に決めた基準で命中かどうかを復核します。このページはリポジトリの track-record.md からビルド時に生成され、登録後に書き換えることはありません。",
+           "tr_total": "登録済み", "tr_reviewed": "復核済み", "tr_hit_rate": "命中率",
+           "tr_first_review": "初回復核は {d}（期限が来てから結果を記入します。それまで命中率は計算しません）",
+           "tr_criteria_t": "判定基準",
+           "tr_criteria": "<ul class=\"tips\"><li><b>命中</b>：復核時点でトピックが追跡ソース内で発酵し続けている（後の号に再登場 / 議論量が維持または上昇）、または事前に設定したイベントのチェックポイントが予定通り起きて主流メディアに報じられた場合。</li><li><b>未命中</b>：14日以内に続報がなく、イベントの進展もない、または事実が否定された場合。</li><li><b>話題アーク統合</b>：複数号に登場するトピックは初登場日を起点とし、復核時は一つのアークとして採点します。各号の記録は残します。</li><li><b>事実確認を優先</b>：事実確認優先と記した項目は、公式 / 主流メディアの確認または否定で直接判定します。</li></ul>",
+           "tr_th": ["レベル", "トピック", "復核基準", "復核日", "結果"],
+           "tr_pending": "復核待ち",
+           "desc_submit": "浪尖レーダーへ芽生えを投稿：単一ソースで新鮮な、一次リンク付きの初期シグナル。",
+           "sub_title": "🌱 芽生えを投稿",
+           "sub_intro": "まだ熱くなっていないけれど種になりそうなシグナルを見つけたら、レーダーに送ってください。投稿はまず受信箱に入り、次のスキャンで重複排除と共振チェックを行います。芽生えボードに載るのは基準を満たしたものだけで、掲載は保証しません。",
+           "sub_good_t": "良い芽生えとは",
+           "sub_good": "<ul class=\"tips\"><li><b>単一ソース</b>：今のところ1か所だけが取り上げている——それが芽生えの姿です。</li><li><b>新しい</b>：登場したばかり（リポジトリ・投稿・製品・論文は新しいほど良い）。すでに話題の旧聞ではありません。</li><li><b>一次リンク</b>：元のページ（リポジトリ / 元投稿 / 公式サイト / 論文）へのリンクを。まとめ記事は不可。</li><li><b>一文の理由</b>：なぜ育つと思うか、一文で十分です。</li></ul>",
+           "sub_issue_t": "方法1 · GitHub Issue で投稿",
+           "sub_issue_btn": "GitHub で投稿 Issue を開く →",
+           "sub_issue_note": "リンクにはタイトルと本文テンプレート（タイトル / リンク / 理由）が入力済みです。GitHub アカウントがない場合は、下のブックマークレットで同じ形式のテキストを作って作者に送ってください。",
+           "sub_bm_t": "方法2 · ブックマークレット",
+           "sub_bm_btn": "🌱 浪尖レーダーに送る",
+           "sub_bm_note": "このリンクをブックマークバーにドラッグしてください。任意のページでクリックすると、そのページのタイトル + URL を持ってこのページが開き、下のコピー用テキストが生成されます。",
+           "sub_prefill_t": "投稿テキスト（コピー可）",
+           "sub_cta": "🌱 まだ熱くなっていないシグナルを見つけたら、ここから投稿 →"},
 }
 ABOUT = {
     "zh": """<section class="panel"><div class="panel-h"><span>关于浪尖雷达</span></div>
@@ -260,7 +326,7 @@ ABOUT = {
 <p>浪高 v2（参考 AIHOT 的量级，不设上限）：等级基分（必看 60 / 关注 30 / 苗头 10）+ 共振 20×来源数 + 证据 8×链接数 + 首现 25。一个话题至少要有 2 个独立来源互相印证才算热点，单源的先记为苗头。</p>
 <p>排名是某个时间点上全部已知话题按浪高排序的结果（每页 100 个，超出分页）；升降对比的是上一个时间点。本期没有更新的话题，按最近一次的浪高结转并标注「结转」，不会假装是新数据。</p>
 <h3 style="margin:16px 0 6px">页面导览</h3>
-<p><a href="index.html">海浪榜</a>：全部话题按浪高排名，带时间滑块回看任意时间点。<a href="rising.html">涨潮榜</a>：浪高涨幅最大的话题。<a href="seeds.html">苗头</a>：最近首次出现、还在发酵的话题。<a href="categories.html">分类</a>：按安全 / 政策与监管 / 开源 / 商业与资本 / Agent 与应用 / AI 模型 / 行业动态浏览。<a href="sources.html">数据源</a>：每个来源贡献了哪些话题。<a href="archive.html">往期归档</a>：每一期的完整榜单快照。每个话题页有一张「海浪图」，画的是它的浪高走势，图上的点可以点进对应那一期。</p>
+<p><a href="index.html">海浪榜</a>：全部话题按浪高排名，带时间滑块回看任意时间点。<a href="rising.html">涨潮榜</a>：浪高涨幅最大的话题。<a href="seeds.html">苗头</a>：最近首次出现、还在发酵的话题。<a href="submit.html">投苗</a>：把你发现的单源新信号投进来。<a href="track-record.html">战绩</a>：每期必看与关注的登记台账和复核结果。<a href="categories.html">分类</a>：按安全 / 政策与监管 / 开源 / 商业与资本 / Agent 与应用 / AI 模型 / 行业动态浏览。<a href="sources.html">数据源</a>：每个来源贡献了哪些话题。<a href="archive.html">往期归档</a>：每一期的完整榜单快照。每个话题页有一张「海浪图」，画的是它的浪高走势，图上的点可以点进对应那一期。</p>
 <h3 style="margin:16px 0 6px">技术说明</h3>
 <p>每一期的内容以 Markdown 保存在 GitHub 仓库里，可以直接阅读；站点由 Python 在构建时生成静态 HTML。话题页的原文链接带 nofollow。列表里的来源图标是各站的 favicon，构建时抓取并缓存在本地，每次构建用条件请求校验，站点换了图标缓存会自动更新。海浪榜首页有一段小脚本驱动时间滑块（无第三方库），其余页面没有可执行脚本；禁用 JS 时首页显示最新一期，时间轴链接照常打开每期快照。界面语言在构建设置里选择（TS_LANGS），构建出两种以上语言时页面上才显示语言切换。</p>
 <h3 style="margin:16px 0 6px">作者与订阅</h3>
@@ -275,7 +341,7 @@ ABOUT = {
 <p>Wave v2 (scale referenced from AIHOT, uncapped): level base (Must-read 60 / Watch 30 / Seed 10) + resonance 20×sources + evidence 8×links + 25 when first seen. A topic needs at least two independent sources to count as a hotspot; single-source signals start as seeds.</p>
 <p>Ranks compare all known topics at one point in time (100 per page); deltas compare with the previous point in time. Topics not updated in an edition are carried forward at their last wave height and marked "carried" — never dressed up as fresh data.</p>
 <h3 style="margin:16px 0 6px">Pages</h3>
-<p><a href="index.html">Wave Board</a>: all topics ranked by wave height, with a time slider. <a href="rising.html">Rising</a>: biggest wave gains. <a href="seeds.html">Seeds</a>: newly appeared topics. <a href="categories.html">Categories</a>. <a href="sources.html">Sources</a>: what each source feeds. <a href="archive.html">Archive</a>: full snapshot of every edition. Each topic page carries a wave chart of its history.</p>
+<p><a href="index.html">Wave Board</a>: all topics ranked by wave height, with a time slider. <a href="rising.html">Rising</a>: biggest wave gains. <a href="seeds.html">Seeds</a>: newly appeared topics. <a href="submit.html">Submit a seed</a>: send in a single-source signal you spotted. <a href="track-record.html">Track Record</a>: the registered ledger of picks and their review results. <a href="categories.html">Categories</a>. <a href="sources.html">Sources</a>: what each source feeds. <a href="archive.html">Archive</a>: full snapshot of every edition. Each topic page carries a wave chart of its history.</p>
 <h3 style="margin:16px 0 6px">Tech notes</h3>
 <p>Editions are kept as Markdown in the GitHub repo and built into static HTML by Python. Original links on topic pages are nofollow. Source icons are each site's favicon, fetched and cached at build time with conditional revalidation. The board's time slider is one small script (no libraries); other pages run no scripts. Interface languages are a build setting (TS_LANGS); the language switcher appears only when more than two languages are built.</p>
 <h3 style="margin:16px 0 6px">Author & feeds</h3>
@@ -290,7 +356,7 @@ ABOUT = {
 <p>波高 v2（AIHOT のスケールを参考、上限なし）：レベル基礎点（必読 60 / 注目 30 / 芽生え 10）+ 共鳴 20×ソース数 + 根拠 8×リンク数 + 初出 25。ホットなトピックには独立したソースが最低2つ必要で、単一ソースはまず「芽生え」として記録します。</p>
 <p>順位はある時点の全トピックを波高で並べたもの（1ページ100件）。前回比は直前の時点との比較です。その号で更新されなかったトピックは前回の波高を「繰越」として明示し、新しいデータのふりはしません。</p>
 <h3 style="margin:16px 0 6px">ページ案内</h3>
-<p><a href="index.html">ウェーブボード</a>：全トピックを波高順に、時間スライダー付き。<a href="rising.html">上昇</a>：波高の伸びが最大。<a href="seeds.html">芽生え</a>：初登場のトピック。<a href="categories.html">カテゴリ</a>。<a href="sources.html">ソース</a>：各ソースの寄与。<a href="archive.html">アーカイブ</a>：各号の完全なスナップショット。各トピックページには波高チャートがあります。</p>
+<p><a href="index.html">ウェーブボード</a>：全トピックを波高順に、時間スライダー付き。<a href="rising.html">上昇</a>：波高の伸びが最大。<a href="seeds.html">芽生え</a>：初登場のトピック。<a href="submit.html">芽生え投稿</a>：見つけた単一ソースのシグナルを送れます。<a href="track-record.html">戦績</a>：登録台帳と復核結果。<a href="categories.html">カテゴリ</a>。<a href="sources.html">ソース</a>：各ソースの寄与。<a href="archive.html">アーカイブ</a>：各号の完全なスナップショット。各トピックページには波高チャートがあります。</p>
 <h3 style="margin:16px 0 6px">技術メモ</h3>
 <p>各号の内容は Markdown として GitHub リポジトリに保存され、Python が静的 HTML にビルドします。原文リンクは nofollow。ソースのアイコンは各サイトの favicon で、ビルド時に取得してローカルにキャッシュし、条件付きリクエストで検証します。時間スライダーは小さなスクリプト1つ（ライブラリなし）で、その他のページにスクリプトはありません。表示言語はビルド設定（TS_LANGS）で選び、3言語以上ビルドしたときだけ言語切替が表示されます。</p>
 <h3 style="margin:16px 0 6px">作者とフィード</h3>
@@ -828,6 +894,157 @@ def build_topics(editions, ledger):
     return [topics[k] for k in order]
 
 
+TRACK_LEVELS = {"🔥": "must", "👀": "watch", "🌱": "seed"}
+
+
+def parse_track_record(path=None):
+    """Parse track-record.md (the human-maintained ledger at the repo root)
+    into structured data. The Markdown stays the single source of truth:
+    edition sections look like ``## 2026-11-11 试点期（复核日 2026-11-25）``
+    followed by a table of ``| 级别 | 话题 | 复核标准 | 结果 |`` rows."""
+    p = Path(path) if path else ROOT / "track-record.md"
+    data = {"groups": [], "total": 0, "reviewed": 0, "hits": 0,
+            "first_review": ""}
+    if not p.exists():
+        return data
+    cur = None
+    for ln in p.read_text(encoding="utf-8").splitlines():
+        m = re.match(r"^##\s+(\d{4}-\d{2}-\d{2})\s+(.+?)（复核日\s*(\d{4}-\d{2}-\d{2})）\s*$", ln)
+        if m:
+            cur = {"date": m.group(1), "label": m.group(2).strip(),
+                   "review_date": m.group(3), "entries": []}
+            data["groups"].append(cur)
+            continue
+        if cur is None or not ln.startswith("|"):
+            continue
+        cells = [c.strip() for c in ln.strip().strip("|").split("|")]
+        if len(cells) != 4 or cells[0] not in TRACK_LEVELS:
+            continue  # header / separator / other tables
+        entry = {"level": TRACK_LEVELS[cells[0]], "emoji": cells[0],
+                 "topic": cells[1], "criteria": cells[2], "result": cells[3],
+                 "review_date": cur["review_date"]}
+        cur["entries"].append(entry)
+        data["total"] += 1
+        if entry["result"]:
+            data["reviewed"] += 1
+            if "命中" in entry["result"] and "未命中" not in entry["result"]:
+                data["hits"] += 1
+    dates = [g["review_date"] for g in data["groups"] if g["entries"]]
+    data["first_review"] = min(dates) if dates else ""
+    return data
+
+
+_KEYWORD_STOP = {"the", "and", "for", "with", "from", "that", "this",
+                 "new", "its", "are", "was"}
+
+
+def title_keywords(title):
+    """Distinctive match keywords derived from a topic title, for the
+    extension badge matcher (case-insensitive substring checks)."""
+    title = title or ""
+    words = [w for w in re.findall(r"[A-Za-z][A-Za-z0-9\-]{2,}", title)
+             if w.lower() not in _KEYWORD_STOP]
+    kws = []
+
+    def add(k):
+        k = (k or "").strip()
+        if k and k not in kws:
+            kws.append(k)
+
+    for i, w in enumerate(words):
+        add(w)
+        if i + 1 < len(words):
+            add(f"{words[i]} {words[i + 1]}")
+            add(f"{words[i]}-{words[i + 1]}")
+    for run in re.findall(r"[一-鿿]{2,}", title):
+        add(run if len(run) <= 8 else run[:4])
+    add(title)
+    return kws[:10]
+
+
+def topics_data(editions, topics):
+    """data/topics.json payload (G3-lite): every current topic with the
+    fields the extension badge matches on."""
+    out = []
+    for t in topics:
+        last, first = t["apps"][-1], t["apps"][0]
+        patterns, seen = [], set()
+        for a in t["apps"]:
+            for u in a["links"]:
+                pr = urlparse(u)
+                pat = (pr.netloc + pr.path).rstrip("/")
+                if pat and pat not in seen:
+                    seen.add(pat)
+                    patterns.append(pat)
+        out.append({"slug": t["slug"], "title": t["name"],
+                    "heat": last["heat"], "first_seen": first["date"],
+                    "level": last["level"], "url_patterns": patterns,
+                    "title_keywords": title_keywords(t["name"])})
+    gen = editions[-1].get("published_at") if editions else ""
+    return {"generated_at": gen, "topics": out}
+
+
+def alerts_data(editions, topics):
+    """data/alerts.json payload (C1): deterministic alerts for the latest
+    edition. resonance = topic first seen in the latest edition with
+    >=2 independent sources; surge = board heat gain >= 30 versus the
+    previous time point (the same口径 as the Rising board: a topic new
+    to the board counts its full heat as the gain)."""
+    if not editions:
+        return {"generated_at": "", "alerts": []}
+    latest_ei = len(editions) - 1
+    latest = editions[latest_ei]
+    gen = latest.get("published_at") or ""
+    ed_key = f"{latest['date']}-{latest.get('slot')}"
+    # Board states, carried forward like the board itself.
+    states, prev = [], {}
+    for ei in range(len(editions)):
+        cur = {}
+        for t in topics:
+            apps_le = [a for a in t["apps"] if a["edition"] <= ei]
+            if apps_le:
+                cur[t["key"]] = apps_le[-1]["heat"]
+        states.append(cur)
+    prev_state = states[-2] if len(states) >= 2 else {}
+    by_key = {t["key"]: t for t in topics}
+    alerts, seen_keys = [], set()
+
+    def add(t, reason, before, after):
+        dk = f"{t['slug']}:{reason}:{ed_key}"
+        if dk in seen_keys:
+            return
+        seen_keys.add(dk)
+        alerts.append({"topic_slug": t["slug"], "title": t["name"],
+                       "reason": reason, "heat_before": before,
+                       "heat_after": after, "edition": gen,
+                       "triggered_at": gen, "dedupe_key": dk})
+
+    for t in topics:
+        first = t["apps"][0]
+        if first["edition"] == latest_ei and len(first["sources"]) >= 2:
+            add(t, "resonance", 0, first["heat"])
+    for key, heat in states[-1].items():
+        before = prev_state.get(key)
+        gain = heat - before if before is not None else heat
+        if gain >= 30:
+            add(by_key[key], "surge", before or 0, heat)
+    alerts.sort(key=lambda a: (a["topic_slug"], a["reason"]))
+    return {"generated_at": gen, "alerts": alerts}
+
+
+def write_data_files(out, editions, topics):
+    """Write the static data layer (data/topics.json + data/alerts.json)
+    at the site root; the extension consumes exactly these files."""
+    d = Path(out) / "data"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "topics.json").write_text(
+        json.dumps(topics_data(editions, topics), ensure_ascii=False, indent=1),
+        encoding="utf-8")
+    (d / "alerts.json").write_text(
+        json.dumps(alerts_data(editions, topics), ensure_ascii=False, indent=1),
+        encoding="utf-8")
+
+
 def ed_label(ed):
     """Conventional timestamp for an edition: YYYY-MM-DD HH:MM."""
     pa = ed.get("published_at") or ""
@@ -854,7 +1071,8 @@ def cat_file(cat):
 
 
 RESERVED_FILES = {"index", "rising", "seeds", "categories", "sources",
-                  "archive", "about", "feed", "sitemap", "robots", "llms"}
+                  "archive", "about", "feed", "sitemap", "robots", "llms",
+                  "track-record", "submit", "data"}
 
 
 def slugify(title, fallback):
@@ -920,8 +1138,8 @@ def favicon():
 
 def mast(active, editions, current_ei=None, fname="index.html", tl=False):
     hrefs = ["index.html", "rising.html", "seeds.html", "categories.html",
-             "sources.html", "archive.html", "about.html"]
-    keys = ["index", "rising", "seeds", "categories", "sources", "archive", "about"]
+             "sources.html", "track-record.html", "archive.html", "about.html"]
+    keys = ["index", "rising", "seeds", "categories", "sources", "track", "archive", "about"]
     tab_html = "".join(
         f'<a href="{h}" class="{"on" if k == active else ""}">{n}</a>'
         for h, n, k in zip(hrefs, s("tabs"), keys))
@@ -1130,6 +1348,7 @@ def build(base_url=None, out_dir=None, editions_dir=None):
                 shutil.copy(srcf, od / bf)
         build_site(od, editions, topics)
     CUR["lang"] = "zh"
+    write_data_files(out, editions, topics)
     write_discovery(editions, topics)
     return sorted(out.rglob("*.html"))
 
@@ -1172,7 +1391,8 @@ def write_discovery(editions, topics):
             f"涨潮榜（浪高涨幅）、苗头（新出现的话题），每个话题有独立页面与海浪图（浪高历史走势）。\n\n"
             f"## 主要页面\n- [海浪榜]({BASE_URL}index.html)\n- [涨潮榜]({BASE_URL}rising.html)\n"
             f"- [苗头]({BASE_URL}seeds.html)\n- [分类]({BASE_URL}categories.html)\n"
-            f"- [数据源]({BASE_URL}sources.html)\n- [关于]({BASE_URL}about.html)\n"
+            f"- [数据源]({BASE_URL}sources.html)\n- [战绩]({BASE_URL}track-record.html)\n"
+            f"- [投苗]({BASE_URL}submit.html)\n- [关于]({BASE_URL}about.html)\n"
             f"- [往期归档]({BASE_URL}archive.html)\n- [RSS]({BASE_URL}feed.xml)\n"
             f"- [Atom]({BASE_URL}atom.xml)\n\n## 语言版本\n{lang_links}\n\n## 当前浪高最高的话题\n{top_links}\n")
     (OUT / "llms.txt").write_text(llms, encoding="utf-8")
@@ -1378,8 +1598,10 @@ def build_site(OUT, editions, topics):
             f'\n<span class="note">{ed_label(editions[a["edition"]])}</span>\n<span class="heat">'))
     sheader = (f'<div class="panel-h"><span>{s("seeds_title")}</span>'
                f'<span class="r">{s("seeds_r")}</span></div>')
+    seed_cta = (f'<section class="panel"><div class="detail">'
+                f'<a href="submit.html">{s("sub_cta")}</a></div></section>')
     write_paged("seeds.html", s("tabs")[2], "seeds", sheader, srows, PER,
-                desc=s("desc_seeds"))
+                desc=s("desc_seeds"), prefix=seed_cta)
 
     # Overflow board pages (only when topics exceed one page of 100):
     # static, latest state; the slider lives on page 1.
@@ -1656,7 +1878,7 @@ def build_site(OUT, editions, topics):
         date_blocks.append(block)
     aheader = (f'<div class="panel-h"><span>{s("archive_title")}</span>'
                f'<span class="r">{s("archive_r").format(n=len(editions))}</span></div>')
-    write_paged("archive.html", s("tabs")[5], "archive", aheader, date_blocks,
+    write_paged("archive.html", s("tabs")[6], "archive", aheader, date_blocks,
                 ARCHIVE_DAYS)
 
     # sources list (sstat was computed before the topic pages)
@@ -1731,12 +1953,85 @@ def build_site(OUT, editions, topics):
     # about: site explanation (the old footer text lives here now)
     body = mast("about", editions, fname="about.html") + ABOUT[CUR["lang"]] + foot()
     about_ld = {"@context": "https://schema.org", "@type": "AboutPage",
-                "name": f"{s('tabs')[6]} · {s('site_name')}",
+                "name": f"{s('tabs')[7]} · {s('site_name')}",
                 "url": BASE_URL + lang_prefix() + "about.html",
                 "author": {"@type": "Person", "name": "Dai", "url": "https://x.com/daiyanze"}}
-    (OUT / "about.html").write_text(page(s("tabs")[6], body, path="about.html",
+    (OUT / "about.html").write_text(page(s("tabs")[7], body, path="about.html",
                                     desc=s("desc_about"),
                                     ld=about_ld), encoding="utf-8")
+
+    # track record (E1): generated from track-record.md at build time —
+    # the Markdown ledger stays the human-maintained source of truth.
+    tr = parse_track_record()
+    if tr["reviewed"]:
+        rate = tr["hits"] / tr["reviewed"] * 100 if tr["reviewed"] else 0
+        tr_summary = (f'{s("tr_reviewed")} {tr["reviewed"]} · '
+                      f'{s("tr_hit_rate")} {rate:.0f}%')
+    else:
+        tr_summary = s("tr_first_review").format(d=tr["first_review"])
+    tr_groups = ""
+    for g in tr["groups"]:
+        rows = ""
+        for en in g["entries"]:
+            lv = LEVEL_I18N.get(en["level"], LEVEL_I18N["seed"])[CUR["lang"]]
+            res = html.escape(en["result"]) if en["result"] else s("tr_pending")
+            rows += (f'<tr class="tr-row"><td>{en["emoji"]} {lv}</td>'
+                     f'<td>{html.escape(en["topic"])}</td>'
+                     f'<td>{html.escape(en["criteria"])}</td>'
+                     f'<td class="n">{en["review_date"]}</td><td>{res}</td></tr>')
+        ths = s("tr_th")
+        thead = "".join(f'<th>{x}</th>' for x in ths)
+        tr_groups += (f'<section class="panel"><div class="panel-h">'
+                      f'<span>{g["date"]} {html.escape(g["label"])}</span>'
+                      f'<span class="r">{ths[3]} {g["review_date"]}</span></div>'
+                      f'<table><tr>{thead}</tr>{rows}</table></section>')
+    tr_body = (mast("track", editions, fname="track-record.html")
+               + f'<section class="panel"><div class="panel-h"><span>{s("tr_title")}</span>'
+                 f'<span class="r">{s("tr_total")} {tr["total"]} · '
+                 f'{s("tr_reviewed")} {tr["reviewed"]}</span></div>'
+                 f'<div class="detail"><p>{s("tr_intro")}</p>'
+                 f'<p><b>{tr_summary}</b></p>'
+                 f'<h3 style="margin:16px 0 6px">{s("tr_criteria_t")}</h3>'
+                 f'{s("tr_criteria")}</div></section>'
+               + tr_groups + foot())
+    (OUT / "track-record.html").write_text(
+        page(s("tabs")[5], tr_body, path="track-record.html",
+             desc=s("desc_track")), encoding="utf-8")
+
+    # submit a seed (A4): GitHub Issue link with prefilled fields, plus a
+    # bookmarklet that lands here with ?title=&url=; the inline script
+    # renders those into the same 标题/链接/理由 text block the extension
+    # exports.
+    issue_body = quote("标题：\n链接：\n理由：\n", safe="")
+    issue_url = ("https://github.com/daiyanze/breaker-delta/issues/new"
+                 f"?template=seed.md&title={quote('🌱 投苗：', safe='')}"
+                 f"&body={issue_body}")
+    submit_abs = f"{BASE_URL}{lang_prefix()}submit.html"
+    bookmarklet = ("javascript:(function(){var t=document.title||'';"
+                   "window.open('" + submit_abs + "?title='+encodeURIComponent(t)"
+                   "+'&url='+encodeURIComponent(location.href),'_blank');})();")
+    seed_script = ("<script>(function(){var p=new URLSearchParams(location.search);"
+                   "var t=p.get('title')||'',u=p.get('url')||'';"
+                   "if(t||u){document.getElementById('seedtext').value="
+                   "'标题：'+t+'\\n链接：'+u+'\\n理由：';}})();</script>")
+    sub_body = (mast("", editions, fname="submit.html")
+                + f'<section class="panel"><div class="panel-h"><span>{s("sub_title")}</span></div>'
+                  f'<div class="detail"><p>{s("sub_intro")}</p>'
+                  f'<h3 style="margin:16px 0 6px">{s("sub_good_t")}</h3>{s("sub_good")}'
+                  f'<h3 style="margin:16px 0 6px">{s("sub_issue_t")}</h3>'
+                  f'<p><a href="{issue_url}" rel="noopener">{s("sub_issue_btn")}</a></p>'
+                  f'<p>{s("sub_issue_note")}</p>'
+                  f'<h3 style="margin:16px 0 6px">{s("sub_bm_t")}</h3>'
+                  f'<p><a href="{html.escape(bookmarklet, quote=True)}">{s("sub_bm_btn")}</a></p>'
+                  f'<p>{s("sub_bm_note")}</p>'
+                  f'<h3 style="margin:16px 0 6px">{s("sub_prefill_t")}</h3>'
+                  f'<textarea id="seedtext" rows="4" readonly '
+                  f'style="width:100%;font-family:var(--mono);font-size:13px">'
+                  f'标题：\n链接：\n理由：</textarea>'
+                  f'</div></section>' + foot() + seed_script)
+    (OUT / "submit.html").write_text(
+        page(s("sub_title"), sub_body, path="submit.html",
+             desc=s("desc_submit")), encoding="utf-8")
 
     # RSS + Atom from the latest board (top 30 topics)
     def xesc(s):

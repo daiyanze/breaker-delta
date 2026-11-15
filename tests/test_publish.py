@@ -130,6 +130,72 @@ def test_creator_panel_can_be_switched_off():
         importlib.reload(publish)
 
 
+def test_track_record_page_matches_ledger():
+    out_dir = _build(tempfile.mkdtemp())
+    for lang_dir in ("", "en/", "ja/"):
+        tr = (out_dir / f"{lang_dir}track-record.html").read_text(encoding="utf-8")
+        assert tr.count('class="tr-row"') == 24, lang_dir  # ledger rows
+        assert "2026-11-25" in tr  # first review batch
+        assert "Anthropic IPO" in tr and "黄仁勋" in tr
+    zh = (out_dir / "track-record.html").read_text(encoding="utf-8")
+    assert "已登记" in zh and "24" in zh
+    assert "待复核" in zh  # blank results render as pending
+    assert "首批复核 2026-11-25" in zh  # no invented hit rate before due date
+    assert "话题弧" in zh and "事实核查优先" in zh  # judgement criteria
+    index = (out_dir / "index.html").read_text(encoding="utf-8")
+    # nav: 🏆 战绩 sits between 数据源 and 归档
+    assert index.index("sources.html") < index.index("track-record.html") \
+        < index.index("archive.html")
+    assert "🏆 战绩" in index
+
+
+def test_parse_track_record_counts():
+    data = publish.parse_track_record()
+    assert data["total"] == 24
+    assert data["reviewed"] == 0
+    assert data["first_review"] == "2026-11-25"
+    assert len(data["groups"]) == 4
+    assert sum(len(g["entries"]) for g in data["groups"]) == 24
+
+
+def test_submit_page_and_bookmarklet():
+    out_dir = _build(tempfile.mkdtemp())
+    for lang_dir in ("", "en/", "ja/"):
+        sub = (out_dir / f"{lang_dir}submit.html").read_text(encoding="utf-8")
+        assert "github.com/daiyanze/breaker-delta/issues/new" in sub, lang_dir
+        assert "template=seed.md" in sub
+        assert "javascript:" in sub and "encodeURIComponent" in sub  # bookmarklet
+        assert 'id="seedtext"' in sub and "URLSearchParams" in sub
+        assert "标题：" in sub and "链接：" in sub and "理由：" in sub
+    seeds = (out_dir / "seeds.html").read_text(encoding="utf-8")
+    assert 'href="submit.html"' in seeds  # linked from the seeds page
+    about = (out_dir / "about.html").read_text(encoding="utf-8")
+    assert 'href="submit.html"' in about  # and from About
+
+
+def test_data_files_structure_and_dedup():
+    out_dir = _build(tempfile.mkdtemp())
+    topics = json.loads((out_dir / "data" / "topics.json").read_text(encoding="utf-8"))
+    assert topics["generated_at"]
+    assert len(topics["topics"]) == 2  # fixture: merged example + one seed
+    for t in topics["topics"]:
+        for key in ("slug", "title", "heat", "first_seen", "level",
+                    "url_patterns", "title_keywords"):
+            assert key in t, key
+    ex = next(t for t in topics["topics"] if t["slug"].startswith("示例"))
+    assert ex["heat"] == 108 and ex["level"] == "must"
+    assert "example.com/release" in ex["url_patterns"]
+    assert ex["first_seen"] == "2026-11-12" and ex["title_keywords"]
+    alerts = json.loads((out_dir / "data" / "alerts.json").read_text(encoding="utf-8"))
+    keys = [a["dedupe_key"] for a in alerts["alerts"]]
+    assert len(keys) == len(set(keys)), "alert dedupe keys must be unique"
+    for a in alerts["alerts"]:
+        assert a["reason"] in ("resonance", "surge")
+        assert a["dedupe_key"] == f"{a['topic_slug']}:{a['reason']}:2026-11-12-evening"
+        for key in ("topic_slug", "title", "heat_before", "heat_after", "edition"):
+            assert key in a, key
+
+
 def test_topic_page_has_wave_chart_and_visible_nofollow_links():
     out_dir = _build(tempfile.mkdtemp())
     main = (out_dir / "示例模型发布.html").read_text(encoding="utf-8")

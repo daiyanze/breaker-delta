@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.13.0 — 2026-11-15
+
+- **🏆 战绩页（E1）**：新增 `track-record.html`（导航位于数据源与归档之间，zh/en/ja 三语同步）。页面由仓库根目录的 `track-record.md` 在构建时解析生成——台账仍是人工维护的唯一数据源，不另写一份数据。含总览数字（已登记 24 条 / 已复核 0 条；首批复核 2026-11-25，未到期不计算命中率）、判定标准（命中 / 未命中 / 话题弧合并 / 事实核查优先）与按期次分组的完整台账表（级别 / 话题 / 复核标准 / 复核日 / 结果，空白显示「待复核」）。
+- **🌱 网页投苗（A4）**：新增 `submit.html`（三语；从苗头页与关于页链入，不占导航）。说明什么算好苗头（单源 / 新 / 有一手链接 / 一句话理由）；投递走 GitHub Issue 预填链接（标题 / 链接 / 理由），仓库新增 `.github/ISSUE_TEMPLATE/seed.md` 模板；页面带书签小工具（bookmarklet），在任意页面点击即带着标题 + 链接打开投苗页，页内脚本把参数渲染成与浏览器扩展导出口径一致的「标题 / 链接 / 理由」可复制文本块。
+- **静态数据层（C1 / G3-lite）**：构建时在站点根目录生成 `data/topics.json`（全部当前话题：slug / 标题 / 浪高 / 首现 / 等级 / 由原文链接派生的 url_patterns / 由标题派生的 title_keywords）与 `data/alerts.json`（最新一期的破圈提醒：共振 = 最新一期首现且 ≥2 个独立来源； surge = 相对上一时间点的浪高涨幅 ≥30，口径同涨潮榜；每条带 slug+reason+edition 去重键，确定性生成、无重复）。浏览器扩展 0.2.0 起改用这份真实快照数据。
+
 ## 0.12.0 — 2026-11-15
 
 - **第一档新源接入（均为实测可用后才收）**：official_blogs 增加 **LangChain Blog**（Agent 框架一手动态）；tech_media 增加 **Interconnects**（Nathan Lambert，模型发布解读）、**Ahead of AI**（Sebastian Raschka，论文/模型深读）、**Dwarkesh Podcast**（长访谈）。配置（YAML/JSON 双份）、抓取器默认列表、站点域名映射与归组提示同步更新。实测：official_blogs 候选 50 → 55，tech_media 40 → 55，四个新 feed 各出满单源上限 5 条。
