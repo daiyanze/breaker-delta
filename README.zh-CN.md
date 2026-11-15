@@ -2,9 +2,9 @@
 
 [English](README.md) | **简体中文**
 
-# 浪尖雷达 · Breaker Delta
+# 浪尖雷达
 
-*浪起之前，先有回波。* Catch it before it breaks.
+*浪起之前，先有回波。*
 
 全网热点雷达：在热点到达大众搜索之前，从源头层抓到它。扫描频度由使用者自行定义，程序不写死任何节奏。
 
@@ -102,9 +102,7 @@ node apps/cli/dist/breaker-delta.mjs --data-dir /path/to/your-data mcp
 
 ## 文档索引
 
-- [方法论](methodology.zh-CN.md) —— 分层、门槛、分级、复盘（[English](methodology.md)）
 - [自带信息源一览](SOURCES.zh-CN.md) —— 全部 26 个抓取组与各自口径（[English](SOURCES.md)）
-- [Roadmap](ROADMAP.zh-CN.md) —— 从内部工具到公开站点的路线与已上线项（[English](ROADMAP.md)）
 - [Privacy](PRIVACY.md) —— 只读、不登录、不发帖
 - [Changelog](CHANGELOG.md)
 
