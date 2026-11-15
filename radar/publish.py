@@ -110,6 +110,17 @@ STRINGS = {
            "cfg_title": "⚙️ 配置（设置文件原文）", "src_topics_title": "贡献的话题",
            "src_topic_meta": "出现 {n} 次 · 最近 {d}", "creator_title": "✍️ 创作参考",
            "ol_short": "短贴大纲", "ol_long": "长文大纲", "tips_title": "写作 tips",
+           "cr_src": "框架取自公开写作 skills：tweet-writer（钩子公式 / PAS）、Hormozi 四段、Dan Koe 节奏",
+           "cr_hooks": "钩子三选一（钩子决定 80–90%，先写钩子再写正文）",
+           "hk_num": "数字型", "hk_gap": "好奇缺口", "hk_signal": "信号型",
+           "cr_pas": "正文骨架 · PAS（问题 → 放大 → 事实）",
+           "pas_p": "问题", "pas_a": "放大", "pas_s": "事实",
+           "cr_hz": "骨架 · Hormozi 四段（观点 → 故事 → 理由 → 软 CTA）",
+           "hz1": "一个观点", "hz2": "故事与证据", "hz3": "理由，不是步骤", "hz4": "软 CTA",
+           "hz1_hint": "用一句话写下主张；先从「建议动作」里提炼，写不出就是还没想清",
+           "hz3_hint": "从技术、商业、使用者三个角度各写一条理由——讲为什么成立，不讲怎么做",
+           "hz4_txt": "结尾轻带一句即可：后续会继续追踪它的浪高变化，想跟进的可以收藏这页",
+           "traj": "浪高轨迹", "tips_s": "短贴 tips", "tips_l": "长文 tips",
            "ol_hook": "钩子", "ol_fact": "核心事实", "ol_why": "为什么重要",
            "ol_data": "数据", "ol_src": "出处", "ol_title2": "标题", "ol_lead": "导语",
            "ol_timeline": "事件时间线", "ol_detail": "关键细节", "ol_impact": "影响与判断",
@@ -149,6 +160,17 @@ STRINGS = {
            "src_topics_title": "Contributed topics",
            "src_topic_meta": "{n} appearances · latest {d}", "creator_title": "✍️ For creators",
            "ol_short": "Short-post outline", "ol_long": "Long-form outline",
+           "cr_src": "Frameworks from public writing skills: tweet-writer (hook formulas / PAS), Hormozi's four parts, Dan Koe's rhythm",
+           "cr_hooks": "Three hook options (the hook decides 80–90% — write it first)",
+           "hk_num": "Specific result", "hk_gap": "Curiosity gap", "hk_signal": "Signal",
+           "cr_pas": "Body skeleton · PAS (Problem → Agitate → Facts)",
+           "pas_p": "Problem", "pas_a": "Agitate", "pas_s": "Facts",
+           "cr_hz": "Skeleton · Hormozi's four parts (Idea → Story → Reasons → Soft CTA)",
+           "hz1": "One idea", "hz2": "Story & evidence", "hz3": "Reasons, not steps", "hz4": "Soft CTA",
+           "hz1_hint": "State your claim in one sentence — distill it from the suggested action; if you can't, the angle isn't clear yet",
+           "hz3_hint": "One reason each from the tech, business and user angles — argue why it is true, not how to do it",
+           "hz4_txt": "End lightly: I will keep tracking its wave height — bookmark this page to follow along",
+           "traj": "Wave trail", "tips_s": "Short-post tips", "tips_l": "Long-form tips",
            "tips_title": "Writing tips", "ol_hook": "Hook", "ol_fact": "Key facts",
            "ol_why": "Why it matters", "ol_data": "Data", "ol_src": "Sources",
            "ol_title2": "Title", "ol_lead": "Lead", "ol_timeline": "Timeline",
@@ -187,6 +209,17 @@ STRINGS = {
            "cfg_title": "⚙️ 設定（設定ファイル原文）", "src_topics_title": "寄与したトピック",
            "src_topic_meta": "{n} 回登場 · 最新 {d}", "creator_title": "✍️ クリエイター向け",
            "ol_short": "短文アウトライン", "ol_long": "長文アウトライン",
+           "cr_src": "枠組みは公開ライティング skills から：tweet-writer（フック公式 / PAS）、Hormozi の4部、Dan Koe のリズム",
+           "cr_hooks": "フック3案（フックが 80–90% を決める。まずフックから書く）",
+           "hk_num": "数字型", "hk_gap": "好奇ギャップ", "hk_signal": "シグナル型",
+           "cr_pas": "本文の骨格 · PAS（問題 → 拡大 → 事実）",
+           "pas_p": "問題", "pas_a": "拡大", "pas_s": "事実",
+           "cr_hz": "骨格 · Hormozi の4部（主張 → 物語 → 理由 → ソフト CTA）",
+           "hz1": "一つの主張", "hz2": "物語と証拠", "hz3": "理由であって手順ではない", "hz4": "ソフト CTA",
+           "hz1_hint": "主張を一文で書く。まず「おすすめアクション」から抽出を。書けないなら角度が定まっていない",
+           "hz3_hint": "技術・ビジネス・利用者の三つの角度から理由を一つずつ——「なぜ成り立つか」を書き、「どうやるか」は書かない",
+           "hz4_txt": "締めは軽く：今後も波高の変化を追跡します。フォローしたい方はこのページを保存どうぞ",
+           "traj": "波高の軌跡", "tips_s": "短文 tips", "tips_l": "長文 tips",
            "tips_title": "執筆 tips", "ol_hook": "フック", "ol_fact": "要点",
            "ol_why": "なぜ重要か", "ol_data": "データ", "ol_src": "出典",
            "ol_title2": "タイトル", "ol_lead": "リード", "ol_timeline": "タイムライン",
@@ -409,10 +442,10 @@ header.mast svg{width:30px;height:30px}
 nav.tabs{display:flex;gap:8px;margin:14px 0 0}
 nav.tabs a{border:1px solid var(--line);border-radius:6px;padding:5px 14px;color:var(--sub);font-size:13.5px}
 nav.tabs a.on{color:var(--ink);border-color:var(--teal);background:rgba(94,234,212,.07)}
-.timeline{display:flex;align-items:flex-start;margin:20px 2px 4px;position:relative}
+.timeline{display:flex;align-items:flex-start;margin:30px 2px 14px;position:relative}
 .timeline::before{content:"";position:absolute;left:0;right:0;top:5px;border-top:1px solid var(--line)}
 .tick{flex:1;text-align:center;position:relative}
-.tick a{color:var(--faint);font-size:12px;display:block;padding-top:16px}
+.tick a{color:var(--faint);font-size:12px;display:block;padding-top:20px}
 .tick::before{content:"";position:absolute;top:0;left:50%;margin-left:-5px;width:9px;height:9px;
  border-radius:50%;border:1px solid var(--faint);background:var(--bg)}
 .tick.on a{color:var(--beam,#f5d97e);font-weight:700}
@@ -448,9 +481,9 @@ nav.tabs a.on{color:var(--ink);border-color:var(--teal);background:rgba(94,234,2
 .langs{display:flex;gap:6px}
 .langs a{border:1px solid var(--line);border-radius:6px;padding:4px 9px;font-size:12px;color:var(--sub)}
 .langs a.on{color:var(--ink);border-color:var(--teal)}
-.ticks-scroll{overflow-x:auto;scrollbar-width:thin;padding-bottom:4px}
+.ticks-scroll{overflow-x:auto;scrollbar-width:thin;padding-bottom:10px}
 .timeline.tight{flex-wrap:nowrap}
-.timeline.tight .tick{flex:none;min-width:92px}
+.timeline.tight .tick{flex:none;min-width:118px}
 .tick.dim a{visibility:hidden}
 .srctops{font-size:12px;color:var(--sub)}
 [data-theme="light"]{--bg:#f4f1ea;--panel:#fffdf7;--line:#d8d1bd;--ink:#1b2430;--sub:#5d6b7a;
@@ -545,6 +578,11 @@ a.badge{text-decoration:none;color:inherit}
 .help summary{cursor:pointer;color:var(--teal);font-size:13.5px}
 .helpbody{color:var(--sub);font-size:13.5px;line-height:1.75;padding:8px 2px 2px}
 .helpbody b{color:var(--ink)}
+.detail p{margin:12px 0 18px;line-height:1.85}
+.orig{margin-top:24px}
+.cfgdet{margin:2px 0 10px 43px}
+.cfgdet summary{cursor:pointer;color:var(--sub);font-size:12.5px;font-family:var(--mono)}
+.cfgdet .cfgpre{margin:8px 0 4px 0}
 td a{color:var(--teal)}
 .note{color:var(--faint);font-size:12.5px}
 .slider-box{display:flex;align-items:center;gap:14px;border:1px solid var(--line);
@@ -565,22 +603,52 @@ def tokens(s):
     return set(re.findall(r"[A-Za-z0-9]+|[一-鿿]", (s or "").lower()))
 
 
-TIPS = {
-    "zh": ["先点开原文链接核对再写，引用时标明来源。",
-           "浪高和排名是本站的追踪信号，写的时候可以注明「据浪尖雷达追踪」。",
-           "短贴第一句就给结论；长文导语别超过三句。",
-           "加上你自己的判断或经历，别只做搬运。",
-           "苗头级话题用「据 X 报道」的口径留余地，别写成定论。"],
-    "en": ["Open the original links and verify before writing; credit sources when you quote.",
-           "Wave height and rank are this site's tracking signals — cite them as tracked by Breaker Delta.",
-           "Short posts: lead with the conclusion. Long-form: keep the lead under three sentences.",
-           "Add your own take or experience; don't just repost.",
-           "For seed-level topics, hedge with 'reported by X' instead of stating conclusions."],
-    "ja": ["書く前に原文リンクを開いて確認し、引用時は出典を明示。",
-           "波高と順位は本サイトの追跡シグナル。「Breaker Delta の追跡によると」と添えられます。",
-           "短文は最初の一文で結論を。長文のリードは三文以内に。",
-           "そのまま転載せず、自分の見方や経験を加える。",
-           "芽生え級の話題は「X によると」と留保し、断定しない。"],
+HOOK_T = {
+    "zh": {"num": "「{name}」——浪高冲到 {heat}，{n} 个来源同时在报。",
+           "gap": "{hook} 但真正值得看的，不是这件事本身。",
+           "signal": "信号不在热闹那边：「{name}」已经排到第 {rank}，还在发酵。"},
+    "en": {"num": "\u201c{name}\u201d — wave height {heat}, {n} sources reporting at once.",
+           "gap": "{hook} But the thing worth watching is not the event itself.",
+           "signal": "The signal is not where the noise is: \u201c{name}\u201d is already at #{rank} and still developing."},
+    "ja": {"num": "「{name}」——波高 {heat}、{n} ソースが同時に報道。",
+           "gap": "{hook} ただし本当に見るべきは、出来事そのものではない。",
+           "signal": "シグナルは騒がしい側にない：「{name}」はすでに {rank} 位で、まだ発酵中。"},
+}
+
+SHORT_TIPS = {
+    "zh": ["单贴越短越好：一口气读完为准；英文单贴 110 字符内表现最佳（tweet-writer）。",
+           "第一小时最关键：发在受众活跃的时段；链接放文末或回复里，别占正文开头。",
+           "具体数字 > 形容词：「浪高 209、5 个来源同时报」比「非常火」可信得多。",
+           "钩子公式轮换用：数字型 / 好奇缺口 / 反差观点 / 问题 / 故事，别连用同一种。",
+           "Thread 每条独立成立，第一条必须是能单独转发的钩子。"],
+    "en": ["Shorter wins: one breath per post; under ~110 characters performs best for single posts (tweet-writer).",
+           "The first hour is critical: post when your audience is active; put links at the end or in a reply, not up front.",
+           "Specific numbers beat adjectives: 'wave 209, 5 sources at once' over 'it's huge'.",
+           "Rotate hook formulas: specific result / curiosity gap / contrarian / question / story.",
+           "In a thread, every post must stand alone; the first one must work as a standalone hook."],
+    "ja": ["短いほど良い：一息で読める長さに。英語の単独ポストは110文字以内が最適（tweet-writer）。",
+           "最初の一時間が勝負：読者が活発な時間帯に投稿し、リンクは末尾か返信へ。",
+           "形容詞より具体的な数字：「波高209、5ソース同時報道」は「すごく話題」より信頼される。",
+           "フック公式は使い回す：数字型 / 好奇ギャップ / 逆張り / 質問 / 物語。",
+           "スレッドは各ポストが独立して成立すること。最初の一件は単独で通用するフックに。"],
+}
+
+LONG_TIPS = {
+    "zh": ["一篇只讲一个观点：主张说不成一句话，就先别动笔（Hormozi）。",
+           "理由不是步骤：从心理、经济、行为、竞争等角度把观点讲透，目标 4–6 条。",
+           "节奏参考 Dan Koe：约 40% 短句独立成段、40% 对話式中句、20% 长段展开。",
+           "动笔前先定角度：同一话题列几个角度，选信息增量最大的一个（Substack 写作流程）。",
+           "说服靠具体：真实数字、真实案例、时间线——形容词最廉价。"],
+    "en": ["One piece, one idea: if the claim does not fit in one sentence, do not start writing (Hormozi).",
+           "Reasons, not steps: argue the idea from psychological, economic, behavioral and competitive angles — aim for 4–6.",
+           "Rhythm after Dan Koe: ~40% ultra-short paragraphs, ~40% conversational medium, ~20% longer expansive passages.",
+           "Pick the angle before drafting: list several angles for the same topic, take the one with the most new information (Substack workflow).",
+           "Persuasion is concrete: real numbers, real cases, a timeline — adjectives are the cheapest currency."],
+    "ja": ["一本に主張は一つ：一文で言えないなら、まだ書くな（Hormozi）。",
+           "理由は手順ではない：心理・経済・行動・競合など複数の角度から主張を裏付ける。目標4–6個。",
+           "リズムは Dan Koe 参考：約40%が短い独立段落、40%が会話的な中丈、20%が長い展開。",
+           "書く前に角度を決める：同じ話題で角度をいくつか挙げ、情報量が最大のものを選ぶ（Substack の流れ）。",
+           "説得は具体で：実数、実例、タイムライン。形容詞は一番安い。"],
 }
 
 SRC_ALIASES = {
@@ -655,9 +723,8 @@ def load_config_blocks():
     return {}
 
 
-def source_block(name, blocks):
-    """Map an edition's display source name to its fetcher-group config
-    block (verbatim settings text), or None when it has no config."""
+def source_key(name):
+    """Map an edition's display source name to its fetcher-group key."""
     low = name.lower()
     key = SRC_ALIASES.get(low)
     if not key and low.startswith("reddit"):
@@ -670,6 +737,12 @@ def source_block(name, blocks):
         key = "tech_media"
     if not key and "sitemap" in low:
         key = "sitemaps"
+    return key
+
+
+def source_block(name, blocks):
+    """The source's fetcher-group config block (verbatim settings text)."""
+    key = source_key(name)
     return blocks.get(key) if key else None
 
 
@@ -753,7 +826,11 @@ def build_topics(editions, ledger):
 
 
 def ed_label(ed):
-    return f"{ed['date'][5:]} {SLOT.get(ed.get('slot'), (ed.get('slot') or '', 0))[0]}"
+    """Conventional timestamp for an edition: YYYY-MM-DD HH:MM."""
+    pa = ed.get("published_at") or ""
+    if len(pa) >= 16:
+        return f"{pa[:10]} {pa[11:16]}"
+    return ed["date"]
 
 
 def ed_file(ed):
@@ -1388,11 +1465,11 @@ def build_site(OUT, editions, topics):
             lis = "".join(f'<li><a href="{html.escape(u)}" rel="nofollow noopener">{html.escape(u)}</a></li>' for u in links)
             det = (f'<div class="orig"><div class="note">{s("orig_links")} ({len(links)})</div>'
                    f'<ul>{lis}</ul></div>')
-        chips = "".join(f'<span class="more-n">{html.escape(s)}</span>' for s in last["sources"])
         body_html = html.escape(last["body"]).replace("\n", "<br>")
         act = f'<p><b>{s("action")}</b>：{html.escape(last["action"])}</p>' if last["action"] else ""
-        # creator reference: short-post & long-form outlines + writing tips,
-        # generated from this topic's own data (body, action, timeline, sources)
+        # creator reference v2: frameworks distilled from public writing
+        # skills (tweet-writer hook formulas + PAS; Hormozi's four parts;
+        # Dan Koe's rhythm), filled with this topic's own data
         hook = re.split(r"(?<=[。！？.!?])\s*", (last["body"] or "").strip(),
                         maxsplit=1)[0][:90]
         all_srcs = sorted({x for a in t["apps"] for x in a["sources"]})
@@ -1405,31 +1482,38 @@ def build_site(OUT, editions, topics):
         src_line = " · ".join(doms) if doms else "—"
         data_line = (s("wave_rank").format(h=last["heat"], r=last["board_rank"])
                      + " · " + s("resonance").format(n=len(all_srcs)))
-        why_li = (f'<li><b>{s("ol_why")}</b>：{html.escape(last["action"])}</li>'
-                  if last["action"] else "")
-        impact_li = (f'<li><b>{s("ol_impact")}</b>：{html.escape(last["action"])}</li>'
+        ht = HOOK_T[CUR["lang"]]
+        hooks = [("hk_num", ht["num"].format(name=t["name"], heat=last["heat"],
+                                             n=len(all_srcs))),
+                 ("hk_gap", ht["gap"].format(hook=hook)),
+                 ("hk_signal", ht["signal"].format(name=t["name"],
+                                                   rank=last["board_rank"]))]
+        hooks_ol = ('<ol class="ol-list">' + "".join(
+            f'<li><b>{s(k)}</b>：{html.escape(v)}</li>' for k, v in hooks) + "</ol>")
+        pas_ol = ('<ol class="ol-list">'
+                  f'<li><b>{s("pas_p")}</b>：{html.escape(hook)}</li>'
+                  + (f'<li><b>{s("pas_a")}</b>：{html.escape(last["action"])}</li>'
                      if last["action"] else "")
-        tl_items = "".join(
-            f'<li>{ed_label(editions[a["edition"]])}：{html.escape(a["title"])}'
-            f'（{s("wave")} {a["heat"]}）</li>' for a in t["apps"])
-        short_ol = ('<ol class="ol-list">'
-                    f'<li><b>{s("ol_hook")}</b>：{html.escape(hook)}</li>'
-                    f'<li><b>{s("ol_fact")}</b>：{body_html}</li>' + why_li
-                    + f'<li><b>{s("ol_data")}</b>：{data_line}</li>'
-                    + f'<li><b>{s("ol_src")}</b>：{html.escape(src_line)}</li></ol>')
-        long_ol = ('<ol class="ol-list">'
-                   f'<li><b>{s("ol_title2")}</b>：{html.escape(t["name"])}</li>'
-                   f'<li><b>{s("ol_lead")}</b>：{html.escape(hook)}</li>'
-                   f'<li><b>{s("ol_timeline")}</b>：<ul class="ol-list">{tl_items}</ul></li>'
-                   f'<li><b>{s("ol_detail")}</b>：{body_html}</li>' + impact_li
-                   + f'<li><b>{s("ol_next")}</b>：{s("ol_next_txt")}</li>'
-                   + f'<li><b>{s("ol_src")}</b>：{html.escape(src_line)}</li></ol>')
-        tips_ul = "".join(f"<li>{html.escape(x)}</li>" for x in TIPS[CUR["lang"]])
-        creator = (f'<section class="panel"><div class="panel-h"><span>{s("creator_title")}</span></div>'
-                   f'<div class="subh">{s("ol_short")}</div>{short_ol}'
-                   f'<div class="subh">{s("ol_long")}</div>{long_ol}'
-                   f'<div class="subh">{s("tips_title")}</div>'
-                   f'<ul class="tips">{tips_ul}</ul></section>')
+                  + f'<li><b>{s("pas_s")}</b>：{body_html}<br>{data_line} · '
+                    f'{s("ol_src")}：{html.escape(src_line)}</li></ol>')
+        traj = " → ".join(str(a["heat"]) for a in t["apps"])
+        hz_ol = ('<ol class="ol-list">'
+                 f'<li><b>{s("hz1")}</b>：{s("hz1_hint")}</li>'
+                 f'<li><b>{s("hz2")}</b>：{html.escape(t["apps"][0]["title"])} → '
+                 f'{html.escape(last["title"])}（{s("traj")}：{traj}）</li>'
+                 f'<li><b>{s("hz3")}</b>：{s("hz3_hint")}</li>'
+                 f'<li><b>{s("hz4")}</b>：{s("hz4_txt")}</li></ol>')
+        st_ul = "".join(f"<li>{html.escape(x)}</li>" for x in SHORT_TIPS[CUR["lang"]])
+        lt_ul = "".join(f"<li>{html.escape(x)}</li>" for x in LONG_TIPS[CUR["lang"]])
+        creator = (f'<section class="panel"><div class="panel-h"><span>{s("creator_title")}</span>'
+                   f'<span class="r">{s("cr_src")}</span></div>'
+                   f'<div class="subh">{s("ol_short")}</div>'
+                   f'<div class="note" style="margin-top:8px">{s("cr_hooks")}</div>{hooks_ol}'
+                   f'<div class="note" style="margin-top:10px">{s("cr_pas")}</div>{pas_ol}'
+                   f'<div class="subh">{s("tips_s")}</div><ul class="tips">{st_ul}</ul>'
+                   f'<div class="subh">{s("ol_long")}</div>'
+                   f'<div class="note" style="margin-top:8px">{s("cr_hz")}</div>{hz_ol}'
+                   f'<div class="subh">{s("tips_l")}</div><ul class="tips">{lt_ul}</ul></section>')
         ths = s("th")
         thead = (f'<th>{ths[0]}</th><th class="n">{ths[1]}</th><th class="n">{ths[2]}</th>'
                  + "".join(f'<th>{x}</th>' for x in ths[3:]))
@@ -1447,7 +1531,7 @@ def build_site(OUT, editions, topics):
                   f'<h3 style="margin:26px 0 6px">{s("chart")}</h3>{wave_chart(t, editions)}'
                   f'<table><tr>{thead}</tr>{hist_rows}</table>'
                   f'<div class="detail" style="margin-top:24px"><p>{body_html}</p>{act}'
-                  f'<div style="margin-top:12px">{chips}</div>{det}</div></section>'
+                  f'{det}</div></section>'
                 + (creator if CREATOR else "") + foot())
         ld = {"@context": "https://schema.org", "@type": "NewsArticle",
               "headline": last["title"], "description": (last["body"] or "")[:150],
@@ -1593,10 +1677,12 @@ def build_site(OUT, editions, topics):
             dom=dom or "—", a=len(e["topics"]), b=e["apps"], c=len(e["eds"]),
             d=ed_label(editions[e["first_ei"]]), e=ed_label(editions[e["last_ei"]]))
         blk = source_block(src, blocks)
+        cfg_html = (f'<details class="cfgdet"><summary>⚙️ config · {source_key(src)}</summary>'
+                    f'<pre class="cfgpre">{html.escape(blk)}</pre></details>') if blk else ""
         schunks.append(f'<div class="row">{icon}'
                        f'<span class="rtitle">{name_html}</span>'
                        f'<span class="note">{html.escape(stats)}</span></div>'
-                       + (f'<pre class="cfgpre">{html.escape(blk)}</pre>' if blk else "")
+                       + cfg_html
                        + f'<div class="srctops" style="padding:0 0 10px 43px">{tlinks}</div>')
     srcheader = (f'<div class="panel-h"><span>{s("sources_title")}</span>'
                  f'<span class="r">{s("sources_r").format(n=len(sstat))}</span></div>')

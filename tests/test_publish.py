@@ -140,5 +140,6 @@ def test_topic_page_has_wave_chart_and_visible_nofollow_links():
     assert "https://example.com/release" in main
     assert "Telegram" in main  # default share set is international platforms
     assert 'href="source-' in main  # history-table sources link to source pages
-    assert "创作参考" in main and "短贴大纲" in main  # creator outlines + tips
+    assert "创作参考" in main and "钩子三选一" in main  # creator v2: hook options
+    assert "Hormozi" in main  # long-form skeleton attribution
     assert 'class="help"' in main  # collapsible wave-height explainer
