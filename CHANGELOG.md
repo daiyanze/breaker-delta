@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.17.0 — 2026-11-15（未发布，Node 迁移 Phase 2）
+
+- **Phase 2 `@breaker-delta/fetchers`**：抓取层全量迁 TS（strict、零运行时依赖，依赖 `@breaker-delta/core`）——`common`（getJson/getText/postJson、parseFeed、fetchFeedBundle、ok/missing、FetchError）、自写 XML 子集解析器（元素/属性/文本/CDATA/实体/命名空间展开，不引第三方包）、config 加载（搜索顺序同 Python）+ YAML 子集解析器（`yamlmini.py` 的逐行移植，子集外构造如锚点/多行字符串抛错而非误读）、全部 25 个 fetcher（注册表顺序与 Python 一致）与最小编排 `runScan`/`summaryLines`（Phase 4 再做正式 CLI）。Python 抓取器原样保留。
+- **对等验证两层**：① Golden——`scripts/make_golden_fetchers.py` 把 `tests/test_fetchers.py` 的罐头 payload 原样搬来跑 Python parse，生成 `fixtures/golden-fetchers.json`（36 个 parse 用例）+ `fixtures/golden-config.json`（PyYAML 解析 `config.example.yaml` 的结果）；TS 57 个测试全过，含 YAML 输出与 PyYAML 逐项 deep equal。② 实网双跑（2026-11-15 晚，沙箱目录、示例配置、两边间隔约 25 分钟）：25 源中 24 个 status 一致（x 两边均 missing），21 源条数与 URL 集合 100% 一致，共振组 60=60、vocab 基线 270=270、sitemaps 基线逐站一致（仅 glama +8 为活数据增长）；差异均为活数据漂移或外部限流——civitai/producthunt 最新流在间隔内滚动（重合 0.80）、google_news 轮换 1 条（0.97）、app_store 两边走通的端点不同（主端点 vs legacy 回退，重合 0.56，两边条数都是 50）、reddit 在第三次扫描时被未登录限流打成 missing（单独跑 Node 版为 ok 30 条，走通的子版与 Python 那次不同，总数一致）。
+- **双跑中修掉一个真 bug**：Node 侧对非 2xx 响应未读 body 就抛错会让 undici 在 keep-alive 连接上触发内部断言、直接崩进程（Reddit 403 页触发）；`fetchBytes` 改为先排空 error body 再抛 FetchError（与 urllib 读完才报错的行为一致）。
+- 根 `package.json` 与 workspace 版本升 0.17.0，根 test/build 脚本串联 core + fetchers（npm test 共 166 个全过）；Python `pytest` 仍 52 全过。
+
 ## 0.16.0 — 2026-11-15（未发布，Node 迁移 Phase 0 + 1）
 
 - **Node / TypeScript 迁移开工（开工单 `NODE-MIGRATION.md`）**：仓库改为 npm workspaces monorepo（根 `package.json` + `tsconfig.base.json`），Python 引擎原样保留、不改行为，直到对应 Phase 对等验证通过。

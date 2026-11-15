@@ -37,7 +37,7 @@ core 的硬规则：
 
 - **Phase 0 黄金样本**：Python 脚本对固定输入集跑全部待迁纯函数，输出 `packages/core/fixtures/golden.json`。输入集要覆盖：中英日标题、CJK slug、分类边界（title 命中 vs body 命中 vs 无命中）、浪高各等级、resonance 多源/单源/超 12 条、controls 的 mute/boost/alert/max_age、store upsert/review、topics/alerts 全链（用 tests/test_publish.py 的 ED1/ED2 fixture 扩展）。
 - **Phase 1 core**：迁移 scan.py 的 tokens/resonance/topic_weights/item_time/apply_controls、store.py 全部、vocab.py 的判定逻辑（存储注入）、publish.py 的 heat_of/classify/slugify/title_keywords/topic_key/build_topics/parse_track_record/topics_data/alerts_data。TS 测试直接读 golden.json 逐项比对。
-- **Phase 2 fetchers**：common（parse_feed 等）+ 26 组抓取器分批迁，双跑比对候选文件。
+- **Phase 2 fetchers**：common（parse_feed 等）+ 25 个抓取器分批迁，双跑比对候选文件。✅ 已完成（0.17.0-dev，2026-11-15）：`@breaker-delta/fetchers` 全量落地，golden 36 parse 用例 + config 对 PyYAML 全过（TS 57 测试），实网双跑 24/25 源 status 一致、21 源 URL 100% 重合（差异均为活数据漂移/Reddit 限流，详见 CHANGELOG）；双跑修掉 undici 未读 error body 崩进程一处。
 - **Phase 3 publisher**：publish.py 其余部分（HTML/Feed/sitemap），逐页与 Python 构建产物 diff。
 - **Phase 4 CLI + Skill**：scan/review/record/publish/doctor 五命令，机器可读输出（--json）、退出码、原子写入；打包单文件；SKILL.md 改调 Node CLI，数据目录显式传入。
 - **Phase 5 扩展**：extension/ 迁 apps/extension，改引 core，删手抄逻辑；数据仓 CI 顺带打包用户自己的扩展。

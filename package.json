@@ -1,1 +1,17 @@
-{"engines":{"node":">=20"},"name":"breaker-delta","private":true,"scripts":{"build":"npm run build -w @breaker-delta/core","test":"npm run test -w @breaker-delta/core"},"type":"module","version":"0.16.0","workspaces":["packages/*","apps/*"]}
+{
+  "engines": {
+    "node": ">=20"
+  },
+  "name": "breaker-delta",
+  "private": true,
+  "scripts": {
+    "build": "npm run build -w @breaker-delta/core && npm run build -w @breaker-delta/fetchers",
+    "test": "npm run test -w @breaker-delta/core && npm run test -w @breaker-delta/fetchers"
+  },
+  "type": "module",
+  "version": "0.17.0",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ]
+}
