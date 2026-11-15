@@ -1,6 +1,6 @@
 **English** | [简体中文](SOURCES.zh-CN.md)
 
-# Built-in Sources · 自带信息源一览
+# Built-in Sources
 
 The sources Breaker Delta ships with, in one-to-one correspondence with `config.example.yaml`. **26 fetcher groups** in total, in three layers by propagation order: **L1 source layer** (where things appear first), **L2 fermentation layer** (discussion spreads, demand surfaces), **L3 verification layer** (checks only, never discovers).
 
