@@ -37,6 +37,8 @@ from urllib.parse import quote, urlparse
 ROOT = Path(__file__).resolve().parent.parent
 OUT = Path(os.environ.get("TS_OUT", str(ROOT / "site")))
 PER = int(os.environ.get("TS_PAGE_SIZE", "100"))
+ARCHIVE_DAYS = int(os.environ.get("TS_ARCHIVE_DAYS", "7"))
+SOURCES_PER = int(os.environ.get("TS_SOURCES_PAGE", "20"))
 BASE_URL = "https://daiyanze.github.io/breaker-delta/"
 SLOT = {"pilot": ("试跑", 0), "morning": ("早报", 1), "evening": ("晚报", 2)}
 BASE = {"must": 60, "watch": 30, "seed": 10}
@@ -100,6 +102,10 @@ STRINGS = {
            "tabs": ["🌊 海浪榜", "📈 涨潮榜", "🌱 苗头", "🗂️ 分类", "📡 数据源", "📚 归档", "ℹ️ 关于"],
            "wave": "浪高", "carried": "结转", "new": "NEW 首现", "rank": "排名", "prev": "前",
            "tags_title": "🏷️ 标签", "editions_n": "{n} 期", "copy_link": "复制链接", "copied": "已复制",
+           "ly1": "源头层", "ly2": "发酵层", "ly3": "验证层", "cfg_per": "每源 {v} 条",
+           "cfg_top": "Top {v}", "cfg_limit": "上限 {v}", "cfg_stars": "日均 ★ ≥ {v}",
+           "cfg_acc": "账号 ≥ {v}", "cfg_verify": "仅验证", "cfg_on": "启用", "cfg_off": "已禁用",
+           "rising_empty": "本期没有上涨的话题：与上一时间点相比浪高都没有上升（新上榜话题计入涨潮榜）。",
            "slider": "时间滑块", "current": "当前", "hist": "历史快照",
            "count": "共 {n} 条", "board_title": "🌊 海浪榜 · 全部话题",
            "seeds_title": "🌱 苗头", "seeds_r": "单源或早期信号 · 近 3 期",
@@ -123,6 +129,11 @@ STRINGS = {
            "tabs": ["🌊 Wave Board", "📈 Rising", "🌱 Seeds", "🗂️ Categories", "📡 Sources", "📚 Archive", "ℹ️ About"],
            "wave": "Wave", "carried": "carried", "new": "NEW", "rank": "Rank", "prev": "was",
            "tags_title": "🏷️ Tags", "editions_n": "{n} editions", "copy_link": "Copy link", "copied": "Copied",
+           "ly1": "source layer", "ly2": "fermentation layer", "ly3": "verification layer",
+           "cfg_per": "{v} per feed", "cfg_top": "Top {v}", "cfg_limit": "limit {v}",
+           "cfg_stars": "★/day ≥ {v}", "cfg_acc": "accounts ≥ {v}", "cfg_verify": "verify only",
+           "cfg_on": "enabled", "cfg_off": "disabled",
+           "rising_empty": "No topics rose versus the previous time point (new entries count as rising).",
            "slider": "Time slider", "current": "current", "hist": "snapshot",
            "count": "{n} topics", "board_title": "🌊 Wave Board · All topics",
            "seeds_title": "🌱 Seeds", "seeds_r": "Single-source / early signals · last 3 editions",
@@ -146,6 +157,10 @@ STRINGS = {
            "tabs": ["🌊 ウェーブボード", "📈 上昇", "🌱 芽生え", "🗂️ カテゴリ", "📡 ソース", "📚 アーカイブ", "ℹ️ 概要"],
            "wave": "波高", "carried": "繰越", "new": "NEW", "rank": "順位", "prev": "前",
            "tags_title": "🏷️ タグ", "editions_n": "{n} 号", "copy_link": "リンクをコピー", "copied": "コピー済み",
+           "ly1": "一次ソース", "ly2": "発酵層", "ly3": "検証層", "cfg_per": "各 {v} 件",
+           "cfg_top": "Top {v}", "cfg_limit": "上限 {v}", "cfg_stars": "★/日 ≥ {v}",
+           "cfg_acc": "アカウント ≥ {v}", "cfg_verify": "検証のみ", "cfg_on": "有効", "cfg_off": "無効",
+           "rising_empty": "前期比で上昇したトピックはありません（新規登場は上昇として数えます）。",
            "slider": "時間スライダー", "current": "現在", "hist": "スナップショット",
            "count": "{n} 件", "board_title": "🌊 ウェーブボード · 全トピック",
            "seeds_title": "🌱 芽生え", "seeds_r": "単一ソース・初期シグナル · 直近3号",
@@ -480,6 +495,11 @@ a.badge{text-decoration:none;color:inherit}
 .tagchip:hover{color:var(--teal);border-color:var(--teal)}
 .orig ul{margin:6px 0 0;padding-left:18px}
 .orig li{margin:3px 0;word-break:break-all;font-size:13.5px}
+.tagchip.on{color:var(--ink);border-color:var(--teal);font-weight:700}
+.cfgchips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 2px 43px}
+.cfg{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--sub);font-family:var(--mono)}
+.cfg.off{color:var(--red);border-color:var(--red)}
+.cfgrule{margin:0 0 4px 43px}
 td a{color:var(--teal)}
 .note{color:var(--faint);font-size:12.5px}
 .slider-box{display:flex;align-items:center;gap:14px;border:1px solid var(--line);
@@ -498,6 +518,83 @@ def heat_of(it):
 
 def tokens(s):
     return set(re.findall(r"[A-Za-z0-9]+|[一-鿿]", (s or "").lower()))
+
+
+SRC_ALIASES = {
+    "hacker news": "hackernews", "show hn": "show_hn", "github": "github",
+    "github trending": "github", "x": "x", "product hunt": "producthunt",
+    "hugging face": "huggingface", "openrouter": "openrouter",
+    "civitai": "civitai", "arxiv": "arxiv", "bluesky": "bluesky",
+    "google news": "google_news", "google news 多家": "google_news",
+    "google trends": "google_trends", "lobsters": "lobsters",
+    "dev.to": "devto", "dev": "devto", "wikipedia": "wikipedia",
+    "app store": "app_store", "daily papers": "daily_papers",
+    "hf spaces": "hf_spaces", "hugging face spaces": "hf_spaces",
+}
+OFFICIAL_HINTS = ("官方", "official", "openai", "deepmind", "anthropic",
+                  "mistral", "nvidia", "blog.google", "bair")
+TECH_HINTS = ("techcrunch", "the verge", "wired", "ars technica", "the decoder",
+              "venturebeat", "fortune", "cnbc", "reuters", "bbc", "nyt", "wsj",
+              "cbs", "usa today", "the guardian", "bloomberg", "forbes",
+              "technology review", "techmeme", "the information", "semafor")
+
+
+def load_source_configs():
+    """Per-source configs for the sources page: config.json wins over the
+    shipped config.example.json. Missing/unreadable -> no config shown."""
+    for name in ("config.json", "config.example.json"):
+        p = ROOT / name
+        if p.exists():
+            try:
+                return json.loads(p.read_text(encoding="utf-8")).get("sources") or {}
+            except Exception:
+                return {}
+    return {}
+
+
+def source_config(name, cfgs):
+    """Map an edition's display source name to its fetcher-group config."""
+    low = name.lower()
+    key = SRC_ALIASES.get(low)
+    if not key and low.startswith("reddit"):
+        key = "reddit"
+    if not key and low.startswith("mastodon"):
+        key = "mastodon"
+    if not key and any(h in low or h in name for h in OFFICIAL_HINTS):
+        key = "official_blogs"
+    if not key and any(h in low for h in TECH_HINTS):
+        key = "tech_media"
+    if not key and "sitemap" in low:
+        key = "sitemaps"
+    return cfgs.get(key) if key else None
+
+
+def cfg_chips(cfg):
+    """Render a source's config as chips (layer / enabled / caps / thresholds)
+    plus its rule text, as configured in config(.example).json."""
+    if not cfg:
+        return ""
+    parts = []
+    if cfg.get("layer") in (1, 2, 3):
+        parts.append((f"L{cfg['layer']} " + s(f"ly{cfg['layer']}"), "cfg"))
+    if "enabled" in cfg:
+        parts.append((s("cfg_on") if cfg["enabled"] else s("cfg_off"),
+                      "cfg" if cfg["enabled"] else "cfg off"))
+    for k, tpl in (("per_feed", "cfg_per"), ("top_n", "cfg_top"),
+                   ("limit", "cfg_limit"), ("max_items", "cfg_limit"),
+                   ("max_results", "cfg_limit"), ("per_page", "cfg_limit"),
+                   ("min_stars_per_day", "cfg_stars"), ("min_accounts", "cfg_acc")):
+        if cfg.get(k) is not None:
+            parts.append((s(tpl).format(v=cfg[k]), "cfg"))
+    if cfg.get("verify_only"):
+        parts.append((s("cfg_verify"), "cfg"))
+    if not parts:
+        return ""
+    body = "".join(f'<span class="{c}">{html.escape(t)}</span>' for t, c in parts)
+    rule = cfg.get("rule")
+    rule_html = (f'<div class="note cfgrule">{html.escape(str(rule)[:110])}</div>'
+                 if rule else "")
+    return f'<div class="cfgchips">{body}</div>{rule_html}'
 
 
 def load(editions_dir=None):
@@ -1054,7 +1151,7 @@ def build_site(OUT, editions, topics):
                 "return '<span class=\"hdelta\">→</span>'}"
                 "function row(d){return '<div class=\"row\"><span class=\"rank'+(d.r<=3?' top':'')+'\">'+d.r+rdHtml(d)+(d.pr!==null?'<span class=\"prank\">'+T.prev+' '+d.pr+'</span>':'')+'</span>'"
                 "+'<span class=\"rtitle\"><a href=\"'+d.file+'\">'+esc(d.title)+'</a>'+(d.carried?' <span class=\"note\">'+T.carried+'</span>':'')+'</span>'"
-                "+'<span class=\"tag\">'+esc(d.cat)+'</span><span class=\"time\">'+d.time+'</span>'+avs(d)"
+                "+'<a class=\"tag\" href=\"category-'+d.ck+'.html\">'+esc(d.cat)+'</a><span class=\"time\">'+d.time+'</span>'+avs(d)"
                 "+'<span class=\"heat\"><span class=\"spark\">'+spark(d.sp)+'</span><span class=\"hv\"><b>'+d.heat+'</b> <span>'+T.wave+'</span> '+hdHtml(d)+'</span></span></div>'}"
                 "let raf=0;function show(i){"
                 "if(!cache[i])cache[i]=D[i].rows.map(row).join('');"
@@ -1083,6 +1180,27 @@ def build_site(OUT, editions, topics):
     (OUT / "index.html").write_text(page(s("tabs")[0], body, path="index.html", ld=site_ld),
                                     encoding="utf-8")
 
+    def write_paged(fname1, title, mast_key, header, chunks, per, desc=None,
+                    prefix=""):
+        """Write a list page as fname1 + fname1-with--N suffixes, `per`
+        pre-rendered chunks per page, with a numeric pager."""
+        npg = max(1, (len(chunks) + per - 1) // per)
+        for p in range(npg):
+            fn = fname1 if p == 0 else fname1.replace(".html", f"-{p + 1}.html")
+            links = ""
+            if npg > 1:
+                links = '<div class="pager">' + "".join(
+                    f'<span class="on">{q + 1}</span>' if q == p else
+                    f'<a href="{fname1 if q == 0 else fname1.replace(".html", f"-{q + 1}.html")}">{q + 1}</a>'
+                    for q in range(npg)) + "</div>"
+            body = (mast(mast_key, editions, fname=fn) + prefix
+                    + f'<section class="panel">{header}'
+                    + "".join(chunks[p * per:(p + 1) * per]) + "</section>"
+                    + links + foot())
+            (OUT / fn).write_text(
+                page(title if p == 0 else f"{title} · {p + 1}", body, path=fn,
+                     desc=desc), encoding="utf-8")
+
     # seeds page: latest seeds + seed appearances of last 3 editions
     srows = []
     seed_apps = []
@@ -1095,12 +1213,10 @@ def build_site(OUT, editions, topics):
         srows.append(row_html(i, t, a, show_level=False).replace(
             '\n<span class="heat">',
             f'\n<span class="note">{ed_label(editions[a["edition"]])}</span>\n<span class="heat">'))
-    body = (mast("seeds", editions, fname="seeds.html")
-            + f'<section class="panel"><div class="panel-h"><span>{s("seeds_title")}</span>'
-              f'<span class="r">{s("seeds_r")}</span></div>'
-            + "".join(srows) + "</section>" + foot())
-    (OUT / "seeds.html").write_text(page(s("tabs")[2], body, path="seeds.html",
-                                    desc=s("desc_seeds")), encoding="utf-8")
+    sheader = (f'<div class="panel-h"><span>{s("seeds_title")}</span>'
+               f'<span class="r">{s("seeds_r")}</span></div>')
+    write_paged("seeds.html", s("tabs")[2], "seeds", sheader, srows, PER,
+                desc=s("desc_seeds"))
 
     # Overflow board pages (only when topics exceed one page of 100):
     # static, latest state; the slider lives on page 1.
@@ -1215,16 +1331,21 @@ def build_site(OUT, editions, topics):
         return row_html(rank if rank is not None else st["rank"], st["topic"], a,
                         show_level=show_level)
 
-    # rising: 涨潮榜 (biggest 浪高 gains at latest time point)
-    rising = [st for st in sts_latest if (st["heat_delta"] or 0) > 0]
-    rising.sort(key=lambda x: -x["heat_delta"])
-    rrows = "".join(state_row(st, i) for i, st in enumerate(rising[:30], 1))
-    body = (mast("rising", editions, fname="rising.html")
-            + f'<section class="panel"><div class="panel-h"><span>{s("rising_title")}</span>'
-              f'<span class="r">{ed_label(latest)} · {s("rising_r").format(n=len(rising))}</span></div>'
-            + rrows + "</section>" + foot())
-    (OUT / "rising.html").write_text(page(s("tabs")[1], body, path="rising.html",
-                                     desc=s("desc_rising")), encoding="utf-8")
+    # rising: 涨潮榜 — 浪高 gain vs the previous board state. A topic that is
+    # new at the latest time point counts its full 浪高 as the gain (it rose
+    # from nothing); if nothing rose, an explicit empty note is rendered.
+    def eff_gain(st):
+        return st["heat_delta"] if st["heat_delta"] is not None else st["app"]["heat"]
+
+    rising = [st for st in sts_latest if eff_gain(st) > 0]
+    rising.sort(key=lambda x: -eff_gain(x))
+    rchunks = [state_row(st, i) for i, st in enumerate(rising, 1)] or \
+        [f'<p class="note">{s("rising_empty")}</p>']
+    rheader = (f'<div class="panel-h"><span>{s("rising_title")}</span>'
+               f'<span class="r">{ed_label(latest)} · '
+               f'{s("rising_r").format(n=len(rising))}</span></div>')
+    write_paged("rising.html", s("tabs")[1], "rising", rheader, rchunks, PER,
+                desc=s("desc_rising"))
 
     # categories & levels: tag index page + one page per category / level
     cat_order = [c for c, _ in CAT_RULES] + ["行业动态"]
@@ -1232,14 +1353,18 @@ def build_site(OUT, editions, topics):
                for cat in cat_order}
     lv_sts = {lv: [st for st in sts_latest if st["app"]["level"] == lv]
               for lv in ("must", "watch", "seed")}
-    chips = "".join(
-        f'<a class="tagchip" href="{cat_file(cat)}">{html.escape(cat_name(cat))} · {len(cat_sts[cat])}</a>'
-        for cat in cat_order if cat_sts[cat])
-    chips += "".join(
-        f'<a class="tagchip" href="level-{lv}.html">{LEVELS[lv][0]}{level_label(lv)} · {len(lv_sts[lv])}</a>'
-        for lv in ("must", "watch", "seed") if lv_sts[lv])
-    index_panel = (f'<section class="panel"><div class="panel-h"><span>{s("tags_title")}</span></div>'
-                   f'<div class="tagchips">{chips}</div></section>')
+    def tag_index(active=None):
+        """The tag group (all category + level chips). Shown on the categories
+        page and on every tag page; the focused tag is highlighted."""
+        chips = "".join(
+            f'<a class="tagchip{" on" if active == f"cat:{cat}" else ""}" href="{cat_file(cat)}">{html.escape(cat_name(cat))} · {len(cat_sts[cat])}</a>'
+            for cat in cat_order if cat_sts[cat])
+        chips += "".join(
+            f'<a class="tagchip{" on" if active == f"lv:{lv}" else ""}" href="level-{lv}.html">{LEVELS[lv][0]}{level_label(lv)} · {len(lv_sts[lv])}</a>'
+            for lv in ("must", "watch", "seed") if lv_sts[lv])
+        return (f'<section class="panel"><div class="panel-h"><span>{s("tags_title")}</span></div>'
+                f'<div class="tagchips">{chips}</div></section>')
+
     cat_sections = ""
     for cat in cat_order:
         sts = cat_sts[cat]
@@ -1248,47 +1373,47 @@ def build_site(OUT, editions, topics):
         crows = "".join(state_row(st) for st in sts)
         cat_sections += (f'<section class="panel"><div class="panel-h"><span><a href="{cat_file(cat)}">{html.escape(cat_name(cat))}</a></span>'
                          f'<span class="r">{s("cat_r").format(n=len(sts))}</span></div>{crows}</section>')
-        cbody = (mast("categories", editions, fname=cat_file(cat))
-                 + f'<section class="panel"><div class="panel-h"><span>{html.escape(cat_name(cat))}</span>'
-                   f'<span class="r">{s("cat_r").format(n=len(sts))}</span></div>{crows}</section>' + foot())
-        (OUT / cat_file(cat)).write_text(
-            page(cat_name(cat), cbody, path=cat_file(cat)), encoding="utf-8")
+        cheader = (f'<div class="panel-h"><span>{html.escape(cat_name(cat))}</span>'
+                   f'<span class="r">{s("cat_r").format(n=len(sts))}</span></div>')
+        write_paged(cat_file(cat), cat_name(cat), "categories", cheader,
+                    [state_row(st) for st in sts], PER,
+                    prefix=tag_index(f"cat:{cat}"))
     for lv in ("must", "watch", "seed"):
         sts = lv_sts[lv]
         if not sts:
             continue
-        lrows = "".join(state_row(st) for st in sts)
         ltitle = f"{LEVELS[lv][0]} {level_label(lv)}"
-        lbody = (mast("categories", editions, fname=f"level-{lv}.html")
-                 + f'<section class="panel"><div class="panel-h"><span>{ltitle}</span>'
-                   f'<span class="r">{s("cat_r").format(n=len(sts))}</span></div>{lrows}</section>' + foot())
-        (OUT / f"level-{lv}.html").write_text(
-            page(ltitle, lbody, path=f"level-{lv}.html"), encoding="utf-8")
-    body = mast("categories", editions, fname="categories.html") + index_panel + cat_sections + foot()
+        lheader = (f'<div class="panel-h"><span>{ltitle}</span>'
+                   f'<span class="r">{s("cat_r").format(n=len(sts))}</span></div>')
+        write_paged(f"level-{lv}.html", ltitle, "categories", lheader,
+                    [state_row(st) for st in sts], PER,
+                    prefix=tag_index(f"lv:{lv}"))
+    body = mast("categories", editions, fname="categories.html") + tag_index() + cat_sections + foot()
     (OUT / "categories.html").write_text(page(s("tabs")[3], body, path="categories.html"), encoding="utf-8")
 
     # archive: grouped by date; editions within a date ordered by time
     by_date = {}
     for ed in editions:
         by_date.setdefault(ed["date"], []).append(ed)
-    arows = ""
+    date_blocks = []
     for date in sorted(by_date, reverse=True):
         eds = sorted(by_date[date], key=lambda e: e.get("published_at") or "", reverse=True)
-        arows += (f'<div class="panel-h" style="margin-top:16px"><span>{date}</span>'
-                  f'<span class="r">{s("editions_n").format(n=len(eds))}</span></div>')
+        block = (f'<div class="panel-h" style="margin-top:16px"><span>{date}</span>'
+                 f'<span class="r">{s("editions_n").format(n=len(eds))}</span></div>')
         for ed in eds:
             top = max(ed["items"], key=lambda x: x["_heat"])
             tim = (ed.get("published_at") or "")[11:16]
-            arows += (f'<div class="row"><span class="time">{tim}</span>'
+            block += (f'<div class="row"><span class="time">{tim}</span>'
                       f'<span class="rtitle"><a href="{ed_file(ed)}">'
                       f'{SLOT.get(ed.get("slot"), (ed.get("slot") or "", 0))[0]} · '
                       f'{html.escape(ed.get("title") or "")}</a></span>'
                       f'<span class="note">{s("archive_row").format(n=len(ed["items"]))}{html.escape(top["title"][:30])}</span>'
                       f'<span class="heat"><span class="hv"><b>{top["_heat"]}</b> <span>{s("wave")}</span></span></span></div>')
-    body = (mast("archive", editions, fname="archive.html")
-            + f'<section class="panel"><div class="panel-h"><span>{s("archive_title")}</span>'
-              f'<span class="r">{s("archive_r").format(n=len(editions))}</span></div>' + arows + "</section>" + foot())
-    (OUT / "archive.html").write_text(page(s("tabs")[5], body, path="archive.html"), encoding="utf-8")
+        date_blocks.append(block)
+    aheader = (f'<div class="panel-h"><span>{s("archive_title")}</span>'
+               f'<span class="r">{s("archive_r").format(n=len(editions))}</span></div>')
+    write_paged("archive.html", s("tabs")[5], "archive", aheader, date_blocks,
+                ARCHIVE_DAYS)
 
     # sources: one row per data source with contribution stats
     sstat = {}
@@ -1302,7 +1427,8 @@ def build_site(OUT, editions, topics):
                 e["last_ei"] = max(e["last_ei"], a["edition"])
                 e["first_ei"] = min(e["first_ei"], a["edition"])
                 e["eds"].add(a["edition"])
-    srows = ""
+    schunks = []
+    cfgs = load_source_configs()
     for src, e in sorted(sstat.items(), key=lambda kv: (-kv[1]["apps"], kv[0])):
         dom = SOURCE_DOMAINS.get(src)
         if dom and dom in FAV_FILES:
@@ -1319,16 +1445,15 @@ def build_site(OUT, editions, topics):
         stats = s("src_stats").format(
             dom=dom or "—", a=len(e["topics"]), b=e["apps"], c=len(e["eds"]),
             d=ed_label(editions[e["first_ei"]]), e=ed_label(editions[e["last_ei"]]))
-        srows += (f'<div class="row">{icon}'
-                  f'<span class="rtitle">{name_html}</span>'
-                  f'<span class="note">{html.escape(stats)}</span></div>'
-                  f'<div class="srctops" style="padding:0 0 10px 43px">{tlinks}</div>')
-    body = (mast("sources", editions, fname="sources.html")
-            + f'<section class="panel"><div class="panel-h"><span>{s("sources_title")}</span>'
-              f'<span class="r">{s("sources_r").format(n=len(sstat))}</span></div>'
-            + srows + "</section>" + foot())
-    (OUT / "sources.html").write_text(page(s("tabs")[4], body, path="sources.html",
-                                      desc=s("desc_sources")), encoding="utf-8")
+        schunks.append(f'<div class="row">{icon}'
+                       f'<span class="rtitle">{name_html}</span>'
+                       f'<span class="note">{html.escape(stats)}</span></div>'
+                       + cfg_chips(source_config(src, cfgs))
+                       + f'<div class="srctops" style="padding:0 0 10px 43px">{tlinks}</div>')
+    srcheader = (f'<div class="panel-h"><span>{s("sources_title")}</span>'
+                 f'<span class="r">{s("sources_r").format(n=len(sstat))}</span></div>')
+    write_paged("sources.html", s("tabs")[4], "sources", srcheader, schunks,
+                SOURCES_PER, desc=s("desc_sources"))
 
     # about: site explanation (the old footer text lives here now)
     body = mast("about", editions, fname="about.html") + ABOUT[CUR["lang"]] + foot()

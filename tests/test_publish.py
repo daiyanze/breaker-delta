@@ -98,6 +98,12 @@ def test_build_writes_all_outputs():
     assert quote("示例模型发布.html") in index  # rows link to the slug URL
     archive = (out_dir / "archive.html").read_text(encoding="utf-8")
     assert "2026-11-12" in archive  # grouped by date
+    level = (out_dir / "level-must.html").read_text(encoding="utf-8")
+    assert "tagchip on" in level  # tag group shown, focused tag highlighted
+    sources = (out_dir / "sources.html").read_text(encoding="utf-8")
+    assert "cfgchips" in sources and "L1" in sources  # per-source config chips
+    rising = (out_dir / "rising.html").read_text(encoding="utf-8")
+    assert "本期没有上涨" in rising  # explicit empty state when nothing rose
 
 
 def test_feeds_parse():
