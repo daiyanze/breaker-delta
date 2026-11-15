@@ -71,10 +71,43 @@ def _write_editions(tmpdir):
     return editions_dir
 
 
-def _build(tmpdir):
+def _write_track_record(tmpdir):
+    """Synthetic ledger fixture mirroring the real one's shape: 4 edition
+    groups, 24 entries, all results blank, first review 2026-11-25.
+
+    The real ledger is instance data (breaker-delta-data repo since
+    0.15.1); engine tests must not depend on it living at the repo root.
+    """
+    groups = [
+        ("2026-11-11", "试点期", "2026-11-25", 7),
+        ("2026-11-12", "早报", "2026-11-26", 6),
+        ("2026-11-12", "晚报", "2026-11-26", 6),
+        ("2026-11-13", "晚报", "2026-11-27", 5),
+    ]
+    special = {(0, 0): "Anthropic IPO 定价区间出炉",
+               (2, 0): "Nvidia 董事会拟罢免黄仁勋"}
+    lines = ["# 战绩台账 fixture", ""]
+    n = 0
+    for gi, (date, label, review, count) in enumerate(groups):
+        lines.append(f"## {date} {label}（复核日 {review}）")
+        lines.append("| 级别 | 话题 | 复核标准 | 结果 |")
+        lines.append("|---|---|---|---|")
+        for i in range(count):
+            n += 1
+            topic = special.get((gi, i), f"示例话题 {n}")
+            level = "🔥" if i == 0 else "👀"
+            lines.append(f"| {level} | {topic} | 后续期次再现或有进展 | |")
+        lines.append("")
+    path = Path(tmpdir) / "track-record.md"
+    path.write_text("\n".join(lines), encoding="utf-8")
+    return path
+
+
+def _build(tmpdir, track_record_path=None):
     editions_dir = _write_editions(tmpdir)
     out_dir = Path(tmpdir) / "site"
-    publish.build("https://example.com/triple-sigma", out_dir, editions_dir)
+    publish.build("https://example.com/triple-sigma", out_dir, editions_dir,
+                  track_record_path=track_record_path)
     return out_dir
 
 
@@ -131,7 +164,8 @@ def test_creator_panel_can_be_switched_off():
 
 
 def test_track_record_page_matches_ledger():
-    out_dir = _build(tempfile.mkdtemp())
+    tmpdir = tempfile.mkdtemp()
+    out_dir = _build(tmpdir, track_record_path=_write_track_record(tmpdir))
     for lang_dir in ("", "en/", "ja/"):
         tr = (out_dir / f"{lang_dir}track-record.html").read_text(encoding="utf-8")
         assert tr.count('class="tr-row"') == 24, lang_dir  # ledger rows
@@ -150,7 +184,7 @@ def test_track_record_page_matches_ledger():
 
 
 def test_parse_track_record_counts():
-    data = publish.parse_track_record()
+    data = publish.parse_track_record(_write_track_record(tempfile.mkdtemp()))
     assert data["total"] == 24
     assert data["reviewed"] == 0
     assert data["first_review"] == "2026-11-25"

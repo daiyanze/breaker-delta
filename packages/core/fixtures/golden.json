@@ -1,0 +1,4805 @@
+{
+ "heat": [
+  {
+   "item": {
+    "level": "must",
+    "sources": [
+     "a"
+    ],
+    "links": [
+     "https://x/1"
+    ],
+    "is_new": true
+   },
+   "expected": 113
+  },
+  {
+   "item": {
+    "level": "must",
+    "sources": [
+     "a",
+     "b"
+    ],
+    "links": [
+     "https://x/1"
+    ],
+    "is_new": false
+   },
+   "expected": 108
+  },
+  {
+   "item": {
+    "level": "watch",
+    "sources": [
+     "a",
+     "b",
+     "c"
+    ],
+    "links": [],
+    "is_new": true
+   },
+   "expected": 115
+  },
+  {
+   "item": {
+    "level": "seed",
+    "sources": [
+     "a"
+    ],
+    "links": [],
+    "is_new": true
+   },
+   "expected": 55
+  },
+  {
+   "item": {
+    "level": "seed",
+    "sources": [],
+    "links": [],
+    "is_new": false
+   },
+   "expected": 10
+  },
+  {
+   "item": {
+    "level": "breaking",
+    "sources": [
+     "a"
+    ],
+    "links": [
+     "https://x/1",
+     "https://x/2"
+    ],
+    "is_new": false
+   },
+   "expected": 46
+  },
+  {
+   "item": {
+    "sources": [
+     "a",
+     "b"
+    ],
+    "links": [],
+    "is_new": true
+   },
+   "expected": 75
+  },
+  {
+   "item": {
+    "level": "watch",
+    "sources": null,
+    "links": null,
+    "is_new": false
+   },
+   "expected": 30
+  },
+  {
+   "item": {
+    "level": "must",
+    "sources": [
+     "a",
+     "b",
+     "c",
+     "d"
+    ],
+    "links": [
+     "https://x/1",
+     "https://x/2",
+     "https://x/3"
+    ],
+    "is_new": true
+   },
+   "expected": 189
+  }
+ ],
+ "classify": [
+  {
+   "title": "某工具被曝存在严重漏洞",
+   "body": "正文无关键词",
+   "expected": "安全"
+  },
+  {
+   "title": "新产品上线",
+   "body": "有关部门出台新的监管细则",
+   "expected": "政策与监管"
+  },
+  {
+   "title": "开源项目修复漏洞",
+   "body": "",
+   "expected": "安全"
+  },
+  {
+   "title": "新模型亮相",
+   "body": "正文提到漏洞利用",
+   "expected": "AI 模型"
+  },
+  {
+   "title": "普通行业新闻一则",
+   "body": "一切如常",
+   "expected": "行业动态"
+  },
+  {
+   "title": "github tool released today",
+   "body": "",
+   "expected": "行业动态"
+  },
+  {
+   "title": "GitHub 上最火的仓库",
+   "body": "",
+   "expected": "开源"
+  },
+  {
+   "title": "公司宣布 CEO 辞职并启动收购",
+   "body": "",
+   "expected": "商业与资本"
+  },
+  {
+   "title": "智能体助手上线",
+   "body": "Agent framework",
+   "expected": "Agent 与应用"
+  },
+  {
+   "title": "",
+   "body": "",
+   "expected": "行业动态"
+  },
+  {
+   "title": null,
+   "body": null,
+   "expected": "行业动态"
+  },
+  {
+   "title": "GPT 新版本推出",
+   "body": "",
+   "expected": "AI 模型"
+  },
+  {
+   "title": "某国宣布出口管制清单",
+   "body": "",
+   "expected": "政策与监管"
+  }
+ ],
+ "slugify": [
+  {
+   "title": "Hello World! Foo & Bar",
+   "fallback": "t01",
+   "expected": "hello-world-foo-bar"
+  },
+  {
+   "title": "示例模型发布",
+   "fallback": "t01",
+   "expected": "示例模型发布"
+  },
+  {
+   "title": "日本語のタイトル",
+   "fallback": "t02",
+   "expected": "日本語のタイトル"
+  },
+  {
+   "title": "한국어 제목 테스트",
+   "fallback": "t03",
+   "expected": "한국어-제목-테스트"
+  },
+  {
+   "title": "Résumé Café",
+   "fallback": "t04",
+   "expected": "r-sum-caf"
+  },
+  {
+   "title": "OpenAI GPT-5.2 发布",
+   "fallback": "t05",
+   "expected": "openai-gpt-5-2-发布"
+  },
+  {
+   "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "fallback": "t06",
+   "expected": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+   "title": "模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模",
+   "fallback": "t07",
+   "expected": "模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模模"
+  },
+  {
+   "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx yzzzzzzzzzz",
+   "fallback": "t08",
+   "expected": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "title": "!!!",
+   "fallback": "t99",
+   "expected": "t99"
+  },
+  {
+   "title": "",
+   "fallback": "t00",
+   "expected": "t00"
+  },
+  {
+   "title": "  Spaces   and---dashes  ",
+   "fallback": "t09",
+   "expected": "spaces-and-dashes"
+  },
+  {
+   "title": "Anthropic 发布新模型 Claude",
+   "fallback": "t10",
+   "expected": "anthropic-发布新模型-claude"
+  }
+ ],
+ "reserved_files": [
+  "about",
+  "archive",
+  "categories",
+  "data",
+  "feed",
+  "index",
+  "llms",
+  "rising",
+  "robots",
+  "seeds",
+  "sitemap",
+  "sources",
+  "submit",
+  "track-record"
+ ],
+ "topic_file": [
+  {
+   "slug": "abc-def",
+   "expected": "abc-def.html"
+  }
+ ],
+ "title_keywords": [
+  {
+   "title": "OpenAI Releases GPT-5 Model",
+   "expected": [
+    "OpenAI",
+    "OpenAI Releases",
+    "OpenAI-Releases",
+    "Releases",
+    "Releases GPT-5",
+    "Releases-GPT-5",
+    "GPT-5",
+    "GPT-5 Model",
+    "GPT-5-Model",
+    "Model"
+   ]
+  },
+  {
+   "title": "新模型发布引发广泛关注讨论热议",
+   "expected": [
+    "新模型发",
+    "新模型发布引发广泛关注讨论热议"
+   ]
+  },
+  {
+   "title": "AI 模型 Gemini",
+   "expected": [
+    "Gemini",
+    "模型",
+    "AI 模型 Gemini"
+   ]
+  },
+  {
+   "title": "The Quick and the Dead",
+   "expected": [
+    "Quick",
+    "Quick Dead",
+    "Quick-Dead",
+    "Dead",
+    "The Quick and the Dead"
+   ]
+  },
+  {
+   "title": "示例模型发布",
+   "expected": [
+    "示例模型发布"
+   ]
+  },
+  {
+   "title": "",
+   "expected": []
+  }
+ ],
+ "scan_tokens": [
+  {
+   "name": "GPT-5.2 Released: The Model!",
+   "expected": [
+    "gpt-5.2",
+    "released"
+   ]
+  },
+  {
+   "name": "A b cd efg",
+   "expected": [
+    "efg"
+   ]
+  },
+  {
+   "name": "Show HN: something interesting",
+   "expected": [
+    "interesting",
+    "something"
+   ]
+  },
+  {
+   "name": "node.js 22 released",
+   "expected": [
+    "node.js",
+    "released"
+   ]
+  },
+  {
+   "name": "Try example.com. today",
+   "expected": [
+    "example.com",
+    "try"
+   ]
+  },
+  {
+   "name": "KRILLION Daily",
+   "expected": [
+    "daily",
+    "krillion"
+   ]
+  },
+  {
+   "name": "v2.0.1-alpha ships",
+   "expected": [
+    "ships",
+    "v2.0.1-alpha"
+   ]
+  },
+  {
+   "name": "",
+   "expected": []
+  }
+ ],
+ "publish_tokens": [
+  {
+   "title": "GPT-5 发布",
+   "expected": [
+    "5",
+    "gpt",
+    "发",
+    "布"
+   ]
+  },
+  {
+   "title": "示例模型发布",
+   "expected": [
+    "例",
+    "发",
+    "型",
+    "布",
+    "模",
+    "示"
+   ]
+  },
+  {
+   "title": "Hello World 2026",
+   "expected": [
+    "2026",
+    "hello",
+    "world"
+   ]
+  },
+  {
+   "title": "ClaudeとGeminiの比較",
+   "expected": [
+    "claude",
+    "gemini",
+    "比",
+    "較"
+   ]
+  },
+  {
+   "title": "",
+   "expected": []
+  }
+ ],
+ "topic_weights": [
+  {
+   "config": {
+    "topics": {
+     "AI Agents": 5,
+     "Chips": 2
+    }
+   },
+   "expected": {
+    "AI Agents": 5,
+    "Chips": 2
+   }
+  },
+  {
+   "config": {
+    "grading": {
+     "relevance_topics": [
+      "A",
+      "B"
+     ]
+    }
+   },
+   "expected": {
+    "A": 1,
+    "B": 1
+   }
+  },
+  {
+   "config": {
+    "topics": {},
+    "grading": {
+     "relevance_topics": [
+      "Legacy"
+     ]
+    }
+   },
+   "expected": {
+    "Legacy": 1
+   }
+  },
+  {
+   "config": {
+    "topics": {
+     "Solo": 3
+    },
+    "grading": {
+     "relevance_topics": [
+      "Ignored"
+     ]
+    }
+   },
+   "expected": {
+    "Solo": 3
+   }
+  },
+  {
+   "config": {},
+   "expected": {}
+  }
+ ],
+ "item_time": [
+  {
+   "metrics": {
+    "published": "2026-11-13T10:00:00Z"
+   },
+   "expected": "2026-11-13T10:00:00+00:00"
+  },
+  {
+   "metrics": {
+    "published": "2026-11-13T10:00:00+09:00"
+   },
+   "expected": "2026-11-13T10:00:00+09:00"
+  },
+  {
+   "metrics": {
+    "published": "2026-11-13T10:00:00"
+   },
+   "expected": "2026-11-13T10:00:00+00:00"
+  },
+  {
+   "metrics": {
+    "published": "2026-11-13"
+   },
+   "expected": "2026-11-13T00:00:00+00:00"
+  },
+  {
+   "metrics": {
+    "published": "13 Nov 2026 00:36 +0000"
+   },
+   "expected": "2026-11-13T00:36:00+00:00"
+  },
+  {
+   "metrics": {
+    "published": "Thu, 13 Nov 2026 00:36:00 GMT"
+   },
+   "expected": "2026-11-13T00:36:00+00:00"
+  },
+  {
+   "metrics": {
+    "created": "2026-11-12T08:30:00Z"
+   },
+   "expected": "2026-11-12T08:30:00+00:00"
+  },
+  {
+   "metrics": {
+    "pubDate": "12 Nov 2026 08:30:00 +0000"
+   },
+   "expected": "2026-11-12T08:30:00+00:00"
+  },
+  {
+   "metrics": {
+    "published": "",
+    "created": "2026-11-12T08:30:00Z"
+   },
+   "expected": "2026-11-12T08:30:00+00:00"
+  },
+  {
+   "metrics": {},
+   "expected": null
+  },
+  {
+   "metrics": {
+    "published": "not a date"
+   },
+   "expected": null
+  },
+  {
+   "metrics": {
+    "published": "2026-11-13T10:00:00.123456Z"
+   },
+   "expected": "2026-11-13T10:00:00.123456+00:00"
+  }
+ ],
+ "apply_controls": [
+  {
+   "input": {
+    "results": [
+     {
+      "source": "test",
+      "layer": 1,
+      "status": "ok",
+      "note": "",
+      "items": [
+       {
+        "source": "test",
+        "name": "Free giveaway now",
+        "url": "https://example.com",
+        "metrics": {},
+        "detail": ""
+       },
+       {
+        "source": "test",
+        "name": "MCP server released",
+        "url": "https://example.com",
+        "metrics": {
+         "published": "2026-11-13T10:00:00+00:00"
+        },
+        "detail": "an AI Agents tool"
+       },
+       {
+        "source": "test",
+        "name": "Gemini 9 launches",
+        "url": "https://example.com",
+        "metrics": {
+         "published": "2026-11-13T10:00:00+00:00"
+        },
+        "detail": ""
+       },
+       {
+        "source": "test",
+        "name": "Old news",
+        "url": "https://example.com",
+        "metrics": {
+         "published": "2026-11-09T08:00:00+00:00"
+        },
+        "detail": ""
+       },
+       {
+        "source": "test",
+        "name": "Undated thing",
+        "url": "https://example.com",
+        "metrics": {},
+        "detail": ""
+       }
+      ]
+     }
+    ],
+    "config": {
+     "keywords": {
+      "mute": [
+       "giveaway"
+      ],
+      "boost": [
+       "mcp"
+      ],
+      "alert": [
+       "gemini"
+      ]
+     },
+     "topics": {
+      "AI Agents": 5
+     },
+     "filters": {
+      "max_age_hours": 48
+     }
+    },
+    "now": "2026-11-13T12:00:00+00:00"
+   },
+   "expected": {
+    "stats": {
+     "muted": 1,
+     "stale": 1,
+     "boost_tagged": 1,
+     "alert_tagged": 1
+    },
+    "alerts": [
+     {
+      "source": "test",
+      "name": "Gemini 9 launches",
+      "url": "https://example.com",
+      "keywords": [
+       "gemini"
+      ]
+     }
+    ],
+    "results": [
+     {
+      "source": "test",
+      "layer": 1,
+      "status": "ok",
+      "note": "",
+      "items": [
+       {
+        "source": "test",
+        "name": "MCP server released",
+        "url": "https://example.com",
+        "metrics": {
+         "published": "2026-11-13T10:00:00+00:00"
+        },
+        "detail": "an AI Agents tool",
+        "keyword_hits": {
+         "boost": [
+          "mcp"
+         ]
+        },
+        "topic_hits": {
+         "AI Agents": 5
+        }
+       },
+       {
+        "source": "test",
+        "name": "Gemini 9 launches",
+        "url": "https://example.com",
+        "metrics": {
+         "published": "2026-11-13T10:00:00+00:00"
+        },
+        "detail": "",
+        "keyword_hits": {
+         "alert": [
+          "gemini"
+         ]
+        }
+       },
+       {
+        "source": "test",
+        "name": "Undated thing",
+        "url": "https://example.com",
+        "metrics": {},
+        "detail": ""
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "input": {
+    "results": [
+     {
+      "source": "test",
+      "layer": 1,
+      "status": "ok",
+      "note": "",
+      "items": [
+       {
+        "source": "test",
+        "name": "mcp server",
+        "url": "https://example.com",
+        "metrics": {},
+        "detail": "AI Agents stuff",
+        "keyword_hits": {
+         "custom": [
+          "z"
+         ]
+        }
+       },
+       {
+        "source": "test",
+        "name": "spam in detail",
+        "url": "https://example.com",
+        "metrics": {},
+        "detail": "this is a GIVEAWAY post"
+       },
+       {
+        "source": "test",
+        "name": "Plain item",
+        "url": "https://example.com",
+        "metrics": {},
+        "detail": ""
+       }
+      ]
+     }
+    ],
+    "config": {
+     "keywords": {
+      "mute": [
+       "giveaway"
+      ],
+      "boost": [
+       "MCP"
+      ]
+     },
+     "grading": {
+      "relevance_topics": [
+       "AI Agents"
+      ]
+     }
+    },
+    "now": "2026-11-13T12:00:00+00:00"
+   },
+   "expected": {
+    "stats": {
+     "muted": 1,
+     "stale": 0,
+     "boost_tagged": 1,
+     "alert_tagged": 0
+    },
+    "alerts": [],
+    "results": [
+     {
+      "source": "test",
+      "layer": 1,
+      "status": "ok",
+      "note": "",
+      "items": [
+       {
+        "source": "test",
+        "name": "mcp server",
+        "url": "https://example.com",
+        "metrics": {},
+        "detail": "AI Agents stuff",
+        "keyword_hits": {
+         "custom": [
+          "z"
+         ],
+         "boost": [
+          "MCP"
+         ]
+        },
+        "topic_hits": {
+         "AI Agents": 1
+        }
+       },
+       {
+        "source": "test",
+        "name": "Plain item",
+        "url": "https://example.com",
+        "metrics": {},
+        "detail": ""
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "input": {
+    "results": [
+     {
+      "source": "test",
+      "layer": 1,
+      "status": "ok",
+      "note": "",
+      "items": [
+       {
+        "source": "test",
+        "name": "Ancient but kept",
+        "url": "https://example.com",
+        "metrics": {
+         "published": "2026-11-09T08:00:00+00:00"
+        },
+        "detail": ""
+       }
+      ]
+     }
+    ],
+    "config": {
+     "topics": {},
+     "grading": {
+      "relevance_topics": [
+       "Kept"
+      ]
+     },
+     "filters": {
+      "max_age_hours": 0
+     }
+    },
+    "now": "2026-11-13T12:00:00+00:00"
+   },
+   "expected": {
+    "stats": {
+     "muted": 0,
+     "stale": 0,
+     "boost_tagged": 0,
+     "alert_tagged": 0
+    },
+    "alerts": [],
+    "results": [
+     {
+      "source": "test",
+      "layer": 1,
+      "status": "ok",
+      "note": "",
+      "items": [
+       {
+        "source": "test",
+        "name": "Ancient but kept",
+        "url": "https://example.com",
+        "metrics": {
+         "published": "2026-11-09T08:00:00+00:00"
+        },
+        "detail": "",
+        "topic_hits": {
+         "Kept": 1
+        }
+       }
+      ]
+     }
+    ]
+   }
+  }
+ ],
+ "resonance": [
+  {
+   "input": [
+    {
+     "source": "s1",
+     "layer": 1,
+     "status": "ok",
+     "note": "",
+     "items": [
+      {
+       "source": "s1",
+       "name": "Krillion alpha",
+       "url": "https://example.com/Krillion alpha",
+       "metrics": {},
+       "detail": ""
+      }
+     ]
+    },
+    {
+     "source": "s2",
+     "layer": 1,
+     "status": "ok",
+     "note": "",
+     "items": [
+      {
+       "source": "s2",
+       "name": "Krillion beta",
+       "url": "https://example.com/Krillion beta",
+       "metrics": {},
+       "detail": ""
+      }
+     ]
+    },
+    {
+     "source": "s3",
+     "layer": 1,
+     "status": "ok",
+     "note": "",
+     "items": [
+      {
+       "source": "s3",
+       "name": "Krillion gamma",
+       "url": "https://example.com/Krillion gamma",
+       "metrics": {},
+       "detail": ""
+      }
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "token": "krillion",
+     "sources": [
+      "s1",
+      "s2",
+      "s3"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Krillion alpha",
+       "url": "https://example.com/Krillion alpha"
+      },
+      {
+       "source": "s2",
+       "name": "Krillion beta",
+       "url": "https://example.com/Krillion beta"
+      },
+      {
+       "source": "s3",
+       "name": "Krillion gamma",
+       "url": "https://example.com/Krillion gamma"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "input": [
+    {
+     "source": "s1",
+     "layer": 1,
+     "status": "ok",
+     "note": "",
+     "items": [
+      {
+       "source": "s1",
+       "name": "Lonely shared token",
+       "url": "https://example.com/Lonely shared token",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Lonely other thing",
+       "url": "https://example.com/Lonely other thing",
+       "metrics": {},
+       "detail": ""
+      }
+     ]
+    }
+   ],
+   "expected": []
+  },
+  {
+   "input": [
+    {
+     "source": "s1",
+     "layer": 1,
+     "status": "ok",
+     "note": "",
+     "items": [
+      {
+       "source": "s1",
+       "name": "Megatoken story 0",
+       "url": "https://example.com/Megatoken story 0",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Megatoken story 1",
+       "url": "https://example.com/Megatoken story 1",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Megatoken story 2",
+       "url": "https://example.com/Megatoken story 2",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Megatoken story 3",
+       "url": "https://example.com/Megatoken story 3",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Megatoken story 4",
+       "url": "https://example.com/Megatoken story 4",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Megatoken story 5",
+       "url": "https://example.com/Megatoken story 5",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Megatoken story 6",
+       "url": "https://example.com/Megatoken story 6",
+       "metrics": {},
+       "detail": ""
+      }
+     ]
+    },
+    {
+     "source": "s2",
+     "layer": 1,
+     "status": "ok",
+     "note": "",
+     "items": [
+      {
+       "source": "s2",
+       "name": "Megatoken story 6",
+       "url": "https://example.com/Megatoken story 6",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Megatoken story 7",
+       "url": "https://example.com/Megatoken story 7",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Megatoken story 8",
+       "url": "https://example.com/Megatoken story 8",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Megatoken story 9",
+       "url": "https://example.com/Megatoken story 9",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Megatoken story 10",
+       "url": "https://example.com/Megatoken story 10",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Megatoken story 11",
+       "url": "https://example.com/Megatoken story 11",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Megatoken story 12",
+       "url": "https://example.com/Megatoken story 12",
+       "metrics": {},
+       "detail": ""
+      }
+     ]
+    }
+   ],
+   "expected": []
+  },
+  {
+   "input": [
+    {
+     "source": "s1",
+     "layer": 1,
+     "status": "ok",
+     "note": "",
+     "items": [
+      {
+       "source": "s1",
+       "name": "Duodeci report0",
+       "url": "https://example.com/Duodeci report0",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Duodeci report1",
+       "url": "https://example.com/Duodeci report1",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Duodeci report2",
+       "url": "https://example.com/Duodeci report2",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Duodeci report3",
+       "url": "https://example.com/Duodeci report3",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Duodeci report4",
+       "url": "https://example.com/Duodeci report4",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Duodeci report5",
+       "url": "https://example.com/Duodeci report5",
+       "metrics": {},
+       "detail": ""
+      }
+     ]
+    },
+    {
+     "source": "s2",
+     "layer": 1,
+     "status": "ok",
+     "note": "",
+     "items": [
+      {
+       "source": "s2",
+       "name": "Duodeci report6",
+       "url": "https://example.com/Duodeci report6",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Duodeci report7",
+       "url": "https://example.com/Duodeci report7",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Duodeci report8",
+       "url": "https://example.com/Duodeci report8",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Duodeci report9",
+       "url": "https://example.com/Duodeci report9",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Duodeci report10",
+       "url": "https://example.com/Duodeci report10",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Duodeci report11",
+       "url": "https://example.com/Duodeci report11",
+       "metrics": {},
+       "detail": ""
+      }
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "token": "duodeci",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Duodeci report0",
+       "url": "https://example.com/Duodeci report0"
+      },
+      {
+       "source": "s1",
+       "name": "Duodeci report1",
+       "url": "https://example.com/Duodeci report1"
+      },
+      {
+       "source": "s1",
+       "name": "Duodeci report2",
+       "url": "https://example.com/Duodeci report2"
+      },
+      {
+       "source": "s1",
+       "name": "Duodeci report3",
+       "url": "https://example.com/Duodeci report3"
+      },
+      {
+       "source": "s1",
+       "name": "Duodeci report4",
+       "url": "https://example.com/Duodeci report4"
+      },
+      {
+       "source": "s1",
+       "name": "Duodeci report5",
+       "url": "https://example.com/Duodeci report5"
+      },
+      {
+       "source": "s2",
+       "name": "Duodeci report6",
+       "url": "https://example.com/Duodeci report6"
+      },
+      {
+       "source": "s2",
+       "name": "Duodeci report7",
+       "url": "https://example.com/Duodeci report7"
+      },
+      {
+       "source": "s2",
+       "name": "Duodeci report8",
+       "url": "https://example.com/Duodeci report8"
+      },
+      {
+       "source": "s2",
+       "name": "Duodeci report9",
+       "url": "https://example.com/Duodeci report9"
+      },
+      {
+       "source": "s2",
+       "name": "Duodeci report10",
+       "url": "https://example.com/Duodeci report10"
+      },
+      {
+       "source": "s2",
+       "name": "Duodeci report11",
+       "url": "https://example.com/Duodeci report11"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "input": [
+    {
+     "source": "s1",
+     "layer": 1,
+     "status": "ok",
+     "note": "",
+     "items": [
+      {
+       "source": "s1",
+       "name": "Zeta alpha",
+       "url": "https://example.com/Zeta alpha",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Omega alpha",
+       "url": "https://example.com/Omega alpha",
+       "metrics": {},
+       "detail": ""
+      }
+     ]
+    },
+    {
+     "source": "s2",
+     "layer": 1,
+     "status": "ok",
+     "note": "",
+     "items": [
+      {
+       "source": "s2",
+       "name": "Zeta beta",
+       "url": "https://example.com/Zeta beta",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Omega beta",
+       "url": "https://example.com/Omega beta",
+       "metrics": {},
+       "detail": ""
+      }
+     ]
+    },
+    {
+     "source": "s3",
+     "layer": 1,
+     "status": "ok",
+     "note": "",
+     "items": [
+      {
+       "source": "s3",
+       "name": "Zeta gamma",
+       "url": "https://example.com/Zeta gamma",
+       "metrics": {},
+       "detail": ""
+      }
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "token": "zeta",
+     "sources": [
+      "s1",
+      "s2",
+      "s3"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Zeta alpha",
+       "url": "https://example.com/Zeta alpha"
+      },
+      {
+       "source": "s2",
+       "name": "Zeta beta",
+       "url": "https://example.com/Zeta beta"
+      },
+      {
+       "source": "s3",
+       "name": "Zeta gamma",
+       "url": "https://example.com/Zeta gamma"
+      }
+     ]
+    },
+    {
+     "token": "omega",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Omega alpha",
+       "url": "https://example.com/Omega alpha"
+      },
+      {
+       "source": "s2",
+       "name": "Omega beta",
+       "url": "https://example.com/Omega beta"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "input": [
+    {
+     "source": "s1",
+     "layer": 1,
+     "status": "ok",
+     "note": "",
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok00 alpha0",
+       "url": "https://example.com/Tok00 alpha0",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok01 alpha1",
+       "url": "https://example.com/Tok01 alpha1",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok02 alpha2",
+       "url": "https://example.com/Tok02 alpha2",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok03 alpha3",
+       "url": "https://example.com/Tok03 alpha3",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok04 alpha4",
+       "url": "https://example.com/Tok04 alpha4",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok05 alpha5",
+       "url": "https://example.com/Tok05 alpha5",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok06 alpha6",
+       "url": "https://example.com/Tok06 alpha6",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok07 alpha7",
+       "url": "https://example.com/Tok07 alpha7",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok08 alpha8",
+       "url": "https://example.com/Tok08 alpha8",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok09 alpha9",
+       "url": "https://example.com/Tok09 alpha9",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok10 alpha10",
+       "url": "https://example.com/Tok10 alpha10",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok11 alpha11",
+       "url": "https://example.com/Tok11 alpha11",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok12 alpha12",
+       "url": "https://example.com/Tok12 alpha12",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok13 alpha13",
+       "url": "https://example.com/Tok13 alpha13",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok14 alpha14",
+       "url": "https://example.com/Tok14 alpha14",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok15 alpha15",
+       "url": "https://example.com/Tok15 alpha15",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok16 alpha16",
+       "url": "https://example.com/Tok16 alpha16",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok17 alpha17",
+       "url": "https://example.com/Tok17 alpha17",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok18 alpha18",
+       "url": "https://example.com/Tok18 alpha18",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok19 alpha19",
+       "url": "https://example.com/Tok19 alpha19",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok20 alpha20",
+       "url": "https://example.com/Tok20 alpha20",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok21 alpha21",
+       "url": "https://example.com/Tok21 alpha21",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok22 alpha22",
+       "url": "https://example.com/Tok22 alpha22",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok23 alpha23",
+       "url": "https://example.com/Tok23 alpha23",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok24 alpha24",
+       "url": "https://example.com/Tok24 alpha24",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok25 alpha25",
+       "url": "https://example.com/Tok25 alpha25",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok26 alpha26",
+       "url": "https://example.com/Tok26 alpha26",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok27 alpha27",
+       "url": "https://example.com/Tok27 alpha27",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok28 alpha28",
+       "url": "https://example.com/Tok28 alpha28",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok29 alpha29",
+       "url": "https://example.com/Tok29 alpha29",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok30 alpha30",
+       "url": "https://example.com/Tok30 alpha30",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok31 alpha31",
+       "url": "https://example.com/Tok31 alpha31",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok32 alpha32",
+       "url": "https://example.com/Tok32 alpha32",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok33 alpha33",
+       "url": "https://example.com/Tok33 alpha33",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok34 alpha34",
+       "url": "https://example.com/Tok34 alpha34",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok35 alpha35",
+       "url": "https://example.com/Tok35 alpha35",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok36 alpha36",
+       "url": "https://example.com/Tok36 alpha36",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok37 alpha37",
+       "url": "https://example.com/Tok37 alpha37",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok38 alpha38",
+       "url": "https://example.com/Tok38 alpha38",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok39 alpha39",
+       "url": "https://example.com/Tok39 alpha39",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok40 alpha40",
+       "url": "https://example.com/Tok40 alpha40",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok41 alpha41",
+       "url": "https://example.com/Tok41 alpha41",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok42 alpha42",
+       "url": "https://example.com/Tok42 alpha42",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok43 alpha43",
+       "url": "https://example.com/Tok43 alpha43",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok44 alpha44",
+       "url": "https://example.com/Tok44 alpha44",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok45 alpha45",
+       "url": "https://example.com/Tok45 alpha45",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok46 alpha46",
+       "url": "https://example.com/Tok46 alpha46",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok47 alpha47",
+       "url": "https://example.com/Tok47 alpha47",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok48 alpha48",
+       "url": "https://example.com/Tok48 alpha48",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok49 alpha49",
+       "url": "https://example.com/Tok49 alpha49",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok50 alpha50",
+       "url": "https://example.com/Tok50 alpha50",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok51 alpha51",
+       "url": "https://example.com/Tok51 alpha51",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok52 alpha52",
+       "url": "https://example.com/Tok52 alpha52",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok53 alpha53",
+       "url": "https://example.com/Tok53 alpha53",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok54 alpha54",
+       "url": "https://example.com/Tok54 alpha54",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok55 alpha55",
+       "url": "https://example.com/Tok55 alpha55",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok56 alpha56",
+       "url": "https://example.com/Tok56 alpha56",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok57 alpha57",
+       "url": "https://example.com/Tok57 alpha57",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok58 alpha58",
+       "url": "https://example.com/Tok58 alpha58",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok59 alpha59",
+       "url": "https://example.com/Tok59 alpha59",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok60 alpha60",
+       "url": "https://example.com/Tok60 alpha60",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok61 alpha61",
+       "url": "https://example.com/Tok61 alpha61",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok62 alpha62",
+       "url": "https://example.com/Tok62 alpha62",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok63 alpha63",
+       "url": "https://example.com/Tok63 alpha63",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s1",
+       "name": "Tok64 alpha64",
+       "url": "https://example.com/Tok64 alpha64",
+       "metrics": {},
+       "detail": ""
+      }
+     ]
+    },
+    {
+     "source": "s2",
+     "layer": 1,
+     "status": "ok",
+     "note": "",
+     "items": [
+      {
+       "source": "s2",
+       "name": "Tok00 beta0",
+       "url": "https://example.com/Tok00 beta0",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok01 beta1",
+       "url": "https://example.com/Tok01 beta1",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok02 beta2",
+       "url": "https://example.com/Tok02 beta2",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok03 beta3",
+       "url": "https://example.com/Tok03 beta3",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok04 beta4",
+       "url": "https://example.com/Tok04 beta4",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok05 beta5",
+       "url": "https://example.com/Tok05 beta5",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok06 beta6",
+       "url": "https://example.com/Tok06 beta6",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok07 beta7",
+       "url": "https://example.com/Tok07 beta7",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok08 beta8",
+       "url": "https://example.com/Tok08 beta8",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok09 beta9",
+       "url": "https://example.com/Tok09 beta9",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok10 beta10",
+       "url": "https://example.com/Tok10 beta10",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok11 beta11",
+       "url": "https://example.com/Tok11 beta11",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok12 beta12",
+       "url": "https://example.com/Tok12 beta12",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok13 beta13",
+       "url": "https://example.com/Tok13 beta13",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok14 beta14",
+       "url": "https://example.com/Tok14 beta14",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok15 beta15",
+       "url": "https://example.com/Tok15 beta15",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok16 beta16",
+       "url": "https://example.com/Tok16 beta16",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok17 beta17",
+       "url": "https://example.com/Tok17 beta17",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok18 beta18",
+       "url": "https://example.com/Tok18 beta18",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok19 beta19",
+       "url": "https://example.com/Tok19 beta19",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok20 beta20",
+       "url": "https://example.com/Tok20 beta20",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok21 beta21",
+       "url": "https://example.com/Tok21 beta21",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok22 beta22",
+       "url": "https://example.com/Tok22 beta22",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok23 beta23",
+       "url": "https://example.com/Tok23 beta23",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok24 beta24",
+       "url": "https://example.com/Tok24 beta24",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok25 beta25",
+       "url": "https://example.com/Tok25 beta25",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok26 beta26",
+       "url": "https://example.com/Tok26 beta26",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok27 beta27",
+       "url": "https://example.com/Tok27 beta27",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok28 beta28",
+       "url": "https://example.com/Tok28 beta28",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok29 beta29",
+       "url": "https://example.com/Tok29 beta29",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok30 beta30",
+       "url": "https://example.com/Tok30 beta30",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok31 beta31",
+       "url": "https://example.com/Tok31 beta31",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok32 beta32",
+       "url": "https://example.com/Tok32 beta32",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok33 beta33",
+       "url": "https://example.com/Tok33 beta33",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok34 beta34",
+       "url": "https://example.com/Tok34 beta34",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok35 beta35",
+       "url": "https://example.com/Tok35 beta35",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok36 beta36",
+       "url": "https://example.com/Tok36 beta36",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok37 beta37",
+       "url": "https://example.com/Tok37 beta37",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok38 beta38",
+       "url": "https://example.com/Tok38 beta38",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok39 beta39",
+       "url": "https://example.com/Tok39 beta39",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok40 beta40",
+       "url": "https://example.com/Tok40 beta40",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok41 beta41",
+       "url": "https://example.com/Tok41 beta41",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok42 beta42",
+       "url": "https://example.com/Tok42 beta42",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok43 beta43",
+       "url": "https://example.com/Tok43 beta43",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok44 beta44",
+       "url": "https://example.com/Tok44 beta44",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok45 beta45",
+       "url": "https://example.com/Tok45 beta45",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok46 beta46",
+       "url": "https://example.com/Tok46 beta46",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok47 beta47",
+       "url": "https://example.com/Tok47 beta47",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok48 beta48",
+       "url": "https://example.com/Tok48 beta48",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok49 beta49",
+       "url": "https://example.com/Tok49 beta49",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok50 beta50",
+       "url": "https://example.com/Tok50 beta50",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok51 beta51",
+       "url": "https://example.com/Tok51 beta51",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok52 beta52",
+       "url": "https://example.com/Tok52 beta52",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok53 beta53",
+       "url": "https://example.com/Tok53 beta53",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok54 beta54",
+       "url": "https://example.com/Tok54 beta54",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok55 beta55",
+       "url": "https://example.com/Tok55 beta55",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok56 beta56",
+       "url": "https://example.com/Tok56 beta56",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok57 beta57",
+       "url": "https://example.com/Tok57 beta57",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok58 beta58",
+       "url": "https://example.com/Tok58 beta58",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok59 beta59",
+       "url": "https://example.com/Tok59 beta59",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok60 beta60",
+       "url": "https://example.com/Tok60 beta60",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok61 beta61",
+       "url": "https://example.com/Tok61 beta61",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok62 beta62",
+       "url": "https://example.com/Tok62 beta62",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok63 beta63",
+       "url": "https://example.com/Tok63 beta63",
+       "metrics": {},
+       "detail": ""
+      },
+      {
+       "source": "s2",
+       "name": "Tok64 beta64",
+       "url": "https://example.com/Tok64 beta64",
+       "metrics": {},
+       "detail": ""
+      }
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "token": "tok00",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok00 alpha0",
+       "url": "https://example.com/Tok00 alpha0"
+      },
+      {
+       "source": "s2",
+       "name": "Tok00 beta0",
+       "url": "https://example.com/Tok00 beta0"
+      }
+     ]
+    },
+    {
+     "token": "tok01",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok01 alpha1",
+       "url": "https://example.com/Tok01 alpha1"
+      },
+      {
+       "source": "s2",
+       "name": "Tok01 beta1",
+       "url": "https://example.com/Tok01 beta1"
+      }
+     ]
+    },
+    {
+     "token": "tok02",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok02 alpha2",
+       "url": "https://example.com/Tok02 alpha2"
+      },
+      {
+       "source": "s2",
+       "name": "Tok02 beta2",
+       "url": "https://example.com/Tok02 beta2"
+      }
+     ]
+    },
+    {
+     "token": "tok03",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok03 alpha3",
+       "url": "https://example.com/Tok03 alpha3"
+      },
+      {
+       "source": "s2",
+       "name": "Tok03 beta3",
+       "url": "https://example.com/Tok03 beta3"
+      }
+     ]
+    },
+    {
+     "token": "tok04",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok04 alpha4",
+       "url": "https://example.com/Tok04 alpha4"
+      },
+      {
+       "source": "s2",
+       "name": "Tok04 beta4",
+       "url": "https://example.com/Tok04 beta4"
+      }
+     ]
+    },
+    {
+     "token": "tok05",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok05 alpha5",
+       "url": "https://example.com/Tok05 alpha5"
+      },
+      {
+       "source": "s2",
+       "name": "Tok05 beta5",
+       "url": "https://example.com/Tok05 beta5"
+      }
+     ]
+    },
+    {
+     "token": "tok06",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok06 alpha6",
+       "url": "https://example.com/Tok06 alpha6"
+      },
+      {
+       "source": "s2",
+       "name": "Tok06 beta6",
+       "url": "https://example.com/Tok06 beta6"
+      }
+     ]
+    },
+    {
+     "token": "tok07",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok07 alpha7",
+       "url": "https://example.com/Tok07 alpha7"
+      },
+      {
+       "source": "s2",
+       "name": "Tok07 beta7",
+       "url": "https://example.com/Tok07 beta7"
+      }
+     ]
+    },
+    {
+     "token": "tok08",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok08 alpha8",
+       "url": "https://example.com/Tok08 alpha8"
+      },
+      {
+       "source": "s2",
+       "name": "Tok08 beta8",
+       "url": "https://example.com/Tok08 beta8"
+      }
+     ]
+    },
+    {
+     "token": "tok09",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok09 alpha9",
+       "url": "https://example.com/Tok09 alpha9"
+      },
+      {
+       "source": "s2",
+       "name": "Tok09 beta9",
+       "url": "https://example.com/Tok09 beta9"
+      }
+     ]
+    },
+    {
+     "token": "tok10",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok10 alpha10",
+       "url": "https://example.com/Tok10 alpha10"
+      },
+      {
+       "source": "s2",
+       "name": "Tok10 beta10",
+       "url": "https://example.com/Tok10 beta10"
+      }
+     ]
+    },
+    {
+     "token": "tok11",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok11 alpha11",
+       "url": "https://example.com/Tok11 alpha11"
+      },
+      {
+       "source": "s2",
+       "name": "Tok11 beta11",
+       "url": "https://example.com/Tok11 beta11"
+      }
+     ]
+    },
+    {
+     "token": "tok12",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok12 alpha12",
+       "url": "https://example.com/Tok12 alpha12"
+      },
+      {
+       "source": "s2",
+       "name": "Tok12 beta12",
+       "url": "https://example.com/Tok12 beta12"
+      }
+     ]
+    },
+    {
+     "token": "tok13",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok13 alpha13",
+       "url": "https://example.com/Tok13 alpha13"
+      },
+      {
+       "source": "s2",
+       "name": "Tok13 beta13",
+       "url": "https://example.com/Tok13 beta13"
+      }
+     ]
+    },
+    {
+     "token": "tok14",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok14 alpha14",
+       "url": "https://example.com/Tok14 alpha14"
+      },
+      {
+       "source": "s2",
+       "name": "Tok14 beta14",
+       "url": "https://example.com/Tok14 beta14"
+      }
+     ]
+    },
+    {
+     "token": "tok15",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok15 alpha15",
+       "url": "https://example.com/Tok15 alpha15"
+      },
+      {
+       "source": "s2",
+       "name": "Tok15 beta15",
+       "url": "https://example.com/Tok15 beta15"
+      }
+     ]
+    },
+    {
+     "token": "tok16",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok16 alpha16",
+       "url": "https://example.com/Tok16 alpha16"
+      },
+      {
+       "source": "s2",
+       "name": "Tok16 beta16",
+       "url": "https://example.com/Tok16 beta16"
+      }
+     ]
+    },
+    {
+     "token": "tok17",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok17 alpha17",
+       "url": "https://example.com/Tok17 alpha17"
+      },
+      {
+       "source": "s2",
+       "name": "Tok17 beta17",
+       "url": "https://example.com/Tok17 beta17"
+      }
+     ]
+    },
+    {
+     "token": "tok18",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok18 alpha18",
+       "url": "https://example.com/Tok18 alpha18"
+      },
+      {
+       "source": "s2",
+       "name": "Tok18 beta18",
+       "url": "https://example.com/Tok18 beta18"
+      }
+     ]
+    },
+    {
+     "token": "tok19",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok19 alpha19",
+       "url": "https://example.com/Tok19 alpha19"
+      },
+      {
+       "source": "s2",
+       "name": "Tok19 beta19",
+       "url": "https://example.com/Tok19 beta19"
+      }
+     ]
+    },
+    {
+     "token": "tok20",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok20 alpha20",
+       "url": "https://example.com/Tok20 alpha20"
+      },
+      {
+       "source": "s2",
+       "name": "Tok20 beta20",
+       "url": "https://example.com/Tok20 beta20"
+      }
+     ]
+    },
+    {
+     "token": "tok21",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok21 alpha21",
+       "url": "https://example.com/Tok21 alpha21"
+      },
+      {
+       "source": "s2",
+       "name": "Tok21 beta21",
+       "url": "https://example.com/Tok21 beta21"
+      }
+     ]
+    },
+    {
+     "token": "tok22",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok22 alpha22",
+       "url": "https://example.com/Tok22 alpha22"
+      },
+      {
+       "source": "s2",
+       "name": "Tok22 beta22",
+       "url": "https://example.com/Tok22 beta22"
+      }
+     ]
+    },
+    {
+     "token": "tok23",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok23 alpha23",
+       "url": "https://example.com/Tok23 alpha23"
+      },
+      {
+       "source": "s2",
+       "name": "Tok23 beta23",
+       "url": "https://example.com/Tok23 beta23"
+      }
+     ]
+    },
+    {
+     "token": "tok24",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok24 alpha24",
+       "url": "https://example.com/Tok24 alpha24"
+      },
+      {
+       "source": "s2",
+       "name": "Tok24 beta24",
+       "url": "https://example.com/Tok24 beta24"
+      }
+     ]
+    },
+    {
+     "token": "tok25",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok25 alpha25",
+       "url": "https://example.com/Tok25 alpha25"
+      },
+      {
+       "source": "s2",
+       "name": "Tok25 beta25",
+       "url": "https://example.com/Tok25 beta25"
+      }
+     ]
+    },
+    {
+     "token": "tok26",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok26 alpha26",
+       "url": "https://example.com/Tok26 alpha26"
+      },
+      {
+       "source": "s2",
+       "name": "Tok26 beta26",
+       "url": "https://example.com/Tok26 beta26"
+      }
+     ]
+    },
+    {
+     "token": "tok27",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok27 alpha27",
+       "url": "https://example.com/Tok27 alpha27"
+      },
+      {
+       "source": "s2",
+       "name": "Tok27 beta27",
+       "url": "https://example.com/Tok27 beta27"
+      }
+     ]
+    },
+    {
+     "token": "tok28",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok28 alpha28",
+       "url": "https://example.com/Tok28 alpha28"
+      },
+      {
+       "source": "s2",
+       "name": "Tok28 beta28",
+       "url": "https://example.com/Tok28 beta28"
+      }
+     ]
+    },
+    {
+     "token": "tok29",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok29 alpha29",
+       "url": "https://example.com/Tok29 alpha29"
+      },
+      {
+       "source": "s2",
+       "name": "Tok29 beta29",
+       "url": "https://example.com/Tok29 beta29"
+      }
+     ]
+    },
+    {
+     "token": "tok30",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok30 alpha30",
+       "url": "https://example.com/Tok30 alpha30"
+      },
+      {
+       "source": "s2",
+       "name": "Tok30 beta30",
+       "url": "https://example.com/Tok30 beta30"
+      }
+     ]
+    },
+    {
+     "token": "tok31",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok31 alpha31",
+       "url": "https://example.com/Tok31 alpha31"
+      },
+      {
+       "source": "s2",
+       "name": "Tok31 beta31",
+       "url": "https://example.com/Tok31 beta31"
+      }
+     ]
+    },
+    {
+     "token": "tok32",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok32 alpha32",
+       "url": "https://example.com/Tok32 alpha32"
+      },
+      {
+       "source": "s2",
+       "name": "Tok32 beta32",
+       "url": "https://example.com/Tok32 beta32"
+      }
+     ]
+    },
+    {
+     "token": "tok33",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok33 alpha33",
+       "url": "https://example.com/Tok33 alpha33"
+      },
+      {
+       "source": "s2",
+       "name": "Tok33 beta33",
+       "url": "https://example.com/Tok33 beta33"
+      }
+     ]
+    },
+    {
+     "token": "tok34",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok34 alpha34",
+       "url": "https://example.com/Tok34 alpha34"
+      },
+      {
+       "source": "s2",
+       "name": "Tok34 beta34",
+       "url": "https://example.com/Tok34 beta34"
+      }
+     ]
+    },
+    {
+     "token": "tok35",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok35 alpha35",
+       "url": "https://example.com/Tok35 alpha35"
+      },
+      {
+       "source": "s2",
+       "name": "Tok35 beta35",
+       "url": "https://example.com/Tok35 beta35"
+      }
+     ]
+    },
+    {
+     "token": "tok36",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok36 alpha36",
+       "url": "https://example.com/Tok36 alpha36"
+      },
+      {
+       "source": "s2",
+       "name": "Tok36 beta36",
+       "url": "https://example.com/Tok36 beta36"
+      }
+     ]
+    },
+    {
+     "token": "tok37",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok37 alpha37",
+       "url": "https://example.com/Tok37 alpha37"
+      },
+      {
+       "source": "s2",
+       "name": "Tok37 beta37",
+       "url": "https://example.com/Tok37 beta37"
+      }
+     ]
+    },
+    {
+     "token": "tok38",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok38 alpha38",
+       "url": "https://example.com/Tok38 alpha38"
+      },
+      {
+       "source": "s2",
+       "name": "Tok38 beta38",
+       "url": "https://example.com/Tok38 beta38"
+      }
+     ]
+    },
+    {
+     "token": "tok39",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok39 alpha39",
+       "url": "https://example.com/Tok39 alpha39"
+      },
+      {
+       "source": "s2",
+       "name": "Tok39 beta39",
+       "url": "https://example.com/Tok39 beta39"
+      }
+     ]
+    },
+    {
+     "token": "tok40",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok40 alpha40",
+       "url": "https://example.com/Tok40 alpha40"
+      },
+      {
+       "source": "s2",
+       "name": "Tok40 beta40",
+       "url": "https://example.com/Tok40 beta40"
+      }
+     ]
+    },
+    {
+     "token": "tok41",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok41 alpha41",
+       "url": "https://example.com/Tok41 alpha41"
+      },
+      {
+       "source": "s2",
+       "name": "Tok41 beta41",
+       "url": "https://example.com/Tok41 beta41"
+      }
+     ]
+    },
+    {
+     "token": "tok42",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok42 alpha42",
+       "url": "https://example.com/Tok42 alpha42"
+      },
+      {
+       "source": "s2",
+       "name": "Tok42 beta42",
+       "url": "https://example.com/Tok42 beta42"
+      }
+     ]
+    },
+    {
+     "token": "tok43",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok43 alpha43",
+       "url": "https://example.com/Tok43 alpha43"
+      },
+      {
+       "source": "s2",
+       "name": "Tok43 beta43",
+       "url": "https://example.com/Tok43 beta43"
+      }
+     ]
+    },
+    {
+     "token": "tok44",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok44 alpha44",
+       "url": "https://example.com/Tok44 alpha44"
+      },
+      {
+       "source": "s2",
+       "name": "Tok44 beta44",
+       "url": "https://example.com/Tok44 beta44"
+      }
+     ]
+    },
+    {
+     "token": "tok45",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok45 alpha45",
+       "url": "https://example.com/Tok45 alpha45"
+      },
+      {
+       "source": "s2",
+       "name": "Tok45 beta45",
+       "url": "https://example.com/Tok45 beta45"
+      }
+     ]
+    },
+    {
+     "token": "tok46",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok46 alpha46",
+       "url": "https://example.com/Tok46 alpha46"
+      },
+      {
+       "source": "s2",
+       "name": "Tok46 beta46",
+       "url": "https://example.com/Tok46 beta46"
+      }
+     ]
+    },
+    {
+     "token": "tok47",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok47 alpha47",
+       "url": "https://example.com/Tok47 alpha47"
+      },
+      {
+       "source": "s2",
+       "name": "Tok47 beta47",
+       "url": "https://example.com/Tok47 beta47"
+      }
+     ]
+    },
+    {
+     "token": "tok48",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok48 alpha48",
+       "url": "https://example.com/Tok48 alpha48"
+      },
+      {
+       "source": "s2",
+       "name": "Tok48 beta48",
+       "url": "https://example.com/Tok48 beta48"
+      }
+     ]
+    },
+    {
+     "token": "tok49",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok49 alpha49",
+       "url": "https://example.com/Tok49 alpha49"
+      },
+      {
+       "source": "s2",
+       "name": "Tok49 beta49",
+       "url": "https://example.com/Tok49 beta49"
+      }
+     ]
+    },
+    {
+     "token": "tok50",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok50 alpha50",
+       "url": "https://example.com/Tok50 alpha50"
+      },
+      {
+       "source": "s2",
+       "name": "Tok50 beta50",
+       "url": "https://example.com/Tok50 beta50"
+      }
+     ]
+    },
+    {
+     "token": "tok51",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok51 alpha51",
+       "url": "https://example.com/Tok51 alpha51"
+      },
+      {
+       "source": "s2",
+       "name": "Tok51 beta51",
+       "url": "https://example.com/Tok51 beta51"
+      }
+     ]
+    },
+    {
+     "token": "tok52",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok52 alpha52",
+       "url": "https://example.com/Tok52 alpha52"
+      },
+      {
+       "source": "s2",
+       "name": "Tok52 beta52",
+       "url": "https://example.com/Tok52 beta52"
+      }
+     ]
+    },
+    {
+     "token": "tok53",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok53 alpha53",
+       "url": "https://example.com/Tok53 alpha53"
+      },
+      {
+       "source": "s2",
+       "name": "Tok53 beta53",
+       "url": "https://example.com/Tok53 beta53"
+      }
+     ]
+    },
+    {
+     "token": "tok54",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok54 alpha54",
+       "url": "https://example.com/Tok54 alpha54"
+      },
+      {
+       "source": "s2",
+       "name": "Tok54 beta54",
+       "url": "https://example.com/Tok54 beta54"
+      }
+     ]
+    },
+    {
+     "token": "tok55",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok55 alpha55",
+       "url": "https://example.com/Tok55 alpha55"
+      },
+      {
+       "source": "s2",
+       "name": "Tok55 beta55",
+       "url": "https://example.com/Tok55 beta55"
+      }
+     ]
+    },
+    {
+     "token": "tok56",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok56 alpha56",
+       "url": "https://example.com/Tok56 alpha56"
+      },
+      {
+       "source": "s2",
+       "name": "Tok56 beta56",
+       "url": "https://example.com/Tok56 beta56"
+      }
+     ]
+    },
+    {
+     "token": "tok57",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok57 alpha57",
+       "url": "https://example.com/Tok57 alpha57"
+      },
+      {
+       "source": "s2",
+       "name": "Tok57 beta57",
+       "url": "https://example.com/Tok57 beta57"
+      }
+     ]
+    },
+    {
+     "token": "tok58",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok58 alpha58",
+       "url": "https://example.com/Tok58 alpha58"
+      },
+      {
+       "source": "s2",
+       "name": "Tok58 beta58",
+       "url": "https://example.com/Tok58 beta58"
+      }
+     ]
+    },
+    {
+     "token": "tok59",
+     "sources": [
+      "s1",
+      "s2"
+     ],
+     "items": [
+      {
+       "source": "s1",
+       "name": "Tok59 alpha59",
+       "url": "https://example.com/Tok59 alpha59"
+      },
+      {
+       "source": "s2",
+       "name": "Tok59 beta59",
+       "url": "https://example.com/Tok59 beta59"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "store": {
+  "upsert_new": {
+   "name": "Model X",
+   "first_seen": "2026-11-11",
+   "last_seen": "2026-11-11",
+   "sources": [
+    "x",
+    "github"
+   ],
+   "history": [
+    {
+     "date": "2026-11-11",
+     "grade": "必看"
+    }
+   ],
+   "review": {
+    "due": null,
+    "result": null,
+    "checked_on": null,
+    "_first_seen": "2026-11-11"
+   }
+  },
+  "upsert_update": {
+   "name": "Model X",
+   "first_seen": "2026-11-11",
+   "last_seen": "2026-11-12",
+   "sources": [
+    "x",
+    "github",
+    "reddit"
+   ],
+   "history": [
+    {
+     "date": "2026-11-11",
+     "grade": "必看"
+    },
+    {
+     "date": "2026-11-12",
+     "grade": "关注"
+    }
+   ],
+   "review": {
+    "due": null,
+    "result": null,
+    "checked_on": null,
+    "_first_seen": "2026-11-11"
+   }
+  },
+  "upsert_second": {
+   "name": "Old Topic",
+   "first_seen": "2026-10-20",
+   "last_seen": "2026-10-20",
+   "sources": [
+    "hn"
+   ],
+   "history": [
+    {
+     "date": "2026-10-20",
+     "grade": "苗头"
+    }
+   ],
+   "review": {
+    "due": null,
+    "result": null,
+    "checked_on": null,
+    "_first_seen": "2026-10-20"
+   }
+  },
+  "upsert_legacy_fills_review": {
+   "name": "Legacy",
+   "first_seen": "2026-11-01",
+   "last_seen": "2026-11-05",
+   "sources": [
+    "x",
+    "y"
+   ],
+   "history": [
+    {
+     "date": "2026-11-01",
+     "grade": "关注"
+    },
+    {
+     "date": "2026-11-05",
+     "grade": "必看"
+    }
+   ],
+   "review": {
+    "due": null,
+    "result": null,
+    "checked_on": null,
+    "_first_seen": "2026-11-01"
+   }
+  },
+  "due_at_14d_exact": [
+   "Old Topic"
+  ],
+  "due_later": [
+   "Model X",
+   "Old Topic",
+   "Legacy"
+  ],
+  "record_hit": {
+   "name": "Old Topic",
+   "first_seen": "2026-10-20",
+   "last_seen": "2026-10-20",
+   "sources": [
+    "hn"
+   ],
+   "history": [
+    {
+     "date": "2026-10-20",
+     "grade": "苗头"
+    }
+   ],
+   "review": {
+    "due": null,
+    "result": "hit",
+    "checked_on": "2026-11-25",
+    "_first_seen": "2026-10-20"
+   }
+  },
+  "due_after_review": [
+   "Model X",
+   "Legacy"
+  ],
+  "record_invalid": {
+   "error_type": "ValueError",
+   "error_arg": "result must be 'hit' or 'miss'"
+  },
+  "record_missing": {
+   "error_type": "KeyError",
+   "error_arg": "topic not found: Nope"
+  },
+  "final_store": {
+   "topics": [
+    {
+     "name": "Model X",
+     "first_seen": "2026-11-11",
+     "last_seen": "2026-11-12",
+     "sources": [
+      "x",
+      "github",
+      "reddit"
+     ],
+     "history": [
+      {
+       "date": "2026-11-11",
+       "grade": "必看"
+      },
+      {
+       "date": "2026-11-12",
+       "grade": "关注"
+      }
+     ],
+     "review": {
+      "due": null,
+      "result": null,
+      "checked_on": null,
+      "_first_seen": "2026-11-11"
+     }
+    },
+    {
+     "name": "Old Topic",
+     "first_seen": "2026-10-20",
+     "last_seen": "2026-10-20",
+     "sources": [
+      "hn"
+     ],
+     "history": [
+      {
+       "date": "2026-10-20",
+       "grade": "苗头"
+      }
+     ],
+     "review": {
+      "due": null,
+      "result": "hit",
+      "checked_on": "2026-11-25",
+      "_first_seen": "2026-10-20"
+     }
+    },
+    {
+     "name": "Legacy",
+     "first_seen": "2026-11-01",
+     "last_seen": "2026-11-05",
+     "sources": [
+      "x",
+      "y"
+     ],
+     "history": [
+      {
+       "date": "2026-11-01",
+       "grade": "关注"
+      },
+      {
+       "date": "2026-11-05",
+       "grade": "必看"
+      }
+     ],
+     "review": {
+      "due": null,
+      "result": null,
+      "checked_on": null,
+      "_first_seen": "2026-11-01"
+     }
+    }
+   ]
+  },
+  "roundtrip": {
+   "topics": [
+    {
+     "name": "Model X",
+     "first_seen": "2026-11-11",
+     "last_seen": "2026-11-12",
+     "sources": [
+      "x",
+      "github",
+      "reddit"
+     ],
+     "history": [
+      {
+       "date": "2026-11-11",
+       "grade": "必看"
+      },
+      {
+       "date": "2026-11-12",
+       "grade": "关注"
+      }
+     ],
+     "review": {
+      "due": null,
+      "result": null,
+      "checked_on": null,
+      "_first_seen": "2026-11-11"
+     }
+    },
+    {
+     "name": "Old Topic",
+     "first_seen": "2026-10-20",
+     "last_seen": "2026-10-20",
+     "sources": [
+      "hn"
+     ],
+     "history": [
+      {
+       "date": "2026-10-20",
+       "grade": "苗头"
+      }
+     ],
+     "review": {
+      "due": null,
+      "result": "hit",
+      "checked_on": "2026-11-25",
+      "_first_seen": "2026-10-20"
+     }
+    },
+    {
+     "name": "Legacy",
+     "first_seen": "2026-11-01",
+     "last_seen": "2026-11-05",
+     "sources": [
+      "x",
+      "y"
+     ],
+     "history": [
+      {
+       "date": "2026-11-01",
+       "grade": "关注"
+      },
+      {
+       "date": "2026-11-05",
+       "grade": "必看"
+      }
+     ],
+     "review": {
+      "due": null,
+      "result": null,
+      "checked_on": null,
+      "_first_seen": "2026-11-01"
+     }
+    }
+   ]
+  },
+  "missing_file": {
+   "topics": []
+  }
+ },
+ "vocab": {
+  "rounds": [
+   {
+    "now": "2026-11-13T12:00:00+00:00",
+    "input": [
+     {
+      "source": "github",
+      "items": [
+       {
+        "source": "github",
+        "name": "a/b",
+        "url": "https://example.com",
+        "metrics": {},
+        "detail": ""
+       },
+       {
+        "source": "github",
+        "name": "c/d",
+        "url": "https://example.com",
+        "metrics": {},
+        "detail": ""
+       }
+      ]
+     },
+     {
+      "source": "hackernews",
+      "items": [
+       {
+        "source": "hackernews",
+        "name": "Some Headline",
+        "url": "https://example.com",
+        "metrics": {},
+        "detail": ""
+       }
+      ]
+     }
+    ],
+    "expected": {
+     "stats": {
+      "baseline": true,
+      "novel": 0,
+      "size": 2
+     },
+     "novel_items": [],
+     "saved_vocab": {
+      "github:a/b": "2026-11-13",
+      "github:c/d": "2026-11-13"
+     }
+    }
+   },
+   {
+    "now": "2026-11-13T12:00:00+00:00",
+    "input": [
+     {
+      "source": "github",
+      "items": [
+       {
+        "source": "github",
+        "name": "a/b",
+        "url": "https://example.com",
+        "metrics": {},
+        "detail": ""
+       },
+       {
+        "source": "github",
+        "name": "e/f",
+        "url": "https://example.com",
+        "metrics": {},
+        "detail": ""
+       }
+      ]
+     }
+    ],
+    "expected": {
+     "stats": {
+      "baseline": false,
+      "novel": 1,
+      "size": 3
+     },
+     "novel_items": [
+      "e/f"
+     ],
+     "saved_vocab": {
+      "github:a/b": "2026-11-13",
+      "github:c/d": "2026-11-13",
+      "github:e/f": "2026-11-13"
+     }
+    }
+   },
+   {
+    "now": "2027-01-13T12:00:00+00:00",
+    "input": [
+     {
+      "source": "github",
+      "items": [
+       {
+        "source": "github",
+        "name": "a/b",
+        "url": "https://example.com",
+        "metrics": {},
+        "detail": ""
+       }
+      ]
+     }
+    ],
+    "expected": {
+     "stats": {
+      "baseline": false,
+      "novel": 1,
+      "size": 1
+     },
+     "novel_items": [
+      "a/b"
+     ],
+     "saved_vocab": {
+      "github:a/b": "2027-01-13"
+     }
+    }
+   }
+  ],
+  "disabled": {
+   "enabled": false
+  },
+  "entity_sources": [
+   "app_store",
+   "civitai",
+   "github",
+   "hf_spaces",
+   "huggingface",
+   "openrouter",
+   "producthunt",
+   "sitemaps"
+  ]
+ },
+ "topic_key": [
+  {
+   "title": "Anthropic 完成新一轮融资",
+   "ledger": [
+    {
+     "name": "OpenAI GPT 模型发布引热议"
+    }
+   ],
+   "expected": [
+    "arc:anthropic",
+    "Anthropic IPO"
+   ]
+  },
+  {
+   "title": "英伟达发布新芯片",
+   "ledger": [],
+   "expected": [
+    "arc:nvidia",
+    "黄仁勋 / Nvidia 风波"
+   ]
+  },
+  {
+   "title": "黄仁勋现身台北",
+   "ledger": [],
+   "expected": [
+    "arc:nvidia",
+    "黄仁勋 / Nvidia 风波"
+   ]
+  },
+  {
+   "title": "NVIDIA stock jumps",
+   "ledger": [],
+   "expected": [
+    "own:NVIDIA stock jumps",
+    "NVIDIA stock jumps"
+   ]
+  },
+  {
+   "title": "OpenAI GPT 模型发布",
+   "ledger": [
+    {
+     "name": "OpenAI GPT 模型发布引热议"
+    }
+   ],
+   "expected": [
+    "led:OpenAI GPT 模型发布引热议",
+    "OpenAI GPT 模型发布引热议"
+   ]
+  },
+  {
+   "title": "OpenAI 模型发布",
+   "ledger": [
+    {
+     "name": "OpenAI GPT 模型发布引热议"
+    }
+   ],
+   "expected": [
+    "own:OpenAI 模型发布",
+    "OpenAI 模型发布"
+   ]
+  },
+  {
+   "title": "完全无关的话题",
+   "ledger": [
+    {
+     "name": "OpenAI GPT 模型发布引热议"
+    }
+   ],
+   "expected": [
+    "own:完全无关的话题",
+    "完全无关的话题"
+   ]
+  },
+  {
+   "title": "示例模型发布",
+   "ledger": [],
+   "expected": [
+    "own:示例模型发布",
+    "示例模型发布"
+   ]
+  }
+ ],
+ "chain": {
+  "editions": [
+   {
+    "date": "2026-11-12",
+    "slot": "morning",
+    "published_at": "2026-11-12T06:00:00+09:00",
+    "title": "热点雷达 · 早报",
+    "items": [
+     {
+      "level": "must",
+      "title": "示例模型发布",
+      "body": "正文 with <brackets> & symbols。",
+      "action": "值得试。",
+      "sources": [
+       "官方博客"
+      ],
+      "links": [
+       "https://example.com/release"
+      ],
+      "is_new": true,
+      "_heat": 113,
+      "_rank": 1
+     },
+     {
+      "level": "seed",
+      "title": "小苗头",
+      "body": "单源，先记一笔。",
+      "action": "仅记录。",
+      "sources": [
+       "小站"
+      ],
+      "links": [],
+      "is_new": true,
+      "_heat": 55,
+      "_rank": 2
+     }
+    ],
+    "updates": [],
+    "missing": [
+     "X 未直读"
+    ],
+    "pending_checks": []
+   },
+   {
+    "date": "2026-11-12",
+    "slot": "evening",
+    "published_at": "2026-11-12T18:00:00+09:00",
+    "title": "热点雷达 · 晚报",
+    "items": [
+     {
+      "level": "must",
+      "title": "示例模型发布",
+      "body": "晚间跟进。",
+      "action": "继续观察。",
+      "sources": [
+       "官方博客",
+       "小站"
+      ],
+      "links": [
+       "https://example.com/release"
+      ],
+      "is_new": false,
+      "_heat": 108,
+      "_rank": 1
+     }
+    ],
+    "updates": [],
+    "missing": [],
+    "pending_checks": []
+   },
+   {
+    "date": "2026-11-13",
+    "slot": "morning",
+    "published_at": "2026-11-13T06:00:00+09:00",
+    "title": "热点雷达 · 早报",
+    "items": [
+     {
+      "level": "must",
+      "title": "示例模型发布",
+      "body": "第三天继续发酵。",
+      "action": "重点跟进。",
+      "sources": [
+       "官方博客",
+       "小站",
+       "大站",
+       "外站"
+      ],
+      "links": [
+       "https://example.com/release",
+       "https://example.com/followup"
+      ],
+      "is_new": false,
+      "_heat": 156,
+      "_rank": 1
+     },
+     {
+      "level": "watch",
+      "title": "全新共振话题",
+      "body": "两源同时报。",
+      "action": "观察。",
+      "sources": [
+       "源A",
+       "源B"
+      ],
+      "links": [
+       "https://example.com/reso"
+      ],
+      "is_new": true,
+      "_heat": 103,
+      "_rank": 3
+     },
+     {
+      "level": "must",
+      "title": "Anthropic 发布新模型",
+      "body": "官方发布。",
+      "action": "试用。",
+      "sources": [
+       "官方博客",
+       "科技媒体"
+      ],
+      "links": [
+       "https://example.com/anthropic"
+      ],
+      "is_new": true,
+      "_heat": 133,
+      "_rank": 2
+     },
+     {
+      "level": "watch",
+      "title": "OpenAI GPT 模型发布",
+      "body": "台账匹配。",
+      "action": "记录。",
+      "sources": [
+       "小站"
+      ],
+      "links": [
+       "https://example.com/led"
+      ],
+      "is_new": true,
+      "_heat": 83,
+      "_rank": 4
+     },
+     {
+      "level": "seed",
+      "title": "单源新苗头",
+      "body": "只有一个来源。",
+      "action": "仅记录。",
+      "sources": [
+       "小站"
+      ],
+      "links": [],
+      "is_new": true,
+      "_heat": 55,
+      "_rank": 5
+     }
+    ],
+    "updates": [],
+    "missing": [],
+    "pending_checks": []
+   }
+  ],
+  "ledger": [
+   {
+    "name": "OpenAI GPT 模型发布引热议",
+    "first_seen": "2026-11-10",
+    "last_seen": "2026-11-12",
+    "sources": [
+     "小站"
+    ],
+    "history": [
+     {
+      "date": "2026-11-10",
+      "grade": "关注"
+     }
+    ],
+    "review": {
+     "due": null,
+     "result": null,
+     "checked_on": null,
+     "_first_seen": "2026-11-10"
+    }
+   }
+  ],
+  "topics": [
+   {
+    "key": "own:示例模型发布",
+    "name": "示例模型发布",
+    "apps": [
+     {
+      "edition": 0,
+      "date": "2026-11-12",
+      "slot": "morning",
+      "published": "2026-11-12T06:00:00+09:00",
+      "category": "AI 模型",
+      "title": "示例模型发布",
+      "level": "must",
+      "heat": 113,
+      "rank": 1,
+      "sources": [
+       "官方博客"
+      ],
+      "links": [
+       "https://example.com/release"
+      ],
+      "body": "正文 with <brackets> & symbols。",
+      "action": "值得试。",
+      "is_new": true,
+      "heat_delta": null,
+      "rank_delta": null
+     },
+     {
+      "edition": 1,
+      "date": "2026-11-12",
+      "slot": "evening",
+      "published": "2026-11-12T18:00:00+09:00",
+      "category": "AI 模型",
+      "title": "示例模型发布",
+      "level": "must",
+      "heat": 108,
+      "rank": 1,
+      "sources": [
+       "官方博客",
+       "小站"
+      ],
+      "links": [
+       "https://example.com/release"
+      ],
+      "body": "晚间跟进。",
+      "action": "继续观察。",
+      "is_new": false,
+      "heat_delta": -5,
+      "rank_delta": 0
+     },
+     {
+      "edition": 2,
+      "date": "2026-11-13",
+      "slot": "morning",
+      "published": "2026-11-13T06:00:00+09:00",
+      "category": "AI 模型",
+      "title": "示例模型发布",
+      "level": "must",
+      "heat": 156,
+      "rank": 1,
+      "sources": [
+       "官方博客",
+       "小站",
+       "大站",
+       "外站"
+      ],
+      "links": [
+       "https://example.com/release",
+       "https://example.com/followup"
+      ],
+      "body": "第三天继续发酵。",
+      "action": "重点跟进。",
+      "is_new": false,
+      "heat_delta": 48,
+      "rank_delta": 0
+     }
+    ],
+    "id": "t01",
+    "slug": "示例模型发布"
+   },
+   {
+    "key": "own:小苗头",
+    "name": "小苗头",
+    "apps": [
+     {
+      "edition": 0,
+      "date": "2026-11-12",
+      "slot": "morning",
+      "published": "2026-11-12T06:00:00+09:00",
+      "category": "行业动态",
+      "title": "小苗头",
+      "level": "seed",
+      "heat": 55,
+      "rank": 2,
+      "sources": [
+       "小站"
+      ],
+      "links": [],
+      "body": "单源，先记一笔。",
+      "action": "仅记录。",
+      "is_new": true,
+      "heat_delta": null,
+      "rank_delta": null
+     }
+    ],
+    "id": "t02",
+    "slug": "小苗头"
+   },
+   {
+    "key": "own:全新共振话题",
+    "name": "全新共振话题",
+    "apps": [
+     {
+      "edition": 2,
+      "date": "2026-11-13",
+      "slot": "morning",
+      "published": "2026-11-13T06:00:00+09:00",
+      "category": "行业动态",
+      "title": "全新共振话题",
+      "level": "watch",
+      "heat": 103,
+      "rank": 3,
+      "sources": [
+       "源A",
+       "源B"
+      ],
+      "links": [
+       "https://example.com/reso"
+      ],
+      "body": "两源同时报。",
+      "action": "观察。",
+      "is_new": true,
+      "heat_delta": null,
+      "rank_delta": null
+     }
+    ],
+    "id": "t03",
+    "slug": "全新共振话题"
+   },
+   {
+    "key": "arc:anthropic",
+    "name": "Anthropic IPO",
+    "apps": [
+     {
+      "edition": 2,
+      "date": "2026-11-13",
+      "slot": "morning",
+      "published": "2026-11-13T06:00:00+09:00",
+      "category": "AI 模型",
+      "title": "Anthropic 发布新模型",
+      "level": "must",
+      "heat": 133,
+      "rank": 2,
+      "sources": [
+       "官方博客",
+       "科技媒体"
+      ],
+      "links": [
+       "https://example.com/anthropic"
+      ],
+      "body": "官方发布。",
+      "action": "试用。",
+      "is_new": true,
+      "heat_delta": null,
+      "rank_delta": null
+     }
+    ],
+    "id": "t04",
+    "slug": "anthropic-发布新模型"
+   },
+   {
+    "key": "led:OpenAI GPT 模型发布引热议",
+    "name": "OpenAI GPT 模型发布",
+    "apps": [
+     {
+      "edition": 2,
+      "date": "2026-11-13",
+      "slot": "morning",
+      "published": "2026-11-13T06:00:00+09:00",
+      "category": "AI 模型",
+      "title": "OpenAI GPT 模型发布",
+      "level": "watch",
+      "heat": 83,
+      "rank": 4,
+      "sources": [
+       "小站"
+      ],
+      "links": [
+       "https://example.com/led"
+      ],
+      "body": "台账匹配。",
+      "action": "记录。",
+      "is_new": true,
+      "heat_delta": null,
+      "rank_delta": null
+     }
+    ],
+    "id": "t05",
+    "slug": "openai-gpt-模型发布"
+   },
+   {
+    "key": "own:单源新苗头",
+    "name": "单源新苗头",
+    "apps": [
+     {
+      "edition": 2,
+      "date": "2026-11-13",
+      "slot": "morning",
+      "published": "2026-11-13T06:00:00+09:00",
+      "category": "行业动态",
+      "title": "单源新苗头",
+      "level": "seed",
+      "heat": 55,
+      "rank": 5,
+      "sources": [
+       "小站"
+      ],
+      "links": [],
+      "body": "只有一个来源。",
+      "action": "仅记录。",
+      "is_new": true,
+      "heat_delta": null,
+      "rank_delta": null
+     }
+    ],
+    "id": "t06",
+    "slug": "单源新苗头"
+   }
+  ],
+  "topics_data": {
+   "generated_at": "2026-11-13T06:00:00+09:00",
+   "topics": [
+    {
+     "slug": "示例模型发布",
+     "title": "示例模型发布",
+     "heat": 156,
+     "first_seen": "2026-11-12",
+     "level": "must",
+     "url_patterns": [
+      "example.com/release",
+      "example.com/followup"
+     ],
+     "title_keywords": [
+      "示例模型发布"
+     ]
+    },
+    {
+     "slug": "小苗头",
+     "title": "小苗头",
+     "heat": 55,
+     "first_seen": "2026-11-12",
+     "level": "seed",
+     "url_patterns": [],
+     "title_keywords": [
+      "小苗头"
+     ]
+    },
+    {
+     "slug": "全新共振话题",
+     "title": "全新共振话题",
+     "heat": 103,
+     "first_seen": "2026-11-13",
+     "level": "watch",
+     "url_patterns": [
+      "example.com/reso"
+     ],
+     "title_keywords": [
+      "全新共振话题"
+     ]
+    },
+    {
+     "slug": "anthropic-发布新模型",
+     "title": "Anthropic IPO",
+     "heat": 133,
+     "first_seen": "2026-11-13",
+     "level": "must",
+     "url_patterns": [
+      "example.com/anthropic"
+     ],
+     "title_keywords": [
+      "Anthropic",
+      "Anthropic IPO",
+      "Anthropic-IPO",
+      "IPO"
+     ]
+    },
+    {
+     "slug": "openai-gpt-模型发布",
+     "title": "OpenAI GPT 模型发布",
+     "heat": 83,
+     "first_seen": "2026-11-13",
+     "level": "watch",
+     "url_patterns": [
+      "example.com/led"
+     ],
+     "title_keywords": [
+      "OpenAI",
+      "OpenAI GPT",
+      "OpenAI-GPT",
+      "GPT",
+      "模型发布",
+      "OpenAI GPT 模型发布"
+     ]
+    },
+    {
+     "slug": "单源新苗头",
+     "title": "单源新苗头",
+     "heat": 55,
+     "first_seen": "2026-11-13",
+     "level": "seed",
+     "url_patterns": [],
+     "title_keywords": [
+      "单源新苗头"
+     ]
+    }
+   ]
+  },
+  "alerts_data": {
+   "generated_at": "2026-11-13T06:00:00+09:00",
+   "alerts": [
+    {
+     "topic_slug": "anthropic-发布新模型",
+     "title": "Anthropic IPO",
+     "reason": "resonance",
+     "heat_before": 0,
+     "heat_after": 133,
+     "edition": "2026-11-13T06:00:00+09:00",
+     "triggered_at": "2026-11-13T06:00:00+09:00",
+     "dedupe_key": "anthropic-发布新模型:resonance:2026-11-13-morning"
+    },
+    {
+     "topic_slug": "全新共振话题",
+     "title": "全新共振话题",
+     "reason": "resonance",
+     "heat_before": 0,
+     "heat_after": 103,
+     "edition": "2026-11-13T06:00:00+09:00",
+     "triggered_at": "2026-11-13T06:00:00+09:00",
+     "dedupe_key": "全新共振话题:resonance:2026-11-13-morning"
+    },
+    {
+     "topic_slug": "示例模型发布",
+     "title": "示例模型发布",
+     "reason": "surge",
+     "heat_before": 108,
+     "heat_after": 156,
+     "edition": "2026-11-13T06:00:00+09:00",
+     "triggered_at": "2026-11-13T06:00:00+09:00",
+     "dedupe_key": "示例模型发布:surge:2026-11-13-morning"
+    }
+   ]
+  }
+ },
+ "chain_collide": {
+  "editions": [
+   {
+    "date": "2026-11-14",
+    "slot": "morning",
+    "published_at": "2026-11-14T06:00:00+09:00",
+    "title": "碰撞期",
+    "items": [
+     {
+      "level": "seed",
+      "title": "Hello World!",
+      "body": "",
+      "action": "",
+      "sources": [
+       "s"
+      ],
+      "links": [],
+      "is_new": true,
+      "_heat": 55,
+      "_rank": 1
+     },
+     {
+      "level": "seed",
+      "title": "Hello World?",
+      "body": "",
+      "action": "",
+      "sources": [
+       "s"
+      ],
+      "links": [],
+      "is_new": true,
+      "_heat": 55,
+      "_rank": 2
+     },
+     {
+      "level": "seed",
+      "title": "Index",
+      "body": "",
+      "action": "",
+      "sources": [
+       "s"
+      ],
+      "links": [],
+      "is_new": true,
+      "_heat": 55,
+      "_rank": 3
+     },
+     {
+      "level": "seed",
+      "title": "Rising",
+      "body": "",
+      "action": "",
+      "sources": [
+       "s"
+      ],
+      "links": [],
+      "is_new": false,
+      "_heat": 30,
+      "_rank": 4
+     }
+    ],
+    "updates": [],
+    "missing": [],
+    "pending_checks": []
+   }
+  ],
+  "ledger": [],
+  "topics": [
+   {
+    "key": "own:Hello World!",
+    "name": "Hello World!",
+    "apps": [
+     {
+      "edition": 0,
+      "date": "2026-11-14",
+      "slot": "morning",
+      "published": "2026-11-14T06:00:00+09:00",
+      "category": "行业动态",
+      "title": "Hello World!",
+      "level": "seed",
+      "heat": 55,
+      "rank": 1,
+      "sources": [
+       "s"
+      ],
+      "links": [],
+      "body": "",
+      "action": "",
+      "is_new": true,
+      "heat_delta": null,
+      "rank_delta": null
+     }
+    ],
+    "id": "t01",
+    "slug": "hello-world"
+   },
+   {
+    "key": "own:Hello World?",
+    "name": "Hello World?",
+    "apps": [
+     {
+      "edition": 0,
+      "date": "2026-11-14",
+      "slot": "morning",
+      "published": "2026-11-14T06:00:00+09:00",
+      "category": "行业动态",
+      "title": "Hello World?",
+      "level": "seed",
+      "heat": 55,
+      "rank": 2,
+      "sources": [
+       "s"
+      ],
+      "links": [],
+      "body": "",
+      "action": "",
+      "is_new": true,
+      "heat_delta": null,
+      "rank_delta": null
+     }
+    ],
+    "id": "t02",
+    "slug": "hello-world-2"
+   },
+   {
+    "key": "own:Index",
+    "name": "Index",
+    "apps": [
+     {
+      "edition": 0,
+      "date": "2026-11-14",
+      "slot": "morning",
+      "published": "2026-11-14T06:00:00+09:00",
+      "category": "行业动态",
+      "title": "Index",
+      "level": "seed",
+      "heat": 55,
+      "rank": 3,
+      "sources": [
+       "s"
+      ],
+      "links": [],
+      "body": "",
+      "action": "",
+      "is_new": true,
+      "heat_delta": null,
+      "rank_delta": null
+     }
+    ],
+    "id": "t03",
+    "slug": "index-2"
+   },
+   {
+    "key": "own:Rising",
+    "name": "Rising",
+    "apps": [
+     {
+      "edition": 0,
+      "date": "2026-11-14",
+      "slot": "morning",
+      "published": "2026-11-14T06:00:00+09:00",
+      "category": "行业动态",
+      "title": "Rising",
+      "level": "seed",
+      "heat": 30,
+      "rank": 4,
+      "sources": [
+       "s"
+      ],
+      "links": [],
+      "body": "",
+      "action": "",
+      "is_new": false,
+      "heat_delta": null,
+      "rank_delta": null
+     }
+    ],
+    "id": "t04",
+    "slug": "rising-2"
+   }
+  ],
+  "topics_data": {
+   "generated_at": "2026-11-14T06:00:00+09:00",
+   "topics": [
+    {
+     "slug": "hello-world",
+     "title": "Hello World!",
+     "heat": 55,
+     "first_seen": "2026-11-14",
+     "level": "seed",
+     "url_patterns": [],
+     "title_keywords": [
+      "Hello",
+      "Hello World",
+      "Hello-World",
+      "World",
+      "Hello World!"
+     ]
+    },
+    {
+     "slug": "hello-world-2",
+     "title": "Hello World?",
+     "heat": 55,
+     "first_seen": "2026-11-14",
+     "level": "seed",
+     "url_patterns": [],
+     "title_keywords": [
+      "Hello",
+      "Hello World",
+      "Hello-World",
+      "World",
+      "Hello World?"
+     ]
+    },
+    {
+     "slug": "index-2",
+     "title": "Index",
+     "heat": 55,
+     "first_seen": "2026-11-14",
+     "level": "seed",
+     "url_patterns": [],
+     "title_keywords": [
+      "Index"
+     ]
+    },
+    {
+     "slug": "rising-2",
+     "title": "Rising",
+     "heat": 30,
+     "first_seen": "2026-11-14",
+     "level": "seed",
+     "url_patterns": [],
+     "title_keywords": [
+      "Rising"
+     ]
+    }
+   ]
+  },
+  "alerts_data": {
+   "generated_at": "2026-11-14T06:00:00+09:00",
+   "alerts": []
+  }
+ },
+ "chain_empty": {
+  "topics_data": {
+   "generated_at": "",
+   "topics": []
+  },
+  "alerts_data": {
+   "generated_at": "",
+   "alerts": []
+  }
+ },
+ "track_record": {
+  "markdown": "# 战绩台账\n\n## 2026-11-11 试点期（复核日 2026-11-25）\n\n| 级别 | 话题 | 复核标准 | 结果 |\n| --- | --- | --- | --- |\n| 🔥 | 话题甲 | 标准甲 | 命中 |\n| 👀 | 话题乙 | 标准乙 | 未命中 |\n| 🌱 | 话题丙 | 标准丙 |  |\n\n## 2026-11-12 早报（复核日 2026-11-26）\n\n| 级别 | 话题 | 复核标准 | 结果 |\n| --- | --- | --- | --- |\n| 🔥 | 话题丁 | 标准丁 | 命中，持续发酵 |\n| 🚀 | 不是级别行 | 标准 | 命中 |\n\n## 2026-11-13 空组（复核日 2026-11-27）\n\n（暂无条目）\n",
+  "expected": {
+   "groups": [
+    {
+     "date": "2026-11-11",
+     "label": "试点期",
+     "review_date": "2026-11-25",
+     "entries": [
+      {
+       "level": "must",
+       "emoji": "🔥",
+       "topic": "话题甲",
+       "criteria": "标准甲",
+       "result": "命中",
+       "review_date": "2026-11-25"
+      },
+      {
+       "level": "watch",
+       "emoji": "👀",
+       "topic": "话题乙",
+       "criteria": "标准乙",
+       "result": "未命中",
+       "review_date": "2026-11-25"
+      },
+      {
+       "level": "seed",
+       "emoji": "🌱",
+       "topic": "话题丙",
+       "criteria": "标准丙",
+       "result": "",
+       "review_date": "2026-11-25"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-12",
+     "label": "早报",
+     "review_date": "2026-11-26",
+     "entries": [
+      {
+       "level": "must",
+       "emoji": "🔥",
+       "topic": "话题丁",
+       "criteria": "标准丁",
+       "result": "命中，持续发酵",
+       "review_date": "2026-11-26"
+      }
+     ]
+    },
+    {
+     "date": "2026-11-13",
+     "label": "空组",
+     "review_date": "2026-11-27",
+     "entries": []
+    }
+   ],
+   "total": 4,
+   "reviewed": 3,
+   "hits": 2,
+   "first_review": "2026-11-25"
+  },
+  "missing_file": {
+   "groups": [],
+   "total": 0,
+   "reviewed": 0,
+   "hits": 0,
+   "first_review": ""
+  }
+ }
+}

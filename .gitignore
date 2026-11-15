@@ -12,3 +12,5 @@ config.yml
 *.egg-info/
 state/vocab.json
 state/sitemap-seen.json
+node_modules/
+dist/

@@ -45,6 +45,10 @@ BASE_URL = os.environ.get(
 # Repo that receives seed submissions (the submit page's Issue link) and
 # holds the instance data; an instance/data repo overrides it via env.
 DATA_REPO = os.environ.get("TS_DATA_REPO", "daiyanze/breaker-delta")
+# Explicit track-record ledger path (the ledger is instance data and
+# lives in the data repo since 0.15.1); None = ROOT / "track-record.md",
+# which is where a data repo's CI copies it before building.
+TRACK_RECORD_PATH = None
 SLOT = {"pilot": ("试跑", 0), "morning": ("早报", 1), "evening": ("晚报", 2)}
 BASE = {"must": 60, "watch": 30, "seed": 10}
 LEVELS = {"must": ("🔥", "必看"), "watch": ("👀", "关注"), "seed": ("🌱", "苗头")}
@@ -1343,10 +1347,11 @@ def foot():
             f'<a href="feed.xml">RSS</a> · <a href="atom.xml">Atom</a></div></footer>')
 
 
-def build(base_url=None, out_dir=None, editions_dir=None):
+def build(base_url=None, out_dir=None, editions_dir=None, track_record_path=None):
     """Build the whole site; returns the list of written HTML paths."""
     if base_url:
         globals()["BASE_URL"] = base_url.rstrip("/") + "/"
+    globals()["TRACK_RECORD_PATH"] = track_record_path
     out = Path(out_dir) if out_dir else OUT
     globals()["OUT"] = out
     out.mkdir(parents=True, exist_ok=True)
@@ -1985,7 +1990,7 @@ def build_site(OUT, editions, topics):
 
     # track record (E1): generated from track-record.md at build time —
     # the Markdown ledger stays the human-maintained source of truth.
-    tr = parse_track_record()
+    tr = parse_track_record(TRACK_RECORD_PATH)
     if tr["reviewed"]:
         rate = tr["hits"] / tr["reviewed"] * 100 if tr["reviewed"] else 0
         tr_summary = (f'{s("tr_reviewed")} {tr["reviewed"]} · '

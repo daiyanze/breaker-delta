@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.16.0 — 2026-11-15（未发布，Node 迁移 Phase 0 + 1）
+
+- **Node / TypeScript 迁移开工（开工单 `NODE-MIGRATION.md`）**：仓库改为 npm workspaces monorepo（根 `package.json` + `tsconfig.base.json`），Python 引擎原样保留、不改行为，直到对应 Phase 对等验证通过。
+- **Phase 0 黄金样本**：新增 `scripts/make_golden.py`，对固定输入集跑 Python 待迁纯函数，生成 `packages/core/fixtures/golden.json`——覆盖 heat / classify / slugify / title_keywords / 两种 tokens / topic_weights / item_time / apply_controls / resonance / store / vocab / topic_key / build_topics + topics_data + alerts_data 全链（ED1/ED2 + 新增 ED3 制造 surge 与 resonance）/ parse_track_record，含中英日标题、CJK slug 与超长截断、同 token 超 12 条、排序截断等边界；脚本可重复运行、结果确定。
+- **Phase 1 `@breaker-delta/core`**：纯领域逻辑迁 TS（strict、零运行时依赖、测试用 node:test）——`heatOf` / `classify` / `slugify` / `titleKeywords` / `topicFile` / `scanTokens` + `publishTokens` / `resonanceGroups` / `topicWeights` / `itemTime` / `applyControls` / store 全部 / `applyVocab`（存储可注入）/ `topicKey` / `buildTopics` / `parseTrackRecord` / `topicsData` / `alertsData`，行为与 Python 逐项对等、怪癖保留（双 tokens、classify 先 title 后 body、slug 48 字截断、alerts 新话题只报 resonance 等）。TS 测试逐项比对 golden + 独立单元断言，共 109 个全过；Python 侧 `pytest` 50 过（另 2 个 track-record 测试为 0.15.1 数据分仓后的既有失败，与本次无关）。
+
 ## 0.15.1 — 2026-11-15
 
 - **数据与引擎正式分仓**：实例数据（`editions/` 5 期、`state/seen-topics.json`、`seen-topics.md`、`track-record.md`）已迁入数据仓 `daiyanze/breaker-delta-data` 并删除本仓副本（数据仓副本与删除前本地文件哈希逐一核对一致）。线上站点改由数据仓 CI 构建部署：https://daiyanze.github.io/breaker-delta-data/
