@@ -1,10 +1,10 @@
-![Breaker Delta · 浪尖雷达](assets/banner.png)
+![Breaker Delta](assets/banner.png)
 
 **English** | [简体中文](README.zh-CN.md)
 
-# Breaker Delta · 浪尖雷达
+# Breaker Delta
 
-*Catch it before it breaks.* 浪起之前，先有回波。
+*Catch it before it breaks.*
 
 A web hot-topic radar: it catches new models, products, repos, and events at the source layer — before they reach mass search. How often it scans is defined by the user; nothing about the schedule is baked in.
 
@@ -17,7 +17,7 @@ Hot topics propagate in a fixed order: a lab or a big account posts first (X, Hu
 - **Three source layers** — L1 source layer (official blogs, GitHub, Hacker News, Hugging Face, Product Hunt, arXiv…), L2 fermentation layer (Reddit, tech media, directories, Google News…), L3 verification layer (Google Trends, checks only). 26 built-in fetcher groups, all free and keyless except X — see [SOURCES.md](SOURCES.md).
 - **Resonance, not reprints** — a topic counts as a hotspot only when ≥2 genuinely independent sources carry it. Bundled groups (official blogs, tech media, directories) count as one source each, so a press release reprinted ten times is still one source. A single-source signal is recorded as a echo, not a hotspot.
 - **Grading** — an agent grades candidates against fixed quantified thresholds as 🔥 Must / 👀 Watch / 🌀 Echo.
-- **Wave height （浪高）** — every topic gets an uncapped score: grade base (Must 60 / Watch 30 / Echo 10) + 20 × independent sources + 8 × evidence links + 25 when first seen. The site ranks by wave height and tracks its rise and fall across editions.
+- **Wave height** — every topic gets an uncapped score: grade base (Must 60 / Watch 30 / Echo 10) + 20 × independent sources + 8 × evidence links + 25 when first seen. The site ranks by wave height and tracks its rise and fall across editions.
 - **Review loop** — 14 days after a topic is picked, it is reviewed: did it actually take off? The track record is public, misses included.
 
 The full methodology — written for humans — is in [methodology.md](methodology.md).
@@ -102,9 +102,7 @@ Put a `config.yaml` in your data dir (based on `config.example.yaml`; YAML with 
 
 ## Documentation
 
-- [Methodology](methodology.md) — layers, thresholds, grading, the review loop (also in [简体中文](methodology.zh-CN.md))
 - [Built-in sources](SOURCES.md) — all 26 fetcher groups and their rules (also in [简体中文](SOURCES.zh-CN.md))
-- [Roadmap](ROADMAP.md) — from internal tool to public site, and what is already shipped (also in [简体中文](ROADMAP.zh-CN.md))
 - [Privacy](PRIVACY.md) — read-only, no accounts, no posting
 - [Changelog](CHANGELOG.md)
 
