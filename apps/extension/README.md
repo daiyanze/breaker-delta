@@ -3,7 +3,7 @@
 **English** · [中文](README.zh-CN.md)
 
 The browser extension for Breaker Delta / 浪尖雷达 (Chrome first,
-version 0.6.0). It travels with you while you browse: when you spot
+version 0.6.1). It travels with you while you browse: when you spot
 something that might take off, capture it in one click; when you open
 a page the radar already tracks, it tells you how high the wave is.
 

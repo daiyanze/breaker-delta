@@ -47,7 +47,7 @@
     "scripting"
   ],
   "short_name": "浪尖雷达收波",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "web_accessible_resources": [
     {
       "matches": [

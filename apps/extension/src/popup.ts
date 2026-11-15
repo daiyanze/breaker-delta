@@ -284,6 +284,11 @@ function renderMatch(
 
 async function init(): Promise<void> {
   settings = await loadSettings();
+  // 设置链接同时写上真实地址：万一点击处理没生效，链接本身也能打开。
+  const settingsLink = $("open-settings") as HTMLAnchorElement;
+  settingsLink.href = chrome.runtime.getURL("options.html");
+  settingsLink.target = "_blank";
+  settingsLink.rel = "noopener noreferrer";
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   currentTab = tabs && tabs[0] ? tabs[0] : null;
   if (currentTab) {
@@ -363,9 +368,23 @@ $("submit-all").addEventListener("click", async () => {
   }
 });
 
-$("open-settings").addEventListener("click", (event) => {
+$("open-settings").addEventListener("click", async (event) => {
   event.preventDefault();
-  chrome.runtime.openOptionsPage();
+  // 首选 openOptionsPage；它在个别 Chrome 版本/场景下会静默失败或
+  // 返回 rejected promise，失败时直接用新标签页打开设置页兜底。
+  try {
+    const maybePromise = chrome.runtime.openOptionsPage() as unknown as
+      | Promise<void>
+      | undefined;
+    if (maybePromise && typeof maybePromise.catch === "function") {
+      await maybePromise;
+      return;
+    }
+    if (maybePromise === undefined) return;
+  } catch {
+    /* 落到下面的兜底 */
+  }
+  await chrome.tabs.create({ url: chrome.runtime.getURL("options.html") });
 });
 
 $("export-issue").addEventListener("click", async () => {

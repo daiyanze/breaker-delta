@@ -26,7 +26,7 @@ declare const chrome: {
   };
   runtime: {
     getURL(path: string): string;
-    openOptionsPage(): void;
+    openOptionsPage(): Promise<void>;
     sendMessage(message: unknown): Promise<unknown>;
     onInstalled: { addListener(callback: () => void): void };
     onStartup: { addListener(callback: () => void): void };
