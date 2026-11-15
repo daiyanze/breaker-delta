@@ -69,3 +69,46 @@ description: Run one edition (morning/evening) of the twice-daily web hot-topic 
 - 只读公开信息；不发帖、不点赞、不互动。
 - 不编造数字、链接、账号动态；没查到就写缺失。
 - 不改 `config.json` 和门槛来「凑」结果；觉得门槛不合理，在报告末尾提一句建议即可。
+
+---
+
+# 附带职责：PR 检查与合并（PR Watch）
+
+本章只在任务是「检查 / 处理 Pull Request」时执行，与上面的扫描流程无关。GitHub 自带的 Watch 只给人发通知、不会唤醒 agent；本章就是 agent 的固定巡检规程，换任何会话都照此执行，不凭记忆发挥。
+
+## 范围与通道
+
+- 仓库：`daiyanze/breaker-delta`（引擎仓）与 `daiyanze/breaker-delta-data`（数据仓）。
+- 通道：`custom.github-token` 连接器的 `gh_api.py`（细粒度 token 已覆盖两仓）。读用 `get`；评论与合并用 `call` 子命令（`gh_api.py call POST /repos/<repo>/issues/<n>/comments --json '{"body":"..."}'`、`gh_api.py call PUT /repos/<repo>/pulls/<n>/merge --json '{"merge_method":"squash"}'`）。**禁止**使用已废弃的 `custom.github-pat`。
+- 巡检节奏由外部定时任务决定（建议每 30–60 分钟或随早晚报各一次）；本章只规定每一轮怎么做。没有 open PR 时一轮即结束，只在被问到时汇报「无 PR」，不主动打扰。
+
+## 每一轮的步骤
+
+1. **列出**：对两仓分别 `GET /repos/<repo>/pulls?state=open`。逐条取详情：`GET /repos/<repo>/pulls/<n>`（看 `mergeable`、`draft`、标题、作者、目标分支）、`GET /repos/<repo>/pulls/<n>/files`（改动文件清单与增删行数）。检查状态用 `GET /repos/<repo>/actions/runs?head_sha=<head_sha>` 看该 head 的 workflow 运行结论——注意：当前细粒度 token 没有 Checks / Statuses 权限，`check-runs` 与 `commits/<sha>/status` 接口一律返回 403，**不要用**，也不要把 403 误判成「检查失败」；等 Dai 给 token 补了 Checks 只读权限后再切换。
+2. **分档**（先看改动范围，再看检查状态）：
+   - **A 档（可自动合并）**：必须同时满足——
+     - 非 draft、无冲突（`mergeable` 为 true）；
+     - 改动**只**落在数据/文档路径：数据仓的 `editions/`、`state/`、`track-record.md`、`seen-topics.md`、`README*`；引擎仓的 `*.md` 文档（不含 `.github/`、不含 `skills/`）；
+     - 不碰 `.github/workflows/`、任何配置文件（`*.json` 数据文件除外）、密钥或凭据类文件；
+     - 数据文件能通过基本校验：`editions/*.json`、`state/*.json` 可被 JSON 解析、结构与同目录既有文件一致；
+     - 若该 PR 的 head 有 workflow 运行记录（`actions/runs?head_sha=`），必须全部 `conclusion: success`（两仓当前没有 PR 触发的 CI，只有数据/文档档允许在「无运行记录」时靠上一条本地校验放行；一旦将来加了 PR CI，此豁免自动失效，一律以 CI 为准）。
+   - **B 档（只检查 + 汇报，绝不自动合并）**：任何代码改动（`packages/`、`apps/`、`scripts/`、`skills/`）、workflow 改动、配置改动、删除文件超过 5 个、总增删超过 1000 行、作者是首次贡献者、或 A 档任一条件不满足。B 档在 PR 下留一条评论：列出检查结论与不自动合并的原因，然后汇报给 Dai 等他决定。
+   - **直接拦截并汇报**：改动里出现疑似密钥/令牌（`token`、`secret`、`.env`、私钥头）、把数据文件写进引擎仓（违反分仓原则）、或 PR 描述为空且改动范围说不清。只汇报，不评论细节、不合并。
+3. **合并（仅 A 档）**：squash 合并（`merge_method: "squash"`，提交标题用 PR 标题）；合并后回读 `GET /repos/<repo>/pulls/<n>` 确认 `merged: true`，再顺手确认数据仓 Pages workflow 因这次 push 触发并最终 success（`GET /repos/<repo>/actions/runs?per_page=3`）。合并失败或 Pages 失败都立即汇报，不重试超过一次。
+4. **留痕**：A 档合并后在 PR 下留一条评论：`🤖 已按 SKILL.md「PR 检查与合并」A 档标准自动合并：<逐项列出命中的条件>。` B 档评论同理写清卡在哪一条。
+
+## 汇报格式（每轮有 PR 时）
+
+```
+🔍 PR 巡检 {YYYY-MM-DD} {HH:MM} JST
+- breaker-delta：{n} 个 open PR
+- breaker-delta-data：{n} 个 open PR
+（逐条）#<n> 《标题》— A 档已合并 / B 档待 Dai 决定（原因：…）/ 已拦截（原因：…）
+```
+
+## 红线
+
+- 绝不合并 B 档与拦截项；拿不准就按 B 档处理并汇报，不猜。
+- 绝不 force 合并、绝不跳过失败的 check runs、绝不改分支保护来迁就某个 PR。
+- 绝不因为「作者是 Dai 本人」就跳过分档检查；Dai 的 PR 同样先过清单，他点名要直接合的除外（以他的原话为准）。
+- 评论只写检查事实，不透露 token、内部路径等无关信息。
