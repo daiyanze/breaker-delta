@@ -1,6 +1,6 @@
-![triple-sigma · 全网热点信号](assets/banner.png)
+![浪尖雷达 · Breaker Delta](assets/banner.png)
 
-# triple-sigma
+# 浪尖雷达 · Breaker Delta
 
 全网热点雷达：在热点到达大众搜索之前，从源头层抓到它。扫描频度由使用者自行定义，程序也可自行发现并更新。
 

@@ -99,7 +99,7 @@ HTML_LANG = {"zh": "zh-CN", "en": "en", "ja": "ja"}
 LANG_LABEL = {"zh": "中文", "en": "EN", "ja": "日本語"}
 
 STRINGS = {
-    "zh": {"site_name": "浪尖雷达 triple-sigma", "pg_title": "浪尖雷达",
+    "zh": {"site_name": "浪尖雷达 Breaker Delta", "pg_title": "浪尖雷达",
            "tabs": ["🌊 海浪榜", "📈 涨潮榜", "🌱 苗头", "🗂️ 分类", "📡 数据源", "📚 归档", "ℹ️ 关于"],
            "wave": "浪高", "carried": "结转", "new": "NEW 首现", "rank": "排名", "prev": "前",
            "tags_title": "🏷️ 标签", "editions_n": "{n} 期", "copy_link": "复制链接", "copied": "已复制",
@@ -142,12 +142,12 @@ STRINGS = {
            "first": "首现", "action": "建议动作", "orig_links": "原文链接",
            "foot_about": "关于本站", "theme": "切换主题",
            "snap_title": "🌊 海浪榜 · {x} 快照", "page_of": "第 {p}/{n} 页",
-           "desc_default": "浪尖雷达 triple-sigma：海浪榜、涨潮榜与苗头追踪，用浪高量化话题走势，每个话题一张海浪图。",
+           "desc_default": "浪尖雷达 Breaker Delta：海浪榜、涨潮榜与苗头追踪，用浪高量化话题走势，每个话题一张海浪图。",
            "desc_seeds": "最近三期里首次出现、还在发酵的话题苗头。",
            "desc_rising": "浪高涨幅最大的话题，正在涨潮的热点。",
            "desc_sources": "浪尖雷达的全部数据源与各自贡献的话题统计。",
            "desc_about": "浪尖雷达是什么、浪高算法、页面导览与作者信息。"},
-    "en": {"site_name": "Triple-Sigma", "pg_title": "Triple-Sigma",
+    "en": {"site_name": "Breaker Delta", "pg_title": "Breaker Delta",
            "tabs": ["🌊 Wave Board", "📈 Rising", "🌱 Seeds", "🗂️ Categories", "📡 Sources", "📚 Archive", "ℹ️ About"],
            "wave": "Wave", "carried": "carried", "new": "NEW", "rank": "Rank", "prev": "was",
            "tags_title": "🏷️ Tags", "editions_n": "{n} editions", "copy_link": "Copy link", "copied": "Copied",
@@ -193,12 +193,12 @@ STRINGS = {
            "first": "First seen", "action": "Suggested action", "orig_links": "Original links",
            "foot_about": "About", "theme": "Toggle theme",
            "snap_title": "🌊 {x} snapshot", "page_of": "Page {p}/{n}",
-           "desc_default": "Triple-Sigma wave board: every topic quantified as a wave height and tracked over time.",
+           "desc_default": "Breaker Delta wave board: every topic quantified as a wave height and tracked over time.",
            "desc_seeds": "Topics that first appeared in the last three editions and are still brewing.",
            "desc_rising": "Topics with the biggest wave-height gains.",
            "desc_sources": "All data sources and the topics each one feeds.",
-           "desc_about": "What Triple-Sigma is, the wave-height formula, page guide and author info."},
-    "ja": {"site_name": "浪尖レーダー triple-sigma", "pg_title": "浪尖レーダー",
+           "desc_about": "What Breaker Delta is, the wave-height formula, page guide and author info."},
+    "ja": {"site_name": "浪尖レーダー Breaker Delta", "pg_title": "浪尖レーダー",
            "tabs": ["🌊 ウェーブボード", "📈 上昇", "🌱 芽生え", "🗂️ カテゴリ", "📡 ソース", "📚 アーカイブ", "ℹ️ 概要"],
            "wave": "波高", "carried": "繰越", "new": "NEW", "rank": "順位", "prev": "前",
            "tags_title": "🏷️ タグ", "editions_n": "{n} 号", "copy_link": "リンクをコピー", "copied": "コピー済み",
@@ -251,7 +251,7 @@ STRINGS = {
 ABOUT = {
     "zh": """<section class="panel"><div class="panel-h"><span>关于浪尖雷达</span></div>
 <div class="detail">
-<p>浪尖雷达（triple-sigma）是一个热点追踪站：多源扫描科技与 AI 话题，用自有算法把每个话题量化成一个「浪高」，并持续追踪它的涨落。做这个站的目的很具体——让内容创作者能快速拿到可编辑、可发布的新闻素材：每个话题都有独立页面，给出正文、建议动作、数据源和原文链接。</p>
+<p>浪尖雷达（Breaker Delta）是一个热点追踪站：多源扫描科技与 AI 话题，用自有算法把每个话题量化成一个「浪高」，并持续追踪它的涨落。做这个站的目的很具体——让内容创作者能快速拿到可编辑、可发布的新闻素材：每个话题都有独立页面，给出正文、建议动作、数据源和原文链接。</p>
 <p>发布频度不固定：可以是日报、早晚报，也可以是小时报，期次只是标签，每一期的结构都一样。</p>
 <h3 style="margin:16px 0 6px">浪高怎么算</h3>
 <p>浪高 v2（参考 AIHOT 的量级，不设上限）：等级基分（必看 60 / 关注 30 / 苗头 10）+ 共振 20×来源数 + 证据 8×链接数 + 首现 25。一个话题至少要有 2 个独立来源互相印证才算热点，单源的先记为苗头。</p>
@@ -264,9 +264,9 @@ ABOUT = {
 <p>作者 Dai：<a href="https://github.com/daiyanze/breaker-delta" rel="noopener">GitHub 仓库</a> · <a href="https://x.com/daiyanze" rel="noopener">X @daiyanze</a> · <a href="feed.xml">RSS</a> · <a href="atom.xml">Atom</a></p>
 <p class="note">© 2026 Dai</p>
 </div></section>""",
-    "en": """<section class="panel"><div class="panel-h"><span>About Triple-Sigma</span></div>
+    "en": """<section class="panel"><div class="panel-h"><span>About Breaker Delta</span></div>
 <div class="detail">
-<p>Triple-Sigma （浪尖雷达） tracks tech and AI topics from many sources and quantifies each topic as a "wave height" that rises and falls over time. Its purpose is practical: give content creators ready-to-edit, ready-to-publish news material. Every topic has its own page with the story, a suggested action, its data sources and original links.</p>
+<p>Breaker Delta （浪尖雷达） tracks tech and AI topics from many sources and quantifies each topic as a "wave height" that rises and falls over time. Its purpose is practical: give content creators ready-to-edit, ready-to-publish news material. Every topic has its own page with the story, a suggested action, its data sources and original links.</p>
 <p>Publishing frequency is not fixed: daily, twice a day, or hourly — an edition is just a label, and every edition has the same structure.</p>
 <h3 style="margin:16px 0 6px">How the wave height works</h3>
 <p>Wave v2 (scale referenced from AIHOT, uncapped): level base (Must-read 60 / Watch 30 / Seed 10) + resonance 20×sources + evidence 8×links + 25 when first seen. A topic needs at least two independent sources to count as a hotspot; single-source signals start as seeds.</p>
@@ -281,7 +281,7 @@ ABOUT = {
 </div></section>""",
     "ja": """<section class="panel"><div class="panel-h"><span>浪尖レーダーについて</span></div>
 <div class="detail">
-<p>浪尖レーダー（triple-sigma）は、テクノロジーと AI のトピックを複数ソースから追跡し、各トピックを「波高」として定量化して推移を追うサイトです。目的は具体的で、コンテンツ制作者が編集・公開しやすいニュース素材を素早く手に入れられること。各トピックには専用ページがあり、本文、おすすめアクション、データソース、原文リンクを掲載しています。</p>
+<p>浪尖レーダー（Breaker Delta）は、テクノロジーと AI のトピックを複数ソースから追跡し、各トピックを「波高」として定量化して推移を追うサイトです。目的は具体的で、コンテンツ制作者が編集・公開しやすいニュース素材を素早く手に入れられること。各トピックには専用ページがあり、本文、おすすめアクション、データソース、原文リンクを掲載しています。</p>
 <p>発行頻度は固定ではありません。日刊、朝夕刊、時間刊でも、号はラベルにすぎず構造は同じです。</p>
 <h3 style="margin:16px 0 6px">波高の計算</h3>
 <p>波高 v2（AIHOT のスケールを参考、上限なし）：レベル基礎点（必読 60 / 注目 30 / 芽生え 10）+ 共鳴 20×ソース数 + 根拠 8×リンク数 + 初出 25。ホットなトピックには独立したソースが最低2つ必要で、単一ソースはまず「芽生え」として記録します。</p>
@@ -436,7 +436,7 @@ body{margin:0;background:var(--bg);color:var(--ink);line-height:1.6;
 a{color:var(--teal);text-decoration:none} a:hover{text-decoration:underline}
 header.mast{display:flex;align-items:center;gap:12px;border:1px solid var(--line);
  background:var(--panel);padding:12px 16px;border-radius:8px}
-header.mast svg{width:30px;height:30px}
+header.mast svg{width:30px;height:30px}header.mast img.mastmark{width:30px;height:30px}
 .wordmark{font-size:13px;letter-spacing:.32em;font-weight:700}
 .pg-title{font-size:21px;font-weight:800}
 nav.tabs{display:flex;gap:8px;margin:14px 0 0}
@@ -912,7 +912,7 @@ def share_links(url, text):
 
 
 def favicon():
-    return re.sub(r"<\?xml.*?\?>", "", (ROOT / "assets" / "favicon.svg").read_text(encoding="utf-8")).strip()
+    return '<img class="mastmark" src="icon-96.png" alt="">' 
 
 
 def mast(active, editions, current_ei=None, fname="index.html", tl=False):
@@ -940,7 +940,7 @@ def mast(active, editions, current_ei=None, fname="index.html", tl=False):
             ticks += (f'<span class="tick{on}{dim}"><a href="{ed_file(ed)}" data-i="{i}">'
                       f'{ed_label(ed)}</a></span>')
         tl_html = f'<div class="ticks-scroll"><div class="timeline tight">{ticks}</div></div>'
-    return f"""<header class="mast">{favicon()}<div><div class="wordmark">TRIPLE-SIGMA</div>
+    return f"""<header class="mast">{favicon()}<div><div class="wordmark">BREAKER DELTA</div>
 <div class="pg-title">{s("pg_title")}</div></div><div class="mast-ctl">{ctl}</div></header>
 <nav class="tabs">{tab_html}</nav>{tl_html}"""
 
@@ -1059,7 +1059,7 @@ def page(title, body, desc=None, path="index.html", ld=None):
             f'<meta name="twitter:site" content="@daiyanze">'
             f'<meta name="twitter:title" content="{e(title)}">'
             f'<meta name="twitter:description" content="{e(desc)}">'
-            f'<title>{e(title)} · triple-sigma</title>{theme_head}<style>{CSS}</style>{ld_html}</head>'
+            f'<title>{e(title)} · Breaker Delta</title>{theme_head}<style>{CSS}</style>{ld_html}</head>'
             f'<body><div class="wrap">{body}</div>{theme_bind}</body></html>')
 
 
@@ -1114,7 +1114,7 @@ def build(base_url=None, out_dir=None, editions_dir=None):
     banner = ROOT / "assets" / "banner.png"
     if banner.exists():
         globals()["OG_IMG"] = True
-    brand = ["favicon.svg", "favicon-32.png", "apple-touch-icon.png", "banner.png"]
+    brand = ["favicon.svg", "favicon-32.png", "apple-touch-icon.png", "banner.png", "icon-96.png"]
     for lang in LANGS:
         CUR["lang"] = lang
         od = out if lang == "zh" else out / lang
@@ -1165,7 +1165,7 @@ def write_discovery(editions, topics):
         f"- [{t['apps'][-1]['title']}]({BASE_URL}{topic_href(t)})" for t in sts)
     lang_links = "\n".join(
         f"- [{HTML_LANG[L]}]({BASE_URL}{'' if L == 'zh' else L + '/'}index.html)" for L in LANGS)
-    llms = (f"# 浪尖雷达 triple-sigma\n\n> 用「浪高」量化话题走势的热点雷达：海浪榜（全部话题按浪高排名）、"
+    llms = (f"# 浪尖雷达 Breaker Delta\n\n> 用「浪高」量化话题走势的热点雷达：海浪榜（全部话题按浪高排名）、"
             f"涨潮榜（浪高涨幅）、苗头（新出现的话题），每个话题有独立页面与海浪图（浪高历史走势）。\n\n"
             f"## 主要页面\n- [海浪榜]({BASE_URL}index.html)\n- [涨潮榜]({BASE_URL}rising.html)\n"
             f"- [苗头]({BASE_URL}seeds.html)\n- [分类]({BASE_URL}categories.html)\n"
