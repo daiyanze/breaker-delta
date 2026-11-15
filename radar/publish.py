@@ -441,6 +441,27 @@ details a{color:var(--sub)}
 .pager a,.pager span{border:1px solid var(--line);border-radius:6px;padding:4px 13px;font-size:13px;color:var(--sub)}
 .pager span.on{color:var(--ink);border-color:var(--teal)}
 footer{margin-top:26px;color:var(--faint);font-size:12.5px;border-top:1px solid var(--line);padding-top:13px}
+@media (max-width: 720px){
+  .wrap{padding:0 10px 40px}
+  .mast{flex-wrap:wrap;gap:8px}
+  .brand{font-size:19px}
+  .tabs{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;scrollbar-width:none;padding-bottom:6px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs a{flex:none}
+  .panel{padding:12px}
+  h1.pg-title{font-size:19px}
+  .row{flex-wrap:wrap;gap:5px 8px;padding:10px 0;align-items:flex-start}
+  .rank{order:1;min-width:0;font-size:15px;gap:4px}
+  .rtitle{order:2;flex:1 1 52%;font-size:14.5px}
+  .heat{order:3;margin-left:auto}
+  .hv b{font-size:18px}
+  .tag{order:6} .time{order:7} .avas{order:8} .row .note{order:9}
+  .slider-row{gap:8px}
+  .stats{flex-wrap:wrap;gap:12px 18px}
+  .big{font-size:30px}
+  table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+  .about-body{font-size:14px}
+}
 .copy{margin-top:10px}
 .copy a{color:var(--sub)}
 .share{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
