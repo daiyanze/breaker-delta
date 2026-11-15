@@ -1,15 +1,14 @@
-# Deploy the triple-sigma static site to GitHub Pages.
-# Runs when an edition file or the generator changes on main.
-# Requires Pages enabled in repo Settings (Source: GitHub Actions).
-name: pages
+# The live site moved to the instance data repo (daiyanze/breaker-delta-data)
+# on 2026-11-15 when data and engine were split into separate repos.
+# This workflow now deploys only a redirect page to the new address.
+# Other instances: delete this workflow in your engine fork and let your
+# own data repo build and deploy your site.
+name: pages-redirect
 
 on:
   push:
     branches: [main]
     paths:
-      - "editions/**"
-      - "radar/publish.py"
-      - "assets/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -29,12 +28,25 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Generate site
-        run: python -m radar.publish
+      - name: Build redirect page
+        run: |
+          mkdir -p site
+          cat > site/index.html <<'HTML'
+          <!DOCTYPE html>
+          <html lang="zh">
+          <head>
+          <meta charset="utf-8">
+          <title>浪尖雷达已搬家 · Breaker Delta moved</title>
+          <meta http-equiv="refresh" content="0; url=https://daiyanze.github.io/breaker-delta-data/">
+          <link rel="canonical" href="https://daiyanze.github.io/breaker-delta-data/">
+          </head>
+          <body>
+          <p>浪尖雷达 / Breaker Delta 已搬到
+          <a href="https://daiyanze.github.io/breaker-delta-data/">daiyanze.github.io/breaker-delta-data</a>，
+          正在为你跳转…</p>
+          </body>
+          </html>
+          HTML
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.15.1 — 2026-11-15
+
+- **数据与引擎正式分仓**：实例数据（`editions/` 5 期、`state/seen-topics.json`、`seen-topics.md`、`track-record.md`）已迁入数据仓 `daiyanze/breaker-delta-data` 并删除本仓副本（数据仓副本与删除前本地文件哈希逐一核对一致）。线上站点改由数据仓 CI 构建部署：https://daiyanze.github.io/breaker-delta-data/
+- 本仓 Pages 改为跳转页：`.github/workflows/pages.yml` 只部署一个跳转到新地址的 index.html，不再用本仓数据构建站点。今后扫描与期次写入只进数据仓。
+
 ## 0.15.0 — 2026-11-15
 
 - **数据 / 引擎分仓准备（Dai 定：数据归用户自己的数据仓，引擎仓不放收集数据）**：
