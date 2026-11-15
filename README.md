@@ -20,8 +20,6 @@ Hot topics propagate in a fixed order: a lab or a big account posts first (X, Hu
 - **Wave height** — every topic gets an uncapped score: grade base (Must 60 / Watch 30 / Echo 10) + 20 × independent sources + 8 × evidence links + 25 when first seen. The site ranks by wave height and tracks its rise and fall across editions.
 - **Review loop** — 14 days after a topic is picked, it is reviewed: did it actually take off? The track record is public, misses included.
 
-The full methodology — written for humans — is in [methodology.md](methodology.md).
-
 ## Repository layout
 
 The repo is split into layers an agent can use directly:
