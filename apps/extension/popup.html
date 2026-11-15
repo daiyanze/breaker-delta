@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>浪尖雷达 · 收苗</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>🌊 浪尖雷达 · 收苗</h1>
+    <p class="subtitle">Breaker Delta Seed Catcher</p>
+  </header>
+
+  <section id="current-page">
+    <div class="label">当前页面</div>
+    <div id="page-title" class="page-title">（读取中…）</div>
+    <div id="page-url" class="page-url"></div>
+  </section>
+
+  <label class="field">
+    <span>一句话理由（可选）</span>
+    <input id="note" type="text" placeholder="为什么觉得这是个苗头？">
+  </label>
+
+  <button id="capture" class="primary">收下这个苗头</button>
+  <p id="status" class="status" role="status"></p>
+
+  <section id="inbox">
+    <div class="inbox-head">
+      <h2>本地苗头箱 <span id="seed-count"></span></h2>
+    </div>
+    <ul id="seed-list"></ul>
+    <p id="empty-hint" class="empty">还没有收下的苗头。在任何页面点「收下这个苗头」即可。</p>
+    <div class="actions">
+      <button id="export-issue">导出投苗（复制 Issue 文本）</button>
+      <button id="export-json">下载 JSON</button>
+    </div>
+  </section>
+
+  <footer>只在你主动点击时抓取当前页，不收集浏览历史。</footer>
+  <script src="popup.js"></script>
+</body>
+</html>

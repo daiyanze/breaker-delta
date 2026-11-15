@@ -40,7 +40,30 @@ core 的硬规则：
 - **Phase 2 fetchers**：common（parse_feed 等）+ 25 个抓取器分批迁，双跑比对候选文件。✅ 已完成（0.17.0-dev，2026-11-15）：`@breaker-delta/fetchers` 全量落地，golden 36 parse 用例 + config 对 PyYAML 全过（TS 57 测试），实网双跑 24/25 源 status 一致、21 源 URL 100% 重合（差异均为活数据漂移/Reddit 限流，详见 CHANGELOG）；双跑修掉 undici 未读 error body 崩进程一处。
 - **Phase 3 publisher**：publish.py 其余部分（HTML/Feed/sitemap），逐页与 Python 构建产物 diff。✅ 已完成（0.18.0-dev，2026-11-15）：`@breaker-delta/publisher` 全量落地，三层对等验证全过——fixture 逐字节 diff 92/92、真实数据逐字节 diff 554/554（首轮 12 处差异全因 bloomberg.com 间歇机器人挑战、非逻辑分歧）、test_publish.py 9 测试 TS 对应版全过（npm 共 175、pytest 52）。
 - **Phase 4 CLI + Skill**：scan/review/record/publish/doctor 五命令，机器可读输出（--json）、退出码、原子写入；打包单文件；SKILL.md 改调 Node CLI，数据目录显式传入。✅ 已完成（0.19.0-dev，2026-11-15）：`@breaker-delta/cli` 五命令 + `mcp` 对等服务落地，esbuild 单文件约 263 KiB（空目录仅 node 独立运行验收过）；SKILL.md 改调 Node CLI 且方法论未动（git diff 自证），plugin.json 同步改名；npm 共 182 测试全过（cli 新增 7 个集成测试）。
-- **Phase 5 扩展**：extension/ 迁 apps/extension，改引 core，删手抄逻辑；数据仓 CI 顺带打包用户自己的扩展。
+- **Phase 5 扩展**：extension/ 迁 apps/extension，改引 core，删手抄逻辑；数据仓 CI 顺带打包用户自己的扩展。✅ 已完成（0.20.0-dev，2026-11-15）：`@breaker-delta/extension` 落地（TS strict，纯逻辑抽到 `src/logic.ts`，esbuild 产出可直接加载的 `dist/`，扩展版本 0.3.0），core 以类型层引入（TopicDataEntry/AlertEntry），两处漂移修复（基址改 breaker-delta-data、话题链接改 `<slug>.html`），npm 新增 14 测试全过；侧载副本已刷新并注入线上数据，待 Dai 在真实 Chrome 实测。数据仓 CI 顺带打包扩展未做，列入遗留事项。
+
+## 迁移收官总结（2026-11-15，五期全部完成）
+
+五期全貌：Phase 0+1 黄金样本 + `@breaker-delta/core`（纯领域逻辑，109 测试对 golden 全过）；Phase 2 `@breaker-delta/fetchers`（25 抓取器 + 自写 XML/YAML 子集解析，实网双跑对等）；Phase 3 `@breaker-delta/publisher`（站点生成，fixture 与真实数据逐字节 diff 全同）；Phase 4 `@breaker-delta/cli`（五命令 + MCP 对等 + 263 KiB 单文件打包，SKILL.md 改调 Node CLI）；Phase 5 `@breaker-delta/extension`（扩展迁入 monorepo 并改用 core 类型，漂移修复）。全仓 npm 测试 196 个全过，Python `pytest` 52 个仍全过，Python 引擎全程未改行为、原样保留。
+
+最终仓库结构：
+
+```
+packages/core/       @breaker-delta/core — 纯领域逻辑，零运行时依赖
+packages/fetchers/   @breaker-delta/fetchers — 25 组抓取器
+packages/publisher/  @breaker-delta/publisher — 静态站点生成
+apps/cli/            @breaker-delta/cli — scan/review/record/publish/doctor/mcp + 单文件 bundle
+apps/extension/      @breaker-delta/extension — Chrome 扩展（源码 TS，dist 为可加载目录）
+skills/breaker-delta/ Skill 定义（调 Node CLI）
+radar/               Python 引擎（保留，待退场判据满足后另议）
+```
+
+遗留事项（均需 Dai 拍板或参与，本迁移未擅自推进）：
+
+1. **上线切换**：早晚扫描 cron 与数据仓 CI 仍走 Python。切换 = 把调用方换成 Node CLI（`TS_*` env 契约已兼容），建议先拿一期做 Python/Node 双跑比对再单切；数据仓 CI 顺带打包用户自己的扩展（从实例数据注入 data/ 后产出可加载目录）也在此一并做。
+2. **Python 退场判据**：Node 侧连续数期线上产出与 Python 对等（扫描候选、站点构建逐字节或等价 diff）、cron/CI 切换后稳定运行，再议删除 `radar/` 与 Python 测试。
+3. **扩展真实 Chrome 侧载实测**：侧载副本 `~/workspace/breaker-delta-extension/` 已备好（0.3.0 产物 + 线上数据快照，角标应为 4），待 Dai 加载后核对徽章显示、话题链接跳转与收苗流程。
+4. **core 子路径导出（可选）**：扩展目前只能以类型层引入 core（其索引含 node:fs 模块，进不了浏览器打包）；若将来扩展需要 core 的运行时纯函数（如 slugify），给 core 加 `@breaker-delta/core/slug` 之类的子路径导出即可，属 core API 扩展，需单独批准。
 
 ## 本轮范围（Phase 0 + 1）
 

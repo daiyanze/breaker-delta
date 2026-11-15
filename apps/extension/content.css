@@ -1,0 +1,42 @@
+/* 浪尖雷达浪高徽章条：固定在右下角，小而克制，不遮挡页面主要操作区。 */
+#breaker-delta-badge {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(92vw, 520px);
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(10, 35, 60, 0.94);
+  color: #eef6ff;
+  font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+#breaker-delta-badge .bd-badge-breaking {
+  background: #f5a623;
+  color: #1a1200;
+  border-radius: 6px;
+  padding: 1px 6px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+#breaker-delta-badge .bd-badge-link {
+  color: #8ecbff;
+  text-decoration: none;
+  white-space: nowrap;
+}
+#breaker-delta-badge .bd-badge-link:hover { text-decoration: underline; }
+#breaker-delta-badge .bd-badge-close {
+  background: transparent;
+  border: none;
+  color: #cfe6ff;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
