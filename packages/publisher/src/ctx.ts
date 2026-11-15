@@ -73,7 +73,7 @@ export function makeCtx(options: BuildOptions): Ctx {
     trackRecordPath: options.trackRecordPath ?? null,
     configDir: options.configDir ?? rootDir,
     faviconCacheDir:
-      options.faviconCacheDir ?? path.join(rootDir, "radar", "favicon-cache"),
+      options.faviconCacheDir ?? path.join(rootDir, "favicon-cache"),
     outDir: options.outDir ?? path.join(rootDir, "site"),
     baseUrl:
       options.baseUrl !== undefined ? normalizeBaseUrl(options.baseUrl) : DEFAULT_BASE_URL,

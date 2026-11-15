@@ -228,7 +228,7 @@ export async function cmdPublish(ctx: CliContext, flags: PublishFlags): Promise<
     ledgerPath: statePath(ctx),
     trackRecordPath: fs.existsSync(trackRecord) ? trackRecord : null,
     configDir: resolveConfigDir(ctx),
-    faviconCacheDir: path.join(ctx.rootDir, "radar", "favicon-cache"),
+    faviconCacheDir: path.join(ctx.rootDir, "favicon-cache"),
     outDir: path.resolve(flags.out ?? envOpts.outDir ?? path.join(ctx.dataDir, "site")),
   };
   if (flags.baseUrl !== undefined) opts.baseUrl = flags.baseUrl;
@@ -341,8 +341,8 @@ export function collectDoctorChecks(ctx: CliContext): DoctorCheck[] {
   });
   checks.push({
     name: "favicon-cache",
-    status: isDir(path.join(ctx.rootDir, "radar", "favicon-cache")) ? "ok" : "fail",
-    detail: path.join(ctx.rootDir, "radar", "favicon-cache"),
+    status: isDir(path.join(ctx.rootDir, "favicon-cache")) ? "ok" : "fail",
+    detail: path.join(ctx.rootDir, "favicon-cache"),
   });
   return checks;
 }

@@ -47,7 +47,7 @@ function isFile(p: string): boolean {
 
 /**
  * Walk upward from `start` looking for the engine root: a directory
- * holding assets/, config.example.yaml and radar/favicon-cache/.
+ * holding assets/, config.example.yaml and favicon-cache/.
  * Works for the unpacked layout (apps/cli/dist/src, root four
  * levels up) and for the single-file bundle in apps/cli/dist.
  */
@@ -57,7 +57,7 @@ export function findEngineRoot(start: string): string | null {
     if (
       isDir(path.join(dir, "assets")) &&
       isFile(path.join(dir, "config.example.yaml")) &&
-      isDir(path.join(dir, "radar", "favicon-cache"))
+      isDir(path.join(dir, "favicon-cache"))
     ) {
       return dir;
     }

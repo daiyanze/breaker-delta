@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.21.0 — 2026-11-15（未发布，Python 退役 · Node-only 首个版本）
+
+- **Python 退役**：生产已切换 Node（数据仓 CI 用 CLI bundle 构建、早晚扫描 cron 走 Node CLI + 新 SKILL.md），本版删除 Python 引擎全部：`radar/`（引擎源码 + 25 个抓取器）、`tests/`（pytest 52 测试）、`pyproject.toml`、迁移脚本 `scripts/` 全部（黄金样本与字面量生成、构建 diff、双跑临时封装，正式 CLI 已取代）、骨架期遗留的 `.github/workflows/radar.yml`（带 06:00/18:00 JST 定时且仍在触发，但被 `RADAR_ENABLED` 变量门控、历次运行均 skipped，从未真正执行）。合计 49 个跟踪文件、约 6,457 行。删除前已打回滚标签 `v0.15.1-python-final`（本地 + 远端），回滚方法见 `NODE-MIGRATION.md`「Python 退役」节。
+- **favicon-cache 迁出**：`radar/favicon-cache/` → 仓库根 `favicon-cache/`；publisher 默认路径、CLI 引擎根探测标记、doctor 检查项与帮助文案同步更新，Node 代码不再引用 `radar/` 路径（core/fetchers 源码里 "ported from radar/…" 的溯源注释保留，那是历史出处而非路径引用）。
+- **清理**：引擎根残留 `state/`（旧 candidates 与基线副本，基线已归数据仓）、`site/` 旧构建产物、`tripple_signals.egg-info/`、`.pytest_cache/`、`__pycache__/` 删除；`.gitignore` 移除 Python 条目（`__pycache__/`、`*.pyc`、`.pytest_cache/`、`*.egg-info/`），`radar/favicon-cache/` 改为 `favicon-cache/`。
+- **golden fixture 冻结**：`packages/core/fixtures/golden.json` 等黄金样本保留为冻结的历史行为样本（生成器已删），core/fetchers 测试继续据此断言；npm 测试仍 196 个全过。
+- 根 `package.json` 与 core/fetchers/publisher/cli 及 `.claude-plugin/plugin.json` 版本升 0.21.0（扩展自有版本线仍 0.3.0，仅其对 core 的依赖规格跟随升 0.21.0）。
+
 ## 0.20.0 — 2026-11-15（未发布，Node 迁移 Phase 5，迁移收官）
 
 - **Phase 5 `@breaker-delta/extension`**：Chrome 扩展自 `extension/` 迁入 monorepo 的 `apps/extension`，源码改 TypeScript（strict）——`src/popup.ts` / `src/content.ts` / `src/background.ts`，纯逻辑抽到 `src/logic.ts`（页面匹配、角标计数与角标文本、话题链接构建、收苗记录构建与 Issue 文本格式）。esbuild（devDependency）打包 + 静态文件拷贝产出 `apps/extension/dist/`：可直接「加载已解压的扩展程序」的完整目录（dist 不入仓）；扩展版本 0.3.0（manifest + package.json）。

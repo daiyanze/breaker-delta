@@ -61,7 +61,7 @@ radar/               Python 引擎（保留，待退场判据满足后另议）
 遗留事项（均需 Dai 拍板或参与，本迁移未擅自推进）：
 
 1. **上线切换**：早晚扫描 cron 与数据仓 CI 仍走 Python。切换 = 把调用方换成 Node CLI（`TS_*` env 契约已兼容），建议先拿一期做 Python/Node 双跑比对再单切；数据仓 CI 顺带打包用户自己的扩展（从实例数据注入 data/ 后产出可加载目录）也在此一并做。
-2. **Python 退场判据**：Node 侧连续数期线上产出与 Python 对等（扫描候选、站点构建逐字节或等价 diff）、cron/CI 切换后稳定运行，再议删除 `radar/` 与 Python 测试。
+2. **Python 退场判据**：Node 侧连续数期线上产出与 Python 对等（扫描候选、站点构建逐字节或等价 diff）、cron/CI 切换后稳定运行，再议删除 `radar/` 与 Python 测试。（已于 2026-11-15 晚执行：切换完成后 Dai 直接拍板退役，见文末「Python 退役」节。）
 3. **扩展真实 Chrome 侧载实测**：侧载副本 `~/workspace/breaker-delta-extension/` 已备好（0.3.0 产物 + 线上数据快照，角标应为 4），待 Dai 加载后核对徽章显示、话题链接跳转与收苗流程。
 4. **core 子路径导出（可选）**：扩展目前只能以类型层引入 core（其索引含 node:fs 模块，进不了浏览器打包）；若将来扩展需要 core 的运行时纯函数（如 slugify），给 core 加 `@breaker-delta/core/slug` 之类的子路径导出即可，属 core API 扩展，需单独批准。
 
@@ -70,3 +70,14 @@ radar/               Python 引擎（保留，待退场判据满足后另议）
 做：仓库根 package.json（workspaces）、tsconfig.base.json、packages/core 全部文件与测试、golden 生成脚本 `scripts/make_golden.py` 与 fixture、CHANGELOG 记一笔、README 加一句迁移中说明（可选）。
 不做：不动 radar/*.py 行为、不动 extension/、不动数据仓、不推送（本地一次提交，等 Dai 确认再推）。
 验收：`npm test`（core）全过且与 golden 一致；Python `pytest` 仍 52 全过；`node --check`/tsc 无错。
+
+## Python 退役（2026-11-15，0.21.0）
+
+上线切换已于同日晚间完成（数据仓 CI 改用 Node CLI bundle 构建、早晚扫描 cron 改走 Node CLI + `skills/breaker-delta/SKILL.md`），Dai 拍板 Python 退役，本节记录执行结果：
+
+- **回滚标签**：`v0.15.1-python-final`——本地指向迁移收官提交 `62eee0b`，远端指向远端 main 的 `b3fd1fd`（两者 tree 一致），涵盖删除前的全部 Python 代码与配套文件。
+- **删除清单**：`radar/` 全部（引擎源码 + fetchers 子包）、`tests/`（pytest 52 测试）、`pyproject.toml`、`.github/workflows/radar.yml`（骨架期遗留的定时 workflow：带 06:00/18:00 JST schedule 且仍在按时触发，但 job 被 `RADAR_ENABLED` 变量门控、历次运行均为 skipped，从未真正执行）、`scripts/` 全部迁移脚本（`make_golden.py`、`make_golden_fetchers.py`、`make_publisher_literals.py`、`diff_builds.py`、`compare_candidates.mjs`，以及 Phase 2/3 双跑临时封装 `run_scan.mjs`、`run_publish.mjs`——正式 CLI 已取代）。合计 49 个跟踪文件、约 6,457 行。
+- **favicon-cache 迁出**：`radar/favicon-cache/` → 仓库根 `favicon-cache/`（仍 gitignored）；publisher ctx 默认路径、CLI 的 root-dir 探测标记、CLI doctor 检查项与帮助文案同步改到新路径。
+- **golden fixture 已冻结**：`packages/core/fixtures/golden.json` 与 fetchers 的 golden fixture 保留，core/fetchers 测试继续用它们做对等断言；生成器已随 Python 删除，fixture 从此是冻结的历史行为样本，不再重新生成。
+- **本地垃圾清理**：引擎根 `state/`（旧 candidates 与基线副本，基线已在数据仓）、`site/` 旧构建、`tripple_signals.egg-info/`、`.pytest_cache/` 与各处 `__pycache__/` 一并删除（均为未跟踪/被忽略文件）。
+- **回滚方法**：完整回滚用标签开一个工作树：`git worktree add ../breaker-delta-python v0.15.1-python-final`；只恢复 Python 路径：`git checkout v0.15.1-python-final -- radar tests pyproject.toml scripts .github/workflows/radar.yml`。注意 0.21.0 起 Node 侧 favicon 缓存位于仓库根 `favicon-cache/`，Python 版用的是 `radar/favicon-cache/`，恢复 Python 后首次构建会重建其缓存。

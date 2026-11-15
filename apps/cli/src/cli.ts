@@ -38,7 +38,7 @@ Global options (may appear before or after the command):
                      config.yaml|json (default: $BD_DATA_DIR or current dir)
   --config <path>    Config file (default: search the data dir, then the
                      engine root: config.yaml/.yml/.json, config.example.*)
-  --root-dir <dir>   Engine root holding assets/, radar/favicon-cache/ and
+  --root-dir <dir>   Engine root holding assets/, favicon-cache/ and
                      config.example.* (default: $BD_ROOT_DIR or auto-detected)
   --json             Machine-readable output: stdout carries one JSON document
   --help             This help
