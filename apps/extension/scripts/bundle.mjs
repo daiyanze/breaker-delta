@@ -18,7 +18,7 @@ const pkgRoot = path.resolve(here, "..");
 const dist = path.join(pkgRoot, "dist");
 const tscOut = path.join(dist, "tsc");
 
-for (const name of ["popup", "content", "background"]) {
+for (const name of ["popup", "content", "background", "options"]) {
   await build({
     entryPoints: [path.join(tscOut, "src", `${name}.js`)],
     bundle: true,
@@ -29,7 +29,7 @@ for (const name of ["popup", "content", "background"]) {
   });
 }
 
-for (const file of ["manifest.json", "popup.html", "popup.css", "content.css", "README.md", "README.zh-CN.md"]) {
+for (const file of ["manifest.json", "popup.html", "popup.css", "content.css", "options.html", "options.css", "README.md", "README.zh-CN.md"]) {
   cpSync(path.join(pkgRoot, file), path.join(dist, file));
 }
 cpSync(path.join(pkgRoot, "icons"), path.join(dist, "icons"), { recursive: true });

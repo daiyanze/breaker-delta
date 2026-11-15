@@ -16,6 +16,7 @@ declare const chrome: {
       active: boolean;
       currentWindow: boolean;
     }): Promise<Array<{ id?: number; title?: string; url?: string }>>;
+    create(details: { url: string; active?: boolean }): Promise<unknown>;
   };
   scripting: {
     executeScript(injection: {
@@ -25,8 +26,15 @@ declare const chrome: {
   };
   runtime: {
     getURL(path: string): string;
+    openOptionsPage(): void;
+    sendMessage(message: unknown): Promise<unknown>;
     onInstalled: { addListener(callback: () => void): void };
     onStartup: { addListener(callback: () => void): void };
+    onMessage: {
+      addListener(
+        callback: (message: { type?: string; urls?: string[] }) => void,
+      ): void;
+    };
   };
   action: {
     setBadgeText(details: { text: string }): Promise<void>;

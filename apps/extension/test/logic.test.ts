@@ -11,13 +11,20 @@ import type { AlertEntry, TopicDataEntry } from "@breaker-delta/core";
 import {
   alertCount,
   badgeText,
+  buildIssueUrl,
   createEcho,
+  DEFAULT_SETTINGS,
   findAlert,
   findTopic,
+  formatIssueBody,
   formatIssueText,
   matchTopic,
+  normalizeDataRepo,
+  normalizeSiteBase,
   parseAlerts,
+  parseSettings,
   parseTopics,
+  pendingEchoes,
   topicPageUrl,
 } from "../src/logic.js";
 
@@ -202,5 +209,101 @@ describe("echoes", () => {
     const text = formatIssueText([echo]);
     assert.ok(text.includes("标题：(无标题)"));
     assert.ok(text.includes("理由：(未填)"));
+  });
+});
+
+describe("settings", () => {
+  it("parseSettings falls back to defaults for missing or malformed input", () => {
+    assert.deepStrictEqual(parseSettings(undefined), DEFAULT_SETTINGS);
+    assert.deepStrictEqual(parseSettings(null), DEFAULT_SETTINGS);
+    assert.deepStrictEqual(parseSettings({ dataRepo: 42, siteBase: "not a url" }), DEFAULT_SETTINGS);
+  });
+
+  it("parseSettings keeps valid values and boolean semantics", () => {
+    const s = parseSettings({
+      dataRepo: "me/my-data",
+      siteBase: "https://example.com/radar",
+      openIssueAfterCapture: true,
+      keepLocalAfterSubmit: false,
+    });
+    assert.strictEqual(s.dataRepo, "me/my-data");
+    assert.strictEqual(s.siteBase, "https://example.com/radar/");
+    assert.strictEqual(s.openIssueAfterCapture, true);
+    assert.strictEqual(s.keepLocalAfterSubmit, false);
+    // keepLocalAfterSubmit defaults to true unless explicitly false
+    assert.strictEqual(parseSettings({}).keepLocalAfterSubmit, true);
+  });
+
+  it("normalizeDataRepo accepts owner/repo and github.com URLs, rejects junk", () => {
+    assert.strictEqual(normalizeDataRepo("daiyanze/breaker-delta-data"), "daiyanze/breaker-delta-data");
+    assert.strictEqual(normalizeDataRepo(" https://github.com/me/repo.git "), "me/repo");
+    assert.strictEqual(normalizeDataRepo("me/repo/"), "me/repo");
+    assert.strictEqual(normalizeDataRepo("no-slash"), DEFAULT_SETTINGS.dataRepo);
+    assert.strictEqual(normalizeDataRepo("a/b/c"), DEFAULT_SETTINGS.dataRepo);
+    assert.strictEqual(normalizeDataRepo(""), DEFAULT_SETTINGS.dataRepo);
+  });
+
+  it("normalizeSiteBase requires http(s) and forces a trailing slash", () => {
+    assert.strictEqual(normalizeSiteBase("https://example.com/x"), "https://example.com/x/");
+    assert.strictEqual(normalizeSiteBase("https://example.com/x/"), "https://example.com/x/");
+    assert.strictEqual(normalizeSiteBase("ftp://example.com/"), DEFAULT_SETTINGS.siteBase);
+    assert.strictEqual(normalizeSiteBase("example.com"), DEFAULT_SETTINGS.siteBase);
+  });
+
+  it("topicPageUrl honours a custom site base", () => {
+    assert.strictEqual(
+      topicPageUrl(TOPICS[0], "https://example.com/radar/"),
+      "https://example.com/radar/agent-framework-x-发布.html",
+    );
+  });
+});
+
+describe("one-click submit (投波)", () => {
+  const now = new Date("2026-11-15T01:02:03.000Z");
+  const echo = createEcho(
+    { title: "新工具发布", url: "https://example.com/post", selectedText: "摘录内容", note: "值得关注" },
+    now,
+    "abc123",
+  );
+
+  it("buildIssueUrl targets the data repo with the echo template and prefilled fields", () => {
+    const url = buildIssueUrl(echo, "daiyanze/breaker-delta-data");
+    assert.ok(url.startsWith("https://github.com/daiyanze/breaker-delta-data/issues/new?"));
+    const params = new URL(url).searchParams;
+    assert.strictEqual(params.get("template"), "echo.md");
+    assert.strictEqual(params.get("title"), "🌀 投波：新工具发布");
+    const body = params.get("body") ?? "";
+    assert.ok(body.includes("标题：新工具发布"));
+    assert.ok(body.includes("链接：https://example.com/post"));
+    assert.ok(body.includes("理由：值得关注"));
+    assert.ok(body.includes("摘录：摘录内容"));
+  });
+
+  it("buildIssueUrl normalizes a junk repo back to the default", () => {
+    const url = buildIssueUrl(echo, "junk");
+    assert.ok(url.startsWith(`https://github.com/${DEFAULT_SETTINGS.dataRepo}/issues/new?`));
+  });
+
+  it("buildIssueUrl keeps very long excerpts under the URL length cap", () => {
+    const big = createEcho(
+      { title: "T", url: "https://example.com/", selectedText: "长".repeat(20000), note: "理由" },
+      now,
+      "big1",
+    );
+    const url = buildIssueUrl(big, "daiyanze/breaker-delta-data");
+    assert.ok(url.length <= 7500, `url length ${url.length}`);
+    const body = new URL(url).searchParams.get("body") ?? "";
+    assert.ok(body.includes("理由：理由"));
+  });
+
+  it("formatIssueBody caps the excerpt at the given budget", () => {
+    const body = formatIssueBody(echo, 3);
+    assert.ok(body.includes("摘录：摘录内…"));
+  });
+
+  it("pendingEchoes returns only echoes never submitted", () => {
+    const done = { ...echo, id: "done", issueOpenedAt: "2026-11-15T02:00:00.000Z" };
+    assert.deepStrictEqual(pendingEchoes([echo, done]).map((e) => e.id), [echo.id]);
+    assert.deepStrictEqual(pendingEchoes([done]), []);
   });
 });

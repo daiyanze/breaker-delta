@@ -1,15 +1,28 @@
 // 浪尖雷达 · 浪高徽章（A2）
-// 只在 manifest 声明的 5 个站点运行。读取扩展自带的 data/topics.json 与
-// data/alerts.json（由站点构建生成），若当前页 URL 或标题命中某个话题，
+// 只在 manifest 声明的 5 个站点运行。数据优先用 background 从实例
+// 站点拉回的本地缓存，没有缓存时用扩展自带的 data/topics.json 与
+// data/alerts.json 快照。若当前页 URL 或标题命中某个话题，
 // 就在页面右下角注入一条不打扰的徽章条。
 // 匹配与话题链接构建在 ./logic.ts（话题页 URL 与发布器产物对齐）。
 // 不上报任何浏览数据。
 
 import type { AlertEntry, TopicDataEntry } from "@breaker-delta/core";
 
-import { findAlert, findTopic, parseAlerts, parseTopics, topicPageUrl } from "./logic.js";
+import {
+  findAlert,
+  findTopic,
+  parseAlerts,
+  parseSettings,
+  parseTopics,
+  SITE_BASE,
+  topicPageUrl,
+} from "./logic.js";
 
-function renderBadge(topic: TopicDataEntry, alert: AlertEntry | undefined): void {
+function renderBadge(
+  topic: TopicDataEntry,
+  alert: AlertEntry | undefined,
+  siteBase: string,
+): void {
   if (document.getElementById("breaker-delta-badge")) return;
   const bar = document.createElement("div");
   bar.id = "breaker-delta-badge";
@@ -49,7 +62,7 @@ function renderBadge(topic: TopicDataEntry, alert: AlertEntry | undefined): void
 
   const link = document.createElement("a");
   link.className = "bd-badge-link";
-  link.href = topicPageUrl(topic);
+  link.href = topicPageUrl(topic, siteBase);
   link.target = "_blank";
   link.rel = "noopener noreferrer nofollow";
   link.textContent = "查看话题 →";
@@ -69,22 +82,37 @@ function renderBadge(topic: TopicDataEntry, alert: AlertEntry | undefined): void
 async function main(): Promise<void> {
   let topics: TopicDataEntry[] = [];
   let alerts: AlertEntry[] = [];
+  let siteBase: string = SITE_BASE;
+  // 优先用 background 从实例站点拉回的缓存（设置里的站点地址也在这里读）。
   try {
-    const topicsRes = await fetch(chrome.runtime.getURL("data/topics.json"));
-    topics = parseTopics(await topicsRes.json());
+    const stored = await chrome.storage.local.get(["settings", "dataCache"]);
+    siteBase = parseSettings(stored["settings"]).siteBase;
+    const cache = stored["dataCache"] as { topics?: unknown; alerts?: unknown } | undefined;
+    if (cache) {
+      topics = parseTopics(cache.topics);
+      alerts = parseAlerts(cache.alerts);
+    }
   } catch {
-    /* 数据读不到就不显示徽章 */
+    /* 缓存读不到就用自带快照 */
   }
-  try {
-    const alertsRes = await fetch(chrome.runtime.getURL("data/alerts.json"));
-    alerts = parseAlerts(await alertsRes.json());
-  } catch {
-    /* alerts 可选 */
+  if (!topics.length) {
+    try {
+      const topicsRes = await fetch(chrome.runtime.getURL("data/topics.json"));
+      topics = parseTopics(await topicsRes.json());
+    } catch {
+      /* 数据读不到就不显示徽章 */
+    }
+    try {
+      const alertsRes = await fetch(chrome.runtime.getURL("data/alerts.json"));
+      alerts = parseAlerts(await alertsRes.json());
+    } catch {
+      /* alerts 可选 */
+    }
   }
 
   const topic = findTopic(topics, location.href, document.title);
   if (!topic) return;
-  renderBadge(topic, findAlert(alerts, topic.slug));
+  renderBadge(topic, findAlert(alerts, topic.slug), siteBase);
 }
 
 if (!document.getElementById("breaker-delta-badge")) {

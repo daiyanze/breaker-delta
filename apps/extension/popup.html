@@ -50,10 +50,11 @@
       <p>还没有收下的回波。<br>在任何页面点「收下这个回波」即可存进来。</p>
     </div>
     <div class="actions">
+      <button id="submit-all">🌀 逐条投波</button>
       <button id="export-issue">📋 导出投波</button>
       <button id="export-json">⬇ 下载 JSON</button>
     </div>
-    <p class="actions-hint">导出投波会把全部回波复制成 GitHub Issue 格式文本。</p>
+    <p class="actions-hint">投波会为每条回波打开一个预填好的 GitHub Issue 页（标题、正文已填好，点 Submit 即可）；也可以在每条回波旁单独点「投波」。导出投波是把文本复制下来自己粘贴。</p>
   </section>
 
   <footer>
@@ -62,6 +63,7 @@
       <a href="https://daiyanze.github.io/breaker-delta-data/" target="_blank" rel="noopener noreferrer">雷达站点</a>
       <a href="https://daiyanze.github.io/breaker-delta-data/submit.html" target="_blank" rel="noopener noreferrer">网页投波</a>
       <a href="https://github.com/daiyanze/breaker-delta/blob/main/apps/extension/README.zh-CN.md" target="_blank" rel="noopener noreferrer">使用说明</a>
+      <a href="#" id="open-settings">⚙ 设置</a>
     </nav>
   </footer>
   <script src="popup.js"></script>

@@ -196,12 +196,16 @@ button.primary:active { transform: translateY(1px); }
 }
 #echo-list .echo-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
 #echo-list .echo-time { color: var(--muted); font-size: 11px; }
-#echo-list .echo-delete {
+#echo-list .echo-actions { display: flex; gap: 6px; }
+#echo-list .echo-submit, #echo-list .echo-delete {
   padding: 2px 9px;
   font-size: 11px;
   border-radius: 999px;
 }
+#echo-list .echo-submit { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+#echo-list .echo-submit:hover { background: var(--accent-soft); }
 #echo-list .echo-delete:hover { border-color: var(--danger); color: var(--danger); }
+#echo-list .echo-submitted { font-size: 11px; color: var(--success); margin-top: 4px; }
 .empty { text-align: center; color: var(--muted); font-size: 12.5px; padding: 10px 0 4px; }
 .empty .empty-icon { font-size: 22px; }
 .empty p { margin: 4px 0 0; }

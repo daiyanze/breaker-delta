@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **扩展 0.6.0（自有版本线，引擎版本不变）**：新增设置页（`options_ui`）：投波目标数据仓（默认 `daiyanze/breaker-delta-data`，接受 owner/repo 或 github.com 地址）、实例站点地址、收波后立即投波、投波后保留本地副本四项设置，存 `chrome.storage.local` 的 `settings` 键。一键投波：每条回波旁「🌀 投波」与回波箱「🌀 逐条投波」用 GitHub 官方预填参数（`template=echo.md` + `title` + `body`）打开数据仓新建 Issue 页，标题/正文/标签自动填好，用户只需点 Submit——不需要令牌、不新增扩展权限；摘录按预算截断保证链接不超 GitHub 长度上限，打开后回波标记 `issueOpenedAt`（或按设置删除本地副本），逐条投波由 background 逐条开页以绕开 popup 关闭问题。数据改实时：background 在安装/启动时、popup 在打开时从设置里的实例站点拉取 `data/topics.json` / `data/alerts.json` 存入 `dataCache` 缓存，角标与徽章优先用缓存，打包快照只做兜底；话题页链接改用设置里的站点地址。权限不变（仍只有 activeTab/storage/scripting），隐私口径同步更新（只从配置的实例站点下载公开 JSON，不发送任何数据）。扩展测试 14 → 24，全仓 206 个全过。
+
 ## 0.22.0 — 2026-11-15（术语改名：种子 / 苗头 → 回波）
 
 - **改名（Dai 定）**：收集早期信号的整套术语由「种子 seed / 收苗 / 投苗 / 苗头」改为「回波 echo / 收波 / 投波 / 回波」，与主标语「浪起之前，先有回波」和雷达原理统一——收集回波，观测它之后是否成浪。等级 emoji 🌱 → 🌀。英文 Seed/Seeds → Echo/Echoes，日文 芽生え → エコー。站点三语 UI、方法论与 README、SKILL、配置示例（levels 与 `max_seedlings` → `max_echoes`）、Issue 模板（`seed.md` → `echo.md`，label `seed` → `echo`）、banner SVG 同步改名。
