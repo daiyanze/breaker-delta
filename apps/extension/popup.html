@@ -2,15 +2,15 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <title>浪尖雷达 · 收苗</title>
+  <title>浪尖雷达 · 收波</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <header>
     <img class="logo" src="icons/icon48.png" alt="" width="34" height="34">
     <div class="brand">
-      <h1>浪尖雷达 · 收苗</h1>
-      <p class="subtitle">Breaker Delta Seed Catcher</p>
+      <h1>浪尖雷达 · 收波</h1>
+      <p class="subtitle">Breaker Delta Echo Catcher</p>
     </div>
     <span id="alerts-pill" class="alerts-pill" hidden></span>
   </header>
@@ -33,34 +33,34 @@
 
   <label class="field">
     <span>一句话理由（可选）</span>
-    <input id="note" type="text" placeholder="为什么觉得这是个苗头？">
+    <input id="note" type="text" placeholder="为什么觉得这是个回波？">
   </label>
 
-  <button id="capture" class="primary">🌱 收下这个苗头</button>
+  <button id="capture" class="primary">🌀 收下这条回波</button>
   <p id="status" class="status" role="status"></p>
 
   <section id="inbox">
     <div class="inbox-head">
-      <h2>本地苗头箱</h2>
-      <span id="seed-count" class="count-badge" hidden></span>
+      <h2>本地回波箱</h2>
+      <span id="echo-count" class="count-badge" hidden></span>
     </div>
-    <ul id="seed-list"></ul>
+    <ul id="echo-list"></ul>
     <div id="empty-hint" class="empty">
       <div class="empty-icon">🌊</div>
-      <p>还没有收下的苗头。<br>在任何页面点「收下这个苗头」即可存进来。</p>
+      <p>还没有收下的回波。<br>在任何页面点「收下这个回波」即可存进来。</p>
     </div>
     <div class="actions">
-      <button id="export-issue">📋 导出投苗</button>
+      <button id="export-issue">📋 导出投波</button>
       <button id="export-json">⬇ 下载 JSON</button>
     </div>
-    <p class="actions-hint">导出投苗会把全部苗头复制成 GitHub Issue 格式文本。</p>
+    <p class="actions-hint">导出投波会把全部回波复制成 GitHub Issue 格式文本。</p>
   </section>
 
   <footer>
     <p class="privacy">🔒 只在你主动点击时抓取当前页，不收集浏览历史，数据只存本地。</p>
     <nav class="footer-links">
       <a href="https://daiyanze.github.io/breaker-delta-data/" target="_blank" rel="noopener noreferrer">雷达站点</a>
-      <a href="https://daiyanze.github.io/breaker-delta-data/submit.html" target="_blank" rel="noopener noreferrer">网页投苗</a>
+      <a href="https://daiyanze.github.io/breaker-delta-data/submit.html" target="_blank" rel="noopener noreferrer">网页投波</a>
       <a href="https://github.com/daiyanze/breaker-delta/blob/main/apps/extension/README.zh-CN.md" target="_blank" rel="noopener noreferrer">使用说明</a>
     </nav>
   </footer>

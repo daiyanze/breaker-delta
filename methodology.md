@@ -2,7 +2,7 @@
 
 # Web Hot-Topic Scanning · Methodology
 
-Customized for Dai, two scans a day: morning 06:00 JST (scanning the fermentation results of the European/US night) + evening 18:00 JST (scanning new seeds from the Asian daytime + the European/US early morning).
+Customized for Dai, two scans a day: morning 06:00 JST (scanning the fermentation results of the European/US night) + evening 18:00 JST (scanning new echoes from the Asian daytime + the European/US early morning).
 Adapted from the core idea of zhuyansen/new-term-radar (https://github.com/zhuyansen/new-term-radar): **hot topics propagate in a fixed order — catch them at the source layer, before they reach mass search.**
 
 ## 1. Core principle: the propagation chain of a hot topic
@@ -47,14 +47,14 @@ Ordinary news tools read layers 3 and 4. This radar mainly reads layers 1 and 2,
 > **Group-source rule (against fake resonance)**: inside an RSS group (official blogs, tech media) or the sitemap group, however many outlets there are, the whole group counts as **1 source**. One company's press release reprinted by ten outlets, or one tool copied by five directories, is not multi-source resonance — resonance must come from genuinely independent sources.
 
 ### L3 Verification layer (checks only, never a discovery source)
-- **Google Trends**: used only to check the curve shape of seed terms (is it really rising, on which day did it start), never to find hot topics — it is the most lagging signal of all
+- **Google Trends**: used only to check the curve shape of echo terms (is it really rising, on which day did it start), never to find hot topics — it is the most lagging signal of all
 - Supplementary sources (when there is spare capacity): YouTube trending, Douyin/TikTok hot search terms
 
 ## 3. Signal judgment (what counts as a hot topic)
 
 To enter the report, an item must pass three gates:
 
-1. **Cross-source resonance**: the same topic appearing in ≥2 independent sources = a "hotspot"; appearing in only 1 source = a "seed", labeled separately and never mixed into the hotspot list. A single-source blowup is the most likely to be marketing or chance.
+1. **Cross-source resonance**: the same topic appearing in ≥2 independent sources = a "hotspot"; appearing in only 1 source = a "echo", labeled separately and never mixed into the hotspot list. A single-source blowup is the most likely to be marketing or chance.
 2. **Quantified thresholds** (criteria borrowed from new-term-radar):
    - GitHub: repo created <14 days ago with an average of 200+ stars/day, or +400 stars in a single day
    - X: a new name independently mentioned by ≥2 influential accounts; a single-account mention needs 100+ likes to count
@@ -74,9 +74,9 @@ Each candidate is scored on 4 dimensions (1–5 each); the total decides the gra
 
 - 🔥 **Must-see**: resonance ≥3 sources + high relevance — worth writing a tweet about or digging into the same day
 - 👀 **Watch**: 2-source resonance or a strong single-source signal — goes on the watch list; check its growth at the next scan
-- 🌱 **Seed**: weak single-source signal — one line only, no expansion
+- 🌀 **Echo**: weak single-source signal — one line only, no expansion
 
-Each report carries only 5–8 items: must-see first, at most 3 seeds. Rather report less than pile up volume.
+Each report carries only 5–8 items: must-see first, at most 3 echoes. Rather report less than pile up volume.
 
 ## 5. Dedup and trend tracking (what makes a radar different from a news list)
 
@@ -96,7 +96,7 @@ Each report carries only 5–8 items: must-see first, at most 3 seeds. Rather re
    Suggested action: write a tweet / research in depth / watch as a project idea / just record
 
 👀 Watch (n items)…
-🌱 Seeds (n items, one line each)…
+🌀 Echoes (n items, one line each)…
 
 📈 Today's changes (evening report only): {state changes of old topics}
 ⚠️ Missing this edition: {sources that could not be checked / were blocked — written honestly, never pretend everything was scanned}
@@ -110,7 +110,7 @@ Hard rules:
 ## 7. Division of labor between the morning and evening reports
 
 - **Morning report 06:00**: covers the European/US night (JST early morning = US Eastern afternoon to midnight), the main production zone of AI hot topics; the focus is new faces at the L1 source layer.
-- **Evening report 18:00**: covers the Asian daytime + the European/US early morning; the focus is fermentation confirmation + today's changes + re-checking seed growth.
+- **Evening report 18:00**: covers the Asian daytime + the European/US early morning; the focus is fermentation confirmation + today's changes + re-checking echo growth.
 
 ## 8. Cost and boundaries
 
@@ -128,6 +128,6 @@ Since 0.4.0 the config is YAML-first (`config.yaml`, JSON-compatible). The optio
 - **Topic weights** `topics`: relevance goes from binary to weighted (1–5); switching industries mainly means editing this section; the old flat-list form stays compatible (weight 1).
 - **Per-source switch and cap**: `sources.<source>.enabled: false` turns a source off (strictly distinct from "missing" — no fill-in scanning, no missing report); `sources.<source>.max_items` truncates uniformly after fetching (different from each source's own fetch parameter `limit`).
 - **Freshness window** `filters.max_age_hours`: only filters candidates with a parseable timestamp (arXiv, the RSS groups, Bluesky, Google News, etc. carry timestamps; sources without timestamps are not killed for a missing field).
-- **New-term vocabulary** `vocab` (0.5.0): borrowing new-term-radar's core mechanism — a rolling vocabulary is maintained (`state/vocab.json`); if the name of an entity-type source (GitHub / HF / HF Spaces / OpenRouter / Civitai / Product Hunt / directories / App Store) has not appeared in the candidate stream within `window_days` (default 60), the candidate is flagged `"novel": true`. The first run only builds the baseline and flags nothing, so novel means "first appearance since you started watching", not "first appearance on the whole web". Text-type sources (whose titles are sentences) do not enter the vocabulary; their novelty is still judged by the agent. novel is the highest-priority seed signal: single-source + novel deserves the agent's priority check.
+- **New-term vocabulary** `vocab` (0.5.0): borrowing new-term-radar's core mechanism — a rolling vocabulary is maintained (`state/vocab.json`); if the name of an entity-type source (GitHub / HF / HF Spaces / OpenRouter / Civitai / Product Hunt / directories / App Store) has not appeared in the candidate stream within `window_days` (default 60), the candidate is flagged `"novel": true`. The first run only builds the baseline and flags nothing, so novel means "first appearance since you started watching", not "first appearance on the whole web". Text-type sources (whose titles are sentences) do not enter the vocabulary; their novelty is still judged by the agent. novel is the highest-priority echo signal: single-source + novel deserves the agent's priority check.
 
 The principle does not change: unset = default behavior; the options only filter and flag, and never make semantic judgments for the agent.

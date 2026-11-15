@@ -149,7 +149,7 @@ test("build writes all outputs", async () => {
   const b = await buildFixture();
   try {
     for (const name of [
-      "index.html", "rising.html", "seeds.html", "categories.html",
+      "index.html", "rising.html", "echoes.html", "categories.html",
       "sources.html", "archive.html", "about.html",
       "edition-2026-11-12-morning.html",
       "edition-2026-11-12-evening.html",
@@ -158,7 +158,7 @@ test("build writes all outputs", async () => {
       "en/index.html", "ja/index.html",
       "示例模型发布.html", // topic page: title slug URL
       "topic-t01.html", // legacy redirect stub
-      "level-must.html", "level-seed.html",
+      "level-must.html", "level-echo.html",
     ]) {
       assert.ok(fs.existsSync(path.join(b.outDir, name)), name);
     }
@@ -269,13 +269,13 @@ test("submit page and bookmarklet", async () => {
         sub.includes("github.com/daiyanze/breaker-delta/issues/new"),
         langDir,
       );
-      assert.ok(sub.includes("template=seed.md"), langDir);
+      assert.ok(sub.includes("template=echo.md"), langDir);
       assert.ok(
         sub.includes("javascript:") && sub.includes("encodeURIComponent"),
         langDir,
       );
       assert.ok(
-        sub.includes('id="seedtext"') && sub.includes("URLSearchParams"),
+        sub.includes('id="echotext"') && sub.includes("URLSearchParams"),
         langDir,
       );
       assert.ok(
@@ -283,7 +283,7 @@ test("submit page and bookmarklet", async () => {
         langDir,
       );
     }
-    const seeds = read(b.outDir, "seeds.html");
+    const seeds = read(b.outDir, "echoes.html");
     assert.ok(seeds.includes('href="submit.html"'));
     const about = read(b.outDir, "about.html");
     assert.ok(about.includes('href="submit.html"'));
@@ -316,7 +316,7 @@ test("base url and data repo env overrides", async () => {
     assert.ok(
       sub.includes("github.com/daiyanze/breaker-delta-data/issues/new"),
     );
-    assert.ok(sub.includes("template=seed.md"));
+    assert.ok(sub.includes("template=echo.md"));
   } finally {
     fs.rmSync(tmpdir, { recursive: true, force: true });
   }
@@ -330,7 +330,7 @@ test("data files structure and dedup", async () => {
       topics: Record<string, unknown>[];
     };
     assert.ok(topics.generated_at);
-    assert.strictEqual(topics.topics.length, 2); // merged example + one seed
+    assert.strictEqual(topics.topics.length, 2); // merged example + one echo
     for (const t of topics.topics) {
       for (const key of [
         "slug", "title", "heat", "first_seen", "level",

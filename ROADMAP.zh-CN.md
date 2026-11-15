@@ -9,7 +9,7 @@
 - 站点首页：最新一期 + 历史归档
 - 每期一个独立页面（永久链接，可分享）
 - 订阅源：`/feed.xml`（RSS 2.0）和 `/atom.xml`（Atom 1.0），每期一条，全文入源，订阅者在阅读器里直接读完
-- 后期：每个话题一页（利用台账里已有的等级变化历史，看一个话题怎么从 🌱 苗头涨成 🔥 必看）
+- 后期：每个话题一页（利用台账里已有的等级变化历史，看一个话题怎么从 🌀 回波涨成 🔥 必看）
 
 ## 终局架构
 
@@ -17,7 +17,7 @@
 agent 扫描（由使用者自己的调度驱动）
   → 写结构化期次文件 editions/YYYY-MM-DD-{morning,evening}.json 到实例数据仓（唯一事实源）
   → 数据仓 CI 拉引擎仓，用 @breaker-delta/publisher（Node/TypeScript，无框架）静态生成
-  → site/（海浪榜、涨潮榜、苗头、分类、数据源、话题页、归档、feed.xml、atom.xml）
+  → site/（海浪榜、涨潮榜、回波、分类、数据源、话题页、归档、feed.xml、atom.xml）
   → 数据仓的 GitHub Actions 部署到该仓的 GitHub Pages
 ```
 
@@ -37,7 +37,7 @@ agent 扫描（由使用者自己的调度驱动）
 - 托管：GitHub Pages（已选定；Cloudflare Pages 未采用）
 - 域名：先默认（数据仓 Pages 地址），后自定义（尚未绑）
 
-### P1 站点 MVP ✅ 已上线（现行站点已远超 MVP 范围：海浪榜 / 涨潮榜 / 分类 / 数据源 / 话题页 / 战绩 / 投苗等，见 CHANGELOG）
+### P1 站点 MVP ✅ 已上线（现行站点已远超 MVP 范围：海浪榜 / 涨潮榜 / 分类 / 数据源 / 话题页 / 战绩 / 投波等，见 CHANGELOG）
 
 - 定 `editions/*.json` 期次格式：日期、期次、标题、各等级条目（标题/数字/出处链接/建议动作）、缺失源说明
 - 写静态生成器（现为 `@breaker-delta/publisher`，Node 版；原 Python 版已随 0.21.0 退役）：生成首页、期次页、归档页、feed.xml、atom.xml

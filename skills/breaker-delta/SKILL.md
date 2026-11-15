@@ -33,13 +33,13 @@ description: Run one edition (morning/evening) of the twice-daily web hot-topic 
    - 某个源查不到：记入报告「本期缺失」，禁止用其他源内容冒充。
 2. **判定信号**（用 config 的门槛）：
    - 候选文件已过用户控制层：屏蔽词命中的已被代码丢弃（`controls.muted` 是丢弃数）；带 `keyword_hits.alert` 的候选汇在 `keyword_alerts` 里，带 `keyword_hits.boost` 的是用户关注词命中，带 `topic_hits` 的附主题权重——分级时按下面第 3 步用。
-   - 带 `"novel": true` 的候选（0.5.0）：实体型源里这个名字在词汇表窗口（默认 60 天）内第一次出现，是优先级最高的苗头信号，单源也优先核查；候选文件顶层 `vocab` 字段是本轮统计（`baseline: true` 表示第一次运行只建了基线、本轮无 novel 可用）。目录站 sitemap 组已改快照 diff：条目都是上次扫描后新收录的页，不会重复出现；某个目录第一次运行只建基线（note 里会写），不出条目是正常现象。
-   - 同一话题 ≥ `min_sources_for_hotspot` 个独立源 = 热点候选；单源 = 苗头。
+   - 带 `"novel": true` 的候选（0.5.0）：实体型源里这个名字在词汇表窗口（默认 60 天）内第一次出现，是优先级最高的回波信号，单源也优先核查；候选文件顶层 `vocab` 字段是本轮统计（`baseline: true` 表示第一次运行只建了基线、本轮无 novel 可用）。目录站 sitemap 组已改快照 diff：条目都是上次扫描后新收录的页，不会重复出现；某个目录第一次运行只建基线（note 里会写），不出条目是正常现象。
+   - 同一话题 ≥ `min_sources_for_hotspot` 个独立源 = 热点候选；单源 = 回波。
    - GitHub：年龄与 stars 增速按 config 的 github 规则；X：按 config 的 x 规则；HN/Reddit：进首页/rising 前列。
    - 只保留「具体的新东西」（新模型/产品/仓库/事件名）；泛词（dashboard、pricing 之类）一律丢弃。
-3. **打分分级**：共振度、增速（对比台账里上次等级）、新鲜度、相关性（按 config `topics` 的权重，候选的 `topic_hits` 已算好）→ 🔥必看 / 👀关注 / 🌱苗头。用户控制的升降级：`alert` 命中且有第二源共振 → 直接列 🔥必看候选；`boost` 命中的单源话题可由 🌱升为 👀。全期最多 `max_items_per_report` 条，苗头最多 `max_seedlings` 条。
+3. **打分分级**：共振度、增速（对比台账里上次等级）、新鲜度、相关性（按 config `topics` 的权重，候选的 `topic_hits` 已算好）→ 🔥必看 / 👀关注 / 🌀回波。用户控制的升降级：`alert` 命中且有第二源共振 → 直接列 🔥必看候选；`boost` 命中的单源话题可由 🌀升为 👀。全期最多 `max_items_per_report` 条，回波最多 `max_echoes` 条。
 4. **去重**：台账里已有的话题不重复介绍背景，只报状态变化（升级/降温/消亡）；新话题标 🆕。
-5. **写回状态**：每条入选话题用 CLI 的 `record` 命令更新台账（首次发现时间、来源、等级轨迹）：把入选话题写成 JSON 数组存成文件，再跑 `$BD_CLI --data-dir <数据目录> record <文件>`；每条格式为 `{"name": "话题名", "sources": ["Hacker News", "Reddit"], "grade": "must"}`，grade 用台账的等级键（`must` = 🔥必看、`watch` = 👀关注、`seed` = 🌱苗头）。
+5. **写回状态**：每条入选话题用 CLI 的 `record` 命令更新台账（首次发现时间、来源、等级轨迹）：把入选话题写成 JSON 数组存成文件，再跑 `$BD_CLI --data-dir <数据目录> record <文件>`；每条格式为 `{"name": "话题名", "sources": ["Hacker News", "Reddit"], "grade": "must"}`，grade 用台账的等级键（`must` = 🔥必看、`watch` = 👀关注、`echo` = 🌀回波）。
 6. **出报告**：严格用下方模板。每个数字必须带出处；禁止「爆火」「刷屏」等无量词形容；建议动作只给判断，不替用户做决定。
 
 ## 报告模板
@@ -55,7 +55,7 @@ description: Run one edition (morning/evening) of the twice-daily web hot-topic 
 👀 关注（n 条）
 （同上格式）
 
-🌱 苗头（n 条）
+🌀 回波（n 条）
 - {话题} — {单源信号一句话}
 
 📈 今日变化（仅晚报）

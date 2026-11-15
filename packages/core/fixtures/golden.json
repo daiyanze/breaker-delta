@@ -42,7 +42,7 @@
   },
   {
    "item": {
-    "level": "seed",
+    "level": "echo",
     "sources": [
      "a"
     ],
@@ -53,7 +53,7 @@
   },
   {
    "item": {
-    "level": "seed",
+    "level": "echo",
     "sources": [],
     "links": [],
     "is_new": false
@@ -252,6 +252,7 @@
   "archive",
   "categories",
   "data",
+  "echoes",
   "feed",
   "index",
   "llms",
@@ -3967,7 +3968,7 @@
       "_rank": 1
      },
      {
-      "level": "seed",
+      "level": "echo",
       "title": "小苗头",
       "body": "单源，先记一笔。",
       "action": "仅记录。",
@@ -4086,7 +4087,7 @@
       "_rank": 4
      },
      {
-      "level": "seed",
+      "level": "echo",
       "title": "单源新苗头",
       "body": "只有一个来源。",
       "action": "仅记录。",
@@ -4217,7 +4218,7 @@
       "published": "2026-11-12T06:00:00+09:00",
       "category": "行业动态",
       "title": "小苗头",
-      "level": "seed",
+      "level": "echo",
       "heat": 55,
       "rank": 2,
       "sources": [
@@ -4337,7 +4338,7 @@
       "published": "2026-11-13T06:00:00+09:00",
       "category": "行业动态",
       "title": "单源新苗头",
-      "level": "seed",
+      "level": "echo",
       "heat": 55,
       "rank": 5,
       "sources": [
@@ -4377,7 +4378,7 @@
      "title": "小苗头",
      "heat": 55,
      "first_seen": "2026-11-12",
-     "level": "seed",
+     "level": "echo",
      "url_patterns": [],
      "title_keywords": [
       "小苗头"
@@ -4435,7 +4436,7 @@
      "title": "单源新苗头",
      "heat": 55,
      "first_seen": "2026-11-13",
-     "level": "seed",
+     "level": "echo",
      "url_patterns": [],
      "title_keywords": [
       "单源新苗头"
@@ -4488,7 +4489,7 @@
     "title": "碰撞期",
     "items": [
      {
-      "level": "seed",
+      "level": "echo",
       "title": "Hello World!",
       "body": "",
       "action": "",
@@ -4501,7 +4502,7 @@
       "_rank": 1
      },
      {
-      "level": "seed",
+      "level": "echo",
       "title": "Hello World?",
       "body": "",
       "action": "",
@@ -4514,7 +4515,7 @@
       "_rank": 2
      },
      {
-      "level": "seed",
+      "level": "echo",
       "title": "Index",
       "body": "",
       "action": "",
@@ -4527,7 +4528,7 @@
       "_rank": 3
      },
      {
-      "level": "seed",
+      "level": "echo",
       "title": "Rising",
       "body": "",
       "action": "",
@@ -4558,7 +4559,7 @@
       "published": "2026-11-14T06:00:00+09:00",
       "category": "行业动态",
       "title": "Hello World!",
-      "level": "seed",
+      "level": "echo",
       "heat": 55,
       "rank": 1,
       "sources": [
@@ -4586,7 +4587,7 @@
       "published": "2026-11-14T06:00:00+09:00",
       "category": "行业动态",
       "title": "Hello World?",
-      "level": "seed",
+      "level": "echo",
       "heat": 55,
       "rank": 2,
       "sources": [
@@ -4614,7 +4615,7 @@
       "published": "2026-11-14T06:00:00+09:00",
       "category": "行业动态",
       "title": "Index",
-      "level": "seed",
+      "level": "echo",
       "heat": 55,
       "rank": 3,
       "sources": [
@@ -4642,7 +4643,7 @@
       "published": "2026-11-14T06:00:00+09:00",
       "category": "行业动态",
       "title": "Rising",
-      "level": "seed",
+      "level": "echo",
       "heat": 30,
       "rank": 4,
       "sources": [
@@ -4668,7 +4669,7 @@
      "title": "Hello World!",
      "heat": 55,
      "first_seen": "2026-11-14",
-     "level": "seed",
+     "level": "echo",
      "url_patterns": [],
      "title_keywords": [
       "Hello",
@@ -4683,7 +4684,7 @@
      "title": "Hello World?",
      "heat": 55,
      "first_seen": "2026-11-14",
-     "level": "seed",
+     "level": "echo",
      "url_patterns": [],
      "title_keywords": [
       "Hello",
@@ -4698,7 +4699,7 @@
      "title": "Index",
      "heat": 55,
      "first_seen": "2026-11-14",
-     "level": "seed",
+     "level": "echo",
      "url_patterns": [],
      "title_keywords": [
       "Index"
@@ -4709,7 +4710,7 @@
      "title": "Rising",
      "heat": 30,
      "first_seen": "2026-11-14",
-     "level": "seed",
+     "level": "echo",
      "url_patterns": [],
      "title_keywords": [
       "Rising"
@@ -4758,7 +4759,7 @@
        "review_date": "2026-11-25"
       },
       {
-       "level": "seed",
+       "level": "echo",
        "emoji": "🌱",
        "topic": "话题丙",
        "criteria": "标准丙",

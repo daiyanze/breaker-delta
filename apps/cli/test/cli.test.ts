@@ -81,8 +81,8 @@ const ED1 = {
       is_new: true,
     },
     {
-      level: "seed",
-      title: "小苗头",
+      level: "echo",
+      title: "小回波",
       body: "单源，先记一笔。",
       action: "仅记录。",
       sources: ["小站"],
@@ -223,7 +223,7 @@ test("record -> review flow, with record review and json output", () => {
 
   // record from stdin, json output.
   r = runCli(CLI, ["--data-dir", dir, "--json", "record", "-"], {
-    input: JSON.stringify([{ name: "New Thing", sources: ["reddit"], grade: "苗头" }]),
+    input: JSON.stringify([{ name: "New Thing", sources: ["reddit"], grade: "回波" }]),
   });
   assert.strictEqual(r.status, 0, r.stderr);
   assert.deepStrictEqual(JSON.parse(r.stdout), { created: 1, updated: 0, total: 2 });
@@ -291,7 +291,7 @@ test("publish builds the fixture site; json mode keeps stdout clean", async () =
     "publish", "--out", site, "--base-url", "https://example.com/triple-sigma",
   ]);
   assert.strictEqual(r.status, 0, r.stderr);
-  assert.match(r.stdout, /pages: 21 \| topics: 2 \| latest top heat: 108/);
+  assert.match(r.stdout, /pages: 22 \| topics: 2 \| latest top heat: 108/);
   assert.ok(fs.existsSync(path.join(site, "index.html")));
   assert.ok(fs.existsSync(path.join(site, "data", "topics.json")));
   const tr = fs.readFileSync(path.join(site, "track-record.html"), "utf-8");
@@ -305,10 +305,10 @@ test("publish builds the fixture site; json mode keeps stdout clean", async () =
   ]);
   assert.strictEqual(r2.status, 0, r2.stderr);
   const doc = JSON.parse(r2.stdout); // stdout is exactly one JSON document
-  assert.strictEqual(doc.pages, 63);
+  assert.strictEqual(doc.pages, 66); // +3: seeds.html redirect stubs (one per language) since the 0.22.0 echo rename
   assert.strictEqual(doc.outDir, site2);
   assert.ok(!r2.stdout.includes("pages:"), "build logs must not pollute json stdout");
-  assert.match(r2.stderr, /pages: 21 \| topics: 2/); // they went to stderr instead
+  assert.match(r2.stderr, /pages: 22 \| topics: 2/); // they went to stderr instead
   assert.deepStrictEqual(listFiles(site2), listFiles(site));
 });
 
@@ -364,7 +364,7 @@ test("mcp stdio session matches the Python server's protocol", () => {
 
   const init = responses.find((m) => m.id === 1);
   assert.strictEqual(init.result.protocolVersion, "2024-11-05");
-  assert.deepStrictEqual(init.result.serverInfo, { name: "breaker-delta", version: "0.21.0" });
+  assert.deepStrictEqual(init.result.serverInfo, { name: "breaker-delta", version: "0.22.0" });
 
   const list = responses.find((m) => m.id === 2);
   assert.deepStrictEqual(list.result.tools.map((t: any) => t.name), ["radar_scan", "radar_review"]);
@@ -402,7 +402,7 @@ test("usage errors exit 2; --help exits 0", () => {
 
   r = runCli(CLI, ["--help"]);
   assert.strictEqual(r.status, 0);
-  assert.match(r.stdout, /breaker-delta 0\.21\.0/);
+  assert.match(r.stdout, /breaker-delta 0\.22\.0/);
   assert.match(r.stdout, /record <file\|->/);
 });
 

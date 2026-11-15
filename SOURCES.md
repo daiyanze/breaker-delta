@@ -6,7 +6,7 @@ The sources Breaker Delta ships with, in one-to-one correspondence with `config.
 
 Two global rules up front:
 
-- **Multi-source resonance**: a topic needs ≥2 independent sources to count as a hotspot; a single source only makes it a "seed". RSS bundles (the official-blogs group, the tech-media group) and the directory group each count as **one source as a whole** — a company's own press release, many outlets reprinting it, or directories copying each other can never fake multi-source resonance.
+- **Multi-source resonance**: a topic needs ≥2 independent sources to count as a hotspot; a single source only makes it a "echo". RSS bundles (the official-blogs group, the tech-media group) and the directory group each count as **one source as a whole** — a company's own press release, many outlets reprinting it, or directories copying each other can never fake multi-source resonance.
 - **Every source is tunable**: in your own `config.yaml`, add `enabled: false` to any source to turn it off, or `max_items: N` to truncate its items uniformly. Scan frequency is defined by the user; this catalog has nothing to do with frequency.
 
 > The site's "Sources" page is a different thing: it lists the sources that **have actually contributed topics in published editions** (with contribution counts, appearance counts, and detail pages); this page is the catalog of **all built-in sources**, including ones that have not contributed a topic yet.

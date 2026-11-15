@@ -88,9 +88,9 @@ export function badgeText(count: number): string {
   return count > 0 ? String(count) : "";
 }
 
-// ------------------------------------------------------------ seeds (popup)
+// ------------------------------------------------------------ echoes (popup)
 
-export interface Seed {
+export interface Echo {
   id: string;
   title: string;
   url: string;
@@ -99,7 +99,7 @@ export interface Seed {
   capturedAt: string;
 }
 
-export interface SeedPageInput {
+export interface EchoPageInput {
   title: string;
   url: string;
   selectedText: string;
@@ -107,12 +107,12 @@ export interface SeedPageInput {
 }
 
 /**
- * Build one seed record. The clock and the random suffix are injected
+ * Build one echo record. The clock and the random suffix are injected
  * so the shape is testable; the popup passes Date / Math.random.
  */
-export function createSeed(input: SeedPageInput, now: Date, randomSuffix: string): Seed {
+export function createEcho(input: EchoPageInput, now: Date, randomSuffix: string): Echo {
   return {
-    id: `seed-${now.getTime()}-${randomSuffix}`,
+    id: `echo-${now.getTime()}-${randomSuffix}`,
     title: input.title,
     url: input.url,
     selectedText: input.selectedText,
@@ -125,11 +125,11 @@ export function createSeed(input: SeedPageInput, now: Date, randomSuffix: string
  * Issue-format export text: the same 标题 / 链接 / 理由 fields as the
  * A4 web submission form and the GitHub Issue template.
  */
-export function formatIssueText(seeds: readonly Seed[]): string {
-  return seeds
+export function formatIssueText(echoes: readonly Echo[]): string {
+  return echoes
     .map((s, i) => {
       const lines = [
-        `## 投苗 ${seeds.length > 1 ? `${i + 1}/${seeds.length}` : ""}`.trim(),
+        `## 投波 ${echoes.length > 1 ? `${i + 1}/${echoes.length}` : ""}`.trim(),
         `标题：${s.title || "(无标题)"}`,
         `链接：${s.url}`,
       ];
@@ -138,7 +138,7 @@ export function formatIssueText(seeds: readonly Seed[]): string {
       if (s.selectedText && s.note) {
         lines.push(`摘录：${s.selectedText.slice(0, 200)}`);
       }
-      lines.push(`收苗时间：${s.capturedAt}`);
+      lines.push(`收波时间：${s.capturedAt}`);
       return lines.join("\n");
     })
     .join("\n\n");

@@ -150,7 +150,7 @@ export function catName(ctx: Ctx, cat: string): string {
 }
 
 export function levelLabel(ctx: Ctx, level: string | null | undefined): string {
-  const table = (level != null ? LEVEL_I18N[level] : undefined) ?? LEVEL_I18N["seed"];
+  const table = (level != null ? LEVEL_I18N[level] : undefined) ?? LEVEL_I18N["echo"];
   return table[ctx.lang];
 }
 

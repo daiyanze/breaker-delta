@@ -15,9 +15,9 @@ A web hot-topic radar: it catches new models, products, repos, and events at the
 Hot topics propagate in a fixed order: a lab or a big account posts first (X, Hugging Face), a GitHub repo breaks out, directories and media follow, and only at the very end does the Google Trends curve rise. Breaker Delta reads the first two steps and uses Trends only for after-the-fact verification. The design follows [zhuyansen/new-term-radar](https://github.com/zhuyansen/new-term-radar).
 
 - **Three source layers** — L1 source layer (official blogs, GitHub, Hacker News, Hugging Face, Product Hunt, arXiv…), L2 fermentation layer (Reddit, tech media, directories, Google News…), L3 verification layer (Google Trends, checks only). 26 built-in fetcher groups, all free and keyless except X — see [SOURCES.md](SOURCES.md).
-- **Resonance, not reprints** — a topic counts as a hotspot only when ≥2 genuinely independent sources carry it. Bundled groups (official blogs, tech media, directories) count as one source each, so a press release reprinted ten times is still one source. A single-source signal is recorded as a seed, not a hotspot.
-- **Grading** — an agent grades candidates against fixed quantified thresholds as 🔥 Must / 👀 Watch / 🌱 Seed.
-- **Wave height （浪高）** — every topic gets an uncapped score: grade base (Must 60 / Watch 30 / Seed 10) + 20 × independent sources + 8 × evidence links + 25 when first seen. The site ranks by wave height and tracks its rise and fall across editions.
+- **Resonance, not reprints** — a topic counts as a hotspot only when ≥2 genuinely independent sources carry it. Bundled groups (official blogs, tech media, directories) count as one source each, so a press release reprinted ten times is still one source. A single-source signal is recorded as a echo, not a hotspot.
+- **Grading** — an agent grades candidates against fixed quantified thresholds as 🔥 Must / 👀 Watch / 🌀 Echo.
+- **Wave height （浪高）** — every topic gets an uncapped score: grade base (Must 60 / Watch 30 / Echo 10) + 20 × independent sources + 8 × evidence links + 25 when first seen. The site ranks by wave height and tracks its rise and fall across editions.
 - **Review loop** — 14 days after a topic is picked, it is reviewed: did it actually take off? The track record is public, misses included.
 
 The full methodology — written for humans — is in [methodology.md](methodology.md).
@@ -37,9 +37,9 @@ Engine packages (npm workspaces, TypeScript, zero runtime dependencies):
 
 - `packages/core` — `@breaker-delta/core`: the domain logic — wave height, resonance grouping, classification, slugs, the topic store, the new-term vocabulary, review bookkeeping.
 - `packages/fetchers` — `@breaker-delta/fetchers`: the 26 source groups, each normalizing its source into candidates.
-- `packages/publisher` — `@breaker-delta/publisher`: the static site generator — wave board, rising board, seeds, categories, source pages, per-topic pages with wave charts, archive, track record, RSS/Atom feeds, sitemap.
+- `packages/publisher` — `@breaker-delta/publisher`: the static site generator — wave board, rising board, echoes, categories, source pages, per-topic pages with wave charts, archive, track record, RSS/Atom feeds, sitemap.
 - `apps/cli` — `@breaker-delta/cli`: one CLI (`scan` / `review` / `record` / `publish` / `doctor` / `mcp`), bundled into a single self-contained `breaker-delta.mjs`.
-- `apps/extension` — the Chrome seed-catcher extension: one-click seed capture, wave-height badges on matched pages — see [apps/extension/README.md](apps/extension/README.md).
+- `apps/extension` — the Chrome echo-catcher extension: one-click echo capture, wave-height badges on matched pages — see [apps/extension/README.md](apps/extension/README.md).
 
 ## Engine / data split
 
@@ -89,16 +89,16 @@ Put a `config.yaml` in your data dir (based on `config.example.yaml`; YAML with 
 | Option | What it does |
 |---|---|
 | `keywords.mute` | Candidates matching (title + summary, case-insensitive substring) are dropped |
-| `keywords.boost` | Matches are flagged; a single-source seed can be promoted to Watch |
+| `keywords.boost` | Matches are flagged; a single-source echo can be promoted to Watch |
 | `keywords.alert` | Matches are flagged and gathered into the candidate file's `keyword_alerts`; with a second source's resonance they become Must candidates |
 | `topics` | Relevance weights (1–5) per topic area — switching industries mostly means editing this |
 | `sources.<name>.enabled / max_items` | Turn any source off (reported as disabled, never as missing) or cap its items |
 | `filters.max_age_hours` | Freshness window; only applies to candidates that carry a timestamp |
-| `vocab.window_days` | New-term vocabulary: an entity name unseen within the window is flagged `novel` — the highest-priority seed signal. The first run only builds the baseline |
+| `vocab.window_days` | New-term vocabulary: an entity name unseen within the window is flagged `novel` — the highest-priority echo signal. The first run only builds the baseline |
 
 ## Chrome extension
 
-`apps/extension` is a Manifest V3 extension that shares `@breaker-delta/core` with the engine: capture a seed from any page in one click, see a wave-height badge when a page you open matches a tracked topic, and get an alert count on the icon. See [apps/extension/README.md](apps/extension/README.md) for loading and usage.
+`apps/extension` is a Manifest V3 extension that shares `@breaker-delta/core` with the engine: capture a echo from any page in one click, see a wave-height badge when a page you open matches a tracked topic, and get an alert count on the icon. See [apps/extension/README.md](apps/extension/README.md) for loading and usage.
 
 ## Documentation
 

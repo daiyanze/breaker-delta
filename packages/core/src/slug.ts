@@ -2,7 +2,7 @@
 // (`slugify`, `RESERVED_FILES`, `topic_file`, `title_keywords`).
 
 export const RESERVED_FILES: ReadonlySet<string> = new Set([
-  "index", "rising", "seeds", "categories", "sources",
+  "index", "rising", "seeds", "echoes", "categories", "sources",
   "archive", "about", "feed", "sitemap", "robots", "llms",
   "track-record", "submit", "data",
 ]);

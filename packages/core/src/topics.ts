@@ -58,7 +58,7 @@ export function buildTopics(editions: Edition[], ledger: Pick<StoreTopic, "name"
         published: ed.published_at ?? null,
         category: classify(it.title ?? "", it.body ?? ""),
         title: it.title ?? name,
-        level: it.level ?? null,
+        level: it.level === "seed" ? "echo" : (it.level ?? null), // legacy "seed" normalizes to "echo"
         heat: it._heat,
         rank: it._rank,
         sources: it.sources ?? [],
@@ -112,7 +112,8 @@ export function buildTopics(editions: Edition[], ledger: Pick<StoreTopic, "name"
 export const TRACK_LEVELS: Record<string, string> = {
   "🔥": "must",
   "👀": "watch",
-  "🌱": "seed",
+  "🌱": "echo",
+  "🌀": "echo",
 };
 
 export interface TrackEntry {

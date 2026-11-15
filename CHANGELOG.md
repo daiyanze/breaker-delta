@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.22.0 — 2026-11-15（术语改名：种子 / 苗头 → 回波）
+
+- **改名（Dai 定）**：收集早期信号的整套术语由「种子 seed / 收苗 / 投苗 / 苗头」改为「回波 echo / 收波 / 投波 / 回波」，与主标语「浪起之前，先有回波」和雷达原理统一——收集回波，观测它之后是否成浪。等级 emoji 🌱 → 🌀。英文 Seed/Seeds → Echo/Echoes，日文 芽生え → エコー。站点三语 UI、方法论与 README、SKILL、配置示例（levels 与 `max_seedlings` → `max_echoes`）、Issue 模板（`seed.md` → `echo.md`，label `seed` → `echo`）、banner SVG 同步改名。
+- **等级键 seed → echo，旧数据兼容**：core 在话题构建时把历史 editions 里的 `level: "seed"` 归一为 `"echo"`，浪高基分两者同为 10；台账 emoji 🌱 与 🌀 都解析为 echo。数据仓的历史 editions 与台账原文不改。golden fixture 同步迁移（`level` 与保留文件名列表新增 `echoes`）。
+- **页面 URL**：苗头页 `seeds.html` → `echoes.html`，旧地址由发布器生成跳转桩（meta refresh + canonical）保持可用；等级页 `level-seed.html` → `level-echo.html`。
+- **扩展 0.5.0**：Echo Catcher / 收波——popup、回波箱、投波导出、JSON 文件名（`breaker-delta-echoes.json`）全量改名；本地存储键 `seeds` → `echoes`，旧收件箱在首次打开 popup 时自动迁移，不丢数据。
+- 引擎版本 0.21.0 → 0.22.0；扫描 cron 走 SKILL.md，改名随 Skill 自动生效（grade 写回改用 `echo`，旧 `seed` 台账记录为历史保留）。
+
 ## 0.21.0 — 2026-11-15（未发布，Python 退役 · Node-only 首个版本）
 
 - **Python 退役**：生产已切换 Node（数据仓 CI 用 CLI bundle 构建、早晚扫描 cron 走 Node CLI + 新 SKILL.md），本版删除 Python 引擎全部：`radar/`（引擎源码 + 25 个抓取器）、`tests/`（pytest 52 测试）、`pyproject.toml`、迁移脚本 `scripts/` 全部（黄金样本与字面量生成、构建 diff、双跑临时封装，正式 CLI 已取代）、骨架期遗留的 `.github/workflows/radar.yml`（带 06:00/18:00 JST 定时且仍在触发，但被 `RADAR_ENABLED` 变量门控、历次运行均 skipped，从未真正执行）。合计 49 个跟踪文件、约 6,457 行。删除前已打回滚标签 `v0.15.1-python-final`（本地 + 远端），回滚方法见 `NODE-MIGRATION.md`「Python 退役」节。

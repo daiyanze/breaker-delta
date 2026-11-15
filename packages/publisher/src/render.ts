@@ -162,11 +162,11 @@ export function mast(
   const currentEi = opts?.currentEi ?? null;
   const tl = opts?.tl ?? false;
   const hrefs = [
-    "index.html", "rising.html", "seeds.html", "categories.html",
+    "index.html", "rising.html", "echoes.html", "categories.html",
     "sources.html", "track-record.html", "archive.html", "about.html",
   ];
   const keys = [
-    "index", "rising", "seeds", "categories", "sources", "track", "archive", "about",
+    "index", "rising", "echoes", "categories", "sources", "track", "archive", "about",
   ];
   const tabs = sArr(ctx, "tabs");
   let tabHtml = "";
@@ -270,7 +270,7 @@ export function rowHtml(
   const lvl =
     app.level != null && hasOwn(LEVELS, app.level)
       ? LEVELS[app.level]
-      : LEVELS["seed"];
+      : LEVELS["echo"];
   const emoji = lvl[0];
   const badge = showLevel
     ? ` <a class="badge" href="level-${app.level}.html">${emoji}${levelLabel(ctx, app.level)}</a>`

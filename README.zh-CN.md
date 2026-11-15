@@ -15,9 +15,9 @@
 热点有固定的传播顺序：实验室或大账号先发（X、Hugging Face），某个 GitHub 仓库爆了，目录站和媒体跟进，最后 Google Trends 的曲线才起来。浪尖雷达读的是前两步，Trends 只用来事后验证。设计参考 [zhuyansen/new-term-radar](https://github.com/zhuyansen/new-term-radar)。
 
 - **三层信息源** —— L1 源头层（官方博客、GitHub、Hacker News、Hugging Face、Product Hunt、arXiv 等）、L2 发酵层（Reddit、科技媒体、目录站、Google News 等）、L3 验证层（Google Trends，只核对不发现）。共 26 个抓取组，除 X 外全部免费免 key，清单见 [SOURCES.zh-CN.md](SOURCES.zh-CN.md)。
-- **共振，不是转述** —— 同一话题要有 ≥2 个真正独立的来源才算热点。组合源（官方博客组、科技媒体组、目录站组）内部整组只算一个源：一家公司的通稿被转述十次，仍然只是一个源。单源信号只记为苗头，不混进热点榜。
-- **分级** —— agent 按固定量化门槛把候选分为 🔥必看 / 👀关注 / 🌱苗头。
-- **浪高** —— 每个话题有一个不设上限的量化分数：等级基分（必看 60 / 关注 30 / 苗头 10）+ 20 × 独立来源数 + 8 × 证据链接数 + 首现 25。站点按浪高排名，并跨期追踪它的涨落。
+- **共振，不是转述** —— 同一话题要有 ≥2 个真正独立的来源才算热点。组合源（官方博客组、科技媒体组、目录站组）内部整组只算一个源：一家公司的通稿被转述十次，仍然只是一个源。单源信号只记为回波，不混进热点榜。
+- **分级** —— agent 按固定量化门槛把候选分为 🔥必看 / 👀关注 / 🌀回波。
+- **浪高** —— 每个话题有一个不设上限的量化分数：等级基分（必看 60 / 关注 30 / 回波 10）+ 20 × 独立来源数 + 8 × 证据链接数 + 首现 25。站点按浪高排名，并跨期追踪它的涨落。
 - **复盘闭环** —— 话题被报出 14 天后回看：它到底涨起来没有？战绩公开登记，落空的也留着。
 
 完整方法论（写给人看的版本）在 [methodology.zh-CN.md](methodology.zh-CN.md)。
@@ -37,9 +37,9 @@
 
 - `packages/core` —— `@breaker-delta/core`：领域逻辑——浪高、共振分组、分类、slug、话题台账、新词词汇表、复盘记账。
 - `packages/fetchers` —— `@breaker-delta/fetchers`：26 个抓取组，各自把信息源归一化成候选。
-- `packages/publisher` —— `@breaker-delta/publisher`：静态站点生成器——海浪榜、涨潮榜、苗头、分类、数据源页、带海浪图的话题页、往期归档、战绩、RSS/Atom、sitemap。
+- `packages/publisher` —— `@breaker-delta/publisher`：静态站点生成器——海浪榜、涨潮榜、回波、分类、数据源页、带海浪图的话题页、往期归档、战绩、RSS/Atom、sitemap。
 - `apps/cli` —— `@breaker-delta/cli`：统一 CLI（`scan` / `review` / `record` / `publish` / `doctor` / `mcp`），打包成单个自包含的 `breaker-delta.mjs`。
-- `apps/extension` —— Chrome 收苗扩展：一键收苗、命中话题页显示浪高徽章——见 [apps/extension/README.zh-CN.md](apps/extension/README.zh-CN.md)。
+- `apps/extension` —— Chrome 收波扩展：一键收波、命中话题页显示浪高徽章——见 [apps/extension/README.zh-CN.md](apps/extension/README.zh-CN.md)。
 
 ## 引擎 / 数据分仓
 
@@ -89,16 +89,16 @@ node apps/cli/dist/breaker-delta.mjs --data-dir /path/to/your-data mcp
 | 选项 | 作用 |
 |---|---|
 | `keywords.mute` 屏蔽词 | 命中的候选（标题+摘要，子串、不分大小写）直接丢弃 |
-| `keywords.boost` 关注词 | 命中打标，单源苗头可升为关注 |
+| `keywords.boost` 关注词 | 命中打标，单源回波可升为关注 |
 | `keywords.alert` 必看词 | 命中打标并汇入候选文件的 `keyword_alerts`；再有第二源共振即列必看候选 |
 | `topics` 主题权重 | 相关性权重（1–5），换行业主要改这一节 |
 | `sources.<源>.enabled / max_items` | 关掉某个源（报告里记「已停用」，不算缺失）或统一截断条数 |
 | `filters.max_age_hours` 新鲜度窗口 | 只对带时间戳的候选生效，太旧的丢弃 |
-| `vocab.window_days` 新词词汇表 | 实体名字在窗口内没出现过 → 打 `novel` 标，是优先级最高的苗头信号；第一次运行只建基线 |
+| `vocab.window_days` 新词词汇表 | 实体名字在窗口内没出现过 → 打 `novel` 标，是优先级最高的回波信号；第一次运行只建基线 |
 
 ## Chrome 扩展
 
-`apps/extension` 是 Manifest V3 扩展，与引擎共用 `@breaker-delta/core`：在任何页面一键收苗，打开已收录话题的页面时显示浪高徽章，图标角标显示提醒条数。加载与使用见 [apps/extension/README.zh-CN.md](apps/extension/README.zh-CN.md)。
+`apps/extension` 是 Manifest V3 扩展，与引擎共用 `@breaker-delta/core`：在任何页面一键收波，打开已收录话题的页面时显示浪高徽章，图标角标显示提醒条数。加载与使用见 [apps/extension/README.zh-CN.md](apps/extension/README.zh-CN.md)。
 
 ## 文档索引
 

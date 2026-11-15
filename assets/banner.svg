@@ -10,6 +10,6 @@
 <line x1="352" y1="378" x2="352" y2="583" stroke="#555555" stroke-width="1.2" opacity="0.5"/>
 <circle cx="412" cy="452" r="11" fill="#E4572E"/><text x="438" y="461" font-family="'Noto Sans CJK SC','Noto Sans',sans-serif" font-size="30" fill="#1A1A1A">必看</text>
 <circle cx="642" cy="452" r="11" fill="#2F7FC1"/><text x="668" y="461" font-family="'Noto Sans CJK SC','Noto Sans',sans-serif" font-size="30" fill="#1A1A1A">关注</text>
-<circle cx="872" cy="452" r="11" fill="#3E9B4F"/><text x="898" y="461" font-family="'Noto Sans CJK SC','Noto Sans',sans-serif" font-size="30" fill="#1A1A1A">苗头</text>
+<circle cx="872" cy="452" r="11" fill="#3E9B4F"/><text x="898" y="461" font-family="'Noto Sans CJK SC','Noto Sans',sans-serif" font-size="30" fill="#1A1A1A">回波</text>
 <text x="412" y="532" font-family="'Noto Sans CJK SC','Noto Sans',sans-serif" font-size="25" fill="#555555">RSS / Atom 可订阅</text>
 </svg>

@@ -11,7 +11,7 @@ import type { AlertEntry, TopicDataEntry } from "@breaker-delta/core";
 import {
   alertCount,
   badgeText,
-  createSeed,
+  createEcho,
   findAlert,
   findTopic,
   formatIssueText,
@@ -145,17 +145,17 @@ describe("topicPageUrl (drift fix)", () => {
   });
 });
 
-describe("seeds", () => {
+describe("echoes", () => {
   const now = new Date("2026-11-15T01:02:03.000Z");
 
-  it("createSeed builds the stored record shape", () => {
-    const seed = createSeed(
+  it("createEcho builds the stored record shape", () => {
+    const echo = createEcho(
       { title: "T", url: "https://example.com/", selectedText: "摘录", note: "理由" },
       now,
       "abc123",
     );
-    assert.deepStrictEqual(seed, {
-      id: `seed-${now.getTime()}-abc123`,
+    assert.deepStrictEqual(echo, {
+      id: `echo-${now.getTime()}-abc123`,
       title: "T",
       url: "https://example.com/",
       selectedText: "摘录",
@@ -165,41 +165,41 @@ describe("seeds", () => {
   });
 
   it("formatIssueText falls back to the selected-text excerpt as the reason", () => {
-    const seed = createSeed(
+    const echo = createEcho(
       { title: "T", url: "https://example.com/", selectedText: "选中文本", note: "" },
       now,
       "abc123",
     );
-    const text = formatIssueText([seed]);
-    assert.ok(text.startsWith("## 投苗\n"));
+    const text = formatIssueText([echo]);
+    assert.ok(text.startsWith("## 投波\n"));
     assert.ok(text.includes("标题：T"));
     assert.ok(text.includes("链接：https://example.com/"));
     assert.ok(text.includes("理由：选中文本"));
     assert.ok(!text.includes("摘录："));
-    assert.ok(text.includes("收苗时间：2026-11-15T01:02:03.000Z"));
+    assert.ok(text.includes("收波时间：2026-11-15T01:02:03.000Z"));
   });
 
-  it("formatIssueText numbers multiple seeds and adds 摘录 when both note and selection exist", () => {
+  it("formatIssueText numbers multiple echoes and adds 摘录 when both note and selection exist", () => {
     const mk = (n: number) =>
-      createSeed(
+      createEcho(
         { title: `T${n}`, url: `https://example.com/${n}`, selectedText: "摘录文", note: "我的理由" },
         now,
         `r${n}`,
       );
     const text = formatIssueText([mk(1), mk(2)]);
-    assert.ok(text.includes("## 投苗 1/2"));
-    assert.ok(text.includes("## 投苗 2/2"));
+    assert.ok(text.includes("## 投波 1/2"));
+    assert.ok(text.includes("## 投波 2/2"));
     assert.ok(text.includes("理由：我的理由"));
     assert.ok(text.includes("摘录：摘录文"));
   });
 
   it("formatIssueText marks an unfilled reason", () => {
-    const seed = createSeed(
+    const echo = createEcho(
       { title: "", url: "https://example.com/", selectedText: "", note: "" },
       now,
       "abc123",
     );
-    const text = formatIssueText([seed]);
+    const text = formatIssueText([echo]);
     assert.ok(text.includes("标题：(无标题)"));
     assert.ok(text.includes("理由：(未填)"));
   });

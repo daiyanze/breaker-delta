@@ -1,9 +1,9 @@
-# Breaker Delta Seed Catcher — 浪尖雷达 · 收苗
+# Breaker Delta Echo Catcher — 浪尖雷达 · 收波
 
 **English** · [中文](README.zh-CN.md)
 
 The browser extension for Breaker Delta / 浪尖雷达 (Chrome first,
-version 0.4.0). It travels with you while you browse: when you spot
+version 0.5.0). It travels with you while you browse: when you spot
 something that might take off, capture it in one click; when you open
 a page the radar already tracks, it tells you how high the wave is.
 
@@ -15,11 +15,11 @@ a page the radar already tracks, it tells you how high the wave is.
 
 | Feature | What you get |
 |---|---|
-| 🌱 One-click seed capture | Click the toolbar icon on any page to save its title, URL, your selected text, and a one-line note into a local seed inbox |
+| 🌀 One-click echo capture | Click the toolbar icon on any page to save its title, URL, your selected text, and a one-line note into a local echo inbox |
 | ✓ Tracked status | The popup immediately shows whether the current page's topic is already tracked by the radar, its heat, and when it was first seen |
 | 🌊 Heat badge | On GitHub / Hacker News / Reddit / X / Product Hunt, opening a page that matches a tracked topic shows a badge bar (topic title, heat, first-seen date, link to the topic page); breaking topics get a ⚡ marker |
 | ⚡ Alert count | The orange number on the toolbar icon = how many topics are currently breaking out (resonance / surge) |
-| 📤 Export seeds | Copy the whole inbox as GitHub Issue text, or download it as JSON |
+| 📤 Export echoes | Copy the whole inbox as GitHub Issue text, or download it as JSON |
 
 ## Install (unpacked, developer mode)
 
@@ -59,34 +59,34 @@ Pin the extension to the toolbar so capturing takes one click less.
 
 ## Usage
 
-### Capture a seed
+### Capture a echo
 
 1. On any page, optionally select the text you find important first
 2. Click the toolbar icon — the popup shows the page title and URL;
    if text is selected it tells you "N characters selected, the
-   excerpt will be saved with the seed"
-3. Optionally add a one-line note: why this looks like a seed
-4. Click "🌱 收下这个苗头"
+   excerpt will be saved with the echo"
+3. Optionally add a one-line note: why this looks like a echo
+4. Click "🌀 收下这个回波"
 
 The top of the popup also tells you whether this page is already
 tracked: if it is, you see the topic title, heat, and first-seen
 date, plus a "查看话题" link to the topic page on the site; if not,
-it suggests capturing a seed and watching it.
+it suggests capturing a echo and watching it.
 
-### Seed inbox
+### Echo inbox
 
-The lower half of the popup is your local seed inbox, newest first.
-Each seed shows its title, URL, your note, and an excerpt of the
+The lower half of the popup is your local echo inbox, newest first.
+Each echo shows its title, URL, your note, and an excerpt of the
 selected text (hover for the full text). Click a title or URL to
-reopen the page; delete seeds one by one.
+reopen the page; delete echoes one by one.
 
-### Export seeds
+### Export echoes
 
-- **📋 导出投苗 (Export as issue text)**: copies the whole inbox in
+- **📋 导出投波 (Export as issue text)**: copies the whole inbox in
   GitHub Issue format — paste it into a new issue in the data repo
-  (`breaker-delta-data`) and the seeds enter the radar's scan flow
-- **⬇ 下载 JSON (Download JSON)**: downloads all seeds as
-  `breaker-delta-seeds.json` for archiving
+  (`breaker-delta-data`) and the echoes enter the radar's scan flow
+- **⬇ 下载 JSON (Download JSON)**: downloads all echoes as
+  `breaker-delta-echoes.json` for archiving
 
 ### Heat badge
 
@@ -114,7 +114,7 @@ on a schedule — still no backend, no accounts.
 |---|---|
 | `activeTab` | Grants temporary access to the current tab only when you click the extension icon — used to read the title, URL, and selected text. The extension cannot touch your pages at any other time |
 | `scripting` | Together with `activeTab`, reads the selected text when you capture |
-| `storage` | Stores the seed inbox locally in your browser |
+| `storage` | Stores the echo inbox locally in your browser |
 
 The content script (badge) runs only on the five sites listed above,
 as declared in the manifest; it is never injected anywhere else. The
@@ -128,9 +128,9 @@ permission, and the background worker makes no network requests.
   current page's URL/title against the bundled topic index locally;
   the result never leaves the browser
 - **Active actions only**: capturing happens only when you click
-  "收下这个苗头", and only takes the current page's title, URL, your
+  "收下这个回波", and only takes the current page's title, URL, your
   selected text, and your note
-- **Local data only**: the seed inbox lives in your browser and is
+- **Local data only**: the echo inbox lives in your browser and is
   never uploaded automatically; exporting is manual and you decide
   where the content goes
 - **No telemetry, no third-party code**
@@ -161,17 +161,19 @@ when the popup opens, there is nothing to read). The popup shows
 Click the reload (↻) button on the extension's card at
 `chrome://extensions/` — data-only changes need a reload too.
 
-**Will I lose my seed inbox?**
+**Will I lose my echo inbox?**
 It lives in `chrome.storage.local`; uninstalling the extension
-clears it. Export important seeds (issue text / JSON) as a backup.
+clears it. Export important echoes (issue text / JSON) as a backup.
 
 ## Data formats
 
-### Seeds (stored under the `seeds` key in `chrome.storage.local`)
+### Echoes (stored under the `echoes` key in `chrome.storage.local`)
+
+Inboxes saved by version 0.4.0 or earlier under the legacy `seeds` key are migrated automatically the first time the popup opens.
 
 ```json
 {
-  "id": "seed-<timestamp>-<random>",
+  "id": "echo-<timestamp>-<random>",
   "title": "Page title",
   "url": "Page URL",
   "selectedText": "Text selected at capture time, may be empty",
@@ -232,7 +234,7 @@ and sets the badge; it does not poll remotely.
 This directory is the extension's home in the engine repo
 (`daiyanze/breaker-delta`, monorepo package `@breaker-delta/extension`).
 TypeScript (strict) sources live in `src/`: `logic.ts` holds the pure
-logic (page matching, badge count, topic links, seed records);
+logic (page matching, badge count, topic links, echo records);
 `popup.ts` / `content.ts` / `background.ts` are the three entry
 points. Domain data shapes use `@breaker-delta/core` types — the same
 definitions the site publisher uses — so the extension never

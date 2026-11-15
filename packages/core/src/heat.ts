@@ -1,8 +1,8 @@
 // Wave height （浪高） v2, ported from radar/publish.py `heat_of`:
-// heat = base(must 60 / watch 30 / seed 10, unknown level 10)
+// heat = base(must 60 / watch 30 / echo 10, unknown level 10; legacy "seed" aliases echo)
 //      + 20 x sources + 8 x links + 25 if first seen. No cap.
 
-export const BASE: Record<string, number> = { must: 60, watch: 30, seed: 10 };
+export const BASE: Record<string, number> = { must: 60, watch: 30, echo: 10, seed: 10 };
 
 export interface HeatInput {
   level?: string | null;

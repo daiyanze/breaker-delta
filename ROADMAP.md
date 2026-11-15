@@ -9,7 +9,7 @@ Turn the morning/evening reports that currently only go back to a chat into a st
 - Site home: the latest edition + a historical archive
 - One standalone page per edition (permalinks, shareable)
 - Feeds: `/feed.xml` (RSS 2.0) and `/atom.xml` (Atom 1.0), one entry per edition with the full text in the feed, so subscribers read it all in their reader
-- Later: one page per topic (using the grade-change history already in the ledger, to watch a topic grow from a 🌱 seed into a 🔥 must-see)
+- Later: one page per topic (using the grade-change history already in the ledger, to watch a topic grow from a 🌀 echo into a 🔥 must-see)
 
 ## End-state architecture
 
@@ -17,7 +17,7 @@ Turn the morning/evening reports that currently only go back to a chat into a st
 agent scan (driven by the user's own scheduling)
   → writes structured edition files editions/YYYY-MM-DD-{morning,evening}.json into the instance data repo (the single source of truth)
   → the data repo's CI checks out the engine repo and generates statically with @breaker-delta/publisher (Node/TypeScript, no framework)
-  → site/ (wave board, rising board, seeds, categories, sources, topic pages, archive, feed.xml, atom.xml)
+  → site/ (wave board, rising board, echoes, categories, sources, topic pages, archive, feed.xml, atom.xml)
   → the data repo's GitHub Actions deploys to that repo's GitHub Pages
 ```
 
@@ -37,7 +37,7 @@ The design principle does not change: judgment belongs to the agent, determinist
 - Hosting: GitHub Pages (chosen; Cloudflare Pages not adopted)
 - Domain: default first (the data repo's Pages address), custom later (not yet bound)
 
-### P1 Site MVP ✅ Shipped (the current site goes far beyond the MVP scope: wave board / rising board / categories / sources / topic pages / track record / seed submission, see the CHANGELOG)
+### P1 Site MVP ✅ Shipped (the current site goes far beyond the MVP scope: wave board / rising board / categories / sources / topic pages / track record / echo submission, see the CHANGELOG)
 
 - Define the `editions/*.json` edition format: date, edition, title, entries per grade (title / numbers / source links / suggested action), missing-source notes
 - Write the static generator (now `@breaker-delta/publisher`, the Node edition; the original Python edition was retired with 0.21.0): generates the home page, edition pages, the archive page, feed.xml, atom.xml

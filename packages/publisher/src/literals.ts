@@ -12,7 +12,7 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "tabs": [
    "🌊 海浪榜",
    "📈 涨潮榜",
-   "🌱 苗头",
+   "🌀 回波",
    "🗂️ 分类",
    "📡 数据源",
    "🏆 战绩",
@@ -82,13 +82,13 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "resonance": "{n} 个来源共振",
   "wave_rank": "浪高 {h} · 排名 #{r}",
   "heat_help_t": "浪高是怎么计算的？",
-  "heat_help": "<b>浪高</b> = 基础分 + 共振 + 证据 + 首现加分，不设上限。基础分按等级：🔥必看 60、👀关注 30、🌱苗头 10；每多一个<b>独立来源</b> +20（同一来源组的多个链接只算一个来源）；每条<b>原文链接</b> +8；话题<b>第一次出现</b> +25。一个话题至少要有 2 个独立来源才算热点，单来源只记为苗头。某一期没有新动态的话题，按上一次的浪高<b>结转</b>进当前榜单，涨跌是和上一个时间点的全榜相比。",
+  "heat_help": "<b>浪高</b> = 基础分 + 共振 + 证据 + 首现加分，不设上限。基础分按等级：🔥必看 60、👀关注 30、🌀回波 10；每多一个<b>独立来源</b> +20（同一来源组的多个链接只算一个来源）；每条<b>原文链接</b> +8；话题<b>第一次出现</b> +25。一个话题至少要有 2 个独立来源才算热点，单来源只记为回波。某一期没有新动态的话题，按上一次的浪高<b>结转</b>进当前榜单，涨跌是和上一个时间点的全榜相比。",
   "slider": "时间滑块",
   "current": "当前",
   "hist": "历史快照",
   "count": "共 {n} 条",
   "board_title": "🌊 海浪榜 · 全部话题",
-  "seeds_title": "🌱 苗头",
+  "seeds_title": "🌀 回波",
   "seeds_r": "单源或早期信号 · 近 3 期",
   "rising_title": "📈 涨潮榜 · 浪高涨幅",
   "rising_r": "共 {n} 条上涨",
@@ -120,8 +120,8 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "theme": "切换主题",
   "snap_title": "🌊 海浪榜 · {x} 快照",
   "page_of": "第 {p}/{n} 页",
-  "desc_default": "浪尖雷达 Breaker Delta：海浪榜、涨潮榜与苗头追踪，用浪高量化话题走势，每个话题一张海浪图。",
-  "desc_seeds": "最近三期里首次出现、还在发酵的话题苗头。",
+  "desc_default": "浪尖雷达 Breaker Delta：海浪榜、涨潮榜与回波追踪，用浪高量化话题走势，每个话题一张海浪图。",
+  "desc_seeds": "最近三期里首次出现、还在发酵的回波。",
   "desc_rising": "浪高涨幅最大的话题，正在涨潮的热点。",
   "desc_sources": "浪尖雷达的全部数据源与各自贡献的话题统计。",
   "desc_about": "浪尖雷达是什么、浪高算法、页面导览与作者信息。",
@@ -142,19 +142,19 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
    "结果"
   ],
   "tr_pending": "待复核",
-  "desc_submit": "向浪尖雷达投苗：提交单源、新鲜、有一手链接的早期信号。",
-  "sub_title": "🌱 投苗 · 提交一个苗头",
-  "sub_intro": "你刷到一个还没热起来、但可能是种子的信号？投给雷达。投来的苗头先进收件清单，下一期扫描时去重、查共振，够格才进苗头榜——不承诺收录。",
-  "sub_good_t": "什么算好苗头",
-  "sub_good": "<ul class=\"tips\"><li><b>单源</b>：目前只有一处在说，还没有多家跟进——这正是苗头的样子。</li><li><b>新</b>：刚出现不久（仓库、帖子、产品、论文越新越好），不是已经上热搜的旧闻。</li><li><b>有一手链接</b>：给出原始页面（仓库 / 原帖 / 官网 / 论文），不要二手搬运合集。</li><li><b>一句话理由</b>：为什么你觉得它会长大，一句话就够。</li></ul>",
-  "sub_issue_t": "方式一 · GitHub Issue 投苗",
-  "sub_issue_btn": "去 GitHub 提投苗 Issue →",
+  "desc_submit": "向浪尖雷达投波：提交单源、新鲜、有一手链接的早期信号。",
+  "sub_title": "🌀 投波 · 提交一个回波",
+  "sub_intro": "你刷到一个还没热起来、但可能是回波的信号？投给雷达。投来的回波先进收件清单，下一期扫描时去重、查共振，够格才进回波榜——不承诺收录。",
+  "sub_good_t": "什么算好回波",
+  "sub_good": "<ul class=\"tips\"><li><b>单源</b>：目前只有一处在说，还没有多家跟进——这正是回波的样子。</li><li><b>新</b>：刚出现不久（仓库、帖子、产品、论文越新越好），不是已经上热搜的旧闻。</li><li><b>有一手链接</b>：给出原始页面（仓库 / 原帖 / 官网 / 论文），不要二手搬运合集。</li><li><b>一句话理由</b>：为什么你觉得它会成浪，一句话就够。</li></ul>",
+  "sub_issue_t": "方式一 · GitHub Issue 投波",
+  "sub_issue_btn": "去 GitHub 提投波 Issue →",
   "sub_issue_note": "链接已预填标题与正文模板（标题 / 链接 / 理由），补齐即可提交。没有 GitHub 账号时，用下方书签工具生成同样格式的文本，发给作者代投。",
   "sub_bm_t": "方式二 · 书签小工具（bookmarklet）",
-  "sub_bm_btn": "🌱 投苗到浪尖雷达",
-  "sub_bm_note": "把这个链接拖到浏览器书签栏；在任意页面点它，就会带着当前页标题 + 链接打开本页，并生成下面这份可复制的投苗文本。",
-  "sub_prefill_t": "投苗文本（可复制）",
-  "sub_cta": "🌱 发现一个还没热起来的信号？点这里投苗 →"
+  "sub_bm_btn": "🌀 投波到浪尖雷达",
+  "sub_bm_note": "把这个链接拖到浏览器书签栏；在任意页面点它，就会带着当前页标题 + 链接打开本页，并生成下面这份可复制的投波文本。",
+  "sub_prefill_t": "投波文本（可复制）",
+  "sub_cta": "🌀 发现一个还没热起来的信号？点这里投波 →"
  },
  "en": {
   "site_name": "Breaker Delta",
@@ -162,7 +162,7 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "tabs": [
    "🌊 Wave Board",
    "📈 Rising",
-   "🌱 Seeds",
+   "🌀 Echoes",
    "🗂️ Categories",
    "📡 Sources",
    "🏆 Track Record",
@@ -232,13 +232,13 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "resonance": "{n} sources in resonance",
   "wave_rank": "Wave {h} · rank #{r}",
   "heat_help_t": "How is wave height calculated?",
-  "heat_help": "<b>Wave height</b> = base + resonance + evidence + first-appearance bonus, uncapped. Base by level: 🔥 Must-see 60, 👀 Watch 30, 🌱 Seed 10; +20 per <b>independent source</b> (multiple links from one source group count once); +8 per <b>original link</b>; +25 on a topic's <b>first appearance</b>. A topic needs at least 2 independent sources to count as a hotspot; a single source stays a seed. Topics with no new development are <b>carried forward</b> at their last wave height, and deltas compare against the previous time point's full board.",
+  "heat_help": "<b>Wave height</b> = base + resonance + evidence + first-appearance bonus, uncapped. Base by level: 🔥 Must-see 60, 👀 Watch 30, 🌀 Echo 10; +20 per <b>independent source</b> (multiple links from one source group count once); +8 per <b>original link</b>; +25 on a topic's <b>first appearance</b>. A topic needs at least 2 independent sources to count as a hotspot; a single source stays a echo. Topics with no new development are <b>carried forward</b> at their last wave height, and deltas compare against the previous time point's full board.",
   "slider": "Time slider",
   "current": "current",
   "hist": "snapshot",
   "count": "{n} topics",
   "board_title": "🌊 Wave Board · All topics",
-  "seeds_title": "🌱 Seeds",
+  "seeds_title": "🌀 Echoes",
   "seeds_r": "Single-source / early signals · last 3 editions",
   "rising_title": "📈 Rising · Wave gains",
   "rising_r": "{n} rising",
@@ -292,19 +292,19 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
    "Result"
   ],
   "tr_pending": "Pending",
-  "desc_submit": "Submit a seed to Breaker Delta: a single-source, fresh signal with a first-hand link.",
-  "sub_title": "🌱 Submit a seed",
-  "sub_intro": "Spotted a signal that has not heated up yet but might be a seed? Send it to the radar. Submissions land in an inbox first; the next scan deduplicates and checks for resonance — only qualifying seeds reach the Seeds board, and inclusion is not promised.",
-  "sub_good_t": "What makes a good seed",
-  "sub_good": "<ul class=\"tips\"><li><b>Single-source</b>: only one place is talking about it so far — that is exactly what a seed looks like.</li><li><b>Fresh</b>: newly appeared (the newer the repo, post, product or paper, the better), not yesterday's headline.</li><li><b>First-hand link</b>: link the original page (repo / original post / official site / paper), not a roundup.</li><li><b>One-line reason</b>: why you think it will grow, in one sentence.</li></ul>",
+  "desc_submit": "Submit a echo to Breaker Delta: a single-source, fresh signal with a first-hand link.",
+  "sub_title": "🌀 Submit a echo",
+  "sub_intro": "Spotted a signal that has not heated up yet but might be a echo? Send it to the radar. Submissions land in an inbox first; the next scan deduplicates and checks for resonance — only qualifying echoes reach the Echoes board, and inclusion is not promised.",
+  "sub_good_t": "What makes a good echo",
+  "sub_good": "<ul class=\"tips\"><li><b>Single-source</b>: only one place is talking about it so far — that is exactly what a echo looks like.</li><li><b>Fresh</b>: newly appeared (the newer the repo, post, product or paper, the better), not yesterday's headline.</li><li><b>First-hand link</b>: link the original page (repo / original post / official site / paper), not a roundup.</li><li><b>One-line reason</b>: why you think it will become a wave, in one sentence.</li></ul>",
   "sub_issue_t": "Option 1 · Submit via GitHub Issue",
-  "sub_issue_btn": "Open a seed Issue on GitHub →",
+  "sub_issue_btn": "Open a echo Issue on GitHub →",
   "sub_issue_note": "The link prefills the title and body template (title / link / reason) — just fill it in. Without a GitHub account, use the bookmarklet below to generate the same format and send it to the author.",
   "sub_bm_t": "Option 2 · Bookmarklet",
-  "sub_bm_btn": "🌱 Send seed to Breaker Delta",
-  "sub_bm_note": "Drag this link to your bookmarks bar. On any page, clicking it opens this page with that page's title + URL and generates the copyable seed text below.",
-  "sub_prefill_t": "Seed text (copyable)",
-  "sub_cta": "🌱 Spotted a signal that has not heated up yet? Submit a seed →"
+  "sub_bm_btn": "🌀 Send echo to Breaker Delta",
+  "sub_bm_note": "Drag this link to your bookmarks bar. On any page, clicking it opens this page with that page's title + URL and generates the copyable echo text below.",
+  "sub_prefill_t": "Echo text (copyable)",
+  "sub_cta": "🌀 Spotted a signal that has not heated up yet? Submit a echo →"
  },
  "ja": {
   "site_name": "浪尖レーダー Breaker Delta",
@@ -312,7 +312,7 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "tabs": [
    "🌊 ウェーブボード",
    "📈 上昇",
-   "🌱 芽生え",
+   "🌀 エコー",
    "🗂️ カテゴリ",
    "📡 ソース",
    "🏆 戦績",
@@ -382,13 +382,13 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "resonance": "{n} ソースが共振",
   "wave_rank": "波高 {h}・順位 #{r}",
   "heat_help_t": "波高はどう計算される？",
-  "heat_help": "<b>波高</b> = 基礎点 + 共振 + 証拠 + 初登場ボーナス（上限なし）。基礎点はレベル別：🔥必見 60、👀注目 30、🌱芽生え 10。<b>独立ソース</b>1つにつき +20（同一グループの複数リンクは1つとして計算）、<b>原文リンク</b>1件につき +8、<b>初登場</b>で +25。ホットな話題には独立ソースが2つ以上必要で、単一ソースは芽生え扱い。新しい動きがない話題は前回の波高で<b>繰り越し</b>され、増減は前時点の全ボードとの比較です。",
+  "heat_help": "<b>波高</b> = 基礎点 + 共振 + 証拠 + 初登場ボーナス（上限なし）。基礎点はレベル別：🔥必見 60、👀注目 30、🌀エコー 10。<b>独立ソース</b>1つにつき +20（同一グループの複数リンクは1つとして計算）、<b>原文リンク</b>1件につき +8、<b>初登場</b>で +25。ホットな話題には独立ソースが2つ以上必要で、単一ソースはエコー扱い。新しい動きがない話題は前回の波高で<b>繰り越し</b>され、増減は前時点の全ボードとの比較です。",
   "slider": "時間スライダー",
   "current": "現在",
   "hist": "スナップショット",
   "count": "{n} 件",
   "board_title": "🌊 ウェーブボード · 全トピック",
-  "seeds_title": "🌱 芽生え",
+  "seeds_title": "🌀 エコー",
   "seeds_r": "単一ソース・初期シグナル · 直近3号",
   "rising_title": "📈 上昇 · 波高の伸び",
   "rising_r": "{n} 件上昇",
@@ -442,26 +442,26 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
    "結果"
   ],
   "tr_pending": "復核待ち",
-  "desc_submit": "浪尖レーダーへ芽生えを投稿：単一ソースで新鮮な、一次リンク付きの初期シグナル。",
-  "sub_title": "🌱 芽生えを投稿",
-  "sub_intro": "まだ熱くなっていないけれど種になりそうなシグナルを見つけたら、レーダーに送ってください。投稿はまず受信箱に入り、次のスキャンで重複排除と共振チェックを行います。芽生えボードに載るのは基準を満たしたものだけで、掲載は保証しません。",
-  "sub_good_t": "良い芽生えとは",
-  "sub_good": "<ul class=\"tips\"><li><b>単一ソース</b>：今のところ1か所だけが取り上げている——それが芽生えの姿です。</li><li><b>新しい</b>：登場したばかり（リポジトリ・投稿・製品・論文は新しいほど良い）。すでに話題の旧聞ではありません。</li><li><b>一次リンク</b>：元のページ（リポジトリ / 元投稿 / 公式サイト / 論文）へのリンクを。まとめ記事は不可。</li><li><b>一文の理由</b>：なぜ育つと思うか、一文で十分です。</li></ul>",
+  "desc_submit": "浪尖レーダーへエコーを投稿：単一ソースで新鮮な、一次リンク付きの初期シグナル。",
+  "sub_title": "🌀 エコーを投稿",
+  "sub_intro": "まだ熱くなっていないけれどエコーになりそうなシグナルを見つけたら、レーダーに送ってください。投稿はまず受信箱に入り、次のスキャンで重複排除と共振チェックを行います。エコーボードに載るのは基準を満たしたものだけで、掲載は保証しません。",
+  "sub_good_t": "良いエコーとは",
+  "sub_good": "<ul class=\"tips\"><li><b>単一ソース</b>：今のところ1か所だけが取り上げている——それがエコーの姿です。</li><li><b>新しい</b>：登場したばかり（リポジトリ・投稿・製品・論文は新しいほど良い）。すでに話題の旧聞ではありません。</li><li><b>一次リンク</b>：元のページ（リポジトリ / 元投稿 / 公式サイト / 論文）へのリンクを。まとめ記事は不可。</li><li><b>一文の理由</b>：なぜ大きくなると思うか、一文で十分です。</li></ul>",
   "sub_issue_t": "方法1 · GitHub Issue で投稿",
   "sub_issue_btn": "GitHub で投稿 Issue を開く →",
   "sub_issue_note": "リンクにはタイトルと本文テンプレート（タイトル / リンク / 理由）が入力済みです。GitHub アカウントがない場合は、下のブックマークレットで同じ形式のテキストを作って作者に送ってください。",
   "sub_bm_t": "方法2 · ブックマークレット",
-  "sub_bm_btn": "🌱 浪尖レーダーに送る",
+  "sub_bm_btn": "🌀 浪尖レーダーに送る",
   "sub_bm_note": "このリンクをブックマークバーにドラッグしてください。任意のページでクリックすると、そのページのタイトル + URL を持ってこのページが開き、下のコピー用テキストが生成されます。",
   "sub_prefill_t": "投稿テキスト（コピー可）",
-  "sub_cta": "🌱 まだ熱くなっていないシグナルを見つけたら、ここから投稿 →"
+  "sub_cta": "🌀 まだ熱くなっていないシグナルを見つけたら、ここから投稿 →"
  }
 };
 
 export const ABOUT: Record<string, string> = {
- "zh": "<section class=\"panel\"><div class=\"panel-h\"><span>关于浪尖雷达</span></div>\n<div class=\"detail\">\n<p>浪尖雷达（Breaker Delta）是一个热点追踪站：多源扫描科技与 AI 话题，用自有算法把每个话题量化成一个「浪高」，并持续追踪它的涨落。做这个站的目的很具体——让内容创作者能快速拿到可编辑、可发布的新闻素材：每个话题都有独立页面，给出正文、建议动作、数据源和原文链接。</p>\n<p>发布频度不固定：可以是日报、早晚报，也可以是小时报，期次只是标签，每一期的结构都一样。</p>\n<h3 style=\"margin:16px 0 6px\">浪高怎么算</h3>\n<p>浪高 v2（参考 AIHOT 的量级，不设上限）：等级基分（必看 60 / 关注 30 / 苗头 10）+ 共振 20×来源数 + 证据 8×链接数 + 首现 25。一个话题至少要有 2 个独立来源互相印证才算热点，单源的先记为苗头。</p>\n<p>排名是某个时间点上全部已知话题按浪高排序的结果（每页 100 个，超出分页）；升降对比的是上一个时间点。本期没有更新的话题，按最近一次的浪高结转并标注「结转」，不会假装是新数据。</p>\n<h3 style=\"margin:16px 0 6px\">页面导览</h3>\n<p><a href=\"index.html\">海浪榜</a>：全部话题按浪高排名，带时间滑块回看任意时间点。<a href=\"rising.html\">涨潮榜</a>：浪高涨幅最大的话题。<a href=\"seeds.html\">苗头</a>：最近首次出现、还在发酵的话题。<a href=\"submit.html\">投苗</a>：把你发现的单源新信号投进来。<a href=\"track-record.html\">战绩</a>：每期必看与关注的登记台账和复核结果。<a href=\"categories.html\">分类</a>：按安全 / 政策与监管 / 开源 / 商业与资本 / Agent 与应用 / AI 模型 / 行业动态浏览。<a href=\"sources.html\">数据源</a>：每个来源贡献了哪些话题。<a href=\"archive.html\">往期归档</a>：每一期的完整榜单快照。每个话题页有一张「海浪图」，画的是它的浪高走势，图上的点可以点进对应那一期。</p>\n<h3 style=\"margin:16px 0 6px\">技术说明</h3>\n<p>每一期的内容以 Markdown 保存在 GitHub 仓库里，可以直接阅读；站点由 Breaker Delta 引擎（Node.js）在构建时生成静态 HTML。话题页的原文链接带 nofollow。列表里的来源图标是各站的 favicon，构建时抓取并缓存在本地，每次构建用条件请求校验，站点换了图标缓存会自动更新。海浪榜首页有一段小脚本驱动时间滑块（无第三方库），其余页面没有可执行脚本；禁用 JS 时首页显示最新一期，时间轴链接照常打开每期快照。界面语言在构建设置里选择（TS_LANGS），构建出两种以上语言时页面上才显示语言切换。</p>\n<h3 style=\"margin:16px 0 6px\">作者与订阅</h3>\n<p>作者 Dai：<a href=\"https://github.com/daiyanze/breaker-delta\" rel=\"noopener\">GitHub 仓库</a> · <a href=\"https://x.com/daiyanze\" rel=\"noopener\">X @daiyanze</a> · <a href=\"feed.xml\">RSS</a> · <a href=\"atom.xml\">Atom</a></p>\n<p class=\"note\">© 2026 Dai</p>\n</div></section>",
- "en": "<section class=\"panel\"><div class=\"panel-h\"><span>About Breaker Delta</span></div>\n<div class=\"detail\">\n<p>Breaker Delta （浪尖雷达） tracks tech and AI topics from many sources and quantifies each topic as a \"wave height\" that rises and falls over time. Its purpose is practical: give content creators ready-to-edit, ready-to-publish news material. Every topic has its own page with the story, a suggested action, its data sources and original links.</p>\n<p>Publishing frequency is not fixed: daily, twice a day, or hourly — an edition is just a label, and every edition has the same structure.</p>\n<h3 style=\"margin:16px 0 6px\">How the wave height works</h3>\n<p>Wave v2 (scale referenced from AIHOT, uncapped): level base (Must-read 60 / Watch 30 / Seed 10) + resonance 20×sources + evidence 8×links + 25 when first seen. A topic needs at least two independent sources to count as a hotspot; single-source signals start as seeds.</p>\n<p>Ranks compare all known topics at one point in time (100 per page); deltas compare with the previous point in time. Topics not updated in an edition are carried forward at their last wave height and marked \"carried\" — never dressed up as fresh data.</p>\n<h3 style=\"margin:16px 0 6px\">Pages</h3>\n<p><a href=\"index.html\">Wave Board</a>: all topics ranked by wave height, with a time slider. <a href=\"rising.html\">Rising</a>: biggest wave gains. <a href=\"seeds.html\">Seeds</a>: newly appeared topics. <a href=\"submit.html\">Submit a seed</a>: send in a single-source signal you spotted. <a href=\"track-record.html\">Track Record</a>: the registered ledger of picks and their review results. <a href=\"categories.html\">Categories</a>. <a href=\"sources.html\">Sources</a>: what each source feeds. <a href=\"archive.html\">Archive</a>: full snapshot of every edition. Each topic page carries a wave chart of its history.</p>\n<h3 style=\"margin:16px 0 6px\">Tech notes</h3>\n<p>Editions are kept as Markdown in the GitHub repo and built into static HTML by the Breaker Delta engine (Node.js). Original links on topic pages are nofollow. Source icons are each site's favicon, fetched and cached at build time with conditional revalidation. The board's time slider is one small script (no libraries); other pages run no scripts. Interface languages are a build setting (TS_LANGS); the language switcher appears only when more than two languages are built.</p>\n<h3 style=\"margin:16px 0 6px\">Author & feeds</h3>\n<p>By Dai: <a href=\"https://github.com/daiyanze/breaker-delta\" rel=\"noopener\">GitHub</a> · <a href=\"https://x.com/daiyanze\" rel=\"noopener\">X @daiyanze</a> · <a href=\"feed.xml\">RSS</a> · <a href=\"atom.xml\">Atom</a></p>\n<p class=\"note\">© 2026 Dai</p>\n</div></section>",
- "ja": "<section class=\"panel\"><div class=\"panel-h\"><span>浪尖レーダーについて</span></div>\n<div class=\"detail\">\n<p>浪尖レーダー（Breaker Delta）は、テクノロジーと AI のトピックを複数ソースから追跡し、各トピックを「波高」として定量化して推移を追うサイトです。目的は具体的で、コンテンツ制作者が編集・公開しやすいニュース素材を素早く手に入れられること。各トピックには専用ページがあり、本文、おすすめアクション、データソース、原文リンクを掲載しています。</p>\n<p>発行頻度は固定ではありません。日刊、朝夕刊、時間刊でも、号はラベルにすぎず構造は同じです。</p>\n<h3 style=\"margin:16px 0 6px\">波高の計算</h3>\n<p>波高 v2（AIHOT のスケールを参考、上限なし）：レベル基礎点（必読 60 / 注目 30 / 芽生え 10）+ 共鳴 20×ソース数 + 根拠 8×リンク数 + 初出 25。ホットなトピックには独立したソースが最低2つ必要で、単一ソースはまず「芽生え」として記録します。</p>\n<p>順位はある時点の全トピックを波高で並べたもの（1ページ100件）。前回比は直前の時点との比較です。その号で更新されなかったトピックは前回の波高を「繰越」として明示し、新しいデータのふりはしません。</p>\n<h3 style=\"margin:16px 0 6px\">ページ案内</h3>\n<p><a href=\"index.html\">ウェーブボード</a>：全トピックを波高順に、時間スライダー付き。<a href=\"rising.html\">上昇</a>：波高の伸びが最大。<a href=\"seeds.html\">芽生え</a>：初登場のトピック。<a href=\"submit.html\">芽生え投稿</a>：見つけた単一ソースのシグナルを送れます。<a href=\"track-record.html\">戦績</a>：登録台帳と復核結果。<a href=\"categories.html\">カテゴリ</a>。<a href=\"sources.html\">ソース</a>：各ソースの寄与。<a href=\"archive.html\">アーカイブ</a>：各号の完全なスナップショット。各トピックページには波高チャートがあります。</p>\n<h3 style=\"margin:16px 0 6px\">技術メモ</h3>\n<p>各号の内容は Markdown として GitHub リポジトリに保存され、Breaker Delta エンジン（Node.js）が静的 HTML にビルドします。原文リンクは nofollow。ソースのアイコンは各サイトの favicon で、ビルド時に取得してローカルにキャッシュし、条件付きリクエストで検証します。時間スライダーは小さなスクリプト1つ（ライブラリなし）で、その他のページにスクリプトはありません。表示言語はビルド設定（TS_LANGS）で選び、3言語以上ビルドしたときだけ言語切替が表示されます。</p>\n<h3 style=\"margin:16px 0 6px\">作者とフィード</h3>\n<p>作者 Dai：<a href=\"https://github.com/daiyanze/breaker-delta\" rel=\"noopener\">GitHub</a> · <a href=\"https://x.com/daiyanze\" rel=\"noopener\">X @daiyanze</a> · <a href=\"feed.xml\">RSS</a> · <a href=\"atom.xml\">Atom</a></p>\n<p class=\"note\">© 2026 Dai</p>\n</div></section>"
+ "zh": "<section class=\"panel\"><div class=\"panel-h\"><span>关于浪尖雷达</span></div>\n<div class=\"detail\">\n<p>浪尖雷达（Breaker Delta）是一个热点追踪站：多源扫描科技与 AI 话题，用自有算法把每个话题量化成一个「浪高」，并持续追踪它的涨落。做这个站的目的很具体——让内容创作者能快速拿到可编辑、可发布的新闻素材：每个话题都有独立页面，给出正文、建议动作、数据源和原文链接。</p>\n<p>发布频度不固定：可以是日报、早晚报，也可以是小时报，期次只是标签，每一期的结构都一样。</p>\n<h3 style=\"margin:16px 0 6px\">浪高怎么算</h3>\n<p>浪高 v2（参考 AIHOT 的量级，不设上限）：等级基分（必看 60 / 关注 30 / 回波 10）+ 共振 20×来源数 + 证据 8×链接数 + 首现 25。一个话题至少要有 2 个独立来源互相印证才算热点，单源的先记为回波。</p>\n<p>排名是某个时间点上全部已知话题按浪高排序的结果（每页 100 个，超出分页）；升降对比的是上一个时间点。本期没有更新的话题，按最近一次的浪高结转并标注「结转」，不会假装是新数据。</p>\n<h3 style=\"margin:16px 0 6px\">页面导览</h3>\n<p><a href=\"index.html\">海浪榜</a>：全部话题按浪高排名，带时间滑块回看任意时间点。<a href=\"rising.html\">涨潮榜</a>：浪高涨幅最大的话题。<a href=\"echoes.html\">回波</a>：最近首次出现、还在发酵的话题。<a href=\"submit.html\">投波</a>：把你发现的单源新信号投进来。<a href=\"track-record.html\">战绩</a>：每期必看与关注的登记台账和复核结果。<a href=\"categories.html\">分类</a>：按安全 / 政策与监管 / 开源 / 商业与资本 / Agent 与应用 / AI 模型 / 行业动态浏览。<a href=\"sources.html\">数据源</a>：每个来源贡献了哪些话题。<a href=\"archive.html\">往期归档</a>：每一期的完整榜单快照。每个话题页有一张「海浪图」，画的是它的浪高走势，图上的点可以点进对应那一期。</p>\n<h3 style=\"margin:16px 0 6px\">技术说明</h3>\n<p>每一期的内容以 Markdown 保存在 GitHub 仓库里，可以直接阅读；站点由 Breaker Delta 引擎（Node.js）在构建时生成静态 HTML。话题页的原文链接带 nofollow。列表里的来源图标是各站的 favicon，构建时抓取并缓存在本地，每次构建用条件请求校验，站点换了图标缓存会自动更新。海浪榜首页有一段小脚本驱动时间滑块（无第三方库），其余页面没有可执行脚本；禁用 JS 时首页显示最新一期，时间轴链接照常打开每期快照。界面语言在构建设置里选择（TS_LANGS），构建出两种以上语言时页面上才显示语言切换。</p>\n<h3 style=\"margin:16px 0 6px\">作者与订阅</h3>\n<p>作者 Dai：<a href=\"https://github.com/daiyanze/breaker-delta\" rel=\"noopener\">GitHub 仓库</a> · <a href=\"https://x.com/daiyanze\" rel=\"noopener\">X @daiyanze</a> · <a href=\"feed.xml\">RSS</a> · <a href=\"atom.xml\">Atom</a></p>\n<p class=\"note\">© 2026 Dai</p>\n</div></section>",
+ "en": "<section class=\"panel\"><div class=\"panel-h\"><span>About Breaker Delta</span></div>\n<div class=\"detail\">\n<p>Breaker Delta （浪尖雷达） tracks tech and AI topics from many sources and quantifies each topic as a \"wave height\" that rises and falls over time. Its purpose is practical: give content creators ready-to-edit, ready-to-publish news material. Every topic has its own page with the story, a suggested action, its data sources and original links.</p>\n<p>Publishing frequency is not fixed: daily, twice a day, or hourly — an edition is just a label, and every edition has the same structure.</p>\n<h3 style=\"margin:16px 0 6px\">How the wave height works</h3>\n<p>Wave v2 (scale referenced from AIHOT, uncapped): level base (Must-read 60 / Watch 30 / Echo 10) + resonance 20×sources + evidence 8×links + 25 when first seen. A topic needs at least two independent sources to count as a hotspot; single-source signals start as echoes.</p>\n<p>Ranks compare all known topics at one point in time (100 per page); deltas compare with the previous point in time. Topics not updated in an edition are carried forward at their last wave height and marked \"carried\" — never dressed up as fresh data.</p>\n<h3 style=\"margin:16px 0 6px\">Pages</h3>\n<p><a href=\"index.html\">Wave Board</a>: all topics ranked by wave height, with a time slider. <a href=\"rising.html\">Rising</a>: biggest wave gains. <a href=\"echoes.html\">Echoes</a>: newly appeared topics. <a href=\"submit.html\">Submit a echo</a>: send in a single-source signal you spotted. <a href=\"track-record.html\">Track Record</a>: the registered ledger of picks and their review results. <a href=\"categories.html\">Categories</a>. <a href=\"sources.html\">Sources</a>: what each source feeds. <a href=\"archive.html\">Archive</a>: full snapshot of every edition. Each topic page carries a wave chart of its history.</p>\n<h3 style=\"margin:16px 0 6px\">Tech notes</h3>\n<p>Editions are kept as Markdown in the GitHub repo and built into static HTML by the Breaker Delta engine (Node.js). Original links on topic pages are nofollow. Source icons are each site's favicon, fetched and cached at build time with conditional revalidation. The board's time slider is one small script (no libraries); other pages run no scripts. Interface languages are a build setting (TS_LANGS); the language switcher appears only when more than two languages are built.</p>\n<h3 style=\"margin:16px 0 6px\">Author & feeds</h3>\n<p>By Dai: <a href=\"https://github.com/daiyanze/breaker-delta\" rel=\"noopener\">GitHub</a> · <a href=\"https://x.com/daiyanze\" rel=\"noopener\">X @daiyanze</a> · <a href=\"feed.xml\">RSS</a> · <a href=\"atom.xml\">Atom</a></p>\n<p class=\"note\">© 2026 Dai</p>\n</div></section>",
+ "ja": "<section class=\"panel\"><div class=\"panel-h\"><span>浪尖レーダーについて</span></div>\n<div class=\"detail\">\n<p>浪尖レーダー（Breaker Delta）は、テクノロジーと AI のトピックを複数ソースから追跡し、各トピックを「波高」として定量化して推移を追うサイトです。目的は具体的で、コンテンツ制作者が編集・公開しやすいニュース素材を素早く手に入れられること。各トピックには専用ページがあり、本文、おすすめアクション、データソース、原文リンクを掲載しています。</p>\n<p>発行頻度は固定ではありません。日刊、朝夕刊、時間刊でも、号はラベルにすぎず構造は同じです。</p>\n<h3 style=\"margin:16px 0 6px\">波高の計算</h3>\n<p>波高 v2（AIHOT のスケールを参考、上限なし）：レベル基礎点（必読 60 / 注目 30 / エコー 10）+ 共鳴 20×ソース数 + 根拠 8×リンク数 + 初出 25。ホットなトピックには独立したソースが最低2つ必要で、単一ソースはまず「エコー」として記録します。</p>\n<p>順位はある時点の全トピックを波高で並べたもの（1ページ100件）。前回比は直前の時点との比較です。その号で更新されなかったトピックは前回の波高を「繰越」として明示し、新しいデータのふりはしません。</p>\n<h3 style=\"margin:16px 0 6px\">ページ案内</h3>\n<p><a href=\"index.html\">ウェーブボード</a>：全トピックを波高順に、時間スライダー付き。<a href=\"rising.html\">上昇</a>：波高の伸びが最大。<a href=\"echoes.html\">エコー</a>：初登場のトピック。<a href=\"submit.html\">エコー投稿</a>：見つけた単一ソースのシグナルを送れます。<a href=\"track-record.html\">戦績</a>：登録台帳と復核結果。<a href=\"categories.html\">カテゴリ</a>。<a href=\"sources.html\">ソース</a>：各ソースの寄与。<a href=\"archive.html\">アーカイブ</a>：各号の完全なスナップショット。各トピックページには波高チャートがあります。</p>\n<h3 style=\"margin:16px 0 6px\">技術メモ</h3>\n<p>各号の内容は Markdown として GitHub リポジトリに保存され、Breaker Delta エンジン（Node.js）が静的 HTML にビルドします。原文リンクは nofollow。ソースのアイコンは各サイトの favicon で、ビルド時に取得してローカルにキャッシュし、条件付きリクエストで検証します。時間スライダーは小さなスクリプト1つ（ライブラリなし）で、その他のページにスクリプトはありません。表示言語はビルド設定（TS_LANGS）で選び、3言語以上ビルドしたときだけ言語切替が表示されます。</p>\n<h3 style=\"margin:16px 0 6px\">作者とフィード</h3>\n<p>作者 Dai：<a href=\"https://github.com/daiyanze/breaker-delta\" rel=\"noopener\">GitHub</a> · <a href=\"https://x.com/daiyanze\" rel=\"noopener\">X @daiyanze</a> · <a href=\"feed.xml\">RSS</a> · <a href=\"atom.xml\">Atom</a></p>\n<p class=\"note\">© 2026 Dai</p>\n</div></section>"
 };
 
 export const SOURCE_DOMAINS: Record<string, string> = {
@@ -611,10 +611,10 @@ export const LEVEL_I18N: Record<string, Record<string, string>> = {
   "en": "Watch",
   "ja": "注目"
  },
- "seed": {
-  "zh": "苗头",
-  "en": "Seed",
-  "ja": "芽生え"
+ "echo": {
+  "zh": "回波",
+  "en": "Echo",
+  "ja": "エコー"
  }
 };
 
@@ -807,9 +807,9 @@ export const LEVELS: Record<string, [string, string]> = {
   "👀",
   "关注"
  ],
- "seed": [
-  "🌱",
-  "苗头"
+ "echo": [
+  "🌀",
+  "回波"
  ]
 };
 

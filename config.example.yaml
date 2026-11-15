@@ -18,7 +18,7 @@ editions:
   - name: evening
     label: 晚报
     time: "18:00"
-    focus: 亚洲白天 + 欧美清晨；发酵确认、苗头增速复查、今日变化
+    focus: 亚洲白天 + 欧美清晨；发酵确认、回波增速复查、今日变化
 
 # ---- 用户可控选项（0.4.0） ----
 
@@ -28,7 +28,7 @@ keywords:
   mute: []
     # 例：- giveaway
     # 例：- airdrop
-  # 关注词：命中打标，agent 分级时可把单源苗头升为关注（加法）。
+  # 关注词：命中打标，agent 分级时可把单源回波升为关注（加法）。
   boost: []
     # 例：- mcp
   # 必看词：命中且有第二源共振时，agent 直接列为必看候选。只放极少数词。
@@ -58,10 +58,10 @@ vocab:
   state_file: state/vocab.json
 
 grading:
-  levels: [必看, 关注, 苗头]
+  levels: [必看, 关注, 回波]
   min_sources_for_hotspot: 2
   max_items_per_report: 8
-  max_seedlings: 3
+  max_echoes: 3
   relevance_topics: [AI Agents, 独立产品, 开发者工具, 内容创作, 社会观察]
 
 review:

@@ -20,6 +20,7 @@ import {
 
 import {
   catName,
+  langPrefix,
   levelLabel,
   makeCtx,
   s,
@@ -224,11 +225,11 @@ export function writeDiscovery(ctx: Ctx, editions: Edition[], topics: PubTopic[]
     .join("\n");
   const llms =
     `# 浪尖雷达 Breaker Delta\n\n> 用「浪高」量化话题走势的热点雷达：海浪榜（全部话题按浪高排名）、` +
-    `涨潮榜（浪高涨幅）、苗头（新出现的话题），每个话题有独立页面与海浪图（浪高历史走势）。\n\n` +
+    `涨潮榜（浪高涨幅）、回波（新出现的话题），每个话题有独立页面与海浪图（浪高历史走势）。\n\n` +
     `## 主要页面\n- [海浪榜](${ctx.baseUrl}index.html)\n- [涨潮榜](${ctx.baseUrl}rising.html)\n` +
-    `- [苗头](${ctx.baseUrl}seeds.html)\n- [分类](${ctx.baseUrl}categories.html)\n` +
+    `- [回波](${ctx.baseUrl}echoes.html)\n- [分类](${ctx.baseUrl}categories.html)\n` +
     `- [数据源](${ctx.baseUrl}sources.html)\n- [战绩](${ctx.baseUrl}track-record.html)\n` +
-    `- [投苗](${ctx.baseUrl}submit.html)\n- [关于](${ctx.baseUrl}about.html)\n` +
+    `- [投波](${ctx.baseUrl}submit.html)\n- [关于](${ctx.baseUrl}about.html)\n` +
     `- [往期归档](${ctx.baseUrl}archive.html)\n- [RSS](${ctx.baseUrl}feed.xml)\n` +
     `- [Atom](${ctx.baseUrl}atom.xml)\n\n## 语言版本\n${langLinks}\n\n## 当前浪高最高的话题\n${topLinks}\n`;
   fs.writeFileSync(path.join(out, "llms.txt"), llms, "utf-8");
@@ -510,17 +511,17 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     }
   };
 
-  // seeds page: latest seeds + seed appearances of last 3 editions
-  const seedApps: [PubTopic, App][] = [];
+  // echoes page: latest echoes + echo appearances of last 3 editions
+  const echoApps: [PubTopic, App][] = [];
   for (const t of topics) {
     for (const a of t.apps) {
-      if (a.level === "seed" && a.edition >= latestEi - 2) seedApps.push([t, a]);
+      if (a.level === "echo" && a.edition >= latestEi - 2) echoApps.push([t, a]);
     }
   }
-  seedApps.sort(
+  echoApps.sort(
     (x, y) => y[1].edition - x[1].edition || y[1].heat - x[1].heat,
   );
-  const srows = seedApps.map(([t, a], i) =>
+  const srows = echoApps.map(([t, a], i) =>
     rowHtml(ctx, i + 1, t, a, false).replaceAll(
       '\n<span class="heat">',
       `\n<span class="note">${edLabel(editions[a.edition])}</span>\n<span class="heat">`,
@@ -529,13 +530,23 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
   const sheader =
     `<div class="panel-h"><span>${s(ctx, "seeds_title")}</span>` +
     `<span class="r">${s(ctx, "seeds_r")}</span></div>`;
-  const seedCta =
+  const echoCta =
     `<section class="panel"><div class="detail">` +
     `<a href="submit.html">${s(ctx, "sub_cta")}</a></div></section>`;
-  writePaged("seeds.html", sArr(ctx, "tabs")[2], "seeds", sheader, srows, PER, {
+  writePaged("echoes.html", sArr(ctx, "tabs")[2], "echoes", sheader, srows, PER, {
     desc: s(ctx, "desc_seeds"),
-    prefix: seedCta,
+    prefix: echoCta,
   });
+  // Legacy URL: the echoes page lived at seeds.html before the
+  // 2026-11-15 seed->echo rename; keep old links working.
+  write(
+    ctx,
+    "seeds.html",
+    `<!doctype html><meta charset="utf-8"><title>Echoes</title>` +
+      `<meta http-equiv="refresh" content="0; url=echoes.html">` +
+      `<link rel="canonical" href="${ctx.baseUrl}${langPrefix(ctx)}echoes.html">` +
+      `<p><a href="echoes.html">Echoes</a></p>`,
+  );
 
   // Overflow board pages (only when topics exceed one page of 100)
   const stsLatest = [...states[latestEi].values()].sort(
@@ -634,7 +645,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
 
   const lvlPairOf = (level: string | null | undefined): string => {
     const p =
-      level != null && hasOwn(LEVELS, level) ? LEVELS[level] : LEVELS["seed"];
+      level != null && hasOwn(LEVELS, level) ? LEVELS[level] : LEVELS["echo"];
     return p[0] + p[1];
   };
 
@@ -645,7 +656,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     const lvlPair =
       last.level != null && hasOwn(LEVELS, last.level)
         ? LEVELS[last.level]
-        : LEVELS["seed"];
+        : LEVELS["echo"];
     const emoji = lvlPair[0];
     const label = levelLabel(ctx, last.level);
     const tUrl = `${ctx.baseUrl}${ctx.lang === "zh" ? "" : ctx.lang + "/"}${topicHref(t)}`;
@@ -881,7 +892,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     catSts.set(cat, stsLatest.filter((st) => st.app.category === cat));
   }
   const lvSts = new Map<string, BoardState[]>();
-  for (const lv of ["must", "watch", "seed"]) {
+  for (const lv of ["must", "watch", "echo"]) {
     lvSts.set(lv, stsLatest.filter((st) => st.app.level === lv));
   }
   const tagIndex = (active?: string): string => {
@@ -893,7 +904,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
         `<a class="tagchip${active === `cat:${cat}` ? " on" : ""}" href="${catFile(cat)}">` +
         `${esc(catName(ctx, cat))} · ${sts.length}</a>`;
     }
-    for (const lv of ["must", "watch", "seed"]) {
+    for (const lv of ["must", "watch", "echo"]) {
       const sts = lvSts.get(lv) as BoardState[];
       if (sts.length === 0) continue;
       chips +=
@@ -919,7 +930,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     writePaged(catFile(cat), catName(ctx, cat), "categories", cheader,
       sts.map((st) => stateRow(st)), PER, { prefix: tagIndex(`cat:${cat}`) });
   }
-  for (const lv of ["must", "watch", "seed"]) {
+  for (const lv of ["must", "watch", "echo"]) {
     const sts = lvSts.get(lv) as BoardState[];
     if (sts.length === 0) continue;
     const ltitle = `${LEVELS[lv][0]} ${levelLabel(ctx, lv)}`;
@@ -1161,21 +1172,21 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     }),
   );
 
-  // submit a seed: GitHub Issue link with prefilled fields + bookmarklet
+  // submit an echo: GitHub Issue link with prefilled fields + bookmarklet
   const issueBody = pyQuote("标题：\n链接：\n理由：\n", "");
   const issueUrl =
     `https://github.com/${ctx.dataRepo}/issues/new` +
-    `?template=seed.md&title=${pyQuote("🌱 投苗：", "")}` +
+    `?template=echo.md&title=${pyQuote("🌀 投波：", "")}` +
     `&body=${issueBody}`;
   const submitAbs = `${ctx.baseUrl}${ctx.lang === "zh" ? "" : ctx.lang + "/"}submit.html`;
   const bookmarklet =
     "javascript:(function(){var t=document.title||'';" +
     `window.open('${submitAbs}?title='+encodeURIComponent(t)` +
     `+'&url='+encodeURIComponent(location.href),'_blank');})();`;
-  const seedScript =
+  const echoScript =
     "<script>(function(){var p=new URLSearchParams(location.search);" +
     "var t=p.get('title')||'',u=p.get('url')||'';" +
-    "if(t||u){document.getElementById('seedtext').value=" +
+    "if(t||u){document.getElementById('echotext').value=" +
     "'标题：'+t+'\\n链接：'+u+'\\n理由：';}})();</script>";
   const subBody =
     mast(ctx, "", editions, { fname: "submit.html" }) +
@@ -1189,12 +1200,12 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     `<p><a href="${esc(bookmarklet)}">${s(ctx, "sub_bm_btn")}</a></p>` +
     `<p>${s(ctx, "sub_bm_note")}</p>` +
     `<h3 style="margin:16px 0 6px">${s(ctx, "sub_prefill_t")}</h3>` +
-    `<textarea id="seedtext" rows="4" readonly ` +
+    `<textarea id="echotext" rows="4" readonly ` +
     `style="width:100%;font-family:var(--mono);font-size:13px">` +
     `标题：\n链接：\n理由：</textarea>` +
     `</div></section>` +
     foot(ctx) +
-    seedScript;
+    echoScript;
   write(
     ctx,
     "submit.html",

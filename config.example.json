@@ -14,7 +14,7 @@
       "name": "evening",
       "label": "晚报",
       "time": "18:00",
-      "focus": "亚洲白天 + 欧美清晨；发酵确认、苗头增速复查、今日变化"
+      "focus": "亚洲白天 + 欧美清晨；发酵确认、回波增速复查、今日变化"
     }
   ],
   "keywords": {
@@ -40,11 +40,11 @@
     "levels": [
       "必看",
       "关注",
-      "苗头"
+      "回波"
     ],
     "min_sources_for_hotspot": 2,
     "max_items_per_report": 8,
-    "max_seedlings": 3,
+    "max_echoes": 3,
     "relevance_topics": [
       "AI Agents",
       "独立产品",
