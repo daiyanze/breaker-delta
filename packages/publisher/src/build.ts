@@ -945,7 +945,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     "categories.html",
     page(
       ctx,
-      sArr(ctx, "tabs")[3],
+      sArr(ctx, "tabs")[4],
       mast(ctx, "categories", editions, { fname: "categories.html" }) +
         tagIndex() +
         catSections +
@@ -991,7 +991,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
   const aheader =
     `<div class="panel-h"><span>${s(ctx, "archive_title")}</span>` +
     `<span class="r">${pyFormat(s(ctx, "archive_r"), { n: editions.length })}</span></div>`;
-  writePaged("archive.html", sArr(ctx, "tabs")[6], "archive", aheader,
+  writePaged("archive.html", sArr(ctx, "tabs")[7], "archive", aheader,
     dateBlocks, ctx.archiveDays);
 
   // sources list (sstat was computed before the topic pages)
@@ -1054,7 +1054,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
   const srcheader =
     `<div class="panel-h"><span>${s(ctx, "sources_title")}</span>` +
     `<span class="r">${pyFormat(s(ctx, "sources_r"), { n: sstat.size })}</span></div>`;
-  writePaged("sources.html", sArr(ctx, "tabs")[4], "sources", srcheader,
+  writePaged("sources.html", sArr(ctx, "tabs")[5], "sources", srcheader,
     schunks, ctx.sourcesPer, { desc: s(ctx, "desc_sources") });
 
   // one detail page per source: stats, verbatim config, contributed topics
@@ -1102,7 +1102,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
   const aboutLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "AboutPage",
-    name: `${sArr(ctx, "tabs")[7]} · ${s(ctx, "site_name")}`,
+    name: `${sArr(ctx, "tabs")[8]} · ${s(ctx, "site_name")}`,
     url: `${ctx.baseUrl}${ctx.lang === "zh" ? "" : ctx.lang + "/"}about.html`,
     author: { "@type": "Person", name: "Dai", url: "https://x.com/daiyanze" },
   };
@@ -1111,7 +1111,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     "about.html",
     page(
       ctx,
-      sArr(ctx, "tabs")[7],
+      sArr(ctx, "tabs")[8],
       mast(ctx, "about", editions, { fname: "about.html" }) +
         ABOUT[ctx.lang] +
         foot(ctx),
@@ -1166,7 +1166,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
   write(
     ctx,
     "track-record.html",
-    page(ctx, sArr(ctx, "tabs")[5], trBody, {
+    page(ctx, sArr(ctx, "tabs")[6], trBody, {
       path: "track-record.html",
       desc: s(ctx, "desc_track"),
     }),
@@ -1189,7 +1189,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     "if(t||u){document.getElementById('echotext').value=" +
     "'标题：'+t+'\\n链接：'+u+'\\n理由：';}})();</script>";
   const subBody =
-    mast(ctx, "", editions, { fname: "submit.html" }) +
+    mast(ctx, "submit", editions, { fname: "submit.html" }) +
     `<section class="panel"><div class="panel-h"><span>${s(ctx, "sub_title")}</span></div>` +
     `<div class="detail"><p>${s(ctx, "sub_intro")}</p>` +
     `<h3 style="margin:16px 0 6px">${s(ctx, "sub_good_t")}</h3>${s(ctx, "sub_good")}` +

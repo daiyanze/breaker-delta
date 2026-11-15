@@ -162,11 +162,11 @@ export function mast(
   const currentEi = opts?.currentEi ?? null;
   const tl = opts?.tl ?? false;
   const hrefs = [
-    "index.html", "rising.html", "echoes.html", "categories.html",
+    "index.html", "rising.html", "echoes.html", "submit.html", "categories.html",
     "sources.html", "track-record.html", "archive.html", "about.html",
   ];
   const keys = [
-    "index", "rising", "echoes", "categories", "sources", "track", "archive", "about",
+    "index", "rising", "echoes", "submit", "categories", "sources", "track", "archive", "about",
   ];
   const tabs = sArr(ctx, "tabs");
   let tabHtml = "";

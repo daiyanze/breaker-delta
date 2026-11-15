@@ -287,6 +287,21 @@ test("submit page and bookmarklet", async () => {
     assert.ok(seeds.includes('href="submit.html"'));
     const about = read(b.outDir, "about.html");
     assert.ok(about.includes('href="submit.html"'));
+    // 投波 is a top-nav tab on every page (after 回波/Echoes), and the
+    // submit page highlights its own tab.
+    const navLabels = ["🌀 投波", "🌀 Submit", "🌀 エコー投稿"];
+    ["", "en/", "ja/"].forEach((langDir, i) => {
+      const idx = read(b.outDir, `${langDir}index.html`);
+      assert.ok(
+        idx.includes(`<a href="submit.html" class="">${navLabels[i]}</a>`),
+        `nav submit tab ${langDir}`,
+      );
+      const sub = read(b.outDir, `${langDir}submit.html`);
+      assert.ok(
+        sub.includes(`<a href="submit.html" class="on">${navLabels[i]}</a>`),
+        `submit tab highlighted ${langDir}`,
+      );
+    });
   } finally {
     cleanup(b);
   }
