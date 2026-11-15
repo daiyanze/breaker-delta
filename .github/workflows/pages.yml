@@ -9,6 +9,7 @@ on:
     paths:
       - "editions/**"
       - "radar/publish.py"
+      - "assets/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 

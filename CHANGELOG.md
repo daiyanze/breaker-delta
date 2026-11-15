@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 — 2026-11-15
+
+- **站点生成器整体换代（v3「浪尖雷达」上线）**：`radar/publish.py` 重写为多页线框站——🌊 海浪榜（可拖动时间滑块，JSON 驱动、最近 60 个时间点）/ 📈 涨潮榜 / 🌱 苗头 / 🗂️ 分类 / 📡 数据源 / 📚 归档 / ℹ️ 关于，外加每话题独立页（海浪图走势 + 历史表 + 分享按钮 + nofollow 原文链接）与期次快照页。
+- **浪高 v2**（参考 AIHOT、不设上限）：基分 must 60 / watch 30 / seed 10 + 共振 20×源数 + 证据 8×链接数 + 首现 25；榜单按时间点全量计算，未更新话题按最近浪高结转。列表行带 24h 小浪高图、当前/上次排名与双增减、来源 favicon（构建时抓取并缓存校验）。
+- **多语言与主题**：zh/en/ja 三套界面（话题标题正文为采集原文不译），语言集由 `TS_LANGS` 构建设置决定，切换入口仅在语言数 >2 时显示；dark/light 主题切换（localStorage 持久化）。
+- **SEO/GEO/OG 全套**：逐页 meta description + canonical + hreflang、OG/Twitter 卡片、NewsArticle/WebSite JSON-LD、sitemap.xml / robots.txt / llms.txt、RSS + Atom（按语言各一份）。
+- `publish.build(base_url, out_dir, editions_dir)` 保持可测接口，`tests/test_publish.py` 按新产物契约重写；Pages 工作流触发路径补 `assets/**`。
+
 ## 0.5.1 — 2026-11-13
 
 - 项目改名 **tripple-signals → triple-sigma**（仓库由 Dai 在 GitHub Settings 改名，旧地址自动重定向；token 按仓库 ID 授权，不受影响）：仓库内全部标识同步更换——README/ROADMAP、plugin 与技能目录 `skills/triple-sigma`、MCP server 名、抓取器 User-Agent、pyproject 包名、横幅 SVG/PNG 的字标、站点标题与 feed 标题。历史条目与期次内容不改。
