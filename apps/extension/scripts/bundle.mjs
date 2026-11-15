@@ -29,7 +29,7 @@ for (const name of ["popup", "content", "background"]) {
   });
 }
 
-for (const file of ["manifest.json", "popup.html", "popup.css", "content.css", "README.md"]) {
+for (const file of ["manifest.json", "popup.html", "popup.css", "content.css", "README.md", "README.zh-CN.md"]) {
   cpSync(path.join(pkgRoot, file), path.join(dist, file));
 }
 cpSync(path.join(pkgRoot, "icons"), path.join(dist, "icons"), { recursive: true });

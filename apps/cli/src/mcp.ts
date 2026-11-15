@@ -8,7 +8,7 @@
 //   radar_review {} -> topics due for the 14-day review
 //
 // Differences from the Python server, by design (Phase 4): the
-// serverInfo is breaker-delta/0.19.0 (was triple-sigma/0.5.1), and
+// serverInfo is breaker-delta/0.21.0 (was triple-sigma/0.5.1), and
 // the config / state come from the CLI's --data-dir (or
 // BD_DATA_DIR) instead of the process working directory.
 

@@ -1,132 +1,133 @@
-# 全网热点扫描 · 方法论
+**English** | [简体中文](methodology.zh-CN.md)
 
-为 Dai 定制，每天两扫：早 06:00 JST（扫欧美夜间的发酵结果）+ 晚 18:00 JST（扫亚洲白天 + 欧美清晨的新苗头）。
-参考并改造自 zhuyansen/new-term-radar（https://github.com/zhuyansen/new-term-radar）的核心思想：**热点有传播顺序，要在它到达大众搜索之前、在源头层抓到。**
+# Web Hot-Topic Scanning · Methodology
 
-## 一、核心原理：热点传播链
+Customized for Dai, two scans a day: morning 06:00 JST (scanning the fermentation results of the European/US night) + evening 18:00 JST (scanning new seeds from the Asian daytime + the European/US early morning).
+Adapted from the core idea of zhuyansen/new-term-radar (https://github.com/zhuyansen/new-term-radar): **hot topics propagate in a fixed order — catch them at the source layer, before they reach mass search.**
 
-一个新热点（新模型、新产品、新词、新事件）留下的痕迹有固定顺序：
+## 1. Core principle: the propagation chain of a hot topic
 
-1. 源头层：实验室/大 V 在 X 首发、Hugging Face 上榜、某个 GitHub 仓库突然爆了
-2. 发酵层：Hacker News / Reddit 开始讨论，开发者和早期用户跟进
-3. 扩散层：目录站、媒体跟进，Google News 上头条
-4. 大众层：Google Trends 曲线起来 —— 这时已经晚了几天到几周
+A new hot topic (a new model, product, term, or event) leaves traces in a fixed order:
 
-普通新闻工具读的是第 3、4 层。这个雷达主读第 1、2 层，第 3 层做交叉确认，第 4 层只用来事后验证自己的判断准不准。
+1. Source layer: a lab or a big account posts first on X, something trends on Hugging Face, a GitHub repo suddenly blows up
+2. Fermentation layer: Hacker News / Reddit start discussing it, developers and early users follow
+3. Diffusion layer: directories and media pick it up, it headlines Google News
+4. Mass layer: the Google Trends curve rises — by then it is already days to weeks late
 
-## 二、信息源分层（每扫必查）
+Ordinary news tools read layers 3 and 4. This radar mainly reads layers 1 and 2, uses layer 3 for cross-confirmation, and uses layer 4 only to verify after the fact whether its own judgment was right.
 
-### L1 源头层（最先出现，权重最高）
-- **X**：Trending + AI/科技关键账号动态（新模型、新产品、新词第一次被说出来的地方）。无免费官方 API，需 token，未配置时由 agent 网页扫补位
-- **官方博客**（RSS 组）：OpenAI、DeepMind、Google Research、Hugging Face、Mistral、NVIDIA、AWS ML、GitHub Blog、BAIR 的一手公告（名单仿 AIHOT 的 T1 分级，在 config 里可换成自己行业的源）
-- **GitHub**：Trending + 爆发仓库（判据见第三节）
-- **Hacker News**：首页 + new 区高分帖
-- **Show HN**：独立产品的发布帖，第一现场（与 HN 首页分开统计）
-- **Hugging Face**：Trending models 前 50 里的新面孔
-- **HF Spaces**：Trending Spaces 前 50（人们真正上手试的 demo，new-term-radar 同样把 Spaces 单列）
-- **OpenRouter**：最新上架模型（按创建时间排序，14 天内标新）——模型上架往往早于官宣热度
-- **Civitai**：最新社区模型（仅 SFW）；某基座突然被大量微调 = 扩散开始
-- **arXiv**：cs.AI / cs.CL / cs.LG 最新提交——新方法、新模型名的最早出处之一
-- **HF Daily Papers**：HF 社区票选论文——同一批研究的「已被同行筛过一遍」版本，与 arXiv 互补
-- **Bluesky**：关键账号（博主 + 媒体）的公开 RSS——搜索 API 要鉴权，账号 RSS 免 key，是 X 缺位时最近的替代
-- **Product Hunt**：当日新品（无 token 时走公开 Atom feed，无票数）
+## 2. Source layers (checked on every scan)
 
-### L2 发酵层（确认热度在扩散）
-- **Reddit**：r/all rising + 相关版块（r/artificial、r/LocalLLaMA、r/SideProject、r/technology 等）的热帖；特别留意 “is there a tool that…” 这类**说出口的需求**
-- **科技媒体**（RSS 组）：TechCrunch、The Verge、Ars Technica、MIT Technology Review、The Decoder + 独立作者（Simon Willison、Import AI、Latent Space）（仿 AIHOT 的 T2 分级）
-- **DEV (dev.to)**：开发者社区当日热文
-- **Lobsters**：hottest 列表，与 HN 互为交叉验证
-- **Mastodon**：大实例（mastodon.social）的 trending links/tags，当日独立账号数就是讨论量——X 没有免费 API 时的社交信号替代
-- **目录站 sitemap**：Futurepedia、Toolify、dang.ai、Glama、mcp.so、LobeHub（MCP / Skills）、Aixploria、OpenTools、Clipfly、aitoptools、ai-bot.cn 共 12 家 AI 工具目录的新工具页（借鉴 new-term-radar 的 sitemap 信号：目录站开始给某个新工具建页 = 进入扩散层）。0.5.0 起判定方式改**快照 diff**：每个目录见过的 URL 全部留档（`state/sitemap-seen.json`），只报上次快照里没有的 URL——同一个工具只报第一次，时间窗口的重复播报归零；每个目录第一次运行只建基线、不出条目。
-- **App Store 榜单**：美区畅销榜 + 免费榜——AI 应用冲榜是「有人付钱」的钱信号
-- **Wikipedia 热读榜**：英文维基昨日浏览 Top——大众层传感器，也是社会观察维度的主要供稿（只确认大众注意力，不产生科技信号）
-- **Google News**：科技/AI 头条（同一事件被多家媒体报道 = 已进入扩散层）
+### L1 Source layer (appears first, highest weight)
+- **X**: Trending + key AI/tech accounts (where new models, products, and terms are spoken aloud for the first time). No free official API; needs a token — when not configured, the agent fills in by scanning the web
+- **Official blogs** (RSS group): first-hand announcements from OpenAI, DeepMind, Google Research, Hugging Face, Mistral, NVIDIA, AWS ML, GitHub Blog, BAIR (the list follows AIHOT's T1 tiering; swap in your own industry's sources in the config)
+- **GitHub**: Trending + breakout repos (criteria in section 3)
+- **Hacker News**: front page + high-scoring posts in new
+- **Show HN**: launch posts of independent products, the first scene (counted separately from the HN front page)
+- **Hugging Face**: new faces among the top 50 trending models
+- **HF Spaces**: top 50 trending Spaces (the demos people actually try; new-term-radar also lists Spaces separately)
+- **OpenRouter**: newest listed models (sorted by creation time, marked new within 14 days) — a model listing often precedes the announcement hype
+- **Civitai**: newest community models (SFW only); a base model suddenly getting many fine-tunes = diffusion has begun
+- **arXiv**: latest submissions in cs.AI / cs.CL / cs.LG — one of the earliest sources of new methods and model names
+- **HF Daily Papers**: community-voted papers — the "already screened once by peers" version of the same research, complementary to arXiv
+- **Bluesky**: public RSS of key accounts (bloggers + media) — the search API requires auth, account RSS is keyless, the closest substitute when X is absent
+- **Product Hunt**: the day's new products (without a token, via the public Atom feed, no vote counts)
 
-> **组源规则（防假共振）**：RSS 组（官方博客、科技媒体）和 sitemap 组内部有再多家，整组只算 **1 个源**。一家公司的通稿被十家媒体转述、一个工具被五个目录站抄录，都不是多源共振——共振必须来自真正独立的源。
+### L2 Fermentation layer (confirms the heat is spreading)
+- **Reddit**: r/all rising + hot posts in relevant subreddits (r/artificial, r/LocalLLaMA, r/SideProject, r/technology, etc.); watch especially for spoken-aloud demand like "is there a tool that…"
+- **Tech media** (RSS group): TechCrunch, The Verge, Ars Technica, MIT Technology Review, The Decoder + independent authors (Simon Willison, Import AI, Latent Space) (following AIHOT's T2 tiering)
+- **DEV (dev.to)**: the developer community's hot posts of the day
+- **Lobsters**: the hottest list, cross-validation with HN
+- **Mastodon**: trending links/tags on big instances (mastodon.social); the day's unique-account count is the discussion volume — a social-signal substitute when X has no free API
+- **Directory sitemaps**: new tool pages on 12 AI tool directories — Futurepedia, Toolify, dang.ai, Glama, mcp.so, LobeHub (MCP / Skills), Aixploria, OpenTools, Clipfly, aitotools, ai-bot.cn (borrowing new-term-radar's sitemap signal: a directory creating a page for a new tool = it has entered the diffusion layer). Since 0.5.0 the method is a **snapshot diff**: every URL each directory has ever shown is archived (`state/sitemap-seen.json`), and only URLs absent from the last snapshot are reported — the same tool is reported only the first time, and repeat broadcasts inside a time window drop to zero; each directory's first run only builds a baseline and emits nothing.
+- **App Store charts**: US top-grossing + top-free charts — an AI app climbing the charts is a money signal that "someone is paying"
+- **Wikipedia most-read**: yesterday's top pageviews on English Wikipedia — a mass-layer sensor, and the main supplier for the social-observation dimension (it only confirms mass attention; it produces no tech signals)
+- **Google News**: tech/AI headlines (the same event covered by many outlets = it has entered the diffusion layer)
 
-### L3 验证层（只做核对，不作为发现来源）
-- **Google Trends**：只用来核对苗头词的曲线形状（是不是真在涨、哪天开始涨），不拿它找热点 —— 它是最滞后的
-- 补充源（有余力时）：YouTube 热门、抖音/TikTok 热搜词
+> **Group-source rule (against fake resonance)**: inside an RSS group (official blogs, tech media) or the sitemap group, however many outlets there are, the whole group counts as **1 source**. One company's press release reprinted by ten outlets, or one tool copied by five directories, is not multi-source resonance — resonance must come from genuinely independent sources.
 
-## 三、信号判定（什么算热点）
+### L3 Verification layer (checks only, never a discovery source)
+- **Google Trends**: used only to check the curve shape of seed terms (is it really rising, on which day did it start), never to find hot topics — it is the most lagging signal of all
+- Supplementary sources (when there is spare capacity): YouTube trending, Douyin/TikTok hot search terms
 
-一条信息要进报告，必须过三关：
+## 3. Signal judgment (what counts as a hot topic)
 
-1. **跨源共振**：同一话题在 ≥2 个独立信息源出现 = 「热点」；只在 1 个源出现 = 「苗头」，单独标注、不混进热点榜。单源爆红最容易是营销或偶然。
-2. **量化门槛**（借鉴 new-term-radar 的判据）：
-   - GitHub：仓库创建 <14 天且日均 200+ stars，或单日 +400 stars
-   - X：一个新名字被 ≥2 个有影响力的账号独立提到；单账号提及需 100+ likes 才算数
-   - HN/Reddit：进入首页/rising 前列，或评论数明显高于该版块日常水平
-3. **新词过滤**：报告的是「一个具体的新东西」（新模型名、产品名、仓库名、事件），不是泛词（dashboard、pricing 这类普通词永远不算热点）。
+To enter the report, an item must pass three gates:
 
-## 四、评分与分级
+1. **Cross-source resonance**: the same topic appearing in ≥2 independent sources = a "hotspot"; appearing in only 1 source = a "seed", labeled separately and never mixed into the hotspot list. A single-source blowup is the most likely to be marketing or chance.
+2. **Quantified thresholds** (criteria borrowed from new-term-radar):
+   - GitHub: repo created <14 days ago with an average of 200+ stars/day, or +400 stars in a single day
+   - X: a new name independently mentioned by ≥2 influential accounts; a single-account mention needs 100+ likes to count
+   - HN/Reddit: reaches the front page / the front of rising, or a comment count clearly above the subreddit's daily norm
+3. **New-term filter**: what gets reported is "one specific new thing" (a new model name, product name, repo name, event), not generic words (ordinary words like dashboard or pricing never count as hot topics).
 
-每条候选按 4 个维度打分（各 1–5），总分决定等级：
+## 4. Scoring and grading
 
-| 维度 | 看什么 |
+Each candidate is scored on 4 dimensions (1–5 each); the total decides the grade:
+
+| Dimension | What it looks at |
 |---|---|
-| 共振度 | 几个源同时出现、媒体跟进速度 |
-| 增速 | 和上一扫相比涨了多少（所以必须留档对比，见第五节） |
-| 新鲜度 | 首次出现距今多久，越早越值钱 |
-| 与 Dai 的相关性 | AI Agents / 独立产品 / 开发者工具 / 内容创作 / 社会观察 |
+| Resonance | How many sources show it at once, how fast media follow |
+| Growth rate | How much it rose compared with the previous scan (so archiving for comparison is mandatory, see section 5) |
+| Freshness | How long since it first appeared — the earlier, the more valuable |
+| Relevance to Dai | AI Agents / independent products / developer tools / content creation / social observation |
 
-- 🔥 **必看**：共振 ≥3 源 + 高相关 —— 值得当天写 tweet 或深入看
-- 👀 **关注**：2 源共振或单源强信号 —— 进观察名单，下一扫看增速
-- 🌱 **苗头**：单源弱信号 —— 只记一行，不展开
+- 🔥 **Must-see**: resonance ≥3 sources + high relevance — worth writing a tweet about or digging into the same day
+- 👀 **Watch**: 2-source resonance or a strong single-source signal — goes on the watch list; check its growth at the next scan
+- 🌱 **Seed**: weak single-source signal — one line only, no expansion
 
-每期报告只报 5–8 条：必看在前，苗头最多 3 条。宁可少报，不堆量。
+Each report carries only 5–8 items: must-see first, at most 3 seeds. Rather report less than pile up volume.
 
-## 五、去重与趋势跟踪（雷达和新闻列表的区别）
+## 5. Dedup and trend tracking (what makes a radar different from a news list)
 
-- 维护台账 `~/workspace/hot-news-radar/seen-topics.md`：每个话题记首次发现时间、来源、等级变化。
-- 每扫先和台账比对：新话题标 🆕；老话题只报**状态变化**（升级/降温/消亡），不重复介绍背景。
-- 晚报加一节「今日变化」：早上报过的话题现在是涨了、平了还是凉了。
-- **14 天复盘**（借鉴 repo 的 review 机制）：话题被报告 14 天后回看，它的搜索热度峰值是否超过报告前基线的 2 倍 + 10 点。超了 = 命中。每周汇总一次命中率，按信息源分别统计 —— 哪个源的信号最准，以后就给它更高权重；长期不准的源降权或剔除。
+- Maintain a ledger `~/workspace/hot-news-radar/seen-topics.md`: for each topic record the first-seen time, sources, and grade changes.
+- Before each scan, compare against the ledger: new topics are marked 🆕; old topics only report **state changes** (promoted / cooling / dead), never re-introduce the background.
+- The evening report adds a "Today's changes" section: are the topics from this morning rising, flat, or cooling?
+- **14-day review** (borrowing the repo's review mechanism): 14 days after a topic is reported, look back at whether its search-heat peak exceeded 2× its pre-report baseline + 10 points. Exceeding it = a hit. Aggregate the hit rate weekly, broken down by source — whichever source's signals are most accurate gets a higher weight later; sources that stay inaccurate get down-weighted or dropped.
 
-## 六、每期产出格式
+## 6. Output format of each edition
 
 ```
-📰 热点雷达 · {早报/晚报} {日期} {时间} JST
+📰 Hot-Topic Radar · {Morning/Evening report} {date} {time} JST
 
-🔥 必看（n 条）
-1. {话题一句话} — {为什么热，带关键数字}
-   来源：X / GitHub / HN（附链接）
-   建议动作：写 tweet / 深入研究 / 立项观察 / 仅记录
+🔥 Must-see (n items)
+1. {the topic in one sentence} — {why it is hot, with the key numbers}
+   Sources: X / GitHub / HN (with links)
+   Suggested action: write a tweet / research in depth / watch as a project idea / just record
 
-👀 关注（n 条）…
-🌱 苗头（n 条，一行一条）…
+👀 Watch (n items)…
+🌱 Seeds (n items, one line each)…
 
-📈 今日变化（仅晚报）：{老话题的状态变化}
-⚠️ 本期缺失：{查不到/被挡的源，如实写，不假装全扫过}
+📈 Today's changes (evening report only): {state changes of old topics}
+⚠️ Missing this edition: {sources that could not be checked / were blocked — written honestly, never pretend everything was scanned}
 ```
 
-硬规则：
-- 每个数字必须有出处（哪个源、什么量级），不写「爆火」「刷屏」这类无量词形容。
-- 查不到的源如实标注缺失，不用其他源的内容冒充。
-- 建议动作只给判断，不替 Dai 决定写什么、做什么产品。
+Hard rules:
+- Every number must have a source (which source, what magnitude); never write unquantified adjectives like "exploding" or "all over the feed".
+- Sources that cannot be checked are labeled missing, honestly; never substitute another source's content for them.
+- Suggested actions offer judgment only; they never decide for Dai what to write or what product to build.
 
-## 七、早晚两报的分工
+## 7. Division of labor between the morning and evening reports
 
-- **早报 06:00**：覆盖欧美夜间（JST 凌晨到早上 = 美东下午到凌晨），这是 AI 热点的主产区；重点是 L1 源头层的新面孔。
-- **晚报 18:00**：覆盖亚洲白天 + 欧美清晨；重点是发酵确认 + 今日变化 + 苗头增速复查。
+- **Morning report 06:00**: covers the European/US night (JST early morning = US Eastern afternoon to midnight), the main production zone of AI hot topics; the focus is new faces at the L1 source layer.
+- **Evening report 18:00**: covers the Asian daytime + the European/US early morning; the focus is fermentation confirmation + today's changes + re-checking seed growth.
 
-## 八、成本与边界
+## 8. Cost and boundaries
 
-- 全部用公开页面/搜索完成，不需要付费 API key（new-term-radar 的 AIsa 等付费源、AIHOT 的 SocialData（X）/ 大家啦（公众号）暂不引入；X 仍由 agent 网页扫补位，如果以后发现 X 信号不够，再议）。
-- 0.3.0 起抓取层共 19 个源，0.3.1 增至 22 个（新增 Daily Papers、Bluesky、Wikipedia 三个英文源；按 Dai 的选择，中文源 Bilibili/V2EX/少数派本轮不接）：21 个免 key 实抓（见第二节），只有 X 需要 token。试过但没接的：Stack Exchange API（本机出口 IP 被限流 11 小时，信号再好也不稳定）、Bluesky 公开搜索（403）、Microsoft Research RSS（403）——都等条件变化再议，不硬凑。
-- 0.5.0 不增源数：目录站组 3 → 12 家并改快照 diff（见第二节）；新增新词词汇表（见第九节）。
-- 只做公开信息的读取和汇总，不发帖、不互动。
-- 报告发回主聊天；台账和方法论都在 `~/workspace/hot-news-radar/` 下，可随时改。
+- Everything is done with public pages/search; no paid API key is needed (new-term-radar's paid sources like AIsa, and AIHOT's SocialData (X) / Dajiala (WeChat) are not adopted for now; X is still covered by the agent scanning the web, and if X signals ever prove insufficient, that can be revisited).
+- From 0.3.0 the fetch layer has 19 sources; 0.3.1 raised it to 22 (adding Daily Papers, Bluesky, and Wikipedia, all English sources; by Dai's choice, the Chinese sources Bilibili/V2EX/Shaoshupai were not connected in this round): 21 are fetched live keylessly (see section 2); only X needs a token. Tried but not connected: the Stack Exchange API (this machine's egress IP was rate-limited for 11 hours — good signal, but unstable), Bluesky public search (403), Microsoft Research RSS (403) — all wait until conditions change; never force-fill the roster.
+- 0.5.0 added no sources: the directory group grew 3 → 12 and switched to snapshot diff (see section 2); the new-term vocabulary was added (see section 9).
+- Read and summarize public information only; no posting, no interacting.
+- Reports are sent back to the main chat; the ledger and methodology live under `~/workspace/hot-news-radar/` and can be changed at any time.
 
-## 九、用户可控选项（0.4.0）
+## 9. User controls (0.4.0)
 
-配置自 0.4.0 起以 YAML 为主（`config.yaml`，JSON 兼容）。用户能控制的、且只控制「雷达看什么」而不动判定骨架的选项：
+Since 0.4.0 the config is YAML-first (`config.yaml`, JSON-compatible). The options a user can control — which steer only "what the radar looks at" and never touch the judgment skeleton:
 
-- **关键词三件套**（子串匹配，作用于标题+摘要）：`keywords.mute` 屏蔽词（命中丢弃，管减法）、`keywords.boost` 关注词（命中打标，单源可升一级）、`keywords.alert` 必看词（命中汇入候选文件的 `keyword_alerts`，有第二源共振即列必看候选）。三者由代码在抓取后、共振分组前执行，分级仍归 agent。
-- **主题权重** `topics`：相关性从二值变权重（1–5），换行业主要改这一节；旧的平铺列表写法继续兼容（权重按 1）。
-- **每源开关与上限**：`sources.<源>.enabled: false` 关源（与「缺失」严格区分，不补扫、不报缺失）；`sources.<源>.max_items` 抓后统一截断（与各源自己的抓取参数 `limit` 不同）。
-- **新鲜度窗口** `filters.max_age_hours`：只过滤带可解析时间戳的候选（arXiv、RSS 组、Bluesky、Google News 等有时间戳；没有时间戳的源不因缺字段被误杀）。
-- **新词词汇表** `vocab`（0.5.0）：借鉴 new-term-radar 的核心机制——维护一份滚动词汇表（`state/vocab.json`），实体型源（GitHub / HF / HF Spaces / OpenRouter / Civitai / Product Hunt / 目录站 / App Store）的名字若在 `window_days`（默认 60）内没在候选流里出现过，候选打上 `"novel": true`。第一次运行只建基线不打标，所以 novel 的含义是「自你开始看以来第一次出现」，不是「全网首次」。文本型源（标题即句子）不进词汇表，其新颖性仍归 agent 判断。novel 是优先级最高的苗头信号：单源 + novel 值得 agent 优先核查。
+- **Keyword trio** (substring matching, applied to title + summary): `keywords.mute` block words (matching candidates are dropped — subtraction), `keywords.boost` boost words (matches are flagged; a single-source item can be promoted one grade), `keywords.alert` alert words (matches are gathered into the candidate file's `keyword_alerts`; with a second source's resonance they become must-see candidates). All three are executed by code after fetching and before resonance grouping; grading still belongs to the agent.
+- **Topic weights** `topics`: relevance goes from binary to weighted (1–5); switching industries mainly means editing this section; the old flat-list form stays compatible (weight 1).
+- **Per-source switch and cap**: `sources.<source>.enabled: false` turns a source off (strictly distinct from "missing" — no fill-in scanning, no missing report); `sources.<source>.max_items` truncates uniformly after fetching (different from each source's own fetch parameter `limit`).
+- **Freshness window** `filters.max_age_hours`: only filters candidates with a parseable timestamp (arXiv, the RSS groups, Bluesky, Google News, etc. carry timestamps; sources without timestamps are not killed for a missing field).
+- **New-term vocabulary** `vocab` (0.5.0): borrowing new-term-radar's core mechanism — a rolling vocabulary is maintained (`state/vocab.json`); if the name of an entity-type source (GitHub / HF / HF Spaces / OpenRouter / Civitai / Product Hunt / directories / App Store) has not appeared in the candidate stream within `window_days` (default 60), the candidate is flagged `"novel": true`. The first run only builds the baseline and flags nothing, so novel means "first appearance since you started watching", not "first appearance on the whole web". Text-type sources (whose titles are sentences) do not enter the vocabulary; their novelty is still judged by the agent. novel is the highest-priority seed signal: single-source + novel deserves the agent's priority check.
 
-原则不变：不填 = 默认行为；选项只做过滤与打标，不替 agent 做语义判断。
-
+The principle does not change: unset = default behavior; the options only filter and flag, and never make semantic judgments for the agent.

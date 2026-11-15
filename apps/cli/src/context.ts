@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 import { CONFIG_CANDIDATES, loadConfig } from "@breaker-delta/fetchers";
 import type { RadarConfig } from "@breaker-delta/core";
 
-export const VERSION = "0.19.0";
+export const VERSION = "0.21.0";
 
 export interface CliContext {
   dataDir: string;

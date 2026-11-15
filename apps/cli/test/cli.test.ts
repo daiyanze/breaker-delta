@@ -364,7 +364,7 @@ test("mcp stdio session matches the Python server's protocol", () => {
 
   const init = responses.find((m) => m.id === 1);
   assert.strictEqual(init.result.protocolVersion, "2024-11-05");
-  assert.deepStrictEqual(init.result.serverInfo, { name: "breaker-delta", version: "0.19.0" });
+  assert.deepStrictEqual(init.result.serverInfo, { name: "breaker-delta", version: "0.21.0" });
 
   const list = responses.find((m) => m.id === 2);
   assert.deepStrictEqual(list.result.tools.map((t: any) => t.name), ["radar_scan", "radar_review"]);
@@ -402,7 +402,7 @@ test("usage errors exit 2; --help exits 0", () => {
 
   r = runCli(CLI, ["--help"]);
   assert.strictEqual(r.status, 0);
-  assert.match(r.stdout, /breaker-delta 0\.19\.0/);
+  assert.match(r.stdout, /breaker-delta 0\.21\.0/);
   assert.match(r.stdout, /record <file\|->/);
 });
 

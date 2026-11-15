@@ -1,102 +1,117 @@
-![浪尖雷达 · Breaker Delta](assets/banner.png)
+![Breaker Delta · 浪尖雷达](assets/banner.png)
 
-# 浪尖雷达 · Breaker Delta
+**English** | [简体中文](README.zh-CN.md)
 
-全网热点雷达：在热点到达大众搜索之前，从源头层抓到它。扫描频度由使用者自行定义，程序也可自行发现并更新。
+# Breaker Delta · 浪尖雷达
 
-方法论见 [methodology.md](methodology.md)（写给人看的完整版）。公开站点与订阅（RSS/Atom）的计划见 [ROADMAP.md](ROADMAP.md)。本仓库把它拆成 agent 能直接用的四层：
+*Catch it before it breaks.* 浪起之前，先有回波。
 
-| 层 | 文件 | 作用 |
+A web hot-topic radar: it catches new models, products, repos, and events at the source layer — before they reach mass search. How often it scans is defined by the user; nothing about the schedule is baked in.
+
+**Live demo** — Dai's instance: [daiyanze.github.io/breaker-delta-data](https://daiyanze.github.io/breaker-delta-data/) (instance data repo: [daiyanze/breaker-delta-data](https://github.com/daiyanze/breaker-delta-data))
+
+## How it works
+
+Hot topics propagate in a fixed order: a lab or a big account posts first (X, Hugging Face), a GitHub repo breaks out, directories and media follow, and only at the very end does the Google Trends curve rise. Breaker Delta reads the first two steps and uses Trends only for after-the-fact verification. The design follows [zhuyansen/new-term-radar](https://github.com/zhuyansen/new-term-radar).
+
+- **Three source layers** — L1 source layer (official blogs, GitHub, Hacker News, Hugging Face, Product Hunt, arXiv…), L2 fermentation layer (Reddit, tech media, directories, Google News…), L3 verification layer (Google Trends, checks only). 26 built-in fetcher groups, all free and keyless except X — see [SOURCES.md](SOURCES.md).
+- **Resonance, not reprints** — a topic counts as a hotspot only when ≥2 genuinely independent sources carry it. Bundled groups (official blogs, tech media, directories) count as one source each, so a press release reprinted ten times is still one source. A single-source signal is recorded as a seed, not a hotspot.
+- **Grading** — an agent grades candidates against fixed quantified thresholds as 🔥 Must / 👀 Watch / 🌱 Seed.
+- **Wave height （浪高）** — every topic gets an uncapped score: grade base (Must 60 / Watch 30 / Seed 10) + 20 × independent sources + 8 × evidence links + 25 when first seen. The site ranks by wave height and tracks its rise and fall across editions.
+- **Review loop** — 14 days after a topic is picked, it is reviewed: did it actually take off? The track record is public, misses included.
+
+The full methodology — written for humans — is in [methodology.md](methodology.md).
+
+## Repository layout
+
+The repo is split into layers an agent can use directly:
+
+| Layer | Where | What it does |
 |---|---|---|
-| 指令 | `skills/triple-sigma/SKILL.md` | agent 照着跑的执行步骤、判定规则、报告模板 |
-| 配置 | `config.example.yaml` | 信息源清单、量化门槛、关键词、时区与期次——调参只动这里（YAML，JSON 兼容） |
-| 工具 | `radar/` | 确定性工作交给代码：状态存储、去重、14 天复盘（抓取器见路线图） |
-| 状态 | `state/seen-topics.json` | 话题台账（机器版）；`seen-topics.md` 是给人看的视图 |
+| Instructions | `skills/breaker-delta/SKILL.md` | The execution steps, judgment rules, and report template an agent follows |
+| Config | `config.example.yaml` | Source list, quantified thresholds, keywords, timezone — tuning happens here only (YAML, JSON-compatible) |
+| Engine | `packages/` + `apps/` | Deterministic work in code (below) |
+| State | *your data repo* | Editions, the topic ledger, the track record — instance data never lives in this repo |
 
-设计参考 [zhuyansen/new-term-radar](https://github.com/zhuyansen/new-term-radar)：热点有传播顺序（X/HF 首发 → GitHub 爆发 → 目录/媒体 → Google Trends），雷达读前两步，Trends 只用来事后验证。
+Engine packages (npm workspaces, TypeScript, zero runtime dependencies):
 
-## 快速开始
+- `packages/core` — `@breaker-delta/core`: the domain logic — wave height, resonance grouping, classification, slugs, the topic store, the new-term vocabulary, review bookkeeping.
+- `packages/fetchers` — `@breaker-delta/fetchers`: the 26 source groups, each normalizing its source into candidates.
+- `packages/publisher` — `@breaker-delta/publisher`: the static site generator — wave board, rising board, seeds, categories, source pages, per-topic pages with wave charts, archive, track record, RSS/Atom feeds, sitemap.
+- `apps/cli` — `@breaker-delta/cli`: one CLI (`scan` / `review` / `record` / `publish` / `doctor` / `mcp`), bundled into a single self-contained `breaker-delta.mjs`.
+- `apps/extension` — the Chrome seed-catcher extension: one-click seed capture, wave-height badges on matched pages — see [apps/extension/README.md](apps/extension/README.md).
+
+## Engine / data split
+
+This repo contains **code only**. An instance's data — `editions/`, `state/` (topic ledger, vocab and sitemap baselines), `track-record.md`, and its `config.yaml` — lives in the user's own **data repo**. The data repo's CI checks out this engine, builds the site with the Node bundle, and deploys it to the data repo's GitHub Pages. [daiyanze/breaker-delta-data](https://github.com/daiyanze/breaker-delta-data) is a working example: clone its shape, point it at your own data, and the radar is yours.
+
+## Quick start
+
+Requires Node ≥ 20. No runtime dependencies.
 
 ```bash
-python -m radar        # 一键扫描：按本地时间自动选期次，跑全部源，写候选文件
+git clone https://github.com/daiyanze/breaker-delta.git
+cd breaker-delta
+npm ci
+npm run bundle        # builds apps/cli/dist/breaker-delta.mjs — a single file
+
+BD="node apps/cli/dist/breaker-delta.mjs"
+$BD --data-dir /path/to/your-data doctor                    # offline self-check
+$BD --data-dir /path/to/your-data scan --edition morning    # fetch one edition's candidates
+$BD --data-dir /path/to/your-data review                    # topics due for their 14-day review
+$BD --data-dir /path/to/your-data publish --out site        # build the static site
 ```
 
-就这一条命令（零依赖，不用先装任何东西）。候选文件出来后，把它和 `skills/triple-sigma/SKILL.md` 交给你的 agent 出报告。其他用法：
+Writing graded topics back to the ledger is a first-class command (the store write is atomic):
 
 ```bash
-cp config.example.yaml config.yaml   # 按需改源、门槛和关键词，config.yaml 不进 git
-python -m radar scan --edition morning   # 显式指定期次
-python -m radar review               # 列出到期该复盘的话题（14 天规则）
-pip install -e .                     # 装成命令后可直接运行 `radar`
-python -m pytest -q tests            # 逻辑测试，不碰网络
+echo '[{"name":"Some New Model","sources":["Hacker News","Reddit"],"grade":"must"}]' > picks.json
+$BD --data-dir /path/to/your-data record picks.json
+$BD --data-dir /path/to/your-data record review --name "Some New Model" --result hit
 ```
 
-配置是 **YAML**（`config.yaml`；装了 PyYAML 用完整语法，没装时内置子集解析器，仅标准库也能跑），旧的 `config.json` 照常兼容，加载顺序：`config.yaml > config.yml > config.json > config.example.*`。
+Every command takes `--data-dir` (or the `BD_DATA_DIR` env var) and supports `--json` for machine-readable output.
 
-给 agent 用：把 `skills/triple-sigma/` 装进你的 agent（Claude Code / Codex 等），或直接让 agent 读 SKILL.md 按步骤执行。定时运行有两种方式：
+**MCP**: the same bundle is a stdio MCP server (tools `radar_scan`, `radar_review`) — register it in your agent harness:
 
-- 本机/常驻 agent：用 agent 自己的调度（如 Muse 的 cron），早晚各一次——当前 Dai 的实际运行方式。
-- GitHub Actions：`.github/workflows/radar.yml` 已备好骨架，设仓库变量 `RADAR_ENABLED=true` 后生效（需要先补上抓取层，见路线图）。
+```bash
+node apps/cli/dist/breaker-delta.mjs --data-dir /path/to/your-data mcp
+```
 
-## 抓取层（0.3.0 扩源）
+## Use it as a Skill
 
-`python -m radar scan --edition morning` 跑全部抓取器，候选写入 `state/candidates-<日期>-<期次>.json`。
+Install `skills/breaker-delta/` into your agent harness (Claude Code, Codex, …), or simply have the agent read `SKILL.md` and follow it: the skill runs the fetch layer with the CLI, grades candidates against the methodology, writes the edition file and the ledger back with `record`, and reports in a fixed format. Scheduling is entirely yours — your agent's cron, GitHub Actions, or manual runs; the radar itself prescribes no frequency.
 
-### 信息源清单（共 22 个，21 个完全免费）
+## Configuration
 
-**21 个源完全免费：免付费、免注册、免 API key**，clone 下来就能跑。只有 X 一个例外（官方 API 收费）。
+Put a `config.yaml` in your data dir (based on `config.example.yaml`; YAML with a built-in subset parser — no dependencies — and JSON stays compatible). The knobs users actually turn:
 
-| 信息源 | 层 | 读什么 | 费用 |
-|---|---|---|---|
-| 官方博客组（OpenAI、DeepMind、Google Research、Hugging Face、Mistral、NVIDIA、AWS ML、GitHub Blog、BAIR） | L1 源头 | 实验室/公司一手公告（RSS，仿 [AIHOT](https://github.com/KKKKhazix/AIHOT) 的 T1 分级） | 免费 |
-| GitHub | L1 源头 | 爆发仓库（Search API）+ Trending 页 | 免费 |
-| Hacker News | L1 源头 | 首页/高分新帖（Algolia API） | 免费 |
-| Show HN | L1 源头 | 独立产品发布帖（Algolia API） | 免费 |
-| Hugging Face Models | L1 源头 | Trending 模型前 50 的新面孔 | 免费 |
-| HF Spaces | L1 源头 | Trending Spaces 前 50（人们真正上手试的 demo） | 免费 |
-| OpenRouter | L1 源头 | 最新上架模型（按创建时间排序） | 免费 |
-| Civitai | L1 源头 | 最新社区模型（仅 SFW） | 免费 |
-| arXiv | L1 源头 | cs.AI / cs.CL / cs.LG 最新提交论文 | 免费 |
-| HF Daily Papers | L1 源头 | HF 社区票选论文（arXiv 的已筛选版） | 免费 |
-| Bluesky | L1 源头 | 配置账号的公开 RSS（博主 + 媒体，免 key 读 Bluesky 的路） | 免费 |
-| Product Hunt | L1 源头 | 当日新品（公开 Atom feed；有 token 时走 GraphQL 取票数） | 免费 |
-| X | L1 源头 | 关键账号的新动态 | ⚠️ 需自备 `X_BEARER_TOKEN`（官方 API 付费）；未配置时如实报缺失，由 agent 网页扫补位 |
-| Reddit | L2 发酵 | 配置版块的热帖（JSON，失败自动降级 RSS） | 免费 |
-| 科技媒体组（TechCrunch、The Verge、Ars Technica、MIT Technology Review、The Decoder、Simon Willison、Import AI、Latent Space） | L2 发酵 | 媒体报道 + 独立作者（RSS，AIHOT 的 T2 分级） | 免费 |
-| DEV (dev.to) | L2 发酵 | 开发者社区当日热文 | 免费 |
-| Lobsters | L2 发酵 | hottest 列表，与 HN 互为交叉验证 | 免费 |
-| Mastodon | L2 发酵 | 大实例（mastodon.social）的 trending links/tags，附当日独立账号数 | 免费 |
-| 目录站 sitemap 组（Futurepedia、Toolify、dang.ai、Glama、mcp.so、LobeHub MCP、LobeHub Skills、Aixploria、OpenTools、Clipfly、aitoptools、ai-bot.cn，共 12 家） | L2 发酵 | AI 工具目录的新工具页（借鉴 [new-term-radar](https://github.com/zhuyansen/new-term-radar) 的 sitemap 信号）；0.5.0 起改快照 diff，只报上次没见过的新页，同一工具不重复报 | 免费 |
-| App Store | L2 发酵 | 美区畅销榜 + 免费榜（接口不稳时自动降级旧版 iTunes feed） | 免费 |
-| Wikipedia 热读榜 | L2 发酵 | 英文维基昨日浏览 Top（大众注意力 + 社会观察） | 免费 |
-| Google News | L2 发酵 | 科技/AI 头条（RSS） | 免费 |
+| Option | What it does |
+|---|---|
+| `keywords.mute` | Candidates matching (title + summary, case-insensitive substring) are dropped |
+| `keywords.boost` | Matches are flagged; a single-source seed can be promoted to Watch |
+| `keywords.alert` | Matches are flagged and gathered into the candidate file's `keyword_alerts`; with a second source's resonance they become Must candidates |
+| `topics` | Relevance weights (1–5) per topic area — switching industries mostly means editing this |
+| `sources.<name>.enabled / max_items` | Turn any source off (reported as disabled, never as missing) or cap its items |
+| `filters.max_age_hours` | Freshness window; only applies to candidates that carry a timestamp |
+| `vocab.window_days` | New-term vocabulary: an entity name unseen within the window is flagged `novel` — the highest-priority seed signal. The first run only builds the baseline |
 
-另有 L3 验证层 Google Trends（免费）：只核对已入选话题的曲线，从不作为发现来源，不占抓取器名额。
+## Chrome extension
 
-- **组源只算一个源**：官方博客组、科技媒体组、sitemap 组内部再多家，跨源共振时整组计 1——通稿被十家转述、工具被五个目录抄录，都不算多源共振。
-- 2026-11-13 实测：22 个源 21 个实时出数，仅 X 缺失（无 token）。
-- MCP server 已可用（`python -m radar.mcp_server`，仅标准库）：工具 `radar_scan`、`radar_review`。
+`apps/extension` is a Manifest V3 extension that shares `@breaker-delta/core` with the engine: capture a seed from any page in one click, see a wave-height badge when a page you open matches a tracked topic, and get an alert count on the icon. See [apps/extension/README.md](apps/extension/README.md) for loading and usage.
 
-## 用户可控选项（0.4.0）
+## Documentation
 
-都在 `config.yaml` 里，不填就用默认行为，老配置文件原样能跑：
+- [Methodology](methodology.md) — layers, thresholds, grading, the review loop (also in [简体中文](methodology.zh-CN.md))
+- [Built-in sources](SOURCES.md) — all 26 fetcher groups and their rules (also in [简体中文](SOURCES.zh-CN.md))
+- [Roadmap](ROADMAP.md) — from internal tool to public site, and what is already shipped (also in [简体中文](ROADMAP.zh-CN.md))
+- [Privacy](PRIVACY.md) — read-only, no accounts, no posting
+- [Changelog](CHANGELOG.md)
 
-| 选项 | 写法 | 作用 |
-|---|---|---|
-| 屏蔽词 | `keywords.mute: [giveaway, airdrop]` | 命中（标题+摘要，子串、不分大小写）的候选直接丢弃 |
-| 关注词 | `keywords.boost: [mcp]` | 命中打标，agent 分级时可把单源苗头升为关注 |
-| 必看词 | `keywords.alert: [gemini]` | 命中打标并汇入候选文件的 `keyword_alerts`；再有第二源共振，agent 直接列为必看候选 |
-| 主题权重 | `topics: {AI Agents: 5, 社会观察: 2}` | 相关性打分按你的优先级（1–5），换行业主要改这一节 |
-| 每源开关 | `sources.<源>.enabled: false` | 关掉某个源；报告里单列「已停用」，不算缺失 |
-| 每源上限 | `sources.<源>.max_items: 20` | 抓完后统一截断（区别于各源自己的抓取参数 `limit`） |
-| 新鲜度窗口 | `filters.max_age_hours: 72` | 只对带时间戳的候选生效，太旧的丢弃；无时间戳的不拦 |
-| 新词词汇表 | `vocab.window_days: 60`（0.5.0） | 实体型源（GitHub / HF / OpenRouter / Civitai / Product Hunt / 目录站 / App Store）的名字在窗口内没出现过 → 打 `novel` 标，是优先级最高的苗头信号；第一次运行只建基线 |
+## Boundaries
 
-## 路线图
+Read-only access to public information; no posting, no interacting; secrets travel via environment variables only, never into the repo. See [PRIVACY.md](PRIVACY.md).
 
-1. **复盘自动化**：review 结果按源统计命中率，自动调整各源权重。
-2. **GitHub Actions 实跑**：workflow 文件补齐后，把 scan 接进定时任务（当前雷达由 agent 侧 cron 驱动）。
+---
 
-## 边界
-
-只读公开信息，不发帖、不互动；密钥只走环境变量，不进仓库。见 [PRIVACY.md](PRIVACY.md)。
+*History: Breaker Delta was originally implemented in Python. It was migrated in full to Node/TypeScript (0.16.0–0.20.0), production switched over, and the Python implementation was retired in 0.21.0 — archived at the git tag `v0.15.1-python-final`.*

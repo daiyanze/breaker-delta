@@ -14,17 +14,38 @@ function renderBadge(topic: TopicDataEntry, alert: AlertEntry | undefined): void
   const bar = document.createElement("div");
   bar.id = "breaker-delta-badge";
 
-  const main = document.createElement("span");
-  main.className = "bd-badge-main";
-  main.textContent = `🌊 浪尖雷达已收录 · 浪高 ${topic.heat} · 首现 ${topic.first_seen}`;
-  bar.appendChild(main);
+  const mark = document.createElement("span");
+  mark.className = "bd-badge-mark";
+  mark.textContent = "🌊";
+  bar.appendChild(mark);
 
+  const body = document.createElement("div");
+  body.className = "bd-badge-body";
+
+  const title = document.createElement("div");
+  title.className = "bd-badge-title";
+  title.textContent = topic.title;
+  body.appendChild(title);
+
+  const meta = document.createElement("div");
+  meta.className = "bd-badge-meta";
+  const heat = document.createElement("b");
+  heat.className = "bd-badge-heat";
+  heat.textContent = `浪高 ${topic.heat}`;
+  meta.append(
+    document.createTextNode("浪尖雷达已收录 · "),
+    heat,
+    document.createTextNode(` · 首现 ${topic.first_seen}`),
+  );
   if (alert) {
     const breaking = document.createElement("span");
     breaking.className = "bd-badge-breaking";
     breaking.textContent = "⚡正在破圈";
-    bar.appendChild(breaking);
+    meta.appendChild(document.createTextNode(" · "));
+    meta.appendChild(breaking);
   }
+  body.appendChild(meta);
+  bar.appendChild(body);
 
   const link = document.createElement("a");
   link.className = "bd-badge-link";

@@ -2,7 +2,15 @@
 // 数据只存 chrome.storage.local，不向任何服务器发送。
 // 纯逻辑（seed 构建、Issue 文本格式）在 ./logic.ts。
 
-import { createSeed, formatIssueText } from "./logic.js";
+import {
+  createSeed,
+  findAlert,
+  findTopic,
+  formatIssueText,
+  parseAlerts,
+  parseTopics,
+  topicPageUrl,
+} from "./logic.js";
 import type { Seed } from "./logic.js";
 
 const STORAGE_KEY = "seeds";
@@ -20,7 +28,9 @@ function $(id: string): HTMLElement {
 }
 
 function setStatus(text: string): void {
-  $("status").textContent = text || "";
+  const el = $("status");
+  el.textContent = text || "";
+  el.classList.toggle("show", Boolean(text));
 }
 
 async function getSeeds(): Promise<Seed[]> {
@@ -48,28 +58,44 @@ async function getSelectedText(tabId: number): Promise<string> {
 function renderSeeds(seeds: Seed[]): void {
   const list = $("seed-list");
   list.innerHTML = "";
-  $("seed-count").textContent = seeds.length ? `（${seeds.length}）` : "";
+  const count = $("seed-count");
+  count.textContent = String(seeds.length);
+  count.hidden = seeds.length === 0;
   $("empty-hint").style.display = seeds.length ? "none" : "block";
 
   // 新的在前
   [...seeds].reverse().forEach((seed) => {
     const li = document.createElement("li");
 
-    const title = document.createElement("div");
+    const title = document.createElement("a");
     title.className = "seed-title";
     title.textContent = seed.title || "(无标题)";
+    title.href = seed.url;
+    title.target = "_blank";
+    title.rel = "noopener noreferrer";
     li.appendChild(title);
 
-    const url = document.createElement("div");
+    const url = document.createElement("a");
     url.className = "seed-url";
     url.textContent = seed.url;
+    url.href = seed.url;
+    url.target = "_blank";
+    url.rel = "noopener noreferrer";
     li.appendChild(url);
 
     if (seed.note) {
       const note = document.createElement("div");
       note.className = "seed-note";
-      note.textContent = seed.note;
+      note.textContent = `💡 ${seed.note}`;
       li.appendChild(note);
+    }
+
+    if (seed.selectedText) {
+      const excerpt = document.createElement("div");
+      excerpt.className = "seed-excerpt";
+      excerpt.textContent = seed.selectedText;
+      excerpt.title = seed.selectedText;
+      li.appendChild(excerpt);
     }
 
     const meta = document.createElement("div");
@@ -94,6 +120,66 @@ function renderSeeds(seeds: Seed[]): void {
   });
 }
 
+// 读扩展自带的话题/提醒数据（站点构建生成），失败时静默降级为不显示。
+async function loadBundledData(): Promise<{ topics: ReturnType<typeof parseTopics>; alerts: ReturnType<typeof parseAlerts> }> {
+  let topics: ReturnType<typeof parseTopics> = [];
+  let alerts: ReturnType<typeof parseAlerts> = [];
+  try {
+    const res = await fetch(chrome.runtime.getURL("data/topics.json"));
+    topics = parseTopics(await res.json());
+  } catch { /* 数据缺失时不显示匹配卡 */ }
+  try {
+    const res = await fetch(chrome.runtime.getURL("data/alerts.json"));
+    alerts = parseAlerts(await res.json());
+  } catch { /* alerts 可选 */ }
+  return { topics, alerts };
+}
+
+function renderMatch(
+  topics: ReturnType<typeof parseTopics>,
+  alerts: ReturnType<typeof parseAlerts>,
+): void {
+  if (!currentTab || !currentTab.url) return;
+
+  const pill = $("alerts-pill") as HTMLElement;
+  if (alerts.length) {
+    pill.textContent = `⚡ ${alerts.length} 条正在破圈`;
+    pill.hidden = false;
+  }
+
+  const card = $("match-card");
+  const topic = findTopic(topics, currentTab.url, currentTab.title || "");
+  if (topic) {
+    card.hidden = false;
+    card.classList.remove("is-new");
+    $("match-badge").textContent = "✓ 已被雷达收录";
+    $("match-title").textContent = topic.title;
+    const alert = findAlert(alerts, topic.slug);
+    $("match-meta").innerHTML = "";
+    const meta = document.createElement("span");
+    meta.textContent = `首现 ${topic.first_seen}`;
+    const heat = document.createElement("span");
+    heat.className = "heat";
+    heat.textContent = `浪高 ${topic.heat}`;
+    $("match-meta").append(heat, document.createTextNode(" · "), meta);
+    if (alert) {
+      const breaking = document.createElement("span");
+      breaking.textContent = " · ⚡正在破圈";
+      $("match-meta").appendChild(breaking);
+    }
+    const link = $("match-link") as HTMLAnchorElement;
+    link.href = topicPageUrl(topic);
+    link.hidden = false;
+  } else if (topics.length) {
+    card.hidden = false;
+    card.classList.add("is-new");
+    $("match-badge").textContent = "尚未被雷达收录";
+    $("match-title").textContent = "这个页面不在话题库里";
+    $("match-meta").textContent = "觉得它会火的话，先收苗观察起来。";
+    ($("match-link") as HTMLElement).hidden = true;
+  }
+}
+
 async function init(): Promise<void> {
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   currentTab = tabs && tabs[0] ? tabs[0] : null;
@@ -104,6 +190,19 @@ async function init(): Promise<void> {
     $("page-title").textContent = "(无法读取当前标签页)";
   }
   renderSeeds(await getSeeds());
+
+  const { topics, alerts } = await loadBundledData();
+  renderMatch(topics, alerts);
+
+  // 若页面上已有选中文本，提前告诉用户收苗时会一并保存。
+  if (currentTab && currentTab.id !== undefined) {
+    const selected = await getSelectedText(currentTab.id);
+    if (selected) {
+      const hint = $("selection-hint");
+      hint.textContent = `✂ 已选中 ${selected.length} 字，收苗时会一并保存摘录。`;
+      hint.hidden = false;
+    }
+  }
 }
 
 $("capture").addEventListener("click", async () => {

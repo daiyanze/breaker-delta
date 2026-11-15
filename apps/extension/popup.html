@@ -7,14 +7,28 @@
 </head>
 <body>
   <header>
-    <h1>🌊 浪尖雷达 · 收苗</h1>
-    <p class="subtitle">Breaker Delta Seed Catcher</p>
+    <img class="logo" src="icons/icon48.png" alt="" width="34" height="34">
+    <div class="brand">
+      <h1>浪尖雷达 · 收苗</h1>
+      <p class="subtitle">Breaker Delta Seed Catcher</p>
+    </div>
+    <span id="alerts-pill" class="alerts-pill" hidden></span>
   </header>
+
+  <section id="match-card" class="match-card" hidden>
+    <div class="match-head">
+      <span id="match-badge" class="match-badge"></span>
+      <a id="match-link" class="match-link" href="#" target="_blank" rel="noopener noreferrer" hidden>查看话题 →</a>
+    </div>
+    <div id="match-title" class="match-title"></div>
+    <div id="match-meta" class="match-meta"></div>
+  </section>
 
   <section id="current-page">
     <div class="label">当前页面</div>
     <div id="page-title" class="page-title">（读取中…）</div>
     <div id="page-url" class="page-url"></div>
+    <p id="selection-hint" class="selection-hint" hidden></p>
   </section>
 
   <label class="field">
@@ -22,22 +36,34 @@
     <input id="note" type="text" placeholder="为什么觉得这是个苗头？">
   </label>
 
-  <button id="capture" class="primary">收下这个苗头</button>
+  <button id="capture" class="primary">🌱 收下这个苗头</button>
   <p id="status" class="status" role="status"></p>
 
   <section id="inbox">
     <div class="inbox-head">
-      <h2>本地苗头箱 <span id="seed-count"></span></h2>
+      <h2>本地苗头箱</h2>
+      <span id="seed-count" class="count-badge" hidden></span>
     </div>
     <ul id="seed-list"></ul>
-    <p id="empty-hint" class="empty">还没有收下的苗头。在任何页面点「收下这个苗头」即可。</p>
-    <div class="actions">
-      <button id="export-issue">导出投苗（复制 Issue 文本）</button>
-      <button id="export-json">下载 JSON</button>
+    <div id="empty-hint" class="empty">
+      <div class="empty-icon">🌊</div>
+      <p>还没有收下的苗头。<br>在任何页面点「收下这个苗头」即可存进来。</p>
     </div>
+    <div class="actions">
+      <button id="export-issue">📋 导出投苗</button>
+      <button id="export-json">⬇ 下载 JSON</button>
+    </div>
+    <p class="actions-hint">导出投苗会把全部苗头复制成 GitHub Issue 格式文本。</p>
   </section>
 
-  <footer>只在你主动点击时抓取当前页，不收集浏览历史。</footer>
+  <footer>
+    <p class="privacy">🔒 只在你主动点击时抓取当前页，不收集浏览历史，数据只存本地。</p>
+    <nav class="footer-links">
+      <a href="https://daiyanze.github.io/breaker-delta-data/" target="_blank" rel="noopener noreferrer">雷达站点</a>
+      <a href="https://daiyanze.github.io/breaker-delta-data/submit.html" target="_blank" rel="noopener noreferrer">网页投苗</a>
+      <a href="https://github.com/daiyanze/breaker-delta/blob/main/apps/extension/README.zh-CN.md" target="_blank" rel="noopener noreferrer">使用说明</a>
+    </nav>
+  </footer>
   <script src="popup.js"></script>
 </body>
 </html>

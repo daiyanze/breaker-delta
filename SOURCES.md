@@ -1,21 +1,23 @@
-# 自带信息源一览 · Built-in Sources
+**English** | [简体中文](SOURCES.zh-CN.md)
 
-Breaker Delta 开箱自带的信息源清单，与 `config.example.yaml` 一一对应。共 **26 个抓取组**，按传播顺序分三层：**L1 源头层**（事情最早出现的地方）、**L2 发酵层**（讨论扩散、需求浮现）、**L3 验证层**（只核对、不发现）。
+# Built-in Sources · 自带信息源一览
 
-两条全局规则先说清：
+The sources Breaker Delta ships with, in one-to-one correspondence with `config.example.yaml`. **26 fetcher groups** in total, in three layers by propagation order: **L1 source layer** (where things appear first), **L2 fermentation layer** (discussion spreads, demand surfaces), **L3 verification layer** (checks only, never discovers).
 
-- **多源共振**：一个话题要有 ≥2 个独立来源才算热点，单源只算「苗头」。RSS 组合（官方博客组、科技媒体组）与目录站组内部**整组只算一个源**——自家通稿、多家转述、目录站互抄，都不能冒充多源共振。
-- **每个源都可调**：在自己的 `config.yaml` 里给任何源加 `enabled: false` 关掉它，或加 `max_items: N` 统一截断条数。扫描频度由使用者自行定义，本清单与频度无关。
+Two global rules up front:
 
-> 站点上的「数据源」页是另一回事：那里列的是**已经在各期节目中实际贡献过话题**的来源（带贡献数、出现次数与详情页）；本页是**全部自带源的目录**，包括还没贡献过话题的。
+- **Multi-source resonance**: a topic needs ≥2 independent sources to count as a hotspot; a single source only makes it a "seed". RSS bundles (the official-blogs group, the tech-media group) and the directory group each count as **one source as a whole** — a company's own press release, many outlets reprinting it, or directories copying each other can never fake multi-source resonance.
+- **Every source is tunable**: in your own `config.yaml`, add `enabled: false` to any source to turn it off, or `max_items: N` to truncate its items uniformly. Scan frequency is defined by the user; this catalog has nothing to do with frequency.
 
-## L1 源头层
+> The site's "Sources" page is a different thing: it lists the sources that **have actually contributed topics in published editions** (with contribution counts, appearance counts, and detail pages); this page is the catalog of **all built-in sources**, including ones that have not contributed a topic yet.
 
-### 官方博客组 `official_blogs`（整组算 1 个源，每 feed 最新 5 条）
+## L1 Source layer
 
-实验室与公司的一手公告。
+### Official blogs group `official_blogs` (the whole group counts as 1 source, latest 5 items per feed)
 
-| 名称 | Feed |
+First-hand announcements from labs and companies.
+
+| Name | Feed |
 |---|---|
 | OpenAI News | https://openai.com/news/rss.xml |
 | Google DeepMind | https://deepmind.google/blog/rss.xml |
@@ -26,7 +28,7 @@ Breaker Delta 开箱自带的信息源清单，与 `config.example.yaml` 一一�
 | AWS Machine Learning | https://aws.amazon.com/blogs/machine-learning/feed/ |
 | GitHub Blog · AI & ML | https://github.blog/ai-and-ml/feed/ |
 | Microsoft Research | https://www.microsoft.com/en-us/research/feed/ |
-| BAIR（伯克利 AI 研究） | https://bair.berkeley.edu/blog/feed.xml |
+| BAIR (Berkeley AI Research) | https://bair.berkeley.edu/blog/feed.xml |
 | LangChain Blog | https://blog.langchain.com/rss.xml |
 | Google Blog | https://blog.google/rss/ |
 | Ollama Blog | https://ollama.com/blog/rss.xml |
@@ -35,32 +37,32 @@ Breaker Delta 开箱自带的信息源清单，与 `config.example.yaml` 一一�
 | GitHub Changelog | https://github.blog/changelog/feed/ |
 | Mozilla Blog | https://blog.mozilla.org/en/feed/ |
 
-### 平台与社区信号
+### Platform and community signals
 
-| 源 | 口径 |
+| Source | Rule |
 |---|---|
-| GitHub 爆发仓库 `github` | 创建 ≤14 天且日均 ★ ≥200，或单日增量 ≥400 |
-| Hacker News `hackernews` | 首页或高分新帖 |
-| Show HN `show_hn` | 独立产品自发布的第一现场 |
-| Hugging Face 模型 `huggingface` | Trending models 前 50 里的新面孔 |
-| HF Spaces `hf_spaces` | Trending Spaces 前 50（人们真正上手试的 demo） |
-| OpenRouter `openrouter` | 最新上架模型，上架 14 天内标「新」 |
-| Civitai `civitai` | 最新社区模型（仅 SFW）；某基座突然被大量微调 = 扩散信号 |
-| arXiv `arxiv` | cs.AI / cs.CL / cs.LG 最新提交，新方法与新模型名的最早出处之一 |
-| HF Daily Papers `daily_papers` | 社区票选论文，arXiv 的已筛选版，与 arXiv 互补 |
-| Product Hunt `producthunt` | 当日新品；无 token 时走公开 Atom feed（无票数） |
-| GitHub Releases 观察组 `gh_releases`（整组算 1 个源） | 旗舰开源项目的版本发布：llama.cpp、vLLM、Claude Code 的 releases.atom，各取最新 5 条；名单可在配置里换成你自己的技术栈 |
-| Federal Register `federal_register` | 美国联邦公告一手文本（规则 / 拟议规则 / 通知 / 总统文件），官方 API 免 key：政策与监管的最早可引来源；检索词可在配置里改 |
-| Bluesky `bluesky` | 关键账号的公开 RSS（免 key 读 Bluesky 的唯一路），整组算 1 个源：Simon Willison、Karpathy、gdb（Greg Brockman）、TechCrunch、The Verge、Wired、Ars Technica |
-| X `x` | ⚠️ 需自备 API token，未配置时不可用。一个新名字被 ≥2 个有影响力账号独立提到才算信号；单账号提及需 ≥100 赞 |
+| GitHub breakout repos `github` | Created ≤14 days with a daily average of ≥200 ★, or a single-day gain of ≥400 |
+| Hacker News `hackernews` | Front page or high-scoring new posts |
+| Show HN `show_hn` | The first scene of independent products launching themselves |
+| Hugging Face models `huggingface` | New faces among the top 50 trending models |
+| HF Spaces `hf_spaces` | Top 50 trending Spaces (the demos people actually try) |
+| OpenRouter `openrouter` | Newest listed models; listed within 14 days is flagged "new" |
+| Civitai `civitai` | Newest community models (SFW only); a base model suddenly getting many fine-tunes = a diffusion signal |
+| arXiv `arxiv` | Latest submissions in cs.AI / cs.CL / cs.LG; one of the earliest sources of new methods and model names |
+| HF Daily Papers `daily_papers` | Community-voted papers — the pre-screened version of arXiv, complementary to it |
+| Product Hunt `producthunt` | The day's new products; without a token, via the public Atom feed (no vote counts) |
+| GitHub Releases watch group `gh_releases` (the whole group counts as 1 source) | Release feeds of flagship open-source projects: llama.cpp, vLLM, Claude Code releases.atom, latest 5 each; swap the list in the config for your own stack |
+| Federal Register `federal_register` | First-hand US federal texts (rules / proposed rules / notices / presidential documents) via the official keyless API: the earliest citable source for policy and regulation; the search terms are configurable |
+| Bluesky `bluesky` | Public RSS of key accounts (the only keyless way to read Bluesky), the whole group counts as 1 source: Simon Willison, Karpathy, gdb (Greg Brockman), TechCrunch, The Verge, Wired, Ars Technica |
+| X `x` | ⚠️ Needs your own API token; unavailable when not configured. A new name independently mentioned by ≥2 influential accounts counts as a signal; a single-account mention needs ≥100 likes |
 
-## L2 发酵层
+## L2 Fermentation layer
 
-### 科技媒体组 `tech_media`（整组算 1 个源，每 feed 最新 5 条）
+### Tech media group `tech_media` (the whole group counts as 1 source, latest 5 items per feed)
 
-科技媒体 + 独立作者；多家转述同一件事不算多源共振。
+Tech media + independent authors; many outlets reprinting the same story is not multi-source resonance.
 
-| 名称 | Feed |
+| Name | Feed |
 |---|---|
 | TechCrunch · AI | https://techcrunch.com/category/artificial-intelligence/feed/ |
 | The Verge · AI | https://www.theverge.com/rss/ai-artificial-intelligence/index.xml |
@@ -79,26 +81,26 @@ Breaker Delta 开箱自带的信息源清单，与 `config.example.yaml` 一一�
 | YC Blog | https://www.ycombinator.com/blog/feed |
 | LessWrong | https://www.lesswrong.com/feed.xml |
 
-### 社区与市场信号
+### Community and market signals
 
-| 源 | 口径 |
+| Source | Rule |
 |---|---|
-| Reddit `reddit` | r/all、r/artificial、r/LocalLLaMA、r/SideProject、r/technology 的 rising/热帖；特别留意 “is there a tool that…” 式说出口的需求 |
-| DEV.to `devto` | 开发者社区当日热文 |
-| Lobsters `lobsters` | hottest 列表，与 HN 互为发酵交叉验证 |
-| Stack Exchange `stackexchange` | 全站热门问题（公开 Atom，免 key）：开发者当下卡住的问题 = 需求信号 |
-| Mastodon `mastodon` | mastodon.social 趋势链接/标签的当日独立账号数（X 无免费 API 时的替代社交信号） |
-| Wikipedia 热读榜 `wikipedia` | 英文维基昨日热读：大众注意力确认 + 社会观察供稿 |
-| AI 工具目录站 `sitemaps`（整组算 1 个源） | 12 个目录站 sitemap 快照 diff，只报上次没见过的新工具页：futurepedia、toolify、dang.ai、glama、mcp.so、lobehub-mcp、lobehub-skills、aixploria、opentools、clipfly、aitoptools、ai-bot.cn |
-| App Store 榜单 `app_store` | 美区畅销榜 + 免费榜：AI 应用冲进畅销榜 = 有真实付费需求 |
-| Google News `google_news` | 科技 / AI 主题；同一事件多家报道 = 已进入扩散层 |
+| Reddit `reddit` | rising/hot posts in r/all, r/artificial, r/LocalLLaMA, r/SideProject, r/technology; watch especially for spoken-aloud demand like "is there a tool that…" |
+| DEV.to `devto` | The developer community's hot posts of the day |
+| Lobsters `lobsters` | The hottest list; fermentation cross-validation with HN |
+| Stack Exchange `stackexchange` | Hot questions across the whole network (public Atom, keyless): the problems developers are stuck on right now = a demand signal |
+| Mastodon `mastodon` | The day's unique-account counts on mastodon.social trending links/tags (a substitute social signal while X has no free API) |
+| Wikipedia most-read `wikipedia` | Yesterday's English Wikipedia top pageviews: mass-attention confirmation + social-observation material |
+| AI tool directories `sitemaps` (the whole group counts as 1 source) | Sitemap snapshot diffs across 12 directories, reporting only tool pages never seen before: futurepedia, toolify, dang.ai, glama, mcp.so, lobehub-mcp, lobehub-skills, aixploria, opentools, clipfly, aitoptools, ai-bot.cn |
+| App Store charts `app_store` | US top-grossing + top-free charts: an AI app breaking into the grossing chart = real paying demand |
+| Google News `google_news` | Tech / AI topics; the same event reported by many outlets = it has entered the diffusion layer |
 
-## L3 验证层
+## L3 Verification layer
 
-| 源 | 口径 |
+| Source | Rule |
 |---|---|
-| Google Trends `google_trends` | 只核对入选话题的曲线形状，**永不作为发现来源** |
+| Google Trends `google_trends` | Only checks the curve shape of selected topics; **never a discovery source** |
 
 ---
 
-*本页由 `config.example.yaml` 整理；改源先改配置，本页随版本更新。最后更新：2026-11-15（0.14.0 源单）。*
+*This page is compiled from `config.example.yaml`; to change sources, change the config first — this page is updated with each release. Last updated: 2026-11-15 (the 0.14.0 source list).*

@@ -1,75 +1,77 @@
-# Roadmap：从内部雷达工具到可订阅的公开站点
+**English** | [简体中文](ROADMAP.zh-CN.md)
 
-## 目标
+# Roadmap: From an Internal Radar Tool to a Subscribable Public Site
 
-把现在只发回聊天的早晚报，变成一个任何人都能打开、能用 RSS/Atom 订阅的静态站点：
+## Goal
 
-- 站点首页：最新一期 + 历史归档
-- 每期一个独立页面（永久链接，可分享）
-- 订阅源：`/feed.xml`（RSS 2.0）和 `/atom.xml`（Atom 1.0），每期一条，全文入源，订阅者在阅读器里直接读完
-- 后期：每个话题一页（利用台账里已有的等级变化历史，看一个话题怎么从 🌱 苗头涨成 🔥 必看）
+Turn the morning/evening reports that currently only go back to a chat into a static site anyone can open and subscribe to via RSS/Atom:
 
-## 终局架构
+- Site home: the latest edition + a historical archive
+- One standalone page per edition (permalinks, shareable)
+- Feeds: `/feed.xml` (RSS 2.0) and `/atom.xml` (Atom 1.0), one entry per edition with the full text in the feed, so subscribers read it all in their reader
+- Later: one page per topic (using the grade-change history already in the ledger, to watch a topic grow from a 🌱 seed into a 🔥 must-see)
+
+## End-state architecture
 
 ```
-agent 扫描（现有早晚两次运行）
-  → 写结构化期次文件 editions/YYYY-MM-DD-{morning,evening}.json（唯一事实源）
-  → radar/publish.py 静态生成（Python，无框架）
-  → site/（index、期次页、归档、feed.xml、atom.xml）
-  → GitHub Actions 部署到 GitHub Pages
+agent scan (driven by the user's own scheduling)
+  → writes structured edition files editions/YYYY-MM-DD-{morning,evening}.json into the instance data repo (the single source of truth)
+  → the data repo's CI checks out the engine repo and generates statically with @breaker-delta/publisher (Node/TypeScript, no framework)
+  → site/ (wave board, rising board, seeds, categories, sources, topic pages, archive, feed.xml, atom.xml)
+  → the data repo's GitHub Actions deploys to that repo's GitHub Pages
 ```
 
-设计原则不变：判断留给 agent，确定性工作交给代码。期次文件就是代码与 agent 之间的新合同——聊天里的报告今后也从同一份期次文件渲染，避免站点和聊天两套文本漂移。
+The design principle does not change: judgment belongs to the agent, deterministic work belongs to code. The edition file is the new contract between code and agent — the chat report will from now on be rendered from the same edition file, so the site and the chat never drift into two versions of the text.
 
-## 关键决策
+## Key decisions
 
-1. **托管先用 GitHub Pages**：仓库已在 GitHub、Actions 已有骨架、零新增账号零成本；产物是纯静态文件，将来迁 Cloudflare Pages 只是换部署目标，内容不用动。Cloudflare 的优势（CDN 速度、边缘能力）在这个体量用不上。
-2. **生成器自己写，不用 Hugo/Jekyll**：全仓库只有 Python 一门语言，`radar/publish.py` 读期次文件 + 模板出 HTML 和 feed，几百行可控；不引入第二套工具链。
-3. **feed 出两份**：RSS 2.0 兼容性最好，Atom 规范更干净，成本只是多一个模板。每期一个条目，`guid` 用期次日期+早晚，永久不变；正文全文放进 `content:encoded` / Atom `content`。
-4. **站点 URL 先用默认域名** `daiyanze.github.io/triple-sigma`；自定义域名（如 signals.grant-dai.com）等有读者再绑，GitHub Pages 支持随时加，feed 里用配置项 `base_url` 生成绝对链接，换域名只改一处配置。
+1. **Hosting: GitHub Pages first**: the repo is already on GitHub, Actions scaffolding exists, zero new accounts and zero cost; the output is pure static files, so moving to Cloudflare Pages later only changes the deploy target, not the content. Cloudflare's advantages (CDN speed, edge capabilities) are not needed at this scale.
+2. **Write the generator ourselves, no Hugo/Jekyll**: the generator reads edition files + templates and emits HTML and feeds, at a controllable code size; no second toolchain is introduced. The implementation has since moved to Node/TypeScript with the full-stack migration (`@breaker-delta/publisher`; as of 0.21.0 the repo is Node-only) — the principle is unchanged.
+3. **Ship two feeds**: RSS 2.0 has the best compatibility, Atom is the cleaner spec, and the cost is just one more template. One entry per edition; the `guid` is the edition date + morning/evening, permanently fixed; the full text goes into `content:encoded` / Atom `content`.
+4. **Site URL: default domain first**: the site is hosted on the instance data repo's GitHub Pages (Dai's instance: `daiyanze.github.io/breaker-delta-data`); bind a custom domain (e.g. signals.grant-dai.com) once there are readers — GitHub Pages supports adding one at any time, and feeds build absolute links from the `base_url` config, so a domain change touches exactly one config value.
 
-## 分阶段
+## Phases
 
-### P0 决策（已在本文件定稿，只等 Dai 确认托管）
+### P0 Decisions ✅ Decided and in effect
 
-- 托管：GitHub Pages（推荐）或 Cloudflare Pages
-- 域名：先默认，后自定义
+- Hosting: GitHub Pages (chosen; Cloudflare Pages not adopted)
+- Domain: default first (the data repo's Pages address), custom later (not yet bound)
 
-### P1 站点 MVP（约 1 次构建）
+### P1 Site MVP ✅ Shipped (the current site goes far beyond the MVP scope: wave board / rising board / categories / sources / topic pages / track record / seed submission, see the CHANGELOG)
 
-- 定 `editions/*.json` 期次格式：日期、期次、标题、各等级条目（标题/数字/出处链接/建议动作）、缺失源说明
-- 写 `radar/publish.py`：生成首页、期次页、归档页、feed.xml、atom.xml
-- 极简样式：报纸感排版（衬线标题、等级色点），无 JS 依赖
-- 把已有的两期报告回填成期次文件（2026-11-11 试跑、2026-11-12 早报），站点上线即有内容
-- GitHub Actions：push 到 main 且 `editions/` 有变化时构建并部署 Pages
-- 完成标准：手机和桌面能打开最新一期；feed 通过 W3C 校验器；用任意 RSS 阅读器订阅能收到全文
+- Define the `editions/*.json` edition format: date, edition, title, entries per grade (title / numbers / source links / suggested action), missing-source notes
+- Write the static generator (now `@breaker-delta/publisher`, the Node edition; the original Python edition was retired with 0.21.0): generates the home page, edition pages, the archive page, feed.xml, atom.xml
+- Minimal styling: a newspaper feel (serif headlines, grade color dots), no JS dependencies
+- Backfill the two existing reports as edition files (the 2026-11-11 trial run, the 2026-11-12 morning report), so the site has content at launch
+- GitHub Actions: after a push to the data repo, its CI checks out the engine repo, builds, and deploys Pages (the current form after the repo split)
+- Completion criteria: the latest edition opens on mobile and desktop; the feeds pass the W3C validator; subscribing with any RSS reader delivers the full text
 
-### P2 自动化闭环（约 1 次构建）
+### P2 Automation loop (about one build)
 
-- 早晚报 agent 运行结束时，按格式写期次文件并更新台账，走现有 token 通道提交（一次提交，无批准卡），Actions 自动部署——从扫描到上线全自动，Dai 不介入
-- 公开文本清洗：分级标准里的内部措辞（如"与 Dai 相关性"）在公开版改为中性表述，agent 出报时区分聊天版与公开版字段
-- 完成标准：连续 3 天 6 期自动上线，零手工操作
+- At the end of each morning/evening agent run, write the edition file in format and update the ledger, commit through the existing token channel (one commit, no approval cards), and let Actions deploy automatically — from scan to published with zero involvement from Dai
+- Public-text cleaning: internal wording in the grading standard (such as "relevance to Dai") becomes neutral phrasing in the public edition; the agent distinguishes chat-edition and public-edition fields when reporting
+- Completion criteria: 3 consecutive days, 6 editions, published automatically with zero manual operations
 
-### P3 体验完善（按读者反馈再排）
+### P3 Experience polish (scheduled by reader feedback)
 
-- 话题页：从 `state/seen-topics.json` 的等级历史生成，每页一条时间线
-- 按等级/来源筛选、站内搜索（静态索引，无后端）
-- OG 分享图与 meta、sitemap.xml、robots.txt
-- 合订 feed：一份"全部"、一份"只推 🔥 必看"
+- Topic pages ✅ Shipped: generated from the ledger's grade history, one timeline per page (a wave-height history chart); title-slug URLs since 0.7.0
+- Filtering by grade/source, in-site search (a static index, no backend)
+- OG share images and meta, sitemap.xml, robots.txt ✅ Shipped (the 0.6.0 SEO/GEO/OG suite)
+- Combined feeds: one "everything" feed, one "🔥 must-see only" feed
 
-### P4 可选项（有明确需求才做）
+### P4 Options (only with a clear need)
 
-- 自定义域名 + Cloudflare Pages 迁移（需要速度或边缘功能时）
-- 基于 feed 的邮件订阅（用第三方 feed-to-email，仍不自建后端）
+- Custom domain + migration to Cloudflare Pages (when speed or edge features are needed)
+- Email subscription built on the feeds (a third-party feed-to-email service; still no backend of our own)
 
-## 明确不做
+## Explicitly not doing
 
-- 不做动态后端、账号、评论、点赞——静态站点全部解决
-- 不为这个项目新开付费服务
-- 不动本地运行结构：扫描仍在现有定时任务里跑，本地文件夹与台账路径不变
+- No dynamic backend, accounts, comments, or likes — the static site solves everything
+- No new paid services for this project
+- No changes to the local run structure: scans keep running in the existing scheduled jobs; local folders and ledger paths stay put
 
-## 风险与注意
+## Risks and notes
 
-- GitHub Pages 要求仓库公开（已经是公开的）；站点内容即报告全文，发布前确认没有内部信息混入期次文件（P2 的清洗就是为此）
-- feed 里的链接必须是绝对 URL 且长期稳定：期次页 URL 一旦发布不改名、不删除
-- 仓库若再改名，GitHub Pages 默认域名会跟着变，旧 feed 地址失效——改名请先绑自定义域名
+- GitHub Pages requires a public repo (it already is one); the site content is the full report text, so confirm before publishing that no internal information has leaked into edition files (P2's cleaning exists for exactly this)
+- Links in feeds must be absolute URLs and stable for the long term: once an edition page URL is published, never rename or delete it
+- If the repo is renamed again, the GitHub Pages default domain changes with it and old feed addresses break — bind a custom domain before renaming
