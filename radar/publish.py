@@ -58,6 +58,7 @@ SOURCE_DOMAINS = {
     "OpenRouter": "openrouter.ai", "VentureBeat": "venturebeat.com",
     "Anthropic": "anthropic.com", "Anthropic 官方": "anthropic.com",
     "DeepMind": "deepmind.google", "CBS": "cbsnews.com",
+    "Microsoft Research": "microsoft.com",
     "USA Today": "usatoday.com", "blog.google": "blog.google",
     "Google 官方博客": "blog.google", "Google 官方": "blog.google",
     "Bloomberg": "bloomberg.com", "Bluesky": "bsky.app",

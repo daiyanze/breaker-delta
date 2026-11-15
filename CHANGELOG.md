@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.0 — 2026-11-15
+
+- **AIHOT 示范信源补齐**：对照 KKKKhazix/AIHOT 开源仓库的 `industry/sources.json`（18 个示范源）逐项核对——其中 17 个已在 0.3.0 源扩展时集成（official_blogs 的 OpenAI/DeepMind/Google Research/Hugging Face/Mistral/NVIDIA/AWS/GitHub/BAIR 与 tech_media 全部 8 个，地址逐字一致）；本次补上唯一缺口 **Microsoft Research**（`microsoft.com/en-us/research/feed/`），加入 official_blogs 配置（YAML/JSON 双份）、抓取器默认列表与站点域名映射。实测抓取器当场返回该源 5 条候选（组上限）。
+
 ## 0.10.0 — 2026-11-15
 
 - **话题页 detail 区留白加大**（正文行高 1.85、段间距、原文链接区上边距）；删除正文下方的数据源胶囊标签（与历史表的数据源列重复）。

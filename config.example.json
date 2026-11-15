@@ -105,6 +105,10 @@
           "url": "https://github.blog/ai-and-ml/feed/"
         },
         {
+          "name": "Microsoft Research",
+          "url": "https://www.microsoft.com/en-us/research/feed/"
+        },
+        {
           "name": "BAIR",
           "url": "https://bair.berkeley.edu/blog/feed.xml"
         }

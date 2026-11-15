@@ -1,7 +1,8 @@
 """Official blogs fetcher: lab/company RSS bundle (L1).
 
 First-hand announcements — OpenAI, DeepMind, Google Research,
-Hugging Face, Mistral, NVIDIA, AWS ML, GitHub Blog, BAIR — read from
+Hugging Face, Mistral, NVIDIA, AWS ML, GitHub Blog, Microsoft
+Research, BAIR — read from
 their own feeds (the T1 tier in AIHOT's source grading). All feeds
 together count as ONE source for resonance: an announcement and its
 own syndication must not look like independent confirmation.
@@ -26,6 +27,7 @@ DEFAULT_FEEDS = [
     {"name": "NVIDIA Blog", "url": "https://blogs.nvidia.com/feed/"},
     {"name": "AWS Machine Learning", "url": "https://aws.amazon.com/blogs/machine-learning/feed/"},
     {"name": "GitHub Blog · AI & ML", "url": "https://github.blog/ai-and-ml/feed/"},
+    {"name": "Microsoft Research", "url": "https://www.microsoft.com/en-us/research/feed/"},
     {"name": "BAIR", "url": "https://bair.berkeley.edu/blog/feed.xml"},
 ]
 

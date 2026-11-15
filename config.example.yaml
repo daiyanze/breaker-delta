@@ -94,6 +94,7 @@ sources:
       - {name: "NVIDIA Blog", url: "https://blogs.nvidia.com/feed/"}
       - {name: "AWS Machine Learning", url: "https://aws.amazon.com/blogs/machine-learning/feed/"}
       - {name: "GitHub Blog · AI & ML", url: "https://github.blog/ai-and-ml/feed/"}
+      - {name: "Microsoft Research", url: "https://www.microsoft.com/en-us/research/feed/"}
       - {name: "BAIR", url: "https://bair.berkeley.edu/blog/feed.xml"}
   github:
     layer: 1
