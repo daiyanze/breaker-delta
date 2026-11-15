@@ -40,7 +40,11 @@ PER = int(os.environ.get("TS_PAGE_SIZE", "100"))
 ARCHIVE_DAYS = int(os.environ.get("TS_ARCHIVE_DAYS", "7"))
 SOURCES_PER = int(os.environ.get("TS_SOURCES_PAGE", "20"))
 CREATOR = os.environ.get("TS_CREATOR", "1").lower() not in ("0", "false", "no")
-BASE_URL = "https://daiyanze.github.io/breaker-delta/"
+BASE_URL = os.environ.get(
+    "TS_BASE_URL", "https://daiyanze.github.io/breaker-delta/").rstrip("/") + "/"
+# Repo that receives seed submissions (the submit page's Issue link) and
+# holds the instance data; an instance/data repo overrides it via env.
+DATA_REPO = os.environ.get("TS_DATA_REPO", "daiyanze/breaker-delta")
 SLOT = {"pilot": ("试跑", 0), "morning": ("早报", 1), "evening": ("晚报", 2)}
 BASE = {"must": 60, "watch": 30, "seed": 10}
 LEVELS = {"must": ("🔥", "必看"), "watch": ("👀", "关注"), "seed": ("🌱", "苗头")}
@@ -2022,7 +2026,7 @@ def build_site(OUT, editions, topics):
     # renders those into the same 标题/链接/理由 text block the extension
     # exports.
     issue_body = quote("标题：\n链接：\n理由：\n", safe="")
-    issue_url = ("https://github.com/daiyanze/breaker-delta/issues/new"
+    issue_url = (f"https://github.com/{DATA_REPO}/issues/new"
                  f"?template=seed.md&title={quote('🌱 投苗：', safe='')}"
                  f"&body={issue_body}")
     submit_abs = f"{BASE_URL}{lang_prefix()}submit.html"

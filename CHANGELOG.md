@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.15.0 — 2026-11-15
+
+- **数据 / 引擎分仓准备（Dai 定：数据归用户自己的数据仓，引擎仓不放收集数据）**：
+  - **实例地址可配**：`radar/publish.py` 的站点基址改为可用环境变量 `TS_BASE_URL` 覆盖（默认不变，仍为 `https://daiyanze.github.io/breaker-delta/`）；投苗页的 GitHub Issue 目标仓改为可用 `TS_DATA_REPO` 覆盖（默认仍为 `daiyanze/breaker-delta`）。数据仓 CI 用这两个变量把同一套引擎构建到实例自己的地址、把投苗收进实例自己的仓库。新增测试断言两个覆盖都生效。
+  - **扩展源码入仓**：浏览器扩展（原独立目录 `breaker-delta-extension/`）纳入本仓 `extension/`，作为其正式存放地。其 `data/topics.json`、`data/alerts.json` 是实例数据、**不入仓**：`extension/data/` 只留 README（说明从构建产物或已发布站点复制）和 `.gitignore`，打包时由 CI 从实例数据注入。
+  - **数据仓已在本地建好**：`breaker-delta-data`（Dai 的实例数据仓）含 editions、state 台账、战绩台账、投苗模板与薄 CI workflow（拉取引擎 → 覆盖数据 → 构建 → 部署到该仓自己的 Pages）。本版本只做准备：**引擎仓内的数据文件暂不删除**，等数据仓上线并验证一致后再删。
+
 ## 0.14.0 — 2026-11-15
 
 - **免费信息源第二波扩容**：把实测可用的免 key 源全部接完。official_blogs 新增 6 个（Google Blog、Ollama Blog、Databricks Blog、Cloudflare Blog、GitHub Changelog、Mozilla Blog），tech_media 新增 5 个（SemiAnalysis、One Useful Thing、Platformer、YC Blog、LessWrong）；新增三个抓取组——`gh_releases`（L1，GitHub Releases 观察组：llama.cpp / vLLM / Claude Code，整组算一源）、`federal_register`（L1，美国联邦公告 API，免 key，政策与监管的一手文本）、`stackexchange`（L2，全站热门问题 Atom，免 key）。配置（YAML/JSON 双份）、抓取器默认列表、站点域名映射与归组提示同步更新。实测：official_blogs 候选 55 → 85，tech_media 55 → 80，新组分别返回 15 / 10 / 20 条，零 feed 失败；全套 51 个测试通过。

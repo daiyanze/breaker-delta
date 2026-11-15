@@ -173,6 +173,30 @@ def test_submit_page_and_bookmarklet():
     assert 'href="submit.html"' in about  # and from About
 
 
+def test_base_url_and_data_repo_env_overrides():
+    import importlib
+    import os
+    os.environ["TS_BASE_URL"] = "https://daiyanze.github.io/breaker-delta-data/"
+    os.environ["TS_DATA_REPO"] = "daiyanze/breaker-delta-data"
+    try:
+        importlib.reload(publish)
+        assert publish.BASE_URL == "https://daiyanze.github.io/breaker-delta-data/"
+        assert publish.DATA_REPO == "daiyanze/breaker-delta-data"
+        tmpdir = tempfile.mkdtemp()
+        editions_dir = _write_editions(tmpdir)
+        out_dir = Path(tmpdir) / "site"
+        publish.build(None, out_dir, editions_dir)  # no param: env must win
+        index = (out_dir / "index.html").read_text(encoding="utf-8")
+        assert "https://daiyanze.github.io/breaker-delta-data/" in index
+        sub = (out_dir / "submit.html").read_text(encoding="utf-8")
+        assert "github.com/daiyanze/breaker-delta-data/issues/new" in sub
+        assert "template=seed.md" in sub
+    finally:
+        del os.environ["TS_BASE_URL"]
+        del os.environ["TS_DATA_REPO"]
+        importlib.reload(publish)
+
+
 def test_data_files_structure_and_dedup():
     out_dir = _build(tempfile.mkdtemp())
     topics = json.loads((out_dir / "data" / "topics.json").read_text(encoding="utf-8"))
