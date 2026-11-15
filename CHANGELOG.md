@@ -7,6 +7,7 @@
 - **清理**：引擎根残留 `state/`（旧 candidates 与基线副本，基线已归数据仓）、`site/` 旧构建产物、`tripple_signals.egg-info/`、`.pytest_cache/`、`__pycache__/` 删除；`.gitignore` 移除 Python 条目（`__pycache__/`、`*.pyc`、`.pytest_cache/`、`*.egg-info/`），`radar/favicon-cache/` 改为 `favicon-cache/`。
 - **golden fixture 冻结**：`packages/core/fixtures/golden.json` 等黄金样本保留为冻结的历史行为样本（生成器已删），core/fetchers 测试继续据此断言；npm 测试仍 196 个全过。
 - 根 `package.json` 与 core/fetchers/publisher/cli 及 `.claude-plugin/plugin.json` 版本升 0.21.0（扩展自有版本线仍 0.3.0，仅其对 core 的依赖规格跟随升 0.21.0）。
+- **发布流程建立**：新增 `scripts/release.mjs`（发布前逐项核对全仓版本戳——根/各包/plugin.json/CLI VERSION 常量同为引擎版本、扩展 manifest 与其 package.json 一致——再跑全量测试并暂存四件产物到 `release-dist/`：单文件 CLI `breaker-delta-<版本>.mjs`、Skill 包 `breaker-delta-skill-<版本>.zip`（SKILL.md + plugin.json + CLI 单文件，按仓库布局打包）、扩展包 `breaker-delta-extension-<扩展版本>.zip`（manifest 在 zip 根、不含实例数据）、`SHA256SUMS.txt`，并从本文件抽取对应版本章节生成 `RELEASE_NOTES.md`）；新增 `scripts/bump.mjs`（一键升引擎版本：各 package.json 版本与内部依赖规格、plugin.json、CLI VERSION 常量、package-lock 同步；扩展自有版本线不动）；新增 `.github/workflows/release.yml`（推 `v*` 标签触发：测试→打包→以 CHANGELOG 章节为正文创建 GitHub Release；手动触发只构建并上传 artifact 作预演，不建 Release）；流程文档 `RELEASING.md` / `RELEASING.zh-CN.md`。本地全流程实跑通过：196 测试全过，三件产物生成并验 SHA-256，单文件 CLI 独立目录 doctor 9/9（带 `--root-dir`）。
 
 ## 0.20.0 — 2026-11-15（未发布，Node 迁移 Phase 5，迁移收官）
 

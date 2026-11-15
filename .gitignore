@@ -10,3 +10,4 @@ state/sitemap-seen.json
 .DS_Store
 node_modules/
 dist/
+release-dist/
