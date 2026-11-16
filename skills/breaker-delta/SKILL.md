@@ -11,6 +11,7 @@ description: Run one edition of the Breaker Delta web hot-topic radar — scan l
 
 - **命令行**：单文件版 Breaker Delta CLI（仓库 `apps/cli/dist/breaker-delta.mjs`，只需 Bun ≥ 1.2），下文记作 `$BD_CLI`，即 `bun /path/to/breaker-delta.mjs`（把路径换成本机实际路径）。所有命令都显式带 `--data-dir <数据目录>`（或设环境变量 `BD_DATA_DIR`）；数据目录里放该实例的 `editions/`、`state/`、`track-record.md` 与配置。
 - `config.yaml`（兼容 `config.json`，在数据目录里；都没有就用引擎侧的 `config.example.yaml`）：信息源、门槛、关键词、期次、时区都在里面，**不要把门槛硬编码在脑子里**。config 里写了 `preset: <名字>` 时，引擎侧 `presets/<名字>/config.yaml` 是基础层（整套行业订阅：源、权重、分类体系），实例 config 的同名顶层段覆盖它；话题的分类体系在 preset 的 `categories` 段，由发布器自动套用，agent 不要手工给单条话题改分类——觉得分类不对，改的是规则。
+- **插件（Plugin-P0）**：有效 config 的 `plugins:` 段决定本实例启用哪些话题页面板插件（分层同 preset：preset 默认 ← 实例 config）。插件包在引擎侧 `plugins/<id>/`，数据目录的 `plugins/<id>/` 同 id 覆盖。带 `schema.yaml` 的是数据插件（investor 投资研判、watchlist 追番建议）：分级时要按它的 `prompt.md` + `schema.yaml` 给入选话题多产出一份结构化研判，写进期次条目的 `plugins` 字段（见步骤 5c）。creator 没有 schema，不需要产出，面板由发布器用话题自身数据拼装。
 - `<数据目录>/state/seen-topics.json`：话题台账。先读，再扫。
 - 期次：名字、时间与分工都在 config 的 `editions` 段里（官方实例是 morning 06:00 / evening 18:00 JST，那只是它自己的设置，不要当成固定频次套到别的实例上）。
 
@@ -41,6 +42,12 @@ description: Run one edition of the Breaker Delta web hot-topic radar — scan l
 4. **去重**：台账里已有的话题不重复介绍背景，只报状态变化（升级/降温/消亡）；新话题标 🆕。
 5. **写回状态**：每条入选话题用 CLI 的 `record` 命令更新台账（首次发现时间、来源、等级轨迹）：把入选话题写成 JSON 数组存成文件，再跑 `$BD_CLI --data-dir <数据目录> record <文件>`；每条格式为 `{"name": "话题名", "sources": ["Hacker News", "Reddit"], "grade": "must"}`，grade 用台账的等级键（`must` = 🔥必看、`watch` = 👀关注、`echo` = 🌀回波）。
 5b. **写期次文件（三语）**：期次 JSON 写到数据仓 `editions/` 时，每条 item 除主语言（中文）`title`/`body`/`action` 外，必须带 `i18n`，含 `en` 与 `ja` 两套同结构译文：`"i18n": {"en": {"title": "…", "body": "…", "action": "…"}, "ja": {"title": "…", "body": "…", "action": "…"}}`；期次顶层若有 `title`，同样带顶层 `i18n`（`{"en": {"title": "…"}, "ja": {"title": "…"}}`，期次名按站内惯例：en 用 `Breaker Delta · Morning / Evening`，ja 用 `浪尖レーダー · 朝刊 / 夕刊`。译文要求：数字、日期、价格、版本号、专名与原文逐项对齐，不增删信息；标题保持同样的力度与长度感，专名保留原形。主语言字段是唯一原件——认话题、算浪高、生成 slug 都只看主语言，译文只供发布器在构建 en/ja 站点时取用。写完逐条自检：en/ja 的 `title`/`body` 非空、`action` 与原文同有同无；缺一条先补齐再出报告，不许靠发布器的缺译回退兜底（回退只保证构建不坏，不保证质量）。
+5c. **插件分级注入（启用了数据插件才做）**：写期次文件时，对每个已启用的数据插件（有 `schema.yaml` 的），先读它的 `prompt.md`（判断口径与红线）和 `schema.yaml`（字段定义），再对入选话题逐个判断：
+   - **范围照 prompt.md 定**（如 investor 只对 🔥必看 / 👀关注产出；watchlist 只对话题指向的具体作品产出）。不在范围的话题不产出——不要为了凑满而硬写。
+   - 产出写进该条目的 `plugins` 字段：`"plugins": {"investor": {"direction": "利好", "tickers": ["NVDA 英伟达"], "horizon": "季度", "logic": "…", "risks": "…"}}`。字段名、枚举值必须与 schema 逐字一致；列表型字段给数组。
+   - **必填字段缺一不可**：某个话题凑不齐必填字段（比如找不到明确标的又写不出逻辑），就整份不产出（该条目不带这个插件的键）——发布器没数据就不渲染面板，半成品比没有更糟。
+   - **不编造**：标的、作品、状态都必须有本期信源支撑；关联弱、拿不准的按 prompt 口径写「不明」或不产出。研判字段用实例主语言写（三语站点同显，与台账正文口径一致）。
+   - 免责声明由发布器按插件声明强制渲染，**不要**把免责文字写进任何字段。
 6. **出报告**：严格用下方模板。每个数字必须带出处；禁止「爆火」「刷屏」等无量词形容；建议动作只给判断，不替用户做决定。
 
 ## 报告模板

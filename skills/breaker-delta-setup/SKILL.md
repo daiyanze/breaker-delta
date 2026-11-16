@@ -50,11 +50,20 @@ description: Set up a new Breaker Delta radar instance conversationally, or chan
 3. **实测规程**：候选源先写入草稿 config，跑一次 `$BD_CLI --data-dir <数据目录> scan`，打开它写出的候选文件逐源核对：状态正常且有**近 7 天内**的条目 = 通过；报错、无条目、或只有过期条目 = 不通过，当场把原因告诉用户（无 feed / 已停更 / 抓不到），问要不要换替代源。**不通过的源从 config 里删掉再定稿，config 里不留死源。**
 4. **数量参考**：L1 5–15 个、L2 5–10 个足够开局，宁缺毋滥；以后随时走 W7 加。
 
+## W4b 插件选择（你打算拿话题干什么？）
+
+订阅源定了「看什么」，这一步定「拿话题做什么」——话题页要挂哪些用途面板：
+
+- **给候选，不空问**：写作/做内容 → `creator` 创作参考（默认开，建议保留）；盯股票/投资 → `investor` 投资研判；追番/动漫 → `watchlist` 追番建议。按 W1 的行业与读者把最贴的一个放第一个推荐，其余列出供勾选；用户也可以全关。
+- **都不合意 → 当场生成新插件草案**：按声明式格式（`plugin.yaml` + `prompt.md` + `schema.yaml` + `panel.yaml`，参照引擎侧 `plugins/investor/` 的样子）在**数据目录** `plugins/<id>/` 里拟一份：先给字段草案（面板上想看哪几项、每项什么口径），用户改，**最多来回两轮定稿**——与 W2 分类共创同一节奏。生成完跑 `doctor`，它的插件检查会验 schema 合法性。
+- **落盘方式**：选定的插件写进 config 的 `plugins:` 段（每个插件明确写 `enabled: true/false`，不要靠默认猜测）；新生成的插件包留在数据目录 `plugins/`，是用户自己的数据，不进引擎仓。
+- 数据插件的研判质量在 W5 试跑时连同分类一起验，这一步只定「要哪些、字段长什么样」。
+
 ## W5 落盘 + 试跑一期
 
-1. **落盘**：把 W2–W4 的结果补全进数据目录的 `config.yaml`（W4 实测用的草稿在此补齐；结构照 `config.example.yaml`：`language` / `timezone` / `editions` / `sources` / `keywords` / `topics` / `categories`）；`editions` 按 W1 问到的时间写（name/label/time/focus），用户没定就先写一期占位并说明随时可改。行业简报写数据目录 `brief.md`：读者是谁、什么算大事、分层直觉、分类口径、待补订阅清单（样子照 `presets/ai-tech/brief.md`）。跑 `doctor` 确认 config 检查 ok 再继续。
-2. **试跑**：完整走一遍 breaker-delta 运行 Skill 的主流程（它的步骤 0–6）出一期试点，照常 `record` 入台账，再 `publish` 构建站点，把成品给用户看。
-3. **摊开校准（至少留一轮）**：把本期每条的 `话题 → 分类 → 等级 → 来源数` 列给用户。用户指出分错类的，**改 `categories` 的关键词规则，不改单条结果**，重新 `publish`（不用重扫）再给他看；源太吵或太静的在这一轮一并调（关源、加 mute 词）。用户确认可以了，才进 W6。
+1. **落盘**：把 W2–W4b 的结果补全进数据目录的 `config.yaml`（W4 实测用的草稿在此补齐；结构照 `config.example.yaml`：`language` / `timezone` / `editions` / `sources` / `keywords` / `topics` / `categories` / `plugins`）；`editions` 按 W1 问到的时间写（name/label/time/focus），用户没定就先写一期占位并说明随时可改。行业简报写数据目录 `brief.md`：读者是谁、什么算大事、分层直觉、分类口径、待补订阅清单（样子照 `presets/ai-tech/brief.md`）。跑 `doctor` 确认 config 检查 ok 再继续。
+2. **试跑**：完整走一遍 breaker-delta 运行 Skill 的主流程（它的步骤 0–6，含 5c 插件分级注入）出一期试点，照常 `record` 入台账，再 `publish` 构建站点，把成品给用户看。
+3. **摊开校准（至少留一轮）**：把本期每条的 `话题 → 分类 → 等级 → 来源数` 列给用户。用户指出分错类的，**改 `categories` 的关键词规则，不改单条结果**，重新 `publish`（不用重扫）再给他看；源太吵或太静的在这一轮一并调（关源、加 mute 词）。**启用了数据插件的，把话题页的插件面板一并摊开验**：研判口径不对、字段多余或缺失的，改插件的 `prompt.md` / `schema.yaml`（数据目录里的包直接改；引擎内置包先拷一份到数据目录再改，同 id 覆盖），重新跑一期试点再看——面板定稿与分类定稿同等重要。用户确认可以了，才进 W6。
 
 ## W6 运行模式（二选一，最后问一次）
 
@@ -66,6 +75,7 @@ description: Set up a new Breaker Delta radar instance conversationally, or chan
 
 - **加源**：新链接走 W4 的找 feed + 实测规程，通过才进 config；改完告诉用户结果（收了 / 没收及原因）。
 - **改分类**（拆类、并类、改名、调关键词）：改 `categories` 规则后重新 `publish`，历史话题会按新规则重新归类；给用户看变化：原来各多少条、现在各多少条、哪几条换了类。
+- **改插件**（启停、加新插件、改字段/口径）：走 W4b 同一流程——启停只改 config 的 `plugins:` 段；改内置插件的口径先把包拷到数据目录 `plugins/<id>/` 再改（同 id 覆盖）；改完跑 `doctor` 验 schema，再 `publish` 看效果。注意：数据插件只对**新期次**产出研判，历史话题不会自动补（要补只能重跑那几期的分级，默认不做）。
 - **换行业**：重走 W1–W5 且用**新数据目录**——老台账和期次是旧行业的，不要在老目录上改。
 - 任何增量改动之前，先把现有 config 复制一份 `config.bak-<日期>.yaml`，改坏了能回滚。
 
@@ -73,6 +83,7 @@ description: Set up a new Breaker Delta radar instance conversationally, or chan
 
 - [ ] `doctor` 的 config 检查为 ok
 - [ ] `config.yaml` 含非空 `categories`，且每个源都过了 W4 实测（用户明确接受的例外除外，并已告知）
+- [ ] `plugins:` 段已按 W4b 结果明确写入（含全关的情况）；启用了数据插件的，试点期次的话题页已验过面板与研判口径
 - [ ] `brief.md` 已写入数据目录
 - [ ] 试点一期已产出、给用户看过分类/等级清单，且留过至少一轮调整机会
 - [ ] 运行模式已选：A 已注册定时并复述时间表 / B 已进入部署引导的第一步

@@ -142,3 +142,92 @@ test("serve renders, gates the push API, and re-renders on push", async () => {
     fs.rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("serve: a pushed edition's plugin data survives verbatim and renders its panel", async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "bd-serve-plugins-"));
+  fs.mkdirSync(path.join(dir, "editions"), { recursive: true });
+  fs.mkdirSync(path.join(dir, "state"), { recursive: true });
+  fs.writeFileSync(
+    path.join(dir, "editions", "2026-11-12-morning.json"),
+    JSON.stringify(EDITION, null, 2),
+    "utf-8",
+  );
+  fs.writeFileSync(
+    path.join(dir, "config.yaml"),
+    "plugins:\n  investor:\n    enabled: true\n",
+    "utf-8",
+  );
+  const port = 19100 + (process.pid % 300);
+  const base = `http://127.0.0.1:${port}`;
+  let child: ChildProcess | null = null;
+  try {
+    child = spawn(process.execPath, [CLI, "--data-dir", dir, "serve", "--port", String(port)], {
+      env: { ...process.env, BD_PUSH_TOKEN: "test-token", BD_WATCH_MS: "300" },
+      stdio: "ignore",
+    });
+    await waitFor(async () => {
+      try {
+        const r = await fetch(`${base}/api/health`);
+        const j = JSON.parse(await r.text()) as { ok?: boolean };
+        return j.ok === true;
+      } catch {
+        return false;
+      }
+    }, 60_000, "first render");
+
+    const withPlugins = {
+      ...EDITION,
+      slot: "evening",
+      title: "热点雷达 · 晚报",
+      items: [
+        {
+          ...EDITION.items[0],
+          title: "带研判的话题",
+          plugins: {
+            investor: {
+              direction: "利好",
+              tickers: ["NVDA 英伟达"],
+              horizon: "季度",
+              logic: "需求直接受益。",
+              risks: "估值已经很高。",
+            },
+          },
+        },
+      ],
+    };
+    const push = await fetch(`${base}/api/editions`, {
+      method: "POST",
+      headers: { authorization: "Bearer test-token" },
+      body: JSON.stringify(withPlugins),
+    });
+    assert.strictEqual(push.status, 200);
+
+    // The stored file keeps the plugins namespace untouched.
+    const stored = JSON.parse(
+      fs.readFileSync(path.join(dir, "editions", "2026-11-12-evening.json"), "utf-8"),
+    ) as { items: { plugins?: { investor?: { direction?: string } } }[] };
+    assert.strictEqual(stored.items[0].plugins?.investor?.direction, "利好");
+
+    // And after the re-render, the topic page carries the panel and
+    // its mandatory disclaimer.
+    await waitFor(
+      async () => {
+        const r = await fetch(`${base}/${encodeURIComponent("带研判的话题")}.html`);
+        if (r.status !== 200) return false;
+        const html = await r.text();
+        return html.includes("📈 投资研判") && html.includes("不构成投资建议");
+      },
+      30_000,
+      "investor panel after push",
+    );
+  } finally {
+    if (child) {
+      child.kill("SIGTERM");
+      await Promise.race([
+        new Promise((resolve) => child!.on("exit", () => resolve(null))),
+        sleep(5_000),
+      ]);
+    }
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});

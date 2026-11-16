@@ -22,7 +22,7 @@ import { loadConfig, runScan, summaryLines } from "@breaker-delta/fetchers";
 import { buildDocsSite, buildSite, optionsFromEnv } from "@breaker-delta/publisher";
 import type { BuildOptions } from "@breaker-delta/publisher";
 
-import { resolvePanelPlugins } from "./plugins.js";
+import { collectPluginChecks, resolvePanelPlugins } from "./plugins.js";
 
 import {
   findConfigFile,
@@ -543,6 +543,12 @@ export function collectDoctorChecks(ctx: CliContext): DoctorCheck[] {
             },
       );
     }
+  }
+  if (loadedConfig !== null && isRecord(loadedConfig)) {
+    // Plugin integrity (Plugin-P0): broken packs and config entries
+    // enabling unknown plugins fail; enabled data plugins get their
+    // schema validated so a bad pack surfaces here, not at publish.
+    checks.push(...collectPluginChecks(ctx, loadedConfig));
   }
   const editionsDir = path.join(ctx.dataDir, "editions");
   if (!isDir(editionsDir)) {

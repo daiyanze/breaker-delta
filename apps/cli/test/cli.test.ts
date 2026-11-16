@@ -278,6 +278,48 @@ test("doctor passes a healthy data dir and fails a bare one", () => {
   assert.ok(bad.checks.some((c: any) => c.name === "track-record" && c.status === "warn"));
 });
 
+test("doctor plugin checks: enabled plugins validated, unknown enabled plugin fails", () => {
+  const dir = makeDataDir((d) => {
+    writeEditions(d);
+    writeTrackRecord(d);
+    writeStore(d, []);
+    fs.writeFileSync(
+      path.join(d, "config.yaml"),
+      "plugins:\n  investor:\n    enabled: true\n",
+      "utf-8",
+    );
+  });
+  let r = runCli(CLI, ["--data-dir", dir, "--root-dir", ROOT, "--json", "doctor"]);
+  assert.strictEqual(r.status, 0, r.stdout + r.stderr);
+  const doc = JSON.parse(r.stdout);
+  assert.ok(
+    doc.checks.some((c: any) => c.name === "plugin:investor" && c.status === "ok" && /schema 5 fields/.test(c.detail)),
+    "investor schema validated",
+  );
+  assert.ok(
+    doc.checks.some((c: any) => c.name === "plugin:creator" && c.status === "ok"),
+    "creator is on by default",
+  );
+
+  const bad = makeDataDir((d) => {
+    writeEditions(d);
+    writeTrackRecord(d);
+    writeStore(d, []);
+    fs.writeFileSync(
+      path.join(d, "config.yaml"),
+      "plugins:\n  nosuch:\n    enabled: true\n",
+      "utf-8",
+    );
+  });
+  r = runCli(CLI, ["--data-dir", bad, "--root-dir", ROOT, "--json", "doctor"]);
+  assert.strictEqual(r.status, 1);
+  const badDoc = JSON.parse(r.stdout);
+  assert.ok(
+    badDoc.checks.some((c: any) => c.name === "plugins" && c.status === "fail" && /unknown plugin "nosuch"/.test(c.detail)),
+    "enabling an unknown plugin fails doctor",
+  );
+});
+
 // ---------------------------------------------------------- publish
 
 test("publish builds the fixture site; json mode keeps stdout clean", async () => {
