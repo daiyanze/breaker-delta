@@ -8,6 +8,9 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 // POST /api/editions — one finished edition object; same
 // validation, status codes and messages as the CLI's serve.
 export async function POST(req: Request) {
+  if (process.env.BD_DATA_BASE) {
+    return jsonError(501, "push API is not available on the remote (read-only) backend");
+  }
   const auth = checkPushAuth(req);
   if (!auth.ok) return jsonError(auth.status, auth.error);
   let parsed: unknown;

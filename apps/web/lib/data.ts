@@ -22,6 +22,7 @@ import { slugify } from "@breaker-delta/core";
 import { loadPanelDefs, type PanelDef } from "./plugins";
 import { fmt, s } from "./strings";
 import { FileStore, SqliteStore, type SiteStore } from "./store";
+import { RemoteStore } from "./store-remote";
 
 export const LANGS = ["zh", "en", "ja"] as const;
 export type Lang = (typeof LANGS)[number];
@@ -74,7 +75,14 @@ function engineDir(): string {
   return path.resolve(process.cwd(), "../..");
 }
 
+/** The remote data base URL when the fetch backend is selected. */
+export function remoteBase(): string | null {
+  return process.env.BD_DATA_BASE ? process.env.BD_DATA_BASE.replace(/\/+$/, "") : null;
+}
+
 function pickStore(): SiteStore {
+  const remote = remoteBase();
+  if (remote) return new RemoteStore(remote);
   if (process.env.BD_DB_PATH) return new SqliteStore(path.resolve(process.env.BD_DB_PATH));
   return new FileStore(dataDir());
 }
@@ -173,17 +181,29 @@ export function boardStatesNaive(topics: Topic[], editionCount: number): Map<str
 }
 
 let cache: Promise<SiteData> | null = null;
+let cacheAt = 0;
 
 /** Drop the memoized site data (after a push wrote new data). */
 export function invalidateSiteData(): void {
   cache = null;
 }
 
+/** How long assembled site data may be reused. File/SQLite data
+ * changes only through this process (push API invalidates), so it
+ * is cached indefinitely; the remote backend polls its repo on a
+ * TTL so new editions appear without a redeploy. */
+function cacheTtlMs(): number {
+  if (!remoteBase()) return Number.POSITIVE_INFINITY;
+  const n = Number(process.env.BD_DATA_TTL_MS ?? 120000);
+  return Number.isFinite(n) && n > 0 ? n : 120000;
+}
+
 export function getSiteData(): Promise<SiteData> {
-  if (cache) return cache;
+  if (cache && Date.now() - cacheAt < cacheTtlMs()) return cache;
+  cacheAt = Date.now();
   cache = (async () => {
     const stored = await pickStore().load();
-    const dir = dataDir();
+    const dir = remoteBase() ?? dataDir();
     const topics =
       stored.topics ??
       buildTopics(stored.editions, stored.ledger, catRulesFromConfig(stored.config) ?? undefined);
@@ -202,6 +222,12 @@ export function getSiteData(): Promise<SiteData> {
       trackRecord: stored.trackRecord,
     };
   })();
+  // A failed load (e.g. a network blip on the remote backend) must
+  // not poison the cache for the whole TTL — drop it so the next
+  // request retries.
+  cache.catch(() => {
+    cache = null;
+  });
   return cache;
 }
 

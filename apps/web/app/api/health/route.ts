@@ -1,4 +1,4 @@
-import { dbPath, getSiteData } from "../../../lib/data";
+import { dbPath, getSiteData, remoteBase } from "../../../lib/data";
 import { pushToken } from "../../../lib/push-auth";
 
 // GET /api/health — liveness + data summary (the CLI's serve
@@ -12,7 +12,7 @@ export async function GET() {
       editions: data.editions.length,
       topics: data.topics.length,
       pushApi: pushToken() !== "",
-      backend: dbPath() !== null ? "sqlite" : "files",
+      backend: remoteBase() !== null ? "remote" : dbPath() !== null ? "sqlite" : "files",
     });
   } catch (err) {
     return Response.json(
