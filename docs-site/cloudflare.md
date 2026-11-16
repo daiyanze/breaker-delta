@@ -14,14 +14,20 @@ the Node toolchain, then re-validated after the same-day migration
 to Bun (the `npm i -g bun` bootstrap step is Cloudflare-specific;
 locally Bun is already on PATH).
 
-**Status (2026-11-16):** both projects below were created via the
-Cloudflare API with exactly these settings, after a false start in
-which the docs hostname was attached to a dashboard-template
+**Status (2026-11-16, midday):** both projects below were created
+via the Cloudflare API with exactly these settings, after a false
+start in which the docs hostname was attached to a dashboard-template
 Worker (`breaker-delta-docs`, Hello World) instead of a Pages
 project — the Worker was deleted and the hostname moved. Two
-operational notes: a project created through the API does NOT
-build until the first git push arrives, and the apex domain is
-attached only after the docs site verifies live (see checklist).
+operational notes from the bring-up: a project created through the
+API does not build on git pushes alone — the first builds ran only
+after a manual "Create deployment" in the dashboard (trigger type
+`ad_hoc`) — and attaching a domain through the API still needs the
+matching CNAME record created by hand. The docs site is live at
+docs.breakerdelta.com and the main site at breaker-delta.pages.dev;
+the apex domain was attached right after. Whether pushes trigger
+builds automatically after the manual first deployment is exactly
+what the commit carrying this note tests.
 
 ## Project 1 — docs (breaker-delta-docs)
 
