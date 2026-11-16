@@ -14,6 +14,15 @@ the Node toolchain, then re-validated after the same-day migration
 to Bun (the `npm i -g bun` bootstrap step is Cloudflare-specific;
 locally Bun is already on PATH).
 
+**Status (2026-11-16):** both projects below were created via the
+Cloudflare API with exactly these settings, after a false start in
+which the docs hostname was attached to a dashboard-template
+Worker (`breaker-delta-docs`, Hello World) instead of a Pages
+project — the Worker was deleted and the hostname moved. Two
+operational notes: a project created through the API does NOT
+build until the first git push arrives, and the apex domain is
+attached only after the docs site verifies live (see checklist).
+
 ## Project 1 — docs (breaker-delta-docs)
 
 - Connect repository: **daiyanze/breaker-delta** (the engine repo)
