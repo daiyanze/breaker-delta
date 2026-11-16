@@ -18,9 +18,28 @@ bun x vite preview                                 # serve the build
 
 `BD_DATA_DIR` points at a data directory (`editions/`, `state/`,
 optional `config.yaml` / `plugins/`); without it the app defaults to
-a `breaker-delta-data` checkout next to the engine repo. Storage is
-plain files for now — P2b moves it behind SQLite/D1 without the
-pages changing.
+a `breaker-delta-data` checkout next to the engine repo.
+
+## Storage (P2b)
+
+Pages read through one store interface (`lib/store.ts`):
+
+- **Files** (default): the data directory itself.
+- **SQLite**: set `BD_DB_PATH=<file.db>`; create/refresh the file with
+
+  ```bash
+  bun scripts/import.ts <data-dir> <file.db>
+  ```
+
+  The importer stores editions/ledger/config verbatim plus derived
+  topic/appearance rows (computed by core's `buildTopics` at import
+  time, so restarts don't repay its ledger matching), then verifies
+  the database against the files item by item — counts, appearance
+  sequences, and the full board history (incremental board-state
+  computation over the DB vs the naive reference over the files).
+- **D1**: `lib/store-d1.ts` runs the identical schema over a
+  Cloudflare D1 binding for the Workers target (binding wiring lands
+  with the P2c cutover).
 
 Routes so far: `/{lang}` (board, `?e=<n>` renders a past edition's
 board), `/{lang}/topic/{slug}`, `/{lang}/category/{key}` for

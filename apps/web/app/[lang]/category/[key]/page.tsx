@@ -18,7 +18,7 @@ export default async function CategoryPage({
   const { lang, key } = await params;
   if (!isLang(lang)) notFound();
   const l = lang as Lang;
-  const data = getSiteData();
+  const data = await getSiteData();
   const cat = categoryIndex(data).find((c) => c.key === key);
   if (!cat) notFound();
   const rows = latestBoard(data).filter((st) => st.app.category === cat.name);

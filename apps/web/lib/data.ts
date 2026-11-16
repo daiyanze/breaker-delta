@@ -1,28 +1,26 @@
-// Site data for the P2 web app: the same inputs the static publisher
-// reads (editions/*.json + state/seen-topics.json + optional
-// config.yaml), loaded through @breaker-delta/core so topic identity,
-// heat and slugs are computed by exactly the same code. Board states
-// (carried-forward valuation + rank/heat deltas) port build.ts's
-// algorithm verbatim. Storage moves behind this module in P2b
-// (SQLite/D1); pages only consume the shapes below.
+// Site data assembly for the web app: a store backend (files or
+// SQLite/D1 — see store.ts) supplies editions + ledger + config +
+// optionally precomputed topics; this module derives the board
+// states every page renders from. Board states are computed
+// incrementally (one pass over editions, carrying each topic's
+// latest appearance forward); boardStatesNaive keeps the original
+// per-edition full scan as the reference implementation the import
+// verifier cross-checks against.
 
-import * as fs from "node:fs";
 import * as path from "node:path";
 
 import {
   buildTopics,
   catRulesFromConfig,
-  heatOf,
-  slugify,
   type Edition,
-  type StoreTopic,
   type Topic,
   type TopicApp,
 } from "@breaker-delta/core";
-import { parseYaml } from "@breaker-delta/fetchers";
 import { ARC_NAMES, CAT_KEYS } from "@breaker-delta/publisher";
+import { slugify } from "@breaker-delta/core";
 
 import { loadPanelDefs, type PanelDef } from "./plugins";
+import { FileStore, SqliteStore, type SiteStore } from "./store";
 
 export const LANGS = ["zh", "en", "ja"] as const;
 export type Lang = (typeof LANGS)[number];
@@ -52,8 +50,6 @@ export interface SiteData {
   config: Record<string, unknown>;
 }
 
-const SLOT_ORDER: Record<string, number> = { pilot: 0, morning: 1, evening: 2 };
-
 function dataDir(): string {
   if (process.env.BD_DATA_DIR) return path.resolve(process.env.BD_DATA_DIR);
   // apps/web -> repo root is ../.. ; the official data checkout is a
@@ -66,49 +62,70 @@ function engineDir(): string {
   return path.resolve(process.cwd(), "../..");
 }
 
-function loadEditions(dir: string): Edition[] {
-  const edDir = path.join(dir, "editions");
-  let names: string[] = [];
-  try {
-    names = fs.readdirSync(edDir).filter((n) => n.endsWith(".json"));
-  } catch {
-    names = [];
+function pickStore(): SiteStore {
+  if (process.env.BD_DB_PATH) return new SqliteStore(path.resolve(process.env.BD_DB_PATH));
+  return new FileStore(dataDir());
+}
+
+function attachBoardRanks(topics: Topic[], states: Map<string, BoardState>[]): void {
+  for (const t of topics) {
+    let prevBr: number | null = null;
+    for (const a of t.apps) {
+      const st = states[a.edition]?.get(t.key);
+      (a as TopicApp & { board_rank?: number }).board_rank = st ? st.rank : a.rank;
+      (a as TopicApp & { board_rank_delta?: number | null }).board_rank_delta =
+        prevBr !== null ? prevBr - ((a as TopicApp & { board_rank?: number }).board_rank as number) : null;
+      prevBr = (a as TopicApp & { board_rank?: number }).board_rank as number;
+    }
   }
-  const keyed = names.map((n) => {
-    const m = /(\d{4}-\d{2}-\d{2})-(\w+)/.exec(n);
-    if (!m) throw new Error(`edition filename does not parse: ${n}`);
-    return { n, date: m[1], order: SLOT_ORDER[m[2]] ?? 9 };
-  });
-  keyed.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.order - b.order));
-  const editions: Edition[] = [];
-  for (const { n } of keyed) {
-    const ed = JSON.parse(fs.readFileSync(path.join(edDir, n), "utf-8")) as Edition;
-    for (const it of ed.items) it._heat = heatOf(it);
-    const ranked = [...ed.items].sort((a, b) => b._heat - a._heat);
-    ranked.forEach((it, i) => {
-      it._rank = i + 1;
+}
+
+/** Incremental board states: a single pass over editions. Each
+ * edition updates only the topics it touches; the snapshot ranks the
+ * carried-forward board. Output is identical to boardStatesNaive
+ * (the import verifier proves it on the real data). */
+export function boardStates(topics: Topic[], editionCount: number): Map<string, BoardState>[] {
+  const appsAt: [Topic, TopicApp][][] = Array.from({ length: editionCount }, () => []);
+  for (const t of topics) {
+    for (const a of t.apps) {
+      if (a.edition >= 0 && a.edition < editionCount) appsAt[a.edition].push([t, a]);
+    }
+  }
+  const states: Map<string, BoardState>[] = [];
+  const cur = new Map<string, BoardState>();
+  let prev = new Map<string, { heat: number; rank: number }>();
+  for (let ei = 0; ei < editionCount; ei++) {
+    for (const [t, a] of appsAt[ei]) {
+      cur.set(t.key, {
+        topic: t,
+        app: a,
+        heat: a.heat,
+        carried: false,
+        rank: 0,
+        heatDelta: null,
+        rankDelta: null,
+      });
+    }
+    const snap = new Map<string, BoardState>();
+    for (const [k, st] of cur) snap.set(k, { ...st, carried: st.app.edition !== ei });
+    const ranked = [...snap.values()].sort((x, y) => y.heat - x.heat);
+    ranked.forEach((st, i) => {
+      st.rank = i + 1;
+      const pa = prev.get(st.topic.key);
+      st.heatDelta = pa ? st.heat - pa.heat : null;
+      st.rankDelta = pa ? pa.rank - st.rank : null;
     });
-    editions.push(ed);
+    states.push(snap);
+    prev = new Map([...snap].map(([k, v]) => [k, { heat: v.heat, rank: v.rank }] as const));
   }
-  return editions;
+  attachBoardRanks(topics, states);
+  return states;
 }
 
-function loadLedger(dir: string): StoreTopic[] {
-  const p = path.join(dir, "state", "seen-topics.json");
-  if (!fs.existsSync(p)) return [];
-  const data = JSON.parse(fs.readFileSync(p, "utf-8")) as { topics?: StoreTopic[] };
-  return data.topics ?? [];
-}
-
-function loadConfig(dir: string): Record<string, unknown> {
-  const p = path.join(dir, "config.yaml");
-  if (!fs.existsSync(p)) return {};
-  return (parseYaml(fs.readFileSync(p, "utf-8")) ?? {}) as Record<string, unknown>;
-}
-
-/** Board states exactly as build.ts computes them: at each edition,
- * every topic known so far, valued at its most recent appearance. */
-function boardStates(topics: Topic[], editionCount: number): Map<string, BoardState>[] {
+/** Reference implementation (build.ts's original algorithm): at each
+ * edition, every topic known so far, valued at its most recent
+ * appearance. Kept for verification, not used by pages. */
+export function boardStatesNaive(topics: Topic[], editionCount: number): Map<string, BoardState>[] {
   const states: Map<string, BoardState>[] = [];
   let prev = new Map<string, { heat: number; rank: number }>();
   for (let ei = 0; ei < editionCount; ei++) {
@@ -139,33 +156,33 @@ function boardStates(topics: Topic[], editionCount: number): Map<string, BoardSt
     states.push(byKey);
     prev = new Map([...byKey].map(([k, v]) => [k, { heat: v.heat, rank: v.rank }] as const));
   }
-  // Attach board ranks back onto appearances (topic page history).
-  for (const t of topics) {
-    let prevBr: number | null = null;
-    for (const a of t.apps) {
-      const st = states[a.edition]?.get(t.key);
-      (a as TopicApp & { board_rank?: number }).board_rank = st ? st.rank : a.rank;
-      (a as TopicApp & { board_rank_delta?: number | null }).board_rank_delta =
-        prevBr !== null ? prevBr - ((a as TopicApp & { board_rank?: number }).board_rank as number) : null;
-      prevBr = (a as TopicApp & { board_rank?: number }).board_rank as number;
-    }
-  }
+  attachBoardRanks(topics, states);
   return states;
 }
 
-let cache: SiteData | null = null;
+let cache: Promise<SiteData> | null = null;
 
-export function getSiteData(): SiteData {
+export function getSiteData(): Promise<SiteData> {
   if (cache) return cache;
-  const dir = dataDir();
-  const config = loadConfig(dir);
-  const editions = loadEditions(dir);
-  const ledger = loadLedger(dir);
-  const topics = buildTopics(editions, ledger, catRulesFromConfig(config) ?? undefined);
-  const bySlug = new Map(topics.map((t) => [t.slug, t]));
-  const states = boardStates(topics, editions.length);
-  const panelDefs = loadPanelDefs(engineDir(), dir, config);
-  cache = { dataDir: dir, editions, topics, bySlug, states, panelDefs, config };
+  cache = (async () => {
+    const stored = await pickStore().load();
+    const dir = dataDir();
+    const topics =
+      stored.topics ??
+      buildTopics(stored.editions, stored.ledger, catRulesFromConfig(stored.config) ?? undefined);
+    const bySlug = new Map(topics.map((t) => [t.slug, t]));
+    const states = boardStates(topics, stored.editions.length);
+    const panelDefs = loadPanelDefs(engineDir(), dir, stored.config);
+    return {
+      dataDir: dir,
+      editions: stored.editions,
+      topics,
+      bySlug,
+      states,
+      panelDefs,
+      config: stored.config,
+    };
+  })();
   return cache;
 }
 

@@ -16,7 +16,7 @@ export default async function BoardPage({
   const { lang } = await params;
   if (!isLang(lang)) notFound();
   const l = lang as Lang;
-  const data = getSiteData();
+  const data = await getSiteData();
   const { e } = await searchParams;
   const latestEi = data.states.length - 1;
   let ei = latestEi;

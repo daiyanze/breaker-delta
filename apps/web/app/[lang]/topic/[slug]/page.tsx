@@ -5,6 +5,8 @@ import type { PanelValue } from "@breaker-delta/publisher";
 
 import { Mast } from "../../../../components/Mast";
 import { Panel } from "../../../../components/Panel";
+import type { Topic, TopicApp } from "@breaker-delta/core";
+
 import {
   catKey,
   getSiteData,
@@ -12,8 +14,6 @@ import {
   locApp,
   locTopicName,
   type Lang,
-  type Topic,
-  type TopicApp,
 } from "../../../../lib/data";
 import { fmt, s } from "../../../../lib/strings";
 
@@ -88,7 +88,7 @@ export default async function TopicPage({
   const { lang, slug } = await params;
   if (!isLang(lang)) notFound();
   const l = lang as Lang;
-  const data = getSiteData();
+  const data = await getSiteData();
   // Slugs carry raw CJK (title-slug scheme); depending on the client
   // and runtime the route param may arrive percent-encoded.
   let t = data.bySlug.get(slug);
