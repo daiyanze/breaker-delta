@@ -72,7 +72,7 @@ export const DOC_PAGES: DocPage[] = [
 <ul class="tips">
 <li><a href="docs-getting-started.html">快速开始</a> — 环境要求、从克隆到跑出第一期、数据目录长什么样。</li>
 <li><a href="docs-reading.html">看懂站点</a> — 海浪榜 / 涨潮榜 / 回波 / 分类 / 数据源 / 战绩 / 归档逐页说明，外加浪高公式与分级规则。</li>
-<li><a href="docs-cli.html">CLI 参考</a> — scan / review / record / publish / doctor / mcp 六个命令、全局参数与退出码。</li>
+<li><a href="docs-cli.html">CLI 参考</a> — scan / review / record / publish / docs / doctor / mcp 七个命令、全局参数与退出码。</li>
 <li><a href="docs-config.html">配置</a> — config.yaml 里真正会动到的开关：关键词三件套、主题权重、信息源开关、新词词汇表。</li>
 <li><a href="docs-skill.html">Skill 与 MCP</a> — 把雷达装进 agent 工具（Claude Code、Codex 等），或把同一个程序当 MCP 服务器用。</li>
 <li><a href="docs-extension.html">Chrome 扩展</a> — 安装、收波、投波、设置、权限与隐私、常见问题。</li>
@@ -94,7 +94,7 @@ export const DOC_PAGES: DocPage[] = [
 <ul class="tips">
 <li><a href="docs-getting-started.html">Getting Started</a> — requirements, from clone to your first edition, and what a data directory looks like.</li>
 <li><a href="docs-reading.html">Reading the Site</a> — Wave Board / Rising / Echoes / Categories / Sources / Track Record / Archive, plus the wave-height formula and grading rules.</li>
-<li><a href="docs-cli.html">CLI Reference</a> — the six commands (scan / review / record / publish / doctor / mcp), global options and exit codes.</li>
+<li><a href="docs-cli.html">CLI Reference</a> — the seven commands (scan / review / record / publish / docs / doctor / mcp), global options and exit codes.</li>
 <li><a href="docs-config.html">Configuration</a> — the config.yaml knobs people actually turn: keyword mute / boost / alert, topic weights, source switches, the new-term vocabulary.</li>
 <li><a href="docs-skill.html">Skill &amp; MCP</a> — install the radar into an agent harness (Claude Code, Codex, …), or run the same bundle as an MCP server.</li>
 <li><a href="docs-extension.html">Chrome Extension</a> — install, capture, submit, settings, permissions and privacy, troubleshooting.</li>
@@ -109,22 +109,22 @@ export const DOC_PAGES: DocPage[] = [
     file: "docs-getting-started.html",
     title: { zh: "📖 快速开始", en: "📖 Getting Started" },
     desc: {
-      zh: "Breaker Delta 快速开始：Node 20+、克隆、打包单文件 CLI、准备数据目录、doctor 自检、scan 与 publish。",
-      en: "Breaker Delta getting started: Node 20+, clone, bundle the single-file CLI, prepare a data dir, doctor, scan and publish.",
+      zh: "Breaker Delta 快速开始：Bun 1.2+、克隆、打包单文件 CLI、准备数据目录、doctor 自检、scan 与 publish。",
+      en: "Breaker Delta getting started: Bun 1.2+, clone, bundle the single-file CLI, prepare a data dir, doctor, scan and publish.",
     },
     body: {
       zh: `<section class="panel"><div class="panel-h"><span>快速开始</span></div>
 <div class="detail">
 <p>先分清两个东西：<b>引擎</b>是代码（抓取、算浪高、生成站点），<b>数据</b>是你的实例自己的东西（每一期、话题台账、战绩、配置）。引擎仓里不存任何实例数据；你跑出来的数据放在你自己的<b>数据目录</b>里。只看公开站点不需要装任何东西，这一页是给要自己跑的人的。</p>
 <h3 style="margin:16px 0 6px">环境要求</h3>
-<ul class="tips"><li>Node ≥ 20。除此之外没有运行时依赖，不需要数据库、不需要服务器。</li></ul>
+<ul class="tips"><li>Bun ≥ 1.2。除此之外没有运行时依赖，不需要数据库、不需要服务器。</li></ul>
 <h3 style="margin:16px 0 6px">第 1 步：拿到引擎并打包</h3>
 <pre class="cfgpre full">git clone https://github.com/daiyanze/breaker-delta.git
 cd breaker-delta
-npm ci
-npm run bundle        # 产出 apps/cli/dist/breaker-delta.mjs（单文件）</pre>
+bun install
+bun run bundle        # 产出 apps/cli/dist/breaker-delta.mjs（单文件）</pre>
 <p>后面所有命令都通过这个单文件跑，下文记作 BD：</p>
-<pre class="cfgpre full">BD="node apps/cli/dist/breaker-delta.mjs"</pre>
+<pre class="cfgpre full">BD="bun apps/cli/dist/breaker-delta.mjs"</pre>
 <h3 style="margin:16px 0 6px">第 2 步：准备数据目录</h3>
 <p>最快的办法是照着现成的数据仓 <a href="https://github.com/daiyanze/breaker-delta-data" rel="noopener">daiyanze/breaker-delta-data</a> 的形状建一个自己的目录（或直接克隆它再换成自己的数据）。一个数据目录长这样：</p>
 <pre class="cfgpre full">your-data/
@@ -148,14 +148,14 @@ $BD --data-dir /path/to/your-data publish --out site        # 生成静态站点
 <div class="detail">
 <p>First, keep two things apart: the <b>engine</b> is code (fetching, wave-height scoring, site generation); the <b>data</b> belongs to your instance (editions, the topic ledger, the track record, your config). The engine repo stores no instance data; everything you produce lives in your own <b>data directory</b>. Reading the public site needs no install at all — this page is for people who want to run their own.</p>
 <h3 style="margin:16px 0 6px">Requirements</h3>
-<ul class="tips"><li>Node ≥ 20. No other runtime dependencies, no database, no server.</li></ul>
+<ul class="tips"><li>Bun ≥ 1.2. No other runtime dependencies, no database, no server.</li></ul>
 <h3 style="margin:16px 0 6px">Step 1: get the engine and bundle it</h3>
 <pre class="cfgpre full">git clone https://github.com/daiyanze/breaker-delta.git
 cd breaker-delta
-npm ci
-npm run bundle        # builds apps/cli/dist/breaker-delta.mjs — a single file</pre>
+bun install
+bun run bundle        # builds apps/cli/dist/breaker-delta.mjs — a single file</pre>
 <p>Every command runs through that single file; below it is called BD:</p>
-<pre class="cfgpre full">BD="node apps/cli/dist/breaker-delta.mjs"</pre>
+<pre class="cfgpre full">BD="bun apps/cli/dist/breaker-delta.mjs"</pre>
 <h3 style="margin:16px 0 6px">Step 2: prepare a data directory</h3>
 <p>The fastest route is to copy the shape of the working data repo <a href="https://github.com/daiyanze/breaker-delta-data" rel="noopener">daiyanze/breaker-delta-data</a> (or clone it and replace the data with yours). A data directory looks like this:</p>
 <pre class="cfgpre full">your-data/
@@ -253,8 +253,8 @@ $BD --data-dir /path/to/your-data publish --out site        # build the static s
     file: "docs-cli.html",
     title: { zh: "📖 CLI 参考", en: "📖 CLI Reference" },
     desc: {
-      zh: "Breaker Delta CLI 参考：scan、review、record、publish、doctor、mcp 六个命令，全局参数、publish 的 TS_* 环境变量与退出码。",
-      en: "Breaker Delta CLI reference: scan, review, record, publish, doctor and mcp, global options, the TS_* publish environment variables and exit codes.",
+      zh: "Breaker Delta CLI 参考：scan、review、record、publish、docs、doctor、mcp 七个命令，全局参数、publish 的 TS_* 环境变量与退出码。",
+      en: "Breaker Delta CLI reference: scan, review, record, publish, docs, doctor and mcp, global options, the TS_* publish environment variables and exit codes.",
     },
     body: {
       zh: `<section class="panel"><div class="panel-h"><span>CLI 参考</span></div>
@@ -275,11 +275,12 @@ $BD --data-dir /path/to/your-data publish --out site        # build the static s
 <li><b>record &lt;file|-&gt; [--date YYYY-MM-DD]</b> — 把 agent 分好级的话题写回台账。输入是一个 JSON 数组，每条形如 <span style="font-family:var(--mono)">{"name":"话题名","sources":["Hacker News","Reddit"],"grade":"must"}</span>，grade 取 must / watch / echo。用 - 从 stdin 读。台账写入是原子的。</li>
 <li><b>record review --name &lt;话题&gt; --result hit|miss</b> — 给一个话题登记 14 天复核结果。</li>
 <li><b>publish [--out &lt;dir&gt;] [--base-url &lt;url&gt;] [--data-repo &lt;owner/repo&gt;] [--langs zh,en,ja] [--creator|--no-creator]</b> — 从数据目录生成静态站点。命令行参数覆盖 TS_* 环境变量，环境变量覆盖默认值（见下）。</li>
+<li><b>docs [--out &lt;dir&gt;] [--docs-url &lt;url&gt;] [--main-url &lt;url&gt;] [--langs zh,en,ja]</b> — 构建独立的文档站（就是本站），只需要引擎根目录，不读数据目录。--docs-url 决定文档站自己的地址（默认 https://docs.breakerdelta.com/），--main-url 是文档里「雷达主页」回链指向的主站地址（默认 https://breakerdelta.com/）；环境变量 TS_DOCS_URL / TS_MAIN_URL / TS_DOCS_OUT 同义。</li>
 <li><b>doctor</b> — 离线自检 Node、配置、数据目录与引擎根目录；有检查不通过时退出码为 1。</li>
 <li><b>mcp</b> — 以 stdio 方式运行 MCP 服务器，提供 radar_scan 与 radar_review 两个工具（见 <a href="docs-skill.html">Skill 与 MCP</a>）。</li>
 </ul>
 <h3 style="margin:16px 0 6px">常用例子</h3>
-<pre class="cfgpre full">BD="node apps/cli/dist/breaker-delta.mjs"
+<pre class="cfgpre full">BD="bun apps/cli/dist/breaker-delta.mjs"
 $BD --data-dir /path/to/your-data doctor
 $BD --data-dir /path/to/your-data scan --edition morning
 echo '[{"name":"Some New Model","sources":["Hacker News","Reddit"],"grade":"must"}]' &gt; picks.json
@@ -295,7 +296,9 @@ TS_CREATOR       1 开 / 0 关：话题页的「创作参考」面板
 TS_PAGE_SIZE     海浪榜每页条数（默认 100）
 TS_ARCHIVE_DAYS  归档保留天数
 TS_SOURCES_PAGE  数据源页每页条数
-TS_SHARE         分享平台列表，逗号分隔</pre>
+TS_SHARE         分享平台列表，逗号分隔
+TS_DOCS_URL      文档站地址：主站导航的「文档」标签指向它（默认 https://docs.breakerdelta.com/）
+TS_MAIN_URL      主站地址：文档站的回链指向它（默认 https://breakerdelta.com/）</pre>
 </div></section>`,
       en: `<section class="panel"><div class="panel-h"><span>CLI Reference</span></div>
 <div class="detail">
@@ -315,11 +318,12 @@ TS_SHARE         分享平台列表，逗号分隔</pre>
 <li><b>record &lt;file|-&gt; [--date YYYY-MM-DD]</b> — write agent-graded topics back to the store. Input is a JSON array, each entry like <span style="font-family:var(--mono)">{"name":"Topic","sources":["Hacker News","Reddit"],"grade":"must"}</span>, with grade must / watch / echo. Use - to read stdin. The store write is atomic.</li>
 <li><b>record review --name &lt;topic&gt; --result hit|miss</b> — record a 14-day review outcome for one topic.</li>
 <li><b>publish [--out &lt;dir&gt;] [--base-url &lt;url&gt;] [--data-repo &lt;owner/repo&gt;] [--langs zh,en,ja] [--creator|--no-creator]</b> — build the static site from the data dir. Flags override the TS_* environment variables, which override defaults (below).</li>
+<li><b>docs [--out &lt;dir&gt;] [--docs-url &lt;url&gt;] [--main-url &lt;url&gt;] [--langs zh,en,ja]</b> — build the standalone docs site (this site). Needs only the engine root; no data dir is read. --docs-url sets the docs site's own URL (default https://docs.breakerdelta.com/), --main-url the main radar site the docs link back to (default https://breakerdelta.com/); TS_DOCS_URL / TS_MAIN_URL / TS_DOCS_OUT do the same by environment.</li>
 <li><b>doctor</b> — offline self-check of Node, config, data dir and engine root; exits 1 when any check fails.</li>
 <li><b>mcp</b> — run the stdio MCP server with the tools radar_scan and radar_review (see <a href="docs-skill.html">Skill &amp; MCP</a>).</li>
 </ul>
 <h3 style="margin:16px 0 6px">Common examples</h3>
-<pre class="cfgpre full">BD="node apps/cli/dist/breaker-delta.mjs"
+<pre class="cfgpre full">BD="bun apps/cli/dist/breaker-delta.mjs"
 $BD --data-dir /path/to/your-data doctor
 $BD --data-dir /path/to/your-data scan --edition morning
 echo '[{"name":"Some New Model","sources":["Hacker News","Reddit"],"grade":"must"}]' &gt; picks.json
@@ -335,7 +339,9 @@ TS_CREATOR       1 on / 0 off: the creator panel on topic pages
 TS_PAGE_SIZE     Board page size (default 100)
 TS_ARCHIVE_DAYS  Archive retention in days
 TS_SOURCES_PAGE  Sources per sources-page
-TS_SHARE         Share platforms, comma-separated</pre>
+TS_SHARE         Share platforms, comma-separated
+TS_DOCS_URL      Docs site URL: the main site's Docs tab points here (default https://docs.breakerdelta.com/)
+TS_MAIN_URL      Main site URL: the docs site links back here (default https://breakerdelta.com/)</pre>
 </div></section>`,
     },
   },
@@ -409,7 +415,7 @@ TS_SHARE         Share platforms, comma-separated</pre>
 </ul>
 <h3 style="margin:16px 0 6px">当作 MCP 服务器用</h3>
 <p>同一个单文件程序也是一个 stdio MCP 服务器。在你的 agent 工具里把下面这条命令登记为 MCP 服务器即可（数据目录换成你自己的）：</p>
-<pre class="cfgpre full">node apps/cli/dist/breaker-delta.mjs --data-dir /path/to/your-data mcp</pre>
+<pre class="cfgpre full">bun apps/cli/dist/breaker-delta.mjs --data-dir /path/to/your-data mcp</pre>
 <ul class="tips">
 <li><b>radar_scan</b>：跑一期抓取层，返回候选与逐源状态。</li>
 <li><b>radar_review</b>：返回到期需要复核的话题清单。</li>
@@ -434,7 +440,7 @@ TS_SHARE         Share platforms, comma-separated</pre>
 </ul>
 <h3 style="margin:16px 0 6px">Use it as an MCP server</h3>
 <p>The same single-file bundle is also a stdio MCP server. Register this command in your agent harness (with your own data dir):</p>
-<pre class="cfgpre full">node apps/cli/dist/breaker-delta.mjs --data-dir /path/to/your-data mcp</pre>
+<pre class="cfgpre full">bun apps/cli/dist/breaker-delta.mjs --data-dir /path/to/your-data mcp</pre>
 <ul class="tips">
 <li><b>radar_scan</b>: run one edition's fetch layer and return candidates with per-source status.</li>
 <li><b>radar_review</b>: return the topics due for their 14-day review.</li>
@@ -471,7 +477,7 @@ TS_SHARE         Share platforms, comma-separated</pre>
 </ul>
 <h3 style="margin:16px 0 6px">安装（侧载，开发者模式）</h3>
 <ol class="ol-list">
-<li>准备扩展文件夹：最快是用现成的侧载副本；或者在引擎仓根目录跑 <span style="font-family:var(--mono)">npm run build -w @breaker-delta/extension</span> 自己构建，产物在 <span style="font-family:var(--mono)">apps/extension/dist/</span>。</li>
+<li>准备扩展文件夹：最快是用现成的侧载副本；或者在引擎仓根目录跑 <span style="font-family:var(--mono)">bun run --filter @breaker-delta/extension build</span> 自己构建，产物在 <span style="font-family:var(--mono)">apps/extension/dist/</span>。</li>
 <li>打开 <span style="font-family:var(--mono)">chrome://extensions/</span>，打开右上角「开发者模式」。</li>
 <li>点「加载已解压的扩展程序」，选中扩展文件夹。</li>
 <li>把扩展固定到工具栏，收波能少点一次。</li>
@@ -512,7 +518,7 @@ TS_SHARE         Share platforms, comma-separated</pre>
 </ul>
 <h3 style="margin:16px 0 6px">Install (unpacked, developer mode)</h3>
 <ol class="ol-list">
-<li>Get the extension folder: fastest is a ready-made sideload copy; or build it yourself from the engine repo root with <span style="font-family:var(--mono)">npm run build -w @breaker-delta/extension</span> — output lands in <span style="font-family:var(--mono)">apps/extension/dist/</span>.</li>
+<li>Get the extension folder: fastest is a ready-made sideload copy; or build it yourself from the engine repo root with <span style="font-family:var(--mono)">bun run --filter @breaker-delta/extension build</span> — output lands in <span style="font-family:var(--mono)">apps/extension/dist/</span>.</li>
 <li>Open <span style="font-family:var(--mono)">chrome://extensions/</span> and turn on Developer mode (top right).</li>
 <li>Click "Load unpacked" and select the extension folder.</li>
 <li>Pin the extension to the toolbar so capturing takes one click less.</li>
@@ -564,10 +570,13 @@ TS_SHARE         Share platforms, comma-separated</pre>
 <h3 style="margin:16px 0 6px">GitHub Pages 自动构建怎么跑</h3>
 <ol class="ol-list">
 <li>在数据仓的 Settings 里把 Pages 的来源设为 GitHub Actions。</li>
-<li>数据仓的 workflow 做四件事：检出数据仓 → 检出引擎仓 → <span style="font-family:var(--mono)">npm ci &amp;&amp; npm run bundle</span> 打包 CLI → 用你的数据目录跑 publish 并部署。</li>
+<li>数据仓的 workflow 做四件事：检出数据仓 → 检出引擎仓 → <span style="font-family:var(--mono)">bun install &amp;&amp; bun run bundle</span> 打包 CLI → 用你的数据目录跑 publish 并部署。</li>
 <li>构建时用两个环境变量把站点指向你自己：<span style="font-family:var(--mono)">TS_BASE_URL</span>（你的 Pages 地址）和 <span style="font-family:var(--mono)">TS_DATA_REPO</span>（你的数据仓）。其余 TS_* 见 <a href="docs-cli.html">CLI 参考</a>。</li>
 <li>之后每次往数据仓推数据（比如扫描流程推入新一期），CI 自动重建，站点自动更新，不需要手动部署。</li>
 </ol>
+<p>官方实例现在跑在 Cloudflare Pages 上（项目直连仓库、推送自动构建）：主站项目连数据仓、构建时 clone 引擎仓，文档项目连引擎仓直接构建，两个项目各绑各的域名（breakerdelta.com 与 docs.breakerdelta.com）。构建命令与上面 GitHub Actions 版完全一致，只是执行方从 GitHub 换成 Cloudflare；自建实例两个平台任选其一即可。</p>
+<h3 style="margin:16px 0 6px">域名布局：主体、文档、应用各住各的</h3>
+<p>官方站点的域名分工是固定的：<b>主站住根域名</b>（breakerdelta.com —— 榜单和话题页是公开内容，吃分享与搜索，根域名最干净）；<b>文档是独立站</b>（docs.breakerdelta.com —— 就是本站，由单独的 docs 仓用 <span style="font-family:var(--mono)">docs</span> 命令构建部署，不和主站挤同一个构建，主站导航里的「文档」只是链过来）；<b>app. 子域名预留</b>给将来需要登录的产品，现在不用。自建实例想用自己的域名同理：把 TS_BASE_URL 换成你的根地址即可，文档站可以链到官方 docs，也可以跑 docs 命令自建一份。</p>
 <h3 style="margin:16px 0 6px">一个真实踩过的坑</h3>
 <p>数据仓 CI 用的是它自己的默认令牌，<b>读不了私有仓</b>。如果引擎仓被设成私有，数据仓的构建会在「检出引擎仓」这一步直接失败（repository not found），站点随之停更——包括扫描推数据后触发的自动重建。两个解法：把引擎仓保持公开（最简单），或在数据仓的 Secrets 里放一个能读引擎仓的只读令牌并在 workflow 里用它检出。</p>
 <h3 style="margin:16px 0 6px">更新与日常</h3>
@@ -575,7 +584,7 @@ TS_SHARE         Share platforms, comma-separated</pre>
 <li><b>更新引擎</b>：数据仓 CI 每次都拉引擎的 main 构建，所以引擎发新版后，你的站点下一次重建就自动用上新版；想锁定版本就把 workflow 里的 ref 改成某个 tag。</li>
 <li><b>改配置</b>：只改数据仓里的 config.yaml 并推送，CI 重建后生效；改完去站点的数据源页核对每个源的生效配置。</li>
 <li><b>本地先验</b>：推送前先在本地用同一条 publish 命令构建一遍（见 <a href="docs-getting-started.html">快速开始</a>），本地能过，CI 基本就能过。</li>
-<li><b>构建失败先看哪一步</b>：检出引擎失败多半是可见性 / 令牌问题；打包失败看 Node 版本（要 ≥ 20）；publish 失败先对数据目录跑 doctor。</li>
+<li><b>构建失败先看哪一步</b>：检出引擎失败多半是可见性 / 令牌问题；打包失败看 Bun 版本（要 ≥ 1.2）；publish 失败先对数据目录跑 doctor。</li>
 </ul>
 </div></section>`,
       en: `<section class="panel"><div class="panel-h"><span>Deploy Your Own</span></div>
@@ -593,10 +602,13 @@ TS_SHARE         Share platforms, comma-separated</pre>
 <h3 style="margin:16px 0 6px">How the GitHub Pages build flows</h3>
 <ol class="ol-list">
 <li>In the data repo's Settings, set the Pages source to GitHub Actions.</li>
-<li>The data repo's workflow does four things: check out the data repo → check out the engine repo → <span style="font-family:var(--mono)">npm ci &amp;&amp; npm run bundle</span> → run publish against your data dir and deploy.</li>
+<li>The data repo's workflow does four things: check out the data repo → check out the engine repo → <span style="font-family:var(--mono)">bun install &amp;&amp; bun run bundle</span> → run publish against your data dir and deploy.</li>
 <li>Two environment variables point the build at you: <span style="font-family:var(--mono)">TS_BASE_URL</span> (your Pages URL) and <span style="font-family:var(--mono)">TS_DATA_REPO</span> (your data repo). The rest of TS_* is in the <a href="docs-cli.html">CLI Reference</a>.</li>
 <li>From then on, every push of new data (for example a scan pushing a new edition) triggers a rebuild — the site updates itself, no manual deploys.</li>
 </ol>
+<p>The official instance now runs on Cloudflare Pages (projects connected straight to the repos, built on every push): the main project connects to the data repo and clones the engine during its build, the docs project connects to the engine repo and builds directly, each with its own domain (breakerdelta.com and docs.breakerdelta.com). The build commands are exactly the ones above — only the runner changed from GitHub to Cloudflare; self-hosters can pick either platform.</p>
+<h3 style="margin:16px 0 6px">Domain layout: main site, docs and app live apart</h3>
+<p>The official domains are split on purpose: the <b>main site sits at the apex</b> (breakerdelta.com — the boards and topic pages are public content that lives on sharing and search, and the apex is the cleanest address for both); the <b>docs are a separate site</b> (docs.breakerdelta.com — this site, built and deployed by its own docs repo running the <span style="font-family:var(--mono)">docs</span> command, never bundled into the main build; the main site's Docs tab simply links here); and the <b>app. subdomain is reserved</b> for a future logged-in product. For your own instance the same shape applies: point TS_BASE_URL at your apex, and either link to the official docs or build your own copy with the docs command.</p>
 <h3 style="margin:16px 0 6px">A real failure worth knowing</h3>
 <p>A data repo's CI uses its own default token, which <b>cannot read a private repo</b>. If the engine repo is made private, the data repo's build fails at the "check out engine repo" step (repository not found) and the site stops updating — including the rebuilds triggered by scan data pushes. Two fixes: keep the engine repo public (simplest), or store a read-only token for the engine repo in the data repo's Secrets and use it for that checkout.</p>
 <h3 style="margin:16px 0 6px">Updates and day-to-day</h3>
@@ -604,7 +616,7 @@ TS_SHARE         Share platforms, comma-separated</pre>
 <li><b>Engine updates</b>: the data repo's CI builds from the engine's main every time, so a new engine release reaches your site at its next rebuild. Pin the workflow's ref to a tag if you prefer locked versions.</li>
 <li><b>Config changes</b>: edit config.yaml in the data repo and push; after the rebuild, verify each source's effective config on the site's Sources page.</li>
 <li><b>Verify locally first</b>: run the same publish command locally before pushing (see <a href="docs-getting-started.html">Getting Started</a>) — if it builds locally, CI almost always builds too.</li>
-<li><b>Where a failed build usually breaks</b>: engine checkout = visibility / token; bundling = Node version (needs ≥ 20); publish = run doctor against the data dir first.</li>
+<li><b>Where a failed build usually breaks</b>: engine checkout = visibility / token; bundling = Bun version (needs ≥ 1.2); publish = run doctor against the data dir first.</li>
 </ul>
 </div></section>`,
     },

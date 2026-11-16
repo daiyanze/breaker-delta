@@ -62,8 +62,10 @@ import {
   edFile,
   edLabel,
   foot,
+  footDocs,
   heatHelp,
   mast,
+  mastDocs,
   page,
   rowHtml,
   shareLinks,
@@ -151,6 +153,102 @@ export async function buildSite(options: BuildOptions): Promise<string[]> {
   return written.sort(cpCompare);
 }
 
+/** Main-site pages the docs bodies link to relatively; on the docs
+ *  site those links are rewritten to absolute mainUrl addresses. */
+const DOCS_MAIN_LINKS = [
+  "index.html", "rising.html", "echoes.html", "submit.html",
+  "categories.html", "sources.html", "track-record.html",
+  "archive.html", "about.html",
+];
+
+function rewriteMainLinks(ctx: Ctx, html: string): string {
+  const prefix = ctx.lang === "zh" ? "" : ctx.lang + "/";
+  let out = html;
+  for (const f of DOCS_MAIN_LINKS) {
+    out = out.split(`href="${f}"`).join(`href="${ctx.mainUrl}${prefix}${f}"`);
+  }
+  return out;
+}
+
+/**
+ * Build the standalone docs site (docs.breakerdelta.com): the same 8
+ * bilingual pages that used to ship inside the main site, rendered
+ * with the docs shell (mastDocs / footDocs), their own base URL for
+ * canonical / hreflang / sitemap, an index.html redirect stub per
+ * language, and brand files copied from the engine assets. Needs no
+ * editions or data dir. Returns the written HTML paths.
+ */
+export function buildDocsSite(options: BuildOptions): string[] {
+  const docsUrl = options.docsUrl ?? "https://docs.breakerdelta.com/";
+  const ctx = makeCtx({ ...options, baseUrl: docsUrl });
+  const out = ctx.outDir;
+  fs.mkdirSync(out, { recursive: true });
+  const assetsDir = path.join(ctx.rootDir, "assets");
+  const banner = path.join(assetsDir, "banner.png");
+  if (fs.existsSync(banner)) ctx.ogImg = true;
+  const brand = [
+    "favicon.svg", "favicon-32.png", "apple-touch-icon.png", "banner.png", "icon-96.png",
+  ];
+  const written: string[] = [];
+  for (const lang of ctx.langs) {
+    ctx.lang = lang;
+    ctx.langDir = lang === "zh" ? out : path.join(out, lang);
+    fs.mkdirSync(ctx.langDir, { recursive: true });
+    if (ctx.ogImg) fs.copyFileSync(banner, path.join(ctx.langDir, "og-image.png"));
+    for (const bf of brand) {
+      const srcf = path.join(assetsDir, bf);
+      if (fs.existsSync(srcf)) fs.copyFileSync(srcf, path.join(ctx.langDir, bf));
+    }
+    const docLang = lang === "zh" ? "zh" : "en";
+    const notice = lang === "ja" ? JA_DOCS_NOTICE : "";
+    for (const doc of DOC_PAGES) {
+      const docBody =
+        mastDocs(ctx, doc.file) +
+        docsNav(ctx.lang, doc.file) +
+        notice +
+        rewriteMainLinks(ctx, doc.body[docLang]) +
+        footDocs(ctx);
+      let html = page(ctx, doc.title[docLang], docBody, {
+        path: doc.file,
+        desc: doc.desc[docLang],
+      });
+      // The docs site has no feeds of its own; drop page()'s feed links.
+      html = html
+        .replace(/<link rel="alternate" type="application\/rss\+xml"[^>]*>/, "")
+        .replace(/<link rel="alternate" type="application\/atom\+xml"[^>]*>/, "");
+      write(ctx, doc.file, html);
+      written.push(path.join(ctx.langDir, doc.file));
+    }
+    const prefix = lang === "zh" ? "" : lang + "/";
+    const stub =
+      `<!DOCTYPE html>\n<html><head><meta charset="utf-8">` +
+      `<meta http-equiv="refresh" content="0; url=docs.html">` +
+      `<link rel="canonical" href="${ctx.docsUrl}${prefix}docs.html">` +
+      `<title>Breaker Delta Docs</title></head>` +
+      `<body><p><a href="docs.html">Breaker Delta Docs</a></p></body></html>`;
+    write(ctx, "index.html", stub);
+    written.push(path.join(ctx.langDir, "index.html"));
+  }
+  const sm: string[] = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+  ];
+  for (const lang of ctx.langs) {
+    const prefix = lang === "zh" ? "" : lang + "/";
+    for (const doc of DOC_PAGES) {
+      sm.push(`<url><loc>${ctx.docsUrl}${prefix}${doc.file}</loc></url>`);
+    }
+  }
+  sm.push("</urlset>");
+  fs.writeFileSync(path.join(out, "sitemap.xml"), sm.join("\n"), "utf-8");
+  fs.writeFileSync(
+    path.join(out, "robots.txt"),
+    `User-agent: *\nAllow: /\nSitemap: ${ctx.docsUrl}sitemap.xml\n`,
+    "utf-8",
+  );
+  return written.sort(cpCompare);
+}
+
 /** data/topics.json + data/alerts.json at the site root (indent=1). */
 export function writeDataFiles(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void {
   const d = path.join(ctx.outDir, "data");
@@ -230,7 +328,7 @@ export function writeDiscovery(ctx: Ctx, editions: Edition[], topics: PubTopic[]
     `## 主要页面\n- [海浪榜](${ctx.baseUrl}index.html)\n- [涨潮榜](${ctx.baseUrl}rising.html)\n` +
     `- [回波](${ctx.baseUrl}echoes.html)\n- [分类](${ctx.baseUrl}categories.html)\n` +
     `- [数据源](${ctx.baseUrl}sources.html)\n- [战绩](${ctx.baseUrl}track-record.html)\n` +
-    `- [投波](${ctx.baseUrl}submit.html)\n- [关于](${ctx.baseUrl}about.html)\n- [文档 Docs](${ctx.baseUrl}docs.html)\n- [Docs (English)](${ctx.baseUrl}en/docs.html)\n` +
+    `- [投波](${ctx.baseUrl}submit.html)\n- [关于](${ctx.baseUrl}about.html)\n- [文档 Docs](${ctx.docsUrl}docs.html)\n- [Docs (English)](${ctx.docsUrl}en/docs.html)\n` +
     `- [往期归档](${ctx.baseUrl}archive.html)\n- [RSS](${ctx.baseUrl}feed.xml)\n` +
     `- [Atom](${ctx.baseUrl}atom.xml)\n\n## 语言版本\n${langLinks}\n\n## 当前浪高最高的话题\n${topLinks}\n`;
   fs.writeFileSync(path.join(out, "llms.txt"), llms, "utf-8");
@@ -1120,27 +1218,9 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     ),
   );
 
-  // docs: usage guide, zh / en only for now. The ja build renders the
-  // English body under a "Japanese coming soon" notice, so the docs
-  // tab and hreflang alternates stay valid in every language.
-  for (const doc of DOC_PAGES) {
-    const docLang = ctx.lang === "zh" ? "zh" : "en";
-    const notice = ctx.lang === "ja" ? JA_DOCS_NOTICE : "";
-    const docBody =
-      mast(ctx, "docs", editions, { fname: doc.file }) +
-      docsNav(ctx.lang, doc.file) +
-      notice +
-      doc.body[docLang] +
-      foot(ctx);
-    write(
-      ctx,
-      doc.file,
-      page(ctx, doc.title[docLang], docBody, {
-        path: doc.file,
-        desc: doc.desc[docLang],
-      }),
-    );
-  }
+  // (The usage docs are NOT part of this build: since the domain split
+  // they are a standalone site — buildDocsSite / the CLI's docs command —
+  // and the nav's Docs tab links out to ctx.docsUrl.)
 
   // track record: generated from track-record.md at build time
   const tr = parseTrackRecordFile(

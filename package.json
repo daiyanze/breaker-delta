@@ -1,15 +1,15 @@
 {
   "engines": {
-    "node": ">=20"
+    "bun": ">=1.2.0"
   },
   "name": "breaker-delta",
   "private": true,
   "scripts": {
-    "release": "node scripts/release.mjs",
-    "bump": "node scripts/bump.mjs",
-    "build": "npm run build -w @breaker-delta/core && npm run build -w @breaker-delta/fetchers && npm run build -w @breaker-delta/publisher && npm run build -w @breaker-delta/cli && npm run build -w @breaker-delta/extension",
-    "bundle": "npm run build && npm run bundle -w @breaker-delta/cli",
-    "test": "npm run test -w @breaker-delta/core && npm run test -w @breaker-delta/fetchers && npm run test -w @breaker-delta/publisher && npm run test -w @breaker-delta/cli && npm run test -w @breaker-delta/extension"
+    "release": "bun scripts/release.mjs",
+    "bump": "bun scripts/bump.mjs",
+    "build": "bun run --filter @breaker-delta/core build && bun run --filter @breaker-delta/fetchers build && bun run --filter @breaker-delta/publisher build && bun run --filter @breaker-delta/cli build && bun run --filter @breaker-delta/extension build",
+    "bundle": "bun run build && bun run --filter @breaker-delta/cli bundle",
+    "test": "bun run --filter @breaker-delta/core test && bun run --filter @breaker-delta/fetchers test && bun run --filter @breaker-delta/publisher test && bun run --filter @breaker-delta/cli test && bun run --filter @breaker-delta/extension test"
   },
   "type": "module",
   "version": "0.22.0",

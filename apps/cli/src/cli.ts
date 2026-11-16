@@ -3,7 +3,7 @@
 //   breaker-delta [--data-dir <dir>] [--config <path>] [--json]
 //                 [--root-dir <dir>] <command> [command args]
 //
-// Commands: scan, review, record, publish, doctor, mcp. With no
+// Commands: scan, review, record, publish, docs, doctor, mcp. With no
 // command, scan runs (the Python `python -m radar` one-command
 // path). Exit codes: 0 success, 1 runtime error, 2 usage error.
 
@@ -13,6 +13,7 @@ import { pathToFileURL } from "node:url";
 import {
   RuntimeError,
   UsageError,
+  cmdDocs,
   cmdDoctor,
   cmdPublish,
   cmdRecord,
@@ -28,7 +29,7 @@ import {
 } from "./context.js";
 import { runMcp } from "./mcp.js";
 
-const HELP = `breaker-delta ${VERSION} — web hot-topic radar (scan / review / record / publish / doctor / mcp)
+const HELP = `breaker-delta ${VERSION} — web hot-topic radar (scan / review / record / publish / docs / doctor / mcp)
 
 Usage:
   breaker-delta [--data-dir <dir>] [--config <path>] [--root-dir <dir>] [--json] <command> [args]
@@ -60,6 +61,12 @@ Commands:
           [--langs zh,en,ja] [--creator | --no-creator]
                      Build the static site from the data dir. Flags override
                      the TS_* environment variables, which override defaults.
+  docs [--out <dir>] [--docs-url <url>] [--main-url <url>]
+       [--langs zh,en,ja]
+                     Build the standalone documentation site
+                     (docs.breakerdelta.com) from the engine root alone;
+                     no data dir is read. TS_DOCS_URL / TS_MAIN_URL /
+                     TS_DOCS_OUT set the same values by environment.
   doctor             Offline self-check of node, config, data dir and engine
                      root. Exit 1 when any check fails.
   mcp                Run the stdio MCP server (tools: radar_scan, radar_review).
@@ -73,7 +80,7 @@ interface Parsed {
 const VALUE_FLAGS = new Set([
   "data-dir", "config", "root-dir",
   "edition", "date", "name", "result",
-  "out", "base-url", "data-repo", "langs",
+  "out", "base-url", "data-repo", "langs", "docs-url", "main-url",
 ]);
 const BOOL_FLAGS = new Set(["json", "help", "creator", "no-creator"]);
 
@@ -185,6 +192,15 @@ export async function main(argv: string[]): Promise<number> {
           dataRepo: flagStr(flags, "data-repo"),
           langs: flagStr(flags, "langs"),
           creator: creatorFlag,
+        });
+      }
+      case "docs": {
+        if (positionals.length > 1) throw new UsageError(`docs: unexpected argument: ${positionals[1]}`);
+        return cmdDocs(ctx, {
+          out: flagStr(flags, "out"),
+          docsUrl: flagStr(flags, "docs-url"),
+          mainUrl: flagStr(flags, "main-url"),
+          langs: flagStr(flags, "langs"),
         });
       }
       case "doctor": {

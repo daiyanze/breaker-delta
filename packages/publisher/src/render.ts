@@ -171,7 +171,10 @@ export function mast(
   const tabs = sArr(ctx, "tabs");
   let tabHtml = "";
   hrefs.forEach((h, i) => {
-    tabHtml += `<a href="${h}" class="${keys[i] === active ? "on" : ""}">${tabs[i]}</a>`;
+    // The docs live on their own site (docs.breakerdelta.com): the tab
+    // links out instead of to a page inside this build.
+    const href = keys[i] === "docs" ? `${ctx.docsUrl}${langPrefix(ctx)}docs.html` : h;
+    tabHtml += `<a href="${href}" class="${keys[i] === active ? "on" : ""}">${tabs[i]}</a>`;
   });
   let ctl =
     `<button class="theme-btn" id="themeBtn" type="button" title="${s(ctx, "theme")}">◐</button>`;
@@ -443,10 +446,48 @@ export function waveChart(ctx: Ctx, topic: PubTopic, editions: Edition[]): strin
 
 export function foot(ctx: Ctx): string {
   return (
-    `<footer><div class="copy">© 2026 Dai · <a href="about.html">${s(ctx, "foot_about")}</a> · <a href="docs.html">${sArr(ctx, "tabs")[9]}</a> · ` +
+    `<footer><div class="copy">© 2026 Dai · <a href="about.html">${s(ctx, "foot_about")}</a> · <a href="${ctx.docsUrl}${langPrefix(ctx)}docs.html">${sArr(ctx, "tabs")[9]}</a> · ` +
     `<a href="https://github.com/daiyanze/breaker-delta" rel="noopener">GitHub</a> · ` +
     `<a href="https://x.com/daiyanze" rel="noopener">X</a> · ` +
     `<a href="feed.xml">RSS</a> · <a href="atom.xml">Atom</a></div></footer>`
+  );
+}
+
+/**
+ * Header for the standalone docs site: same brand block as mast(),
+ * but the nav row is just "back to the radar" (absolute, mainUrl) plus
+ * the docs hub tab; the docsNav chips carry intra-docs navigation.
+ */
+export function mastDocs(ctx: Ctx, fname: string): string {
+  let ctl =
+    `<button class="theme-btn" id="themeBtn" type="button" title="${s(ctx, "theme")}">◐</button>`;
+  if (ctx.langs.length > 2) {
+    const root = ctx.lang === "zh" ? "" : "../";
+    let links = "";
+    for (const L of ctx.langs) {
+      links +=
+        `<a href="${root}${L === "zh" ? "" : L + "/"}${fname}" ` +
+        `class="${L === ctx.lang ? "on" : ""}">${LANG_LABEL[L]}</a>`;
+    }
+    ctl += `<span class="langs">${links}</span>`;
+  }
+  const tabs =
+    `<a href="${ctx.mainUrl}${langPrefix(ctx)}index.html">${s(ctx, "docs_back")}</a>` +
+    `<a href="docs.html" class="on">${sArr(ctx, "tabs")[9]}</a>`;
+  return (
+    `<header class="mast">${faviconImg()}<div><div class="wordmark">BREAKER DELTA</div>\n` +
+    `<div class="pg-title">${s(ctx, "pg_title")}</div></div>` +
+    `<div class="mast-ctl">${ctl}</div></header>\n` +
+    `<nav class="tabs">${tabs}</nav>`
+  );
+}
+
+/** Footer for the standalone docs site (no in-site relative links). */
+export function footDocs(ctx: Ctx): string {
+  return (
+    `<footer><div class="copy">© 2026 Dai · <a href="${ctx.mainUrl}${langPrefix(ctx)}index.html">${s(ctx, "docs_back")}</a> · ` +
+    `<a href="https://github.com/daiyanze/breaker-delta" rel="noopener">GitHub</a> · ` +
+    `<a href="https://x.com/daiyanze" rel="noopener">X</a></div></footer>`
   );
 }
 

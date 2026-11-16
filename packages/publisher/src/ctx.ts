@@ -18,6 +18,12 @@ export interface BuildOptions {
   faviconCacheDir?: string;
   outDir?: string;
   baseUrl?: string;
+  /** The standalone docs site's URL (default https://docs.breakerdelta.com/).
+   *  The main site's nav links out to it; buildDocsSite uses it as its base. */
+  docsUrl?: string;
+  /** The main radar site's URL, used by the docs site for back-links
+   *  (default https://breakerdelta.com/). */
+  mainUrl?: string;
   dataRepo?: string;
   langs?: string[];
   creator?: boolean;
@@ -28,6 +34,8 @@ export interface BuildOptions {
 }
 
 export const DEFAULT_BASE_URL = "https://daiyanze.github.io/breaker-delta/";
+export const DEFAULT_DOCS_URL = "https://docs.breakerdelta.com/";
+export const DEFAULT_MAIN_URL = "https://breakerdelta.com/";
 export const DEFAULT_DATA_REPO = "daiyanze/breaker-delta";
 export const DEFAULT_LANGS = ["zh", "en", "ja"];
 export const DEFAULT_SHARE_KEYS = [
@@ -43,6 +51,8 @@ export interface Ctx {
   faviconCacheDir: string;
   outDir: string;
   baseUrl: string;
+  docsUrl: string;
+  mainUrl: string;
   dataRepo: string;
   langs: string[];
   creator: boolean;
@@ -77,6 +87,8 @@ export function makeCtx(options: BuildOptions): Ctx {
     outDir: options.outDir ?? path.join(rootDir, "site"),
     baseUrl:
       options.baseUrl !== undefined ? normalizeBaseUrl(options.baseUrl) : DEFAULT_BASE_URL,
+    docsUrl: normalizeBaseUrl(options.docsUrl ?? DEFAULT_DOCS_URL),
+    mainUrl: normalizeBaseUrl(options.mainUrl ?? DEFAULT_MAIN_URL),
     dataRepo: options.dataRepo ?? DEFAULT_DATA_REPO,
     langs: options.langs ?? [...DEFAULT_LANGS],
     creator: options.creator ?? true,
@@ -107,7 +119,7 @@ function envList(raw: string | undefined, fallback: string): string[] {
 
 /**
  * Build options from the same environment variables publish.py reads
- * (TS_OUT / TS_BASE_URL / TS_DATA_REPO / TS_LANGS / TS_CREATOR /
+ * (TS_OUT / TS_BASE_URL / TS_DOCS_URL / TS_MAIN_URL / TS_DATA_REPO / TS_LANGS / TS_CREATOR /
  * TS_PAGE_SIZE / TS_ARCHIVE_DAYS / TS_SOURCES_PAGE / TS_SHARE), so a
  * data repo's CI contract carries over unchanged.
  */
@@ -118,6 +130,8 @@ export function optionsFromEnv(
   const opts: BuildOptions = { rootDir };
   if (env.TS_OUT !== undefined) opts.outDir = env.TS_OUT;
   if (env.TS_BASE_URL !== undefined) opts.baseUrl = env.TS_BASE_URL;
+  if (env.TS_DOCS_URL !== undefined) opts.docsUrl = env.TS_DOCS_URL;
+  if (env.TS_MAIN_URL !== undefined) opts.mainUrl = env.TS_MAIN_URL;
   if (env.TS_DATA_REPO !== undefined) opts.dataRepo = env.TS_DATA_REPO;
   opts.langs = envList(env.TS_LANGS, "zh,en,ja");
   const creatorRaw = (env.TS_CREATOR ?? "1").toLowerCase();

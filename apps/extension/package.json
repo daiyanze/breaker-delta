@@ -4,13 +4,12 @@
   },
   "description": "Breaker Delta Chrome extension (echo catcher + wave-height badge + alert count), built on @breaker-delta/core. Source is TypeScript; scripts/bundle.mjs emits a loadable unpacked extension into dist/.",
   "devDependencies": {
-    "esbuild": "^0.24.2",
     "typescript": "^5"
   },
   "name": "@breaker-delta/extension",
   "scripts": {
-    "build": "tsc -p tsconfig.json && node scripts/bundle.mjs",
-    "test": "npm run build && node --test \"dist/tsc/test/**/*.test.js\""
+    "build": "tsc -p tsconfig.json && bun scripts/bundle.mjs",
+    "test": "bun run build && bun test dist/tsc/test"
   },
   "type": "module",
   "version": "0.6.1"

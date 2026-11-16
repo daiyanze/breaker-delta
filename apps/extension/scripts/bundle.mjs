@@ -1,17 +1,16 @@
 // Build the loadable extension directory apps/extension/dist/:
-// esbuild bundles the three compiled entry points (popup / content /
-// background, with @breaker-delta/core inlined) as classic scripts —
-// the manifest declares no module service worker — and the static
-// files (manifest, html/css, icons, data/ scaffolding, README) are
-// copied verbatim. dist/ is a build product and is not committed;
+// Bun.build bundles the four compiled entry points (popup / content /
+// background / options, with @breaker-delta/core inlined) as classic
+// scripts — the manifest declares no module service worker — and the
+// static files (manifest, html/css, icons, data/ scaffolding, README)
+// are copied verbatim. dist/ is a build product and is not committed;
 // data/topics.json and data/alerts.json are instance data and are
 // injected at packaging time (see data/README.md), never built here.
+// Run with: bun scripts/bundle.mjs
 
 import { cpSync, mkdirSync } from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-
-import { build } from "esbuild";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkgRoot = path.resolve(here, "..");
@@ -19,14 +18,17 @@ const dist = path.join(pkgRoot, "dist");
 const tscOut = path.join(dist, "tsc");
 
 for (const name of ["popup", "content", "background", "options"]) {
-  await build({
-    entryPoints: [path.join(tscOut, "src", `${name}.js`)],
-    bundle: true,
-    platform: "browser",
+  const result = await Bun.build({
+    entrypoints: [path.join(tscOut, "src", `${name}.js`)],
+    outdir: dist,
+    naming: `${name}.js`,
+    target: "browser",
     format: "iife",
-    target: "es2022",
-    outfile: path.join(dist, `${name}.js`),
   });
+  if (!result.success) {
+    for (const log of result.logs) console.error(log);
+    process.exit(1);
+  }
 }
 
 for (const file of ["manifest.json", "popup.html", "popup.css", "content.css", "options.html", "options.css", "README.md", "README.zh-CN.md"]) {

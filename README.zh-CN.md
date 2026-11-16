@@ -31,7 +31,7 @@
 | 引擎 | `packages/` + `apps/` | 确定性工作交给代码（见下） |
 | 状态 | *使用者的数据仓* | 期次、话题台账、战绩台账——实例数据不进本仓库 |
 
-引擎包（npm workspaces，TypeScript，零运行时依赖）：
+引擎包（Bun workspaces，TypeScript，零运行时依赖）：
 
 - `packages/core` —— `@breaker-delta/core`：领域逻辑——浪高、共振分组、分类、slug、话题台账、新词词汇表、复盘记账。
 - `packages/fetchers` —— `@breaker-delta/fetchers`：26 个抓取组，各自把信息源归一化成候选。
@@ -41,19 +41,19 @@
 
 ## 引擎 / 数据分仓
 
-本仓库**只有代码**。实例的数据——`editions/`、`state/`（话题台账、词汇与 sitemap 基线）、`track-record.md`、自己的 `config.yaml`——放在使用者自己的**数据仓**里。数据仓的 CI 拉取引擎仓、用 Node bundle 构建站点、部署到数据仓自己的 GitHub Pages。[daiyanze/breaker-delta-data](https://github.com/daiyanze/breaker-delta-data) 是一个现成样例：照它的形状建仓、换上你自己的数据，雷达就是你的。
+本仓库**只有代码**。实例的数据——`editions/`、`state/`（话题台账、词汇与 sitemap 基线）、`track-record.md`、自己的 `config.yaml`——放在使用者自己的**数据仓**里。数据仓的 CI 拉取引擎仓、用引擎 bundle 构建站点、部署到数据仓自己的 GitHub Pages。[daiyanze/breaker-delta-data](https://github.com/daiyanze/breaker-delta-data) 是一个现成样例：照它的形状建仓、换上你自己的数据，雷达就是你的。
 
 ## 快速开始
 
-需要 Node ≥ 20，无运行时依赖。
+需要 Bun ≥ 1.2，无运行时依赖。
 
 ```bash
 git clone https://github.com/daiyanze/breaker-delta.git
 cd breaker-delta
-npm ci
-npm run bundle        # 构建 apps/cli/dist/breaker-delta.mjs —— 单个文件
+bun install
+bun run bundle        # 构建 apps/cli/dist/breaker-delta.mjs —— 单个文件
 
-BD="node apps/cli/dist/breaker-delta.mjs"
+BD="bun apps/cli/dist/breaker-delta.mjs"
 $BD --data-dir /path/to/your-data doctor                    # 离线自检
 $BD --data-dir /path/to/your-data scan --edition morning    # 抓取一期的候选
 $BD --data-dir /path/to/your-data review                    # 列出到期该复盘的话题
@@ -73,7 +73,7 @@ $BD --data-dir /path/to/your-data record review --name "Some New Model" --result
 **MCP**：同一个 bundle 也是一个 stdio MCP 服务（工具 `radar_scan`、`radar_review`），在 agent harness 里这样注册：
 
 ```bash
-node apps/cli/dist/breaker-delta.mjs --data-dir /path/to/your-data mcp
+bun apps/cli/dist/breaker-delta.mjs --data-dir /path/to/your-data mcp
 ```
 
 ## 作为 Skill 使用
@@ -100,7 +100,7 @@ node apps/cli/dist/breaker-delta.mjs --data-dir /path/to/your-data mcp
 
 ## 文档索引
 
-- **站点内文档（中英双语）** —— 内置在每个实例站点里的用法说明：[文档总览](https://daiyanze.github.io/breaker-delta-data/docs.html) · [English Docs](https://daiyanze.github.io/breaker-delta-data/en/docs.html) —— 快速开始、看懂站点、CLI 参考、配置、Skill 与 MCP、Chrome 扩展、自建与部署。源文件在 `packages/publisher/src/docs.ts`；日文站暂时显示英文版。
+- **独立文档站（中英双语）** —— docs.breakerdelta.com 上的用法说明，不占实例站点：[文档总览](https://docs.breakerdelta.com/docs.html) · [English Docs](https://docs.breakerdelta.com/en/docs.html) —— 快速开始、看懂站点、CLI 参考、配置、Skill 与 MCP、Chrome 扩展、自建与部署。源文件在 `packages/publisher/src/docs.ts`；日文站暂时显示英文版。
 - [自带信息源一览](SOURCES.zh-CN.md) —— 全部 26 个抓取组与各自口径（[English](SOURCES.md)）
 - [Privacy](PRIVACY.md) —— 只读、不登录、不发帖
 - [Changelog](CHANGELOG.md)

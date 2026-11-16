@@ -12,6 +12,7 @@ declare const process: {
   env: Record<string, string | undefined>;
   cwd(): string;
   version: string;
+  versions: { bun?: string; node: string };
   execPath: string;
   exitCode: number | undefined;
   exit(code?: number): never;
@@ -34,8 +35,8 @@ declare const console: {
 };
 
 // Minimal ambient declarations for the Node.js built-ins this package
-// uses. Like the other packages, devDependencies carry no @types/node;
-// runtime behaviour is Node's own.
+// uses (executed by Bun). Like the other packages, devDependencies carry no @types/node;
+// runtime behaviour is Bun's (Node-compatible APIs).
 
 declare module "node:fs" {
   export function existsSync(path: string): boolean;

@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 
 import { parseTrackRecordFile } from "@breaker-delta/core";
 
-import { buildSite, optionsFromEnv } from "../src/index.js";
+import { buildDocsSite, buildSite, optionsFromEnv } from "../src/index.js";
 import { pyQuote } from "../src/py.js";
 
 const ROOT = path.resolve(
@@ -151,10 +151,6 @@ test("build writes all outputs", async () => {
     for (const name of [
       "index.html", "rising.html", "echoes.html", "categories.html",
       "sources.html", "archive.html", "about.html",
-      "docs.html", "docs-getting-started.html", "docs-reading.html",
-      "docs-cli.html", "docs-config.html", "docs-skill.html",
-      "docs-extension.html", "docs-deploy.html",
-      "en/docs.html", "en/docs-cli.html", "ja/docs.html",
       "edition-2026-11-12-morning.html",
       "edition-2026-11-12-evening.html",
       "feed.xml", "atom.xml", "sitemap.xml", "robots.txt",
@@ -188,33 +184,67 @@ test("build writes all outputs", async () => {
   }
 });
 
-test("docs pages are bilingual zh/en with ja fallback to en", async () => {
+test("main site links out to the docs site and ships no docs pages", async () => {
   const b = await buildFixture();
   try {
-    const zhDocs = read(b.outDir, "docs.html");
-    assert.ok(zhDocs.includes("这套文档是给谁的"));
-    assert.ok(zhDocs.includes("📖 文档")); // docs tab present in nav
-    assert.ok(zhDocs.includes('class="tagchip on"')); // hub chip highlighted
-    const zhCli = read(b.outDir, "docs-cli.html");
-    assert.ok(zhCli.includes("record review"));
-    const enDocs = read(b.outDir, "en/docs.html");
-    assert.ok(enDocs.includes("Who these docs are for"));
-    const enExt = read(b.outDir, "en/docs-extension.html");
-    assert.ok(enExt.includes("activeTab"));
-    const jaDocs = read(b.outDir, "ja/docs.html");
-    assert.ok(jaDocs.includes("日本語版は準備中です")); // ja notice
-    assert.ok(jaDocs.includes("Who these docs are for")); // en body fallback
+    assert.ok(!fs.existsSync(path.join(b.outDir, "docs.html")), "no docs.html in main build");
+    assert.ok(!fs.existsSync(path.join(b.outDir, "en/docs-cli.html")), "no en docs in main build");
     const index = read(b.outDir, "index.html");
     assert.ok(
-      index.indexOf("about.html") < index.indexOf("docs.html"),
-      "docs tab comes after about in the top nav",
+      index.indexOf("about.html") < index.indexOf("https://docs.breakerdelta.com/docs.html"),
+      "docs tab comes after about in the top nav and links out",
     );
     const sitemap = read(b.outDir, "sitemap.xml");
-    assert.ok(sitemap.includes("docs.html") && sitemap.includes("en/docs-cli.html"));
+    assert.ok(!sitemap.includes("docs.html"), "main sitemap carries no docs pages");
     const llms = read(b.outDir, "llms.txt");
-    assert.ok(llms.includes("docs.html"));
+    assert.ok(llms.includes("https://docs.breakerdelta.com/docs.html"));
+    assert.ok(llms.includes("https://docs.breakerdelta.com/en/docs.html"));
   } finally {
     cleanup(b);
+  }
+});
+
+test("standalone docs site is bilingual zh/en with ja fallback to en", () => {
+  const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "bd-docs-test-"));
+  const outDir = path.join(tmpdir, "docs-site");
+  try {
+    const written = buildDocsSite({ rootDir: ROOT, outDir });
+    assert.strictEqual(written.length, 27); // 8 pages x 3 langs + 3 index stubs
+    for (const name of [
+      "docs.html", "docs-getting-started.html", "docs-reading.html",
+      "docs-cli.html", "docs-config.html", "docs-skill.html",
+      "docs-extension.html", "docs-deploy.html",
+      "en/docs.html", "en/docs-cli.html", "ja/docs.html",
+      "index.html", "en/index.html", "ja/index.html",
+      "sitemap.xml", "robots.txt", "favicon.svg",
+    ]) {
+      assert.ok(fs.existsSync(path.join(outDir, name)), name);
+    }
+    const zhDocs = read(outDir, "docs.html");
+    assert.ok(zhDocs.includes("这套文档是给谁的"));
+    assert.ok(zhDocs.includes('class="tagchip on"')); // hub chip highlighted
+    assert.ok(zhDocs.includes("https://docs.breakerdelta.com/docs.html")); // canonical on docs domain
+    assert.ok(zhDocs.includes("https://breakerdelta.com/index.html")); // back-link to the radar
+    assert.ok(!zhDocs.includes("feed.xml")); // no feed links on the docs site
+    const zhCli = read(outDir, "docs-cli.html");
+    assert.ok(zhCli.includes("record review"));
+    assert.ok(zhCli.includes("docs [--out")); // the docs command itself is documented
+    const zhReading = read(outDir, "docs-reading.html");
+    assert.ok(zhReading.includes("https://breakerdelta.com/sources.html")); // main-site links rewritten absolute
+    const enDocs = read(outDir, "en/docs.html");
+    assert.ok(enDocs.includes("Who these docs are for"));
+    const enExt = read(outDir, "en/docs-extension.html");
+    assert.ok(enExt.includes("activeTab"));
+    const jaDocs = read(outDir, "ja/docs.html");
+    assert.ok(jaDocs.includes("日本語版は準備中です")); // ja notice
+    assert.ok(jaDocs.includes("Who these docs are for")); // en body fallback
+    const stub = read(outDir, "index.html");
+    assert.ok(stub.includes("url=docs.html")); // root redirects to the hub
+    const sitemap = read(outDir, "sitemap.xml");
+    assert.ok(sitemap.includes("https://docs.breakerdelta.com/docs.html"));
+    assert.ok(sitemap.includes("https://docs.breakerdelta.com/en/docs-cli.html"));
+  } finally {
+    fs.rmSync(tmpdir, { recursive: true, force: true });
   }
 });
 

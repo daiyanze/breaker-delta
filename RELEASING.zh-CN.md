@@ -1,4 +1,4 @@
-# 发布流程
+# 发布流程 — Releasing Breaker Delta
 
 [English](RELEASING.md) · **中文**
 
@@ -9,7 +9,7 @@ Skill、Chrome 扩展——作为 GitHub Release 的附件。
 
 | 产物 | 说明 |
 |---|---|
-| `breaker-delta-<版本>.mjs` | 单文件 CLI（Node ≥ 20、零依赖、可直接执行）。这就是「breaker-delta」本体：引擎 + CLI 打成一个文件 |
+| `breaker-delta-<版本>.mjs` | 单文件 CLI（Bun ≥ 1.2、零依赖、可直接执行）。这就是「breaker-delta」本体：引擎 + CLI 打成一个文件 |
 | `breaker-delta-skill-<版本>.zip` | Agent Skill 包：`skills/breaker-delta/SKILL.md`、`.claude-plugin/plugin.json`，以及放在 `apps/cli/dist/breaker-delta.mjs` 的 CLI 单文件——按仓库原布局打包，解压后 SKILL.md 里写的路径直接可用 |
 | `breaker-delta-extension-<扩展版本>.zip` | Chrome 扩展（未打包形态，`manifest.json` 在 zip 根目录）。不含实例数据——`data/` 里只有说明文件；`topics.json` / `alerts.json` 按扩展 README 的说明另行放入 |
 | `SHA256SUMS.txt` | 上述三个产物的 SHA-256 校验和 |
@@ -32,14 +32,14 @@ Release 正文自动取自 `CHANGELOG.md` 里对应的 `## <版本>` 一节，
 
 ```bash
 # 1. 升引擎版本（版本号已就位时跳过）
-npm run bump -- 0.22.0        # 即 node scripts/bump.mjs 0.22.0
+bun run bump 0.22.0           # 即 bun scripts/bump.mjs 0.22.0
 
 # 2. 在 CHANGELOG.md 顶部加一节 `## 0.22.0`
 
 # 3. 本地全量验证（完整测试 + 打包预演）
-npm test
-npm run release               # 产物暂存到 release-dist/
-node release-dist/breaker-delta-0.22.0.mjs --help
+bun run test
+bun run release               # 产物暂存到 release-dist/
+bun release-dist/breaker-delta-0.22.0.mjs --help
 
 # 4. 提交、打标签、推送——推标签即触发 workflow
 git commit -am "0.22.0"
@@ -63,4 +63,4 @@ git push origin main v0.22.0
   （归数据仓，如 `breaker-delta-data`），引擎仓及其发布产物
   不含任何收集数据。
 - 若 workflow 卡在版本校验，说明有版本戳漏改：跑
-  `npm run bump -- <版本>` 后重新打标签。
+  `bun run bump <版本>` 后重新打标签。

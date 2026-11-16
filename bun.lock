@@ -1,0 +1,74 @@
+{
+  "lockfileVersion": 2,
+  "configVersion": 0,
+  "workspaces": {
+    "": {
+      "name": "breaker-delta",
+    },
+    "apps/cli": {
+      "name": "@breaker-delta/cli",
+      "version": "0.22.0",
+      "bin": {
+        "breaker-delta": "dist/breaker-delta.mjs",
+      },
+      "dependencies": {
+        "@breaker-delta/core": "0.22.0",
+        "@breaker-delta/fetchers": "0.22.0",
+        "@breaker-delta/publisher": "0.22.0",
+      },
+      "devDependencies": {
+        "typescript": "^5",
+      },
+    },
+    "apps/extension": {
+      "name": "@breaker-delta/extension",
+      "version": "0.6.1",
+      "dependencies": {
+        "@breaker-delta/core": "0.22.0",
+      },
+      "devDependencies": {
+        "typescript": "^5",
+      },
+    },
+    "packages/core": {
+      "name": "@breaker-delta/core",
+      "version": "0.22.0",
+      "devDependencies": {
+        "typescript": "^5",
+      },
+    },
+    "packages/fetchers": {
+      "name": "@breaker-delta/fetchers",
+      "version": "0.22.0",
+      "dependencies": {
+        "@breaker-delta/core": "0.22.0",
+      },
+      "devDependencies": {
+        "typescript": "^5",
+      },
+    },
+    "packages/publisher": {
+      "name": "@breaker-delta/publisher",
+      "version": "0.22.0",
+      "dependencies": {
+        "@breaker-delta/core": "0.22.0",
+      },
+      "devDependencies": {
+        "typescript": "^5",
+      },
+    },
+  },
+  "packages": {
+    "@breaker-delta/cli": ["@breaker-delta/cli@workspace:apps/cli"],
+
+    "@breaker-delta/core": ["@breaker-delta/core@workspace:packages/core"],
+
+    "@breaker-delta/extension": ["@breaker-delta/extension@workspace:apps/extension"],
+
+    "@breaker-delta/fetchers": ["@breaker-delta/fetchers@workspace:packages/fetchers"],
+
+    "@breaker-delta/publisher": ["@breaker-delta/publisher@workspace:packages/publisher"],
+
+    "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
+  }
+}

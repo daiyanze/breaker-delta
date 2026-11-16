@@ -50,8 +50,8 @@ declare const console: {
 };
 
 // Minimal ambient declarations for the Node.js built-ins this package
-// uses. Like the other packages, devDependencies are pinned to
-// typescript only (no @types/node); runtime behaviour is Node's own.
+// uses (executed by Bun). Like the other packages, devDependencies are pinned to
+// typescript only (no @types/node); runtime behaviour is Bun's (Node-compatible APIs).
 
 declare module "node:fs" {
   export function existsSync(path: string): boolean;

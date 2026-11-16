@@ -24,7 +24,7 @@
 // engine version.
 //
 // Usage:
-//   node scripts/release.mjs [--version X.Y.Z] [--out DIR] [--skip-tests]
+//   bun scripts/release.mjs [--version X.Y.Z] [--out DIR] [--skip-tests]
 //
 // The GitHub workflow (.github/workflows/release.yml) runs this on a
 // v* tag and creates the GitHub Release from the staged files.
@@ -100,11 +100,11 @@ console.log(`release: engine v${engineVersion}, extension v${extVersion}`);
 // ------------------------------------------------------------ test + build
 
 if (!skipTests) {
-  run("npm", ["test"]);
+  run("bun", ["run", "test"]);
 } else {
   console.log("release: skipping tests (--skip-tests)");
 }
-run("npm", ["run", "bundle"]); // builds every workspace + the CLI single file
+run("bun", ["run", "bundle"]); // builds every workspace + the CLI single file
 
 const cliBundle = path.join(root, "apps/cli/dist/breaker-delta.mjs");
 if (!existsSync(cliBundle)) fail(`CLI bundle missing: ${cliBundle}`);
@@ -207,7 +207,7 @@ function extractNotes(version) {
   const downloads = [
     "## Downloads",
     "",
-    `- \`breaker-delta-${version}.mjs\` — the single-file CLI (Node ≥ 20, no dependencies). Run: \`node breaker-delta-${version}.mjs --help\``,
+    `- \`breaker-delta-${version}.mjs\` — the single-file CLI (Bun ≥ 1.2, no dependencies). Run: \`bun breaker-delta-${version}.mjs --help\``,
     `- \`breaker-delta-skill-${version}.zip\` — the Agent Skill (SKILL.md + plugin manifest + the CLI bundle, in repo layout). Unzip into a workspace and point your agent harness at \`skills/breaker-delta/\`.`,
     `- \`breaker-delta-extension-${extVersion}.zip\` — the Chrome extension (unpacked). Load via \`chrome://extensions/\` → Developer mode → Load unpacked. Ships without instance data; see the extension README for how to add \`topics.json\` / \`alerts.json\`.`,
     "- `SHA256SUMS.txt` — checksums for all assets.",

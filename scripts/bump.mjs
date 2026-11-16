@@ -1,6 +1,6 @@
 // Bump the shared engine version everywhere it lives.
 //
-//   node scripts/bump.mjs 0.22.0
+//   bun scripts/bump.mjs 0.22.0
 //
 // Updates: root package.json, packages/{core,fetchers,publisher},
 // apps/cli (version + its @breaker-delta/* dependency specs),
@@ -24,7 +24,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const next = process.argv[2];
 if (!next || !/^\d+\.\d+\.\d+$/.test(next)) {
-  console.error("usage: node scripts/bump.mjs X.Y.Z");
+  console.error("usage: bun scripts/bump.mjs X.Y.Z");
   process.exit(2);
 }
 
@@ -70,9 +70,14 @@ if (!/export const VERSION = "[^"]+"/.test(ctx)) {
 writeFileSync(ctxFile, ctx.replace(/export const VERSION = "[^"]+"/, `export const VERSION = "${next}"`));
 console.log("  apps/cli/src/context.ts");
 
-// Sync package-lock.json (it records every workspace version and the
-// inter-package dependency specs; npm ci refuses an out-of-sync lock).
+// Sync the lockfiles (they record every workspace version and the
+// inter-package dependency specs; --frozen-lockfile / npm ci refuse an
+// out-of-sync lock). bun.lock is canonical since the Bun migration;
+// package-lock.json is kept in sync only until the last npm consumer
+// (the data repo's GitHub workflow) retires at the Cloudflare cutover.
+console.log("  bun.lock (bun install)");
+execFileSync("bun", ["install"], { cwd: root, stdio: "inherit" });
 console.log("  package-lock.json (npm install --package-lock-only)");
 execFileSync("npm", ["install", "--package-lock-only", "--ignore-scripts"], { cwd: root, stdio: "inherit" });
 
-console.log(`bump: done. Next: add a CHANGELOG section, run npm test, commit, tag v${next}.`);
+console.log(`bump: done. Next: add a CHANGELOG section, run bun test, commit, tag v${next}.`);

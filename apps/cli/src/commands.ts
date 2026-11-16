@@ -1,4 +1,4 @@
-// The five commands. Human output mirrors the Python entry points
+// The CLI commands. Human output mirrors the Python entry points
 // line for line where a Python counterpart exists (radar/__main__.py
 // for scan/review, radar/publish.py's build output for publish);
 // record and doctor are new in Phase 4 and define their own formats.
@@ -18,7 +18,7 @@ import {
 } from "@breaker-delta/core";
 import type { TopicStore } from "@breaker-delta/core";
 import { runScan, summaryLines } from "@breaker-delta/fetchers";
-import { buildSite, optionsFromEnv } from "@breaker-delta/publisher";
+import { buildDocsSite, buildSite, optionsFromEnv } from "@breaker-delta/publisher";
 import type { BuildOptions } from "@breaker-delta/publisher";
 
 import {
@@ -250,6 +250,43 @@ export async function cmdPublish(ctx: CliContext, flags: PublishFlags): Promise<
   return 0;
 }
 
+// ------------------------------------------------------------ docs
+
+export interface DocsFlags {
+  out?: string;
+  docsUrl?: string;
+  mainUrl?: string;
+  langs?: string;
+}
+
+const DEFAULT_DOCS_URL = "https://docs.breakerdelta.com/"; // publisher's DEFAULT_DOCS_URL
+
+/** Build the standalone docs site (no data dir needed). */
+export function cmdDocs(ctx: CliContext, flags: DocsFlags): number {
+  const envOpts = optionsFromEnv(process.env, ctx.rootDir);
+  const opts: BuildOptions = {
+    rootDir: ctx.rootDir,
+    outDir: path.resolve(flags.out ?? process.env.TS_DOCS_OUT ?? "docs-site"),
+    docsUrl: flags.docsUrl ?? envOpts.docsUrl,
+    mainUrl: flags.mainUrl ?? envOpts.mainUrl,
+    langs: envOpts.langs,
+  };
+  if (flags.langs !== undefined) {
+    opts.langs = flags.langs.split(",").map((x) => x.trim()).filter((x) => x !== "");
+  }
+  const written = buildDocsSite(opts);
+  if (ctx.json) {
+    printJson({
+      outDir: opts.outDir,
+      docsUrl: opts.docsUrl ?? DEFAULT_DOCS_URL,
+      pages: written.length,
+    });
+  } else {
+    out(ctx, `docs: ${written.length} pages -> ${opts.outDir}`);
+  }
+  return 0;
+}
+
 // ------------------------------------------------------------ doctor
 
 export interface DoctorCheck {
@@ -268,12 +305,22 @@ function isDir(p: string): boolean {
 
 export function collectDoctorChecks(ctx: CliContext): DoctorCheck[] {
   const checks: DoctorCheck[] = [];
-  const major = Number(process.version.replace(/^v/, "").split(".")[0]);
-  checks.push({
-    name: "node",
-    status: major >= 20 ? "ok" : "fail",
-    detail: `${process.version} (need >= 20)`,
-  });
+  const bunVersion = process.versions.bun;
+  if (bunVersion) {
+    const [bMaj, bMin] = bunVersion.split(".").map((x) => Number(x));
+    checks.push({
+      name: "runtime",
+      status: bMaj > 1 || (bMaj === 1 && bMin >= 2) ? "ok" : "fail",
+      detail: `bun ${bunVersion} (need >= 1.2)`,
+    });
+  } else {
+    const major = Number(process.version.replace(/^v/, "").split(".")[0]);
+    checks.push({
+      name: "runtime",
+      status: major >= 20 ? "ok" : "fail",
+      detail: `node ${process.version} (need >= 20; bun >= 1.2 preferred)`,
+    });
+  }
   checks.push({
     name: "data-dir",
     status: isDir(ctx.dataDir) ? "ok" : "fail",

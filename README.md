@@ -31,7 +31,7 @@ The repo is split into layers an agent can use directly:
 | Engine | `packages/` + `apps/` | Deterministic work in code (below) |
 | State | *your data repo* | Editions, the topic ledger, the track record — instance data never lives in this repo |
 
-Engine packages (npm workspaces, TypeScript, zero runtime dependencies):
+Engine packages (Bun workspaces, TypeScript, zero runtime dependencies):
 
 - `packages/core` — `@breaker-delta/core`: the domain logic — wave height, resonance grouping, classification, slugs, the topic store, the new-term vocabulary, review bookkeeping.
 - `packages/fetchers` — `@breaker-delta/fetchers`: the 26 source groups, each normalizing its source into candidates.
@@ -41,19 +41,19 @@ Engine packages (npm workspaces, TypeScript, zero runtime dependencies):
 
 ## Engine / data split
 
-This repo contains **code only**. An instance's data — `editions/`, `state/` (topic ledger, vocab and sitemap baselines), `track-record.md`, and its `config.yaml` — lives in the user's own **data repo**. The data repo's CI checks out this engine, builds the site with the Node bundle, and deploys it to the data repo's GitHub Pages. [daiyanze/breaker-delta-data](https://github.com/daiyanze/breaker-delta-data) is a working example: clone its shape, point it at your own data, and the radar is yours.
+This repo contains **code only**. An instance's data — `editions/`, `state/` (topic ledger, vocab and sitemap baselines), `track-record.md`, and its `config.yaml` — lives in the user's own **data repo**. The data repo's CI checks out this engine, builds the site with the engine bundle, and deploys it to the data repo's GitHub Pages. [daiyanze/breaker-delta-data](https://github.com/daiyanze/breaker-delta-data) is a working example: clone its shape, point it at your own data, and the radar is yours.
 
 ## Quick start
 
-Requires Node ≥ 20. No runtime dependencies.
+Requires Bun ≥ 1.2. No runtime dependencies.
 
 ```bash
 git clone https://github.com/daiyanze/breaker-delta.git
 cd breaker-delta
-npm ci
-npm run bundle        # builds apps/cli/dist/breaker-delta.mjs — a single file
+bun install
+bun run bundle        # builds apps/cli/dist/breaker-delta.mjs — a single file
 
-BD="node apps/cli/dist/breaker-delta.mjs"
+BD="bun apps/cli/dist/breaker-delta.mjs"
 $BD --data-dir /path/to/your-data doctor                    # offline self-check
 $BD --data-dir /path/to/your-data scan --edition morning    # fetch one edition's candidates
 $BD --data-dir /path/to/your-data review                    # topics due for their 14-day review
@@ -73,7 +73,7 @@ Every command takes `--data-dir` (or the `BD_DATA_DIR` env var) and supports `--
 **MCP**: the same bundle is a stdio MCP server (tools `radar_scan`, `radar_review`) — register it in your agent harness:
 
 ```bash
-node apps/cli/dist/breaker-delta.mjs --data-dir /path/to/your-data mcp
+bun apps/cli/dist/breaker-delta.mjs --data-dir /path/to/your-data mcp
 ```
 
 ## Use it as a Skill
@@ -100,7 +100,7 @@ Put a `config.yaml` in your data dir (based on `config.example.yaml`; YAML with 
 
 ## Documentation
 
-- **Site docs (Chinese / English)** — the usage guide built into every instance's site: [Docs overview](https://daiyanze.github.io/breaker-delta-data/docs.html) · [Docs in English](https://daiyanze.github.io/breaker-delta-data/en/docs.html) — getting started, reading the site, CLI reference, configuration, Skill & MCP, the Chrome extension, and deploying your own instance. Source: `packages/publisher/src/docs.ts`; Japanese sites show the English docs for now.
+- **Site docs (Chinese / English)** — the usage guide on its own site (docs.breakerdelta.com, separate from any instance): [Docs overview](https://docs.breakerdelta.com/docs.html) · [Docs in English](https://docs.breakerdelta.com/en/docs.html) — getting started, reading the site, CLI reference, configuration, Skill & MCP, the Chrome extension, and deploying your own instance. Source: `packages/publisher/src/docs.ts`; Japanese sites show the English docs for now.
 - [Built-in sources](SOURCES.md) — all 26 fetcher groups and their rules (also in [简体中文](SOURCES.zh-CN.md))
 - [Privacy](PRIVACY.md) — read-only, no accounts, no posting
 - [Changelog](CHANGELOG.md)

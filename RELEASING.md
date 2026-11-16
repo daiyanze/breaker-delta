@@ -10,7 +10,7 @@ as assets on a GitHub Release.
 
 | Asset | What it is |
 |---|---|
-| `breaker-delta-<version>.mjs` | The single-file CLI (Node ≥ 20, zero dependencies, executable). This is the "breaker-delta" artifact: engine + CLI in one file |
+| `breaker-delta-<version>.mjs` | The single-file CLI (Bun ≥ 1.2, zero dependencies, executable). This is the "breaker-delta" artifact: engine + CLI in one file |
 | `breaker-delta-skill-<version>.zip` | The Agent Skill package: `skills/breaker-delta/SKILL.md`, `.claude-plugin/plugin.json`, and the CLI bundle at `apps/cli/dist/breaker-delta.mjs` — in repo layout, so the paths SKILL.md references work as-is after unzipping |
 | `breaker-delta-extension-<ext-version>.zip` | The Chrome extension (unpacked, `manifest.json` at the zip root). Contains no instance data — `data/` holds only the README scaffolding; users add `topics.json` / `alerts.json` as the extension README describes |
 | `SHA256SUMS.txt` | SHA-256 checksums for the three assets |
@@ -34,14 +34,14 @@ The release body is the matching `## <version>` section of
 
 ```bash
 # 1. Bump the engine version (skip if the version is already set)
-npm run bump -- 0.22.0        # = node scripts/bump.mjs 0.22.0
+bun run bump 0.22.0           # = bun scripts/bump.mjs 0.22.0
 
 # 2. Add a `## 0.22.0` section at the top of CHANGELOG.md
 
 # 3. Verify everything locally (full test suite + packaging dry run)
-npm test
-npm run release               # stages assets into release-dist/
-node release-dist/breaker-delta-0.22.0.mjs --help
+bun run test
+bun run release               # stages assets into release-dist/
+bun release-dist/breaker-delta-0.22.0.mjs --help
 
 # 4. Commit, tag, push — pushing the tag triggers the workflow
 git commit -am "0.22.0"
@@ -68,4 +68,4 @@ Release.
   such as `breaker-delta-data`), and the engine repo — and its
   releases — contain no collected data.
 - If the workflow fails on the version check, some stamp was missed:
-  run `npm run bump -- <version>` and re-tag.
+  run `bun run bump <version>` and re-tag.

@@ -28,7 +28,7 @@ function runCli(
   args: string[],
   opts: { cwd?: string; input?: string; env?: Record<string, string | undefined> } = {},
 ): RunResult {
-  const res = spawnSync("node", [entry, ...args], {
+  const res = spawnSync(process.execPath, [entry, ...args], {
     cwd: opts.cwd,
     input: opts.input,
     encoding: "utf-8",
@@ -291,7 +291,7 @@ test("publish builds the fixture site; json mode keeps stdout clean", async () =
     "publish", "--out", site, "--base-url", "https://example.com/triple-sigma",
   ]);
   assert.strictEqual(r.status, 0, r.stderr);
-  assert.match(r.stdout, /pages: 30 \| topics: 2 \| latest top heat: 108/);
+  assert.match(r.stdout, /pages: 22 \| topics: 2 \| latest top heat: 108/);
   assert.ok(fs.existsSync(path.join(site, "index.html")));
   assert.ok(fs.existsSync(path.join(site, "data", "topics.json")));
   const tr = fs.readFileSync(path.join(site, "track-record.html"), "utf-8");
@@ -305,10 +305,10 @@ test("publish builds the fixture site; json mode keeps stdout clean", async () =
   ]);
   assert.strictEqual(r2.status, 0, r2.stderr);
   const doc = JSON.parse(r2.stdout); // stdout is exactly one JSON document
-  assert.strictEqual(doc.pages, 90); // 66 pre-docs (incl. +3 seeds.html redirect stubs since the 0.22.0 echo rename) + 24 docs pages (8 per language)
+  assert.strictEqual(doc.pages, 66); // +3: seeds.html redirect stubs (one per language) since the 0.22.0 echo rename; docs pages left the main build in the docs-site split
   assert.strictEqual(doc.outDir, site2);
   assert.ok(!r2.stdout.includes("pages:"), "build logs must not pollute json stdout");
-  assert.match(r2.stderr, /pages: 30 \| topics: 2/); // they went to stderr instead
+  assert.match(r2.stderr, /pages: 22 \| topics: 2/); // they went to stderr instead
   assert.deepStrictEqual(listFiles(site2), listFiles(site));
 });
 
@@ -383,6 +383,23 @@ test("mcp stdio session matches the Python server's protocol", () => {
   assert.match(badTool.result.content[0].text, /unknown tool: nope/);
 });
 
+// ---------------------------------------------------------- docs
+
+test("docs builds the standalone docs site without a data dir", () => {
+  const out = path.join(tmpdir(), "docs-site");
+  const r = runCli(CLI, ["--json", "docs", "--out", out]);
+  assert.strictEqual(r.status, 0, r.stderr);
+  const doc = JSON.parse(r.stdout);
+  assert.strictEqual(doc.pages, 27); // 8 pages x 3 langs + 3 index stubs
+  assert.strictEqual(doc.outDir, out);
+  assert.strictEqual(doc.docsUrl, "https://docs.breakerdelta.com/");
+  assert.ok(fs.existsSync(path.join(out, "docs.html")));
+  assert.ok(fs.existsSync(path.join(out, "en", "docs-cli.html")));
+  assert.ok(fs.existsSync(path.join(out, "ja", "docs.html")));
+  const hub = fs.readFileSync(path.join(out, "docs.html"), "utf-8");
+  assert.ok(hub.includes("https://breakerdelta.com/index.html"));
+});
+
 // ---------------------------------------------------------- usage / help
 
 test("usage errors exit 2; --help exits 0", () => {
@@ -404,6 +421,7 @@ test("usage errors exit 2; --help exits 0", () => {
   assert.strictEqual(r.status, 0);
   assert.match(r.stdout, /breaker-delta 0\.22\.0/);
   assert.match(r.stdout, /record <file\|->/);
+  assert.match(r.stdout, /docs \[--out <dir>\]/);
 });
 
 // ---------------------------------------------------------- bundle
