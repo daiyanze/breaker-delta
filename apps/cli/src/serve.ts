@@ -10,8 +10,10 @@
 // API is disabled and the server is read-only.
 //
 // An optional built-in scheduler (BD_SCAN_TIMES=06:00,18:00) runs
-// the fetch layer on schedule; grading stays with the agent, which
-// is the P1 division of labour (the built-in LLM grader is P1d).
+// the fetch layer on schedule; grading stays with the agent by
+// default (the P1 division of labour) — with grading.auto set in
+// the instance config, the built-in LLM grader (P1d, grade.ts)
+// closes the loop instead.
 //
 // This layer is deliberately thin — it is the piece the P2
 // Next.js/vinext migration replaces; all durable logic (fetch,
@@ -27,6 +29,7 @@ import { optionsFromEnv, renderSiteMap } from "@breaker-delta/publisher";
 import type { BuildOptions } from "@breaker-delta/publisher";
 
 import { applyRecord, autoEdition, validateEntries } from "./commands.js";
+import { gradingConfigFrom, runGrade } from "./grade.js";
 import {
   findConfigFile,
   loadCliConfig,
@@ -253,7 +256,27 @@ export async function cmdServe(ctx: CliContext, flags: ServeFlags): Promise<numb
             extraFetchers: fetcherModules(codePlugins),
           });
           for (const line of summaryLines(report)) log(line);
-          log(`scan done; candidates at ${report._file} — grading is the agent's step (push the edition via /api/editions)`);
+          // P1d: with grading.auto set, the built-in LLM grader
+          // closes the loop (edition + ledger); the site re-render
+          // picks the new edition up via the fingerprint poll.
+          const grading = gradingConfigFrom(config as Record<string, unknown>);
+          if (grading?.auto) {
+            try {
+              const loadedCfg = loadCliConfig(ctx);
+              const res = await runGrade(
+                ctx,
+                config as Record<string, unknown>,
+                loadedCfg.file,
+                loadedCfg.preset,
+                { slot: autoEdition(now) },
+              );
+              log(`auto-grade done (${res.model}): ${res.items} item(s) -> ${res.file}`);
+            } catch (err) {
+              log(`auto-grade failed: ${err instanceof Error ? err.message : String(err)}`);
+            }
+          } else {
+            log(`scan done; candidates at ${report._file} — grading is the agent's step (push the edition via /api/editions)`);
+          }
         } catch (err) {
           log(`scan failed: ${err instanceof Error ? err.message : String(err)}`);
         }

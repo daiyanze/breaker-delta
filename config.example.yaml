@@ -294,3 +294,14 @@ sources:
 plugins:
   creator:
     enabled: true
+
+# Built-in LLM grading (P1d, optional): the no-agent fallback.
+# The mainline is an external agent grading with the Skill; set
+# this only for unattended self-deploys. The API key itself NEVER
+# goes in this file — it is read from the environment variable
+# named by api_key_env.
+# grading:
+#   model: gpt-4o-mini            # any OpenAI-compatible model id
+#   base_url: https://api.openai.com/v1
+#   api_key_env: BREAKER_DELTA_LLM_API_KEY
+#   auto: false                   # true = serve grades after each scheduled scan

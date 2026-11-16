@@ -16,6 +16,7 @@ import {
   UsageError,
   cmdDocs,
   cmdDoctor,
+  cmdGrade,
   cmdPlugins,
   cmdPresetInit,
   cmdPresetList,
@@ -56,6 +57,15 @@ Commands:
                      print per-source status. Default edition: by local hour
                      (before noon = morning). No command at all = scan.
   review             List topics whose 14-day review is due.
+  grade [--edition morning|evening] [--date YYYY-MM-DD]
+        [--file <candidates.json>] [--replace]
+                     Built-in LLM grading (P1d, the no-agent
+                     fallback): grade the slot's latest candidates
+                     file with the configured LLM endpoint
+                     (config grading.model / grading.base_url;
+                     key from the env var grading.api_key_env,
+                     default BREAKER_DELTA_LLM_API_KEY) and write
+                     the edition + ledger record.
   record <file|-> [--date YYYY-MM-DD]
                      Write agent-graded topics back to the store. Input is a
                      JSON array: [{name, sources: [...], grade}]. Use - to
@@ -202,6 +212,15 @@ export async function main(argv: string[]): Promise<number> {
       case "review": {
         if (positionals.length > 1) throw new UsageError(`review: unexpected argument: ${positionals[1]}`);
         return cmdReview(ctx);
+      }
+      case "grade": {
+        if (positionals.length > 1) throw new UsageError(`grade: unexpected argument: ${positionals[1]}`);
+        return await cmdGrade(ctx, {
+          edition: flagStr(flags, "edition"),
+          date: flagStr(flags, "date"),
+          file: flagStr(flags, "file"),
+          replace: flags.get("replace") === true,
+        });
       }
       case "record": {
         if (positionals[1] === "review") {

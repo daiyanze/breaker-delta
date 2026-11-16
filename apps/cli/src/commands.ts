@@ -229,6 +229,48 @@ export function cmdRecordReview(
   return 0;
 }
 
+// ------------------------------------------------------------ grade (P1d)
+
+export interface GradeFlags {
+  edition?: string;
+  date?: string;
+  file?: string;
+  replace?: boolean;
+}
+
+/** Built-in LLM grading (P1d): the no-agent fallback. Reads the
+ *  latest candidates file for the slot, grades it with the
+ *  instance's configured LLM endpoint, and lands the edition +
+ *  ledger record through the same paths the agent flow uses. */
+export async function cmdGrade(
+  ctx: CliContext,
+  flags: GradeFlags,
+): Promise<number> {
+  const slot = flags.edition ?? "morning";
+  if (slot !== "morning" && slot !== "evening") {
+    throw new UsageError("grade: --edition must be morning or evening");
+  }
+  const date = checkDate(flags.date);
+  const { loadCliConfig } = await import("./context.js");
+  const loaded = loadCliConfig(ctx);
+  const { runGrade } = await import("./grade.js");
+  const res = await runGrade(
+    ctx,
+    loaded.config as Record<string, unknown>,
+    loaded.file,
+    loaded.preset,
+    { slot, date, file: flags.file, replace: flags.replace },
+  );
+  if (ctx.json) printJson(res);
+  else {
+    out(
+      ctx,
+      `graded with ${res.model}: ${res.items} item(s) -> ${res.file} (ledger: ${res.created} created, ${res.updated} updated)`,
+    );
+  }
+  return 0;
+}
+
 // ------------------------------------------------------------ publish
 
 export interface PublishFlags {
@@ -820,6 +862,36 @@ export async function cmdDoctor(
   opts: { online?: boolean } = {},
 ): Promise<number> {
   const checks = collectDoctorChecks(ctx);
+  // Built-in grading (P1d): absence is fine (the agent grades),
+  // but a configured model without its key env var deserves a
+  // warning. Loaded dynamically — grade.ts imports applyRecord
+  // from this module.
+  try {
+    const cfg = loadCliConfig(ctx).config as Record<string, unknown>;
+    const { gradingConfigFrom } = await import("./grade.js");
+    const grading = gradingConfigFrom(cfg);
+    if (!grading) {
+      checks.push({
+        name: "grading",
+        status: "ok",
+        detail: "built-in LLM grading not configured (agent grading path)",
+      });
+    } else if (!process.env[grading.apiKeyEnv]) {
+      checks.push({
+        name: "grading",
+        status: "warn",
+        detail: `model ${grading.model} configured but env var ${grading.apiKeyEnv} is not set — grade will fail until it is`,
+      });
+    } else {
+      checks.push({
+        name: "grading",
+        status: "ok",
+        detail: `built-in LLM grading: ${grading.model} via ${grading.baseUrl}${grading.auto ? " (auto in serve)" : ""}`,
+      });
+    }
+  } catch {
+    // The config check above already reports a broken config.
+  }
   if (opts.online) {
     let config: unknown = null;
     try {
