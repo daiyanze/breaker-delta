@@ -451,6 +451,96 @@ test("data files structure and dedup", async () => {
   }
 });
 
+test("i18n: per-language item text with main-language fallback", async () => {
+  const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "bd-pub-i18n-"));
+  const editionsDir = path.join(tmpdir, "editions");
+  fs.mkdirSync(editionsDir, { recursive: true });
+  const ed = {
+    date: "2026-11-12",
+    slot: "morning",
+    published_at: "2026-11-12T06:00:00+09:00",
+    title: "热点雷达 · 早报",
+    i18n: {
+      en: { title: "Radar · Morning" },
+      ja: { title: "レーダー · 朝刊" },
+    },
+    items: [
+      {
+        level: "must",
+        title: "示例模型发布",
+        body: "中文正文，包含数字 42。",
+        action: "值得试。",
+        sources: ["Google 官方博客"],
+        links: ["https://example.com/release"],
+        is_new: true,
+        i18n: {
+          en: {
+            title: "Example Model Released",
+            body: "English body, with the number 42.",
+            action: "Worth trying.",
+          },
+          ja: {
+            title: "サンプルモデル公開",
+            body: "日本語の本文、数字 42 を含む。",
+            action: "試す価値あり。",
+          },
+        },
+      },
+      {
+        level: "watch",
+        title: "只有英文的小话题",
+        body: "第二条正文。",
+        action: "仅记录。",
+        sources: ["小站"],
+        links: [],
+        is_new: true,
+        i18n: {
+          en: { title: "English-only small topic", body: "Second body.", action: "Log it." },
+        },
+      },
+    ],
+    updates: [],
+    missing: [],
+    pending_checks: [],
+  };
+  fs.writeFileSync(
+    path.join(editionsDir, "2026-11-12-morning.json"),
+    JSON.stringify(ed),
+    "utf-8",
+  );
+  const outDir = path.join(tmpdir, "site");
+  await buildSite({
+    rootDir: ROOT,
+    editionsDir,
+    outDir,
+    baseUrl: "https://example.com/triple-sigma",
+  });
+  try {
+    const enIndex = read(outDir, "en/index.html");
+    assert.ok(enIndex.includes("Example Model Released"));
+    assert.ok(!enIndex.includes("示例模型发布"), "en board must not show the zh title");
+    assert.ok(enIndex.includes("Google Blog"), "en source name localized");
+    const enTopic = read(outDir, "en/示例模型发布.html");
+    assert.ok(enTopic.includes("English body, with the number 42."));
+    assert.ok(enTopic.includes("Worth trying."));
+    assert.ok(!enTopic.includes("中文正文"), "en topic page must not show the zh body");
+    const enFeed = read(outDir, "en/feed.xml");
+    assert.ok(enFeed.includes("Example Model Released"));
+    const enArchive = read(outDir, "en/archive.html");
+    assert.ok(enArchive.includes("Radar · Morning"));
+    const jaIndex = read(outDir, "ja/index.html");
+    assert.ok(jaIndex.includes("サンプルモデル公開"));
+    assert.ok(
+      jaIndex.includes("只有英文的小话题"),
+      "missing ja translation falls back to the main-language title",
+    );
+    const zhIndex = read(outDir, "index.html");
+    assert.ok(zhIndex.includes("示例模型发布"), "zh build keeps the canonical text");
+  } finally {
+    fs.rmSync(tmpdir, { recursive: true, force: true });
+  }
+});
+
 test("topic page has wave chart and visible nofollow links", async () => {
   const b = await buildFixture();
   try {

@@ -39,6 +39,7 @@ import {
   LONG_TIPS,
   SHORT_TIPS,
   SLOT,
+  SLOT_LABEL_I18N,
   SOURCE_DOMAINS,
 } from "./literals.js";
 import {
@@ -64,11 +65,15 @@ import {
   foot,
   footDocs,
   heatHelp,
+  locApp,
+  locEditionTitle,
+  locTopicName,
   mast,
   mastDocs,
   page,
   rowHtml,
   shareLinks,
+  srcName,
   topicHref,
   trendPoints,
   tstamp,
@@ -474,15 +479,15 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     for (const src of a.sources.slice(0, 4)) {
       const dom = hasOwn(SOURCE_DOMAINS, src) ? SOURCE_DOMAINS[src] : undefined;
       if (dom && ctx.favFiles.has(dom)) {
-        srcs.push({ img: ctx.favFiles.get(dom), n: src });
+        srcs.push({ img: ctx.favFiles.get(dom), n: srcName(ctx, src) });
       } else {
-        srcs.push({ ch: firstAlnum(src), hue: sumOrd(src) % 360, n: src });
+        srcs.push({ ch: firstAlnum(srcName(ctx, src)), hue: sumOrd(src) % 360, n: srcName(ctx, src) });
       }
     }
     return {
       r: st.rank,
       file: topicHref(st.topic),
-      title: a.title,
+      title: locApp(ctx, a).title,
       cat: catName(ctx, a.category),
       ck: catKey(a.category),
       time: tstamp(a),
@@ -739,18 +744,22 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     SRC_FILES.has(src) ? pyQuote(SRC_FILES.get(src) as string, "-._~") : null;
   const srcLink = (x: string): string => {
     const h = srcHref(x);
-    return h ? `<a href="${h}">${esc(x)}</a>` : esc(x);
+    return h ? `<a href="${h}">${esc(srcName(ctx, x))}</a>` : esc(srcName(ctx, x));
   };
 
   const lvlPairOf = (level: string | null | undefined): string => {
     const p =
       level != null && hasOwn(LEVELS, level) ? LEVELS[level] : LEVELS["echo"];
-    return p[0] + p[1];
+    // Emoji stays the LEVELS glyph; the label follows the build
+    // language (identical to LEVELS' label for zh).
+    return p[0] + levelLabel(ctx, level);
   };
 
   // topic pages
   for (const t of topics) {
     const last = t.apps[t.apps.length - 1];
+    const locLast = locApp(ctx, last);
+    const locName = locTopicName(ctx, t);
     const lastDisp: App = { ...last, rank_delta: last.board_rank_delta ?? null };
     const lvlPair =
       last.level != null && hasOwn(LEVELS, last.level)
@@ -762,7 +771,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     const share = shareLinks(
       ctx,
       tUrl,
-      `${t.name} · ${s(ctx, "wave")} ${last.heat}｜${s(ctx, "pg_title")}`,
+      `${locName} · ${s(ctx, "wave")} ${last.heat}｜${s(ctx, "pg_title")}`,
     );
     let histRows = "";
     for (const a of t.apps) {
@@ -775,19 +784,21 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
           `${s(ctx, "wave")} ${a.heat_delta > 0 ? "+" : ""}${a.heat_delta} · ` +
           `${s(ctx, "rank")} ${rd > 0 ? "▲" + rd : rd < 0 ? "▼" + -rd : "→"}`;
       }
-      const srcTxt = a.sources.map((x) => srcLink(x)).join("、");
+      const srcTxt = a.sources
+        .map((x) => srcLink(x))
+        .join(ctx.lang === "en" ? ", " : "、");
       const lnk =
         a.links
           .map(
             (l) =>
               `<a href="${esc(l)}" rel="nofollow noopener" target="_blank">` +
-              `${esc(urlNetloc(l) || "原文")}</a>`,
+              `${esc(urlNetloc(l) || s(ctx, "orig"))}</a>`,
           )
           .join(" · ") || "—";
       histRows +=
         `<tr><td>${edLabel(editions[a.edition])}</td><td class="n">${a.heat}</td>` +
         `<td class="n">#${a.board_rank}</td><td>${lvlPairOf(a.level)}</td>` +
-        `<td>${chg}</td><td>${esc(a.title)}</td>` +
+        `<td>${chg}</td><td>${esc(locApp(ctx, a).title)}</td>` +
         `<td>${srcTxt}</td><td>${lnk}</td></tr>`;
     }
     const links = last.links;
@@ -803,14 +814,14 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
         `<div class="orig"><div class="note">${s(ctx, "orig_links")} (${links.length})</div>` +
         `<ul>${lis}</ul></div>`;
     }
-    const bodyHtml = esc(last.body).replaceAll("\n", "<br>");
-    const act = last.action
-      ? `<p><b>${s(ctx, "action")}</b>：${esc(last.action)}</p>`
+    const bodyHtml = esc(locLast.body).replaceAll("\n", "<br>");
+    const act = locLast.action
+      ? `<p><b>${s(ctx, "action")}</b>：${esc(locLast.action)}</p>`
       : "";
     // creator reference v2: frameworks distilled from public writing
     // skills, filled with this topic's own data
     const hook = cpSlice(
-      firstSentence((last.body || "").trim()),
+      firstSentence((locLast.body || "").trim()),
       0,
       90,
     );
@@ -833,12 +844,12 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     const hooks: [string, string][] = [
       [
         "hk_num",
-        pyFormat(ht["num"], { name: t.name, heat: last.heat, n: allSrcs.length }),
+        pyFormat(ht["num"], { name: locName, heat: last.heat, n: allSrcs.length }),
       ],
       ["hk_gap", pyFormat(ht["gap"], { hook })],
       [
         "hk_signal",
-        pyFormat(ht["signal"], { name: t.name, rank: last.board_rank as number }),
+        pyFormat(ht["signal"], { name: locName, rank: last.board_rank as number }),
       ],
     ];
     const hooksOl =
@@ -848,8 +859,8 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     const pasOl =
       '<ol class="ol-list">' +
       `<li><b>${s(ctx, "pas_p")}</b>：${esc(hook)}</li>` +
-      (last.action
-        ? `<li><b>${s(ctx, "pas_a")}</b>：${esc(last.action)}</li>`
+      (locLast.action
+        ? `<li><b>${s(ctx, "pas_a")}</b>：${esc(locLast.action)}</li>`
         : "") +
       `<li><b>${s(ctx, "pas_s")}</b>：${bodyHtml}<br>${dataLine} · ` +
       `${s(ctx, "ol_src")}：${esc(srcLine)}</li></ol>`;
@@ -857,8 +868,8 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     const hzOl =
       '<ol class="ol-list">' +
       `<li><b>${s(ctx, "hz1")}</b>：${s(ctx, "hz1_hint")}</li>` +
-      `<li><b>${s(ctx, "hz2")}</b>：${esc(t.apps[0].title)} → ` +
-      `${esc(last.title)}（${s(ctx, "traj")}：${traj}）</li>` +
+      `<li><b>${s(ctx, "hz2")}</b>：${esc(locApp(ctx, t.apps[0]).title)} → ` +
+      `${esc(locLast.title)}（${s(ctx, "traj")}：${traj}）</li>` +
       `<li><b>${s(ctx, "hz3")}</b>：${s(ctx, "hz3_hint")}</li>` +
       `<li><b>${s(ctx, "hz4")}</b>：${s(ctx, "hz4_txt")}</li></ol>`;
     const stUl = SHORT_TIPS[ctx.lang]
@@ -881,7 +892,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       ths.slice(3).map((x) => `<th>${x}</th>`).join("");
     const body =
       mast(ctx, "", editions, { fname: topicFile(t) }) +
-      `<section class="panel"><div class="panel-h"><span>${esc(t.name)}</span>` +
+      `<section class="panel"><div class="panel-h"><span>${esc(locName)}</span>` +
       `<span><a class="tag" href="${catFile(last.category)}">${esc(catName(ctx, last.category))}</a> ` +
       `<a class="badge" href="level-${last.level}.html">${emoji} ${label}</a></span></div>` +
       `<div style="display:flex;gap:26px;align-items:flex-end;padding:6px 0 2px">` +
@@ -900,8 +911,8 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     const ld: Record<string, unknown> = {
       "@context": "https://schema.org",
       "@type": "NewsArticle",
-      headline: last.title,
-      description: cpSlice(last.body || "", 0, 150),
+      headline: locLast.title,
+      description: cpSlice(locLast.body || "", 0, 150),
       datePublished: t.apps[0].published ?? null,
       dateModified: last.published ?? null,
       author: { "@type": "Person", name: "Dai", url: "https://x.com/daiyanze" },
@@ -915,8 +926,8 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     write(
       ctx,
       topicFile(t),
-      page(ctx, t.name, body, {
-        desc: cpSlice(last.body || "", 0, 110),
+      page(ctx, locName, body, {
+        desc: cpSlice(locLast.body || "", 0, 110),
         path: topicFile(t),
         ld,
       }),
@@ -927,8 +938,8 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       '<!DOCTYPE html><html><head><meta charset="utf-8">' +
         `<meta http-equiv="refresh" content="0; url=${topicHref(t)}">` +
         `<link rel="canonical" href="${tUrl}"><meta name="robots" content="noindex">` +
-        `<title>${esc(t.name)}</title></head>` +
-        `<body><a href="${topicHref(t)}">${esc(t.name)}</a></body></html>`,
+        `<title>${esc(locName)}</title></head>` +
+        `<body><a href="${topicHref(t)}">${esc(locName)}</a></body></html>`,
     );
   }
 
@@ -1075,14 +1086,16 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       }
       const tim = cpSlice(ed.published_at ?? "", 11, 16);
       const slotLabel =
-        ed.slot != null && hasOwn(SLOT, ed.slot)
-          ? SLOT[ed.slot][0]
-          : (ed.slot ?? "");
+        ed.slot != null && hasOwn(SLOT_LABEL_I18N, ed.slot)
+          ? SLOT_LABEL_I18N[ed.slot][ctx.lang] || SLOT[ed.slot][0]
+          : ed.slot != null && hasOwn(SLOT, ed.slot)
+            ? SLOT[ed.slot][0]
+            : (ed.slot ?? "");
       block +=
         `<div class="row"><span class="time">${tim}</span>` +
         `<span class="rtitle"><a href="${edFile(ed)}">` +
-        `${slotLabel} · ${esc((ed.title as string | undefined) ?? "")}</a></span>` +
-        `<span class="note">${pyFormat(s(ctx, "archive_row"), { n: ed.items.length })}${esc(cpSlice(top.title ?? "", 0, 30))}</span>` +
+        `${slotLabel} · ${esc(locEditionTitle(ctx, ed))}</a></span>` +
+        `<span class="note">${pyFormat(s(ctx, "archive_row"), { n: ed.items.length })}${esc(cpSlice(top.i18n?.[ctx.lang]?.title || top.title || "", 0, 30))}</span>` +
         `<span class="heat"><span class="hv"><b>${top._heat}</b> <span>${s(ctx, "wave")}</span></span></span></div>`;
     }
     dateBlocks.push(block);
@@ -1106,7 +1119,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     const hue = sumOrd(src) % 360;
     return (
       `<span class="av src-ic" style="background:hsl(${hue} 65% 72%);margin-left:0">` +
-      `${esc(firstAlnum(src))}</span>`
+      `${esc(firstAlnum(srcName(ctx, src)))}</span>`
     );
   };
   const srcStats = (src: string, e: SourceStat): string =>
@@ -1124,7 +1137,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     const dom = hasOwn(SOURCE_DOMAINS, src) ? SOURCE_DOMAINS[src] : undefined;
     const icon = srcIcon(src);
     const nameHtml =
-      `<a href="${srcHref(src)}">${esc(src)}</a>` +
+      `<a href="${srcHref(src)}">${esc(srcName(ctx, src))}</a>` +
       (dom ? ` <a href="https://${dom}" rel="noopener" class="note">↗</a>` : "");
     const tops = [...e.topics.values()].sort(
       (x, y) =>
@@ -1133,7 +1146,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     const tlinks = tops
       .map(
         (x) =>
-          `<a href="${topicHref(x)}">${esc(cpSlice(x.name, 0, 22))}</a>`,
+          `<a href="${topicHref(x)}">${esc(cpSlice(locTopicName(ctx, x), 0, 22))}</a>`,
       )
       .join(" · ");
     const stats = srcStats(src, e);
@@ -1170,7 +1183,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       const xa = x.apps[x.apps.length - 1];
       trows +=
         `<div class="row"><span class="rank">${i + 1}</span>` +
-        `<span class="rtitle"><a href="${topicHref(x)}">${esc(x.name)}</a></span>` +
+        `<span class="rtitle"><a href="${topicHref(x)}">${esc(locTopicName(ctx, x))}</a></span>` +
         `<a class="tag" href="${catFile(xa.category)}">${esc(catName(ctx, xa.category))}</a>` +
         `<span class="note">${pyFormat(s(ctx, "src_topic_meta"), { n: e.topic_apps.get(x.slug) as number, d: edLabel(editions[e.topic_last.get(x.slug) as number]) })}</span>` +
         `<span class="heat"><span class="hv"><b>${xa.heat}</b> <span>${s(ctx, "wave")}</span></span></span></div>`;
@@ -1183,7 +1196,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     const srcFile = SRC_FILES.get(src) as string;
     const dbody =
       mast(ctx, "sources", editions, { fname: srcFile }) +
-      `<section class="panel"><div class="panel-h"><span>${icon} ${esc(src)}</span>` +
+      `<section class="panel"><div class="panel-h"><span>${icon} ${esc(srcName(ctx, src))}</span>` +
       (dom
         ? `<span><a href="https://${dom}" rel="noopener">${esc(dom)} ↗</a></span>`
         : "") +
@@ -1194,7 +1207,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       trows +
       "</section>" +
       foot(ctx);
-    write(ctx, srcFile, page(ctx, src, dbody, { path: srcFile, desc: stats }));
+    write(ctx, srcFile, page(ctx, srcName(ctx, src), dbody, { path: srcFile, desc: stats }));
   }
 
   // about: site explanation (the old footer text lives here now)
@@ -1305,7 +1318,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     `<h3 style="margin:16px 0 6px">${s(ctx, "sub_prefill_t")}</h3>` +
     `<textarea id="echotext" rows="4" readonly ` +
     `style="width:100%;font-family:var(--mono);font-size:13px">` +
-    `标题：\n链接：\n理由：</textarea>` +
+    `${s(ctx, "sub_form")}</textarea>` +
     `</div></section>` +
     foot(ctx) +
     echoScript;
@@ -1335,13 +1348,14 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       rfc = "";
       pub = "";
     }
-    const desc = xesc(cpSlice(a.body || "", 0, 280));
+    const loc = locApp(ctx, a);
+    const desc = xesc(cpSlice(loc.body || "", 0, 280));
     itemsXml +=
-      `<item><title>${xesc(a.title)}</title><link>${link}</link>` +
+      `<item><title>${xesc(loc.title)}</title><link>${link}</link>` +
       `<guid>${link}</guid><pubDate>${rfc}</pubDate>` +
       `<description>${desc}</description></item>`;
     entriesXml +=
-      `<entry><title>${xesc(a.title)}</title>` +
+      `<entry><title>${xesc(loc.title)}</title>` +
       `<link href="${link}"/><id>${link}</id>` +
       `<updated>${pub}</updated><summary>${desc}</summary></entry>`;
   }

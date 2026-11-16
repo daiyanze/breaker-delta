@@ -65,6 +65,16 @@ export interface TopicStore {
   [key: string]: unknown;
 }
 
+/** Per-language rendering of an item's agent-written text. The item's
+ * own title/body/action stay the canonical main-language text (topic
+ * identity, heat and slugs are computed from them); `i18n` only carries
+ * the translations the publisher picks when building that language. */
+export interface ItemI18n {
+  title?: string | null;
+  body?: string | null;
+  action?: string | null;
+}
+
 export interface EditionItem {
   level?: string | null;
   title?: string | null;
@@ -73,6 +83,7 @@ export interface EditionItem {
   sources?: string[] | null;
   links?: string[] | null;
   is_new?: boolean | null;
+  i18n?: Record<string, ItemI18n> | null;
   /** Attached by the load step (publish.load), like Python's _heat. */
   _heat: number;
   _rank: number;
@@ -83,6 +94,9 @@ export interface Edition {
   date: string;
   slot?: string | null;
   published_at?: string | null;
+  title?: string | null;
+  /** Per-language edition title (e.g. for the archive page). */
+  i18n?: Record<string, { title?: string | null }> | null;
   items: EditionItem[];
   [key: string]: unknown;
 }
@@ -101,6 +115,7 @@ export interface TopicApp {
   links: string[];
   body: string;
   action: string;
+  i18n?: Record<string, ItemI18n> | null;
   is_new: boolean;
   heat_delta: number | null;
   rank_delta: number | null;

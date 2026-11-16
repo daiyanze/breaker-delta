@@ -65,6 +65,9 @@ export function buildTopics(editions: Edition[], ledger: Pick<StoreTopic, "name"
         links: it.links ?? [],
         body: it.body ?? "",
         action: it.action ?? "",
+        // Only carried when the edition actually has translations, so
+        // untranslated data keeps its exact pre-i18n shape.
+        ...(it.i18n ? { i18n: it.i18n } : {}),
         is_new: Boolean(it.is_new),
         heat_delta: null,
         rank_delta: null,

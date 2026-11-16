@@ -118,6 +118,8 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "first": "首现",
   "action": "建议动作",
   "orig_links": "原文链接",
+  "orig": "原文",
+  "sub_form": "标题：\n链接：\n理由：",
   "foot_about": "关于本站",
   "docs_back": "🌊 雷达主页",
   "theme": "切换主题",
@@ -272,6 +274,8 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "first": "First seen",
   "action": "Suggested action",
   "orig_links": "Original links",
+  "orig": "Original",
+  "sub_form": "Title:\nLink:\nWhy it matters:",
   "foot_about": "About",
   "docs_back": "🌊 Radar home",
   "theme": "Toggle theme",
@@ -426,6 +430,8 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "first": "初登場",
   "action": "おすすめアクション",
   "orig_links": "原文リンク",
+  "orig": "原文",
+  "sub_form": "タイトル：\nリンク：\n理由：",
   "foot_about": "概要",
   "docs_back": "🌊 レーダーホーム",
   "theme": "テーマ切替",
@@ -810,6 +816,14 @@ export const SLOT: Record<string, [string, number]> = {
  ]
 };
 
+/** Slot labels per language (SLOT above keeps the zh label + order;
+ * the archive page renders the label in the language being built). */
+export const SLOT_LABEL_I18N: Record<string, Record<string, string>> = {
+ "pilot": { "zh": "试跑", "en": "Pilot", "ja": "パイロット" },
+ "morning": { "zh": "早报", "en": "Morning", "ja": "朝刊" },
+ "evening": { "zh": "晚报", "en": "Evening", "ja": "夕刊" }
+};
+
 export const LEVELS: Record<string, [string, string]> = {
  "must": [
   "🔥",
@@ -835,4 +849,34 @@ export const LANG_LABEL: Record<string, string> = {
  "zh": "中文",
  "en": "EN",
  "ja": "日本語"
+};
+
+/** Display names for sources whose canonical (main-language) name is
+ * not language-neutral. Keys are the names as stored in edition data;
+ * lookups fall back to the stored name. */
+export const SRC_NAMES: Record<string, Record<string, string>> = {
+ "Anthropic 官方": { "en": "Anthropic (official)", "ja": "Anthropic 公式" },
+ "Anthropic 官方 X（ClaudeDevs）": { "en": "Anthropic on X (ClaudeDevs)", "ja": "Anthropic 公式 X（ClaudeDevs）" },
+ "Google News 多家": { "en": "Google News (multiple outlets)", "ja": "Google News（複数メディア）" },
+ "Google 官方": { "en": "Google (official)", "ja": "Google 公式" },
+ "Google 官方博客": { "en": "Google Blog", "ja": "Google 公式ブログ" },
+ "Hugging Face 博客": { "en": "Hugging Face Blog", "ja": "Hugging Face ブログ" },
+ "Mastodon 趋势": { "en": "Mastodon Trending", "ja": "Mastodon トレンド" },
+ "Microsoft 365 状态页": { "en": "Microsoft 365 Status", "ja": "Microsoft 365 ステータス" },
+ "OpenAI 官方博客": { "en": "OpenAI Blog", "ja": "OpenAI 公式ブログ" },
+ "Perplexity 官方 X": { "en": "Perplexity on X", "ja": "Perplexity 公式 X" },
+ "SEC S-1 修订稿": { "en": "SEC S-1 amendment", "ja": "SEC S-1 修正届出" },
+ "Wikipedia 热读榜": { "en": "Wikipedia Most Read", "ja": "Wikipedia 人気記事" },
+ "多家分析博客": { "en": "Analyst blogs (multiple)", "ja": "分析ブログ（複数）" },
+ "官方": { "en": "Official", "ja": "公式" },
+ "新华社": { "en": "Xinhua", "ja": "新華社" },
+ "社交传播": { "en": "Social media", "ja": "SNS 拡散" }
+};
+
+/** Display names for the hard-coded topic arcs in core's topicKey:
+ * their canonical names are fixed strings, not any item's title, so
+ * they cannot ride the items' i18n. */
+export const ARC_NAMES: Record<string, Record<string, string>> = {
+ "Anthropic IPO": { "en": "Anthropic IPO", "ja": "Anthropic IPO" },
+ "黄仁勋 / Nvidia 风波": { "en": "Jensen Huang / Nvidia turmoil", "ja": "ジェンスン・フアン / Nvidia 騒動" }
 };

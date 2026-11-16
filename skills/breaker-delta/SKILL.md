@@ -40,6 +40,7 @@ description: Run one edition (morning/evening) of the twice-daily web hot-topic 
 3. **打分分级**：共振度、增速（对比台账里上次等级）、新鲜度、相关性（按 config `topics` 的权重，候选的 `topic_hits` 已算好）→ 🔥必看 / 👀关注 / 🌀回波。用户控制的升降级：`alert` 命中且有第二源共振 → 直接列 🔥必看候选；`boost` 命中的单源话题可由 🌀升为 👀。全期最多 `max_items_per_report` 条，回波最多 `max_echoes` 条。
 4. **去重**：台账里已有的话题不重复介绍背景，只报状态变化（升级/降温/消亡）；新话题标 🆕。
 5. **写回状态**：每条入选话题用 CLI 的 `record` 命令更新台账（首次发现时间、来源、等级轨迹）：把入选话题写成 JSON 数组存成文件，再跑 `$BD_CLI --data-dir <数据目录> record <文件>`；每条格式为 `{"name": "话题名", "sources": ["Hacker News", "Reddit"], "grade": "must"}`，grade 用台账的等级键（`must` = 🔥必看、`watch` = 👀关注、`echo` = 🌀回波）。
+5b. **写期次文件（三语）**：期次 JSON 写到数据仓 `editions/` 时，每条 item 除主语言（中文）`title`/`body`/`action` 外，必须带 `i18n`，含 `en` 与 `ja` 两套同结构译文：`"i18n": {"en": {"title": "…", "body": "…", "action": "…"}, "ja": {"title": "…", "body": "…", "action": "…"}}`；期次顶层若有 `title`，同样带顶层 `i18n`（`{"en": {"title": "…"}, "ja": {"title": "…"}}`，期次名按站内惯例：en 用 `Breaker Delta · Morning / Evening`，ja 用 `浪尖レーダー · 朝刊 / 夕刊`。译文要求：数字、日期、价格、版本号、专名与原文逐项对齐，不增删信息；标题保持同样的力度与长度感，专名保留原形。主语言字段是唯一原件——认话题、算浪高、生成 slug 都只看主语言，译文只供发布器在构建 en/ja 站点时取用。写完逐条自检：en/ja 的 `title`/`body` 非空、`action` 与原文同有同无；缺一条先补齐再出报告，不许靠发布器的缺译回退兜底（回退只保证构建不坏，不保证质量）。
 6. **出报告**：严格用下方模板。每个数字必须带出处；禁止「爆火」「刷屏」等无量词形容；建议动作只给判断，不替用户做决定。
 
 ## 报告模板

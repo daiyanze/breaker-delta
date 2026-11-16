@@ -8,6 +8,7 @@ import { topicFile, type Edition } from "@breaker-delta/core";
 
 import { catName, levelLabel, langPrefix, s, sArr, type Ctx } from "./ctx.js";
 import {
+  ARC_NAMES,
   CAT_KEYS,
   CSS,
   HTML_LANG,
@@ -16,6 +17,7 @@ import {
   SHARE_ICONS,
   SHARE_PLATFORMS,
   SOURCE_DOMAINS,
+  SRC_NAMES,
 } from "./literals.js";
 import {
   cpLen,
@@ -36,6 +38,50 @@ const hasOwn = (obj: object, key: string): boolean =>
 
 export function topicHref(t: { slug: string }): string {
   return pyQuote(topicFile(t), "-._~");
+}
+
+/** An appearance's agent-written text in the language being built.
+ * Falls back field by field to the canonical main-language text when
+ * a translation is missing, so partially translated data still builds. */
+export interface LocText {
+  title: string;
+  body: string;
+  action: string;
+}
+
+export function locApp(ctx: Ctx, app: App): LocText {
+  const t = app.i18n?.[ctx.lang];
+  return {
+    title: t?.title || app.title,
+    body: t?.body || app.body,
+    action: t?.action || app.action,
+  };
+}
+
+/** A topic's display name in the language being built: the arc-name
+ * table for hard-coded arcs, else the translation of the appearance
+ * whose title the canonical name came from (normally the latest). */
+export function locTopicName(ctx: Ctx, topic: PubTopic): string {
+  if (ctx.lang !== "zh") {
+    const arc = ARC_NAMES[topic.name]?.[ctx.lang];
+    if (arc) return arc;
+  }
+  const named = topic.apps.find((a) => a.title === topic.name);
+  const last = topic.apps[topic.apps.length - 1];
+  return locApp(ctx, named ?? last).title;
+}
+
+/** An edition's display title in the language being built. */
+export function locEditionTitle(ctx: Ctx, ed: Edition): string {
+  return ed.i18n?.[ctx.lang]?.title || ed.title || "";
+}
+
+/** A source's display name in the language being built. The stored
+ * name stays the identity (favicon/domain/config lookups use it);
+ * only the rendered text is localized. */
+export function srcName(ctx: Ctx, name: string): string {
+  if (ctx.lang === "zh") return name;
+  return SRC_NAMES[name]?.[ctx.lang] || name;
 }
 
 export function catKey(cat: string): string {
@@ -243,13 +289,13 @@ export function avatarStack(ctx: Ctx, sources: string[]): string {
     if (dom && ctx.favFiles.has(dom)) {
       avs +=
         `<img class="avimg" src="favicons/${ctx.favFiles.get(dom)}" ` +
-        `alt="${esc(src)}" title="${esc(src)}" loading="lazy">`;
+        `alt="${esc(srcName(ctx, src))}" title="${esc(srcName(ctx, src))}" loading="lazy">`;
     } else {
       const hue = sumOrd(src) % 360;
-      const initial = firstAlnum(src);
+      const initial = firstAlnum(srcName(ctx, src));
       avs +=
         `<span class="av" style="background:hsl(${hue} 65% 72%)" ` +
-        `title="${esc(src)}">${esc(initial)}</span>`;
+        `title="${esc(srcName(ctx, src))}">${esc(initial)}</span>`;
     }
   }
   const extra =
@@ -315,7 +361,7 @@ export function rowHtml(
   }
   return (
     `<div class="row"><span class="rank ${rank <= 3 ? "top" : ""}">${rank}${rdelta}${prank}</span>\n` +
-    `<span class="rtitle"><a href="${topicHref(topic)}">${esc(app.title)}</a>${badge}${carried}</span>\n` +
+    `<span class="rtitle"><a href="${topicHref(topic)}">${esc(locApp(ctx, app).title)}</a>${badge}${carried}</span>\n` +
     `${tag}${time}\n` +
     `${avatarStack(ctx, app.sources)}\n` +
     `<span class="heat"><span class="spark">${spark}</span><span class="hv"><b>${app.heat}</b> <span>${s(ctx, "wave")}</span> ${hdelta}</span></span></div>`
