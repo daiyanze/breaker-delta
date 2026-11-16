@@ -1,6 +1,6 @@
 ---
 name: breaker-delta
-description: Run one edition (morning/evening) of the twice-daily web hot-topic radar — scan layered sources with the Breaker Delta CLI, judge signals against fixed thresholds, dedupe against the topic store, and emit the report in the fixed format.
+description: Run the Breaker Delta web hot-topic radar. If the instance has no config yet, first walk the user through the setup wizard (industry interview, category taxonomy, live-validated subscription sources, pilot edition, run-mode choice); otherwise scan layered sources with the CLI, judge signals against fixed thresholds, dedupe against the topic store, and emit the report in the fixed format.
 ---
 
 # Breaker Delta（浪尖雷达）— 执行指令
@@ -12,7 +12,7 @@ description: Run one edition (morning/evening) of the twice-daily web hot-topic 
 - **命令行**：单文件版 Breaker Delta CLI（仓库 `apps/cli/dist/breaker-delta.mjs`，只需 Bun ≥ 1.2），下文记作 `$BD_CLI`，即 `bun /path/to/breaker-delta.mjs`（把路径换成本机实际路径）。所有命令都显式带 `--data-dir <数据目录>`（或设环境变量 `BD_DATA_DIR`）；数据目录里放该实例的 `editions/`、`state/`、`track-record.md` 与配置。
 - `config.yaml`（兼容 `config.json`，在数据目录里；都没有就用引擎侧的 `config.example.yaml`）：信息源、门槛、关键词、期次、时区都在里面，**不要把门槛硬编码在脑子里**。config 里写了 `preset: <名字>` 时，引擎侧 `presets/<名字>/config.yaml` 是基础层（整套行业订阅：源、权重、分类体系），实例 config 的同名顶层段覆盖它；话题的分类体系在 preset 的 `categories` 段，由发布器自动套用，agent 不要手工给单条话题改分类——觉得分类不对，改的是规则。
 - `<数据目录>/state/seen-topics.json`：话题台账。先读，再扫。
-- 期次：morning（06:00 JST，分工见 config）或 evening（18:00 JST）。
+- 期次：名字、时间与分工都在 config 的 `editions` 段里（官方实例是 morning 06:00 / evening 18:00 JST，那只是它自己的设置，不要当成固定频次套到别的实例上）。
 
 常用命令（细节看 `$BD_CLI --help`）：
 
@@ -22,9 +22,76 @@ description: Run one edition (morning/evening) of the twice-daily web hot-topic 
 - 构建站点：`$BD_CLI --data-dir <数据目录> publish`
 - 环境自检：`$BD_CLI --data-dir <数据目录> doctor`
 
+## 首次运行向导（没有配置时先走这里）
+
+### 什么时候进向导
+
+- 跑 `$BD_CLI --data-dir <数据目录> doctor`，config 检查为 fail（数据目录和引擎侧都找不到 config），或数据目录里还没有 `editions/` 与 `state/` —— 首次运行，进向导。**向导没走完，不要跑下面的扫描步骤。**
+- 用户明说「配置一个新雷达 / 换个行业 / 加订阅源 / 改分类」—— 进向导；已有配置的走 W7 增量模式，不从头再来。
+
+### 通用规矩
+
+- **一次问一组、先给草案**：每一步先拿出你的草案（分类表、源清单、关键词），用户不反对就按草案定。不要逐个字段盘问，也不要把 YAML 甩给用户让他自己填。
+- **产物只写数据目录**：`config.yaml` 与 `brief.md` 都落数据目录。有引擎仓写权限且用户同意时，可另存一份到 `presets/<行业slug>/` 作为他的 preset；没有就跳过，不强求。
+- **不编造订阅地址**：每个源必须按 W4 实测，测不过的当场说明原因，不静默收录、不拿别的源的内容冒充。
+- **频次永远问用户**：一期还是两期、几点跑，都是用户定；官方实例的早晚两期只是例子。
+- 向导是唯一允许**写** config 的场景（日常运行仍守「不改门槛凑结果」的红线）；写的是新配置，不是为某一期凑结果。
+
+### W1 行业访谈（一轮问完）
+
+问清五件事，用户没答的给默认并注明：① 盯哪个行业、哪个细分；② 读者是谁（自己看 / 给粉丝 / 团队内部）；③ 主语言，要不要同时出 en/ja；④ 时区；⑤ 希望多久一期、大概什么时间（可以到 W6 再定）。
+从回答里提炼三样东西，后面几步都用：**行业名与 slug**、**3–5 个子领域词**（W3 权重与 W2 分类的种子）、**「什么算这个行业的大事」的一句话直觉**（写进 brief.md）。
+
+### W2 分类共创
+
+- 按行业常识 + 子领域词，拟 **5–8 个分类 + 1 个兜底类**：每个分类给 5–10 个关键词（这个行业标题里最常出现的词，记住分类是子串匹配、标题优先），以及 en/ja 显示名。
+- 用表格呈现：`分类 | 关键词 | 一句说明`。用户增删改，**最多来回两轮就定稿**——分类准不准靠 W5 试跑校准，不要在这一桌上耗完。
+- 定稿的分类就是 config 的 `categories` 段（`fallback` + `rules`，格式照 `presets/ai-tech/config.yaml` 末尾那段）。
+
+### W3 关键词与主题权重
+
+- `topics`：子领域词逐个给权重 2–5，用户最在意的方向给 5。
+- `mute`：问「什么内容你永远不想再看到」，并给一份这个行业的常见垃圾词草案（招商、加盟、纯营销稿之类）供他勾选补充。
+- `alert` / `boost`：问「哪类信号一出现必须第一时间知道」→ alert；其余关注词 → boost。
+- 用户没有明确答案的就留空数组，不硬塞——这三件套后面随时能改。
+
+### W4 订阅源发现与实测（最重要的一步，禁止跳过实测）
+
+1. **按层列候选**：L1 源头层（行业的一手发布渠道：厂商/机构官方博客与公告、协会、监管原文、预印本与代码托管的行业区）、L2 发酵层（行业媒体、社区论坛、Newsletter、榜单与目录站）、L3 只核对（趋势类工具，只核对曲线、永不作为发现来源）。
+2. **用户给的链接逐个处理**：先找 feed —— 页面 `<link rel="alternate">`、常见路径（`/feed`、`/rss`、`/atom.xml`、`/feed.xml`、`/sitemap.xml`）；再确认它落在引擎已支持的源类型里（照 `config.example.yaml` 的 `sources` 结构：RSS/Atom 组、sitemap 组与各专用源）。不在支持范围的站点，如实告诉用户「这个站暂时订阅不了」，写进 brief.md 的「待补订阅」清单，**不假装已订阅**。
+3. **实测规程**：候选源先写入草稿 config，跑一次 `$BD_CLI --data-dir <数据目录> scan`，打开它写出的候选文件逐源核对：状态正常且有**近 7 天内**的条目 = 通过；报错、无条目、或只有过期条目 = 不通过，当场把原因告诉用户（无 feed / 已停更 / 抓不到），问要不要换替代源。**不通过的源从 config 里删掉再定稿，config 里不留死源。**
+4. **数量参考**：L1 5–15 个、L2 5–10 个足够开局，宁缺毋滥；以后随时走 W7 加。
+
+### W5 落盘 + 试跑一期
+
+1. **落盘**：把 W2–W4 的结果补全进数据目录的 `config.yaml`（W4 实测用的草稿在此补齐；结构照 `config.example.yaml`：`language` / `timezone` / `editions` / `sources` / `keywords` / `topics` / `categories`）；`editions` 按 W1 问到的时间写（name/label/time/focus），用户没定就先写一期占位并说明随时可改。行业简报写数据目录 `brief.md`：读者是谁、什么算大事、分层直觉、分类口径、待补订阅清单（样子照 `presets/ai-tech/brief.md`）。跑 `doctor` 确认 config 检查 ok 再继续。
+2. **试跑**：完整走一遍主流程（下面步骤 0–6）出一期试点，照常 `record` 入台账，再 `publish` 构建站点，把成品给用户看。
+3. **摊开校准（至少留一轮）**：把本期每条的 `话题 → 分类 → 等级 → 来源数` 列给用户。用户指出分错类的，**改 `categories` 的关键词规则，不改单条结果**，重新 `publish`（不用重扫）再给他看；源太吵或太静的在这一轮一并调（关源、加 mute 词）。用户确认可以了，才进 W6。
+
+### W6 运行模式（二选一，最后问一次）
+
+- **A · 就在 agent 里跑（免部署）**：用当前 agent 环境的定时能力，按用户定的时间注册每期任务，任务内容就是本 Skill 的主流程、数据目录指向本实例；每期跑完在对话里按报告模板交报告。把注册好的时间表复述给用户确认，并提醒一句：agent 环境关机或休眠时不会跑，数据只存在本机数据目录。
+- **B · 部署**：问 Docker 还是 Cloudflare（二选一，暂时只提供这两种），然后按部署文档分步引导（文档在文档站的部署页）；每步做完先验证（容器起来能打开榜单 / Worker 部署成功且第一期可见）再走下一步，需要用户出账号、密钥或去后台点的，当场说清要他做什么。部署细节以部署文档为准，不在本章展开。
+- 之后想换模式随时回来重走 W6，配置不用重做。
+
+### W7 增量重入（日常改配置的唯一通道）
+
+- **加源**：新链接走 W4 的找 feed + 实测规程，通过才进 config；改完告诉用户结果（收了 / 没收及原因）。
+- **改分类**（拆类、并类、改名、调关键词）：改 `categories` 规则后重新 `publish`，历史话题会按新规则重新归类；给用户看变化：原来各多少条、现在各多少条、哪几条换了类。
+- **换行业**：重走 W1–W5 且用**新数据目录**——老台账和期次是旧行业的，不要在老目录上改。
+- 任何增量改动之前，先把现有 config 复制一份 `config.bak-<日期>.yaml`，改坏了能回滚。
+
+### 完成标准（结束向导前逐项自检）
+
+- [ ] `doctor` 的 config 检查为 ok
+- [ ] `config.yaml` 含非空 `categories`，且每个源都过了 W4 实测（用户明确接受的例外除外，并已告知）
+- [ ] `brief.md` 已写入数据目录
+- [ ] 试点一期已产出、给用户看过分类/等级清单，且留过至少一轮调整机会
+- [ ] 运行模式已选：A 已注册定时并复述时间表 / B 已进入部署引导的第一步
+
 ## 步骤
 
-0. **先跑抓取层**：`$BD_CLI --data-dir <数据目录> scan --edition <morning|evening>`（或省略 `--edition` 自动选期次），读它写出的 `<数据目录>/state/candidates-<日期>-<期次>.json` 作为候选底稿；状态为 missing 的源（通常只有 X，以及当期失败的源）再用网页扫补齐，并在报告里如实标注哪些源是代码抓的、哪些是网页扫的。状态为 disabled 的源是用户在 config 里关掉的，**不算缺失、不要补扫**，报告也不必提。
+0. **先跑抓取层**（数据目录还没有可用 config 时，先完整走上面的「首次运行向导」，不要直接开扫）：`$BD_CLI --data-dir <数据目录> scan --edition <morning|evening>`（或省略 `--edition` 自动选期次），读它写出的 `<数据目录>/state/candidates-<日期>-<期次>.json` 作为候选底稿；状态为 missing 的源（通常只有 X，以及当期失败的源）再用网页扫补齐，并在报告里如实标注哪些源是代码抓的、哪些是网页扫的。状态为 disabled 的源是用户在 config 里关掉的，**不算缺失、不要补扫**，报告也不必提。
 1. **按层扫源**（顺序不可颠倒，这是方法论的核心）：
    - L1 源头层：X（Trending + config 中账号的新名字）、官方博客组（实验室一手公告）、GitHub（Trending + 爆发仓库）、Hacker News（首页/高分新帖）、Show HN（发布帖）、Hugging Face models + HF Spaces（Trending 前 50 新面孔）、OpenRouter（最新上架模型）、Civitai（最新社区模型）、arXiv（最新论文）、HF Daily Papers（社区票选论文）、Bluesky（config 账号的公开 RSS）、Product Hunt（当日新品）。
    - L2 发酵层：Reddit（config 的版块，rising/热帖；留意 “is there a tool that…” 式需求）、科技媒体组（媒体 + 独立作者）、DEV、Lobsters、Mastodon 趋势（当日独立账号数）、Wikipedia 热读榜（大众注意力/社会观察）、目录站 sitemap 组（新工具页）、App Store 榜单（钱信号）、Google News（科技/AI 头条）。
