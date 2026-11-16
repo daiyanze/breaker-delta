@@ -93,7 +93,7 @@ export interface RecordEntry {
   grade: string;
 }
 
-function validateEntries(data: unknown): RecordEntry[] {
+export function validateEntries(data: unknown): RecordEntry[] {
   if (!Array.isArray(data)) {
     throw new RuntimeError("record: input must be a JSON array of {name, sources, grade}");
   }
@@ -148,6 +148,22 @@ export async function cmdRecord(
     throw new RuntimeError(`record: invalid JSON: ${err instanceof Error ? err.message : String(err)}`);
   }
   const entries = validateEntries(parsed);
+  const { created, updated, total, lines } = applyRecord(ctx, entries, date);
+  if (ctx.json) {
+    printJson({ created, updated, total });
+    return 0;
+  }
+  for (const line of lines) out(ctx, line);
+  out(ctx, `topics total: ${total}`);
+  return 0;
+}
+
+/** The store write-back shared by `record` and the serve push API. */
+export function applyRecord(
+  ctx: CliContext,
+  entries: RecordEntry[],
+  date?: string,
+): { created: number; updated: number; total: number; lines: string[] } {
   const storePath = statePath(ctx);
   const store: TopicStore = loadStore(storePath);
   let created = 0;
@@ -165,13 +181,7 @@ export async function cmdRecord(
     }
   }
   saveStore(store, storePath);
-  if (ctx.json) {
-    printJson({ created, updated, total: store.topics.length });
-    return 0;
-  }
-  for (const line of lines) out(ctx, line);
-  out(ctx, `topics total: ${store.topics.length}`);
-  return 0;
+  return { created, updated, total: store.topics.length, lines };
 }
 
 export function cmdRecordReview(

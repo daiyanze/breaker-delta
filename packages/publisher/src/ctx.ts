@@ -28,6 +28,13 @@ export interface BuildOptions {
   mainUrl?: string;
   dataRepo?: string;
   langs?: string[];
+  /**
+   * Render into this map instead of writing files (keys are POSIX
+   * paths relative to the site root, values the file bytes). Used by
+   * the dynamic server (renderSiteMap); outDir is then only a label
+   * and nothing is written to it.
+   */
+  sink?: Map<string, Uint8Array>;
   /** Category taxonomy for this build (from the instance config /
    *  preset's `categories` section); default is the ai-tech rule set. */
   catRules?: CatRuleSet;
@@ -72,6 +79,8 @@ export interface Ctx {
   langDir: string;
   /** FAV_FILES: domain -> cached favicon filename, in fetch order. */
   favFiles: Map<string, string>;
+  /** When set, all output goes to this map instead of the filesystem. */
+  sink: Map<string, Uint8Array> | null;
   /** OG_IMG: true when assets/banner.png exists. */
   ogImg: boolean;
 }
@@ -107,6 +116,7 @@ export function makeCtx(options: BuildOptions): Ctx {
     langDir: options.outDir ?? path.join(rootDir, "site"),
     favFiles: new Map(),
     ogImg: false,
+    sink: options.sink ?? null,
   };
 }
 

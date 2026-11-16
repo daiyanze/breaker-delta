@@ -83,8 +83,34 @@ import type { App, BoardState, PubTopic, SourceStat } from "./types.js";
 const hasOwn = (obj: object, key: string): boolean =>
   Object.prototype.hasOwnProperty.call(obj, key);
 
+const textEncoder = new TextEncoder();
+
 function write(ctx: Ctx, fname: string, content: string): void {
+  if (ctx.sink) {
+    ctx.sink.set(langPrefix(ctx) + fname, textEncoder.encode(content));
+    return;
+  }
   fs.writeFileSync(path.join(ctx.langDir, fname), content, "utf-8");
+}
+
+/** Copy a binary file into the output (per-language), or into the sink. */
+function emitCopy(ctx: Ctx, srcPath: string, relName: string): void {
+  if (ctx.sink) {
+    ctx.sink.set(langPrefix(ctx) + relName, fs.readFileSync(srcPath));
+    return;
+  }
+  fs.copyFileSync(srcPath, path.join(ctx.langDir, relName));
+}
+
+/** Write a text file at the site root, or into the sink. */
+function writeRoot(ctx: Ctx, rel: string, content: string): void {
+  if (ctx.sink) {
+    ctx.sink.set(rel, textEncoder.encode(content));
+    return;
+  }
+  const target = path.join(ctx.outDir, rel);
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.writeFileSync(target, content, "utf-8");
 }
 
 function range(n: number): number[] {
@@ -109,7 +135,7 @@ function firstSentence(text: string): string {
 export async function buildSite(options: BuildOptions): Promise<string[]> {
   const ctx = makeCtx(options);
   const out = ctx.outDir;
-  fs.mkdirSync(out, { recursive: true });
+  if (!ctx.sink) fs.mkdirSync(out, { recursive: true });
   const { editions, ledger } = loadEditions(ctx);
   const topics = buildTopics(editions, ledger, ctx.catRules) as PubTopic[];
   const domainSet = new Set<string>();
@@ -132,19 +158,25 @@ export async function buildSite(options: BuildOptions): Promise<string[]> {
   for (const lang of ctx.langs) {
     ctx.lang = lang;
     ctx.langDir = lang === "zh" ? out : path.join(out, lang);
-    fs.mkdirSync(ctx.langDir, { recursive: true });
+    if (!ctx.sink) fs.mkdirSync(ctx.langDir, { recursive: true });
     if (bannerExists) {
-      fs.copyFileSync(banner, path.join(ctx.langDir, "og-image.png"));
+      emitCopy(ctx, banner, "og-image.png");
     }
     for (const bf of brand) {
       const srcf = path.join(assetsDir, bf);
-      if (fs.existsSync(srcf)) fs.copyFileSync(srcf, path.join(ctx.langDir, bf));
+      if (fs.existsSync(srcf)) emitCopy(ctx, srcf, bf);
     }
     buildSiteLang(ctx, editions, topics);
   }
   ctx.lang = "zh";
   writeDataFiles(ctx, editions, topics);
   writeDiscovery(ctx, editions, topics);
+  if (ctx.sink) {
+    return [...ctx.sink.keys()]
+      .filter((k) => k.endsWith(".html"))
+      .map((k) => path.join(out, k))
+      .sort(cpCompare);
+  }
   const written: string[] = [];
   const walk = (dir: string): void => {
     for (const name of fs.readdirSync(dir)) {
@@ -155,6 +187,20 @@ export async function buildSite(options: BuildOptions): Promise<string[]> {
   };
   walk(out);
   return written.sort(cpCompare);
+}
+
+/**
+ * Render the whole main site into memory instead of files: the same
+ * pipeline as buildSite, collected into a path -> bytes map (POSIX
+ * keys relative to the site root). This is the dynamic server's
+ * render path (P1); buildSite remains the static export.
+ */
+export async function renderSiteMap(
+  options: BuildOptions,
+): Promise<Map<string, Uint8Array>> {
+  const sink = new Map<string, Uint8Array>();
+  await buildSite({ ...options, sink });
+  return sink;
 }
 
 /** Main-site pages the docs bodies link to relatively; on the docs
@@ -255,18 +301,8 @@ export function buildDocsSite(options: BuildOptions): string[] {
 
 /** data/topics.json + data/alerts.json at the site root (indent=1). */
 export function writeDataFiles(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void {
-  const d = path.join(ctx.outDir, "data");
-  fs.mkdirSync(d, { recursive: true });
-  fs.writeFileSync(
-    path.join(d, "topics.json"),
-    pyJsonDumps(topicsData(editions, topics), 1),
-    "utf-8",
-  );
-  fs.writeFileSync(
-    path.join(d, "alerts.json"),
-    pyJsonDumps(alertsData(editions, topics), 1),
-    "utf-8",
-  );
+  writeRoot(ctx, "data/topics.json", pyJsonDumps(topicsData(editions, topics), 1));
+  writeRoot(ctx, "data/alerts.json", pyJsonDumps(alertsData(editions, topics), 1));
 }
 
 /** sitemap.xml + robots.txt + llms.txt at the site root. */
@@ -291,11 +327,22 @@ export function writeDiscovery(ctx: Ctx, editions: Edition[], topics: PubTopic[]
   ];
   for (const lang of ctx.langs) {
     const prefix = lang === "zh" ? "" : lang + "/";
-    const folder = lang === "zh" ? out : path.join(out, lang);
-    const names = fs
-      .readdirSync(folder)
-      .filter((n) => n.endsWith(".html"))
-      .sort(cpCompare);
+    let names: string[];
+    if (ctx.sink) {
+      // The sink's top-level keys for this language are exactly the
+      // files a directory listing of the language dir would give.
+      names = [...ctx.sink.keys()]
+        .filter((k) => k.startsWith(prefix))
+        .map((k) => k.slice(prefix.length))
+        .filter((n) => n.endsWith(".html") && !n.includes("/"))
+        .sort(cpCompare);
+    } else {
+      const folder = lang === "zh" ? out : path.join(out, lang);
+      names = fs
+        .readdirSync(folder)
+        .filter((n) => n.endsWith(".html"))
+        .sort(cpCompare);
+    }
     for (const name of names) {
       sm.push(
         `<url><loc>${ctx.baseUrl}${prefix}${pyQuote(name, "-._~")}</loc>` +
@@ -304,11 +351,11 @@ export function writeDiscovery(ctx: Ctx, editions: Edition[], topics: PubTopic[]
     }
   }
   sm.push("</urlset>");
-  fs.writeFileSync(path.join(out, "sitemap.xml"), sm.join("\n"), "utf-8");
-  fs.writeFileSync(
-    path.join(out, "robots.txt"),
+  writeRoot(ctx, "sitemap.xml", sm.join("\n"));
+  writeRoot(
+    ctx,
+    "robots.txt",
     `User-agent: *\nAllow: /\nSitemap: ${ctx.baseUrl}sitemap.xml\n`,
-    "utf-8",
   );
   const sts = [...topics]
     .sort((a, b) => b.apps[b.apps.length - 1].heat - a.apps[a.apps.length - 1].heat)
@@ -334,7 +381,7 @@ export function writeDiscovery(ctx: Ctx, editions: Edition[], topics: PubTopic[]
     `- [投波](${ctx.baseUrl}submit.html)\n- [关于](${ctx.baseUrl}about.html)\n- [文档 Docs](${ctx.docsUrl}docs.html)\n- [Docs (English)](${ctx.docsUrl}en/docs.html)\n` +
     `- [往期归档](${ctx.baseUrl}archive.html)\n- [RSS](${ctx.baseUrl}feed.xml)\n` +
     `- [Atom](${ctx.baseUrl}atom.xml)\n\n## 语言版本\n${langLinks}\n\n## 当前浪高最高的话题\n${topLinks}\n`;
-  fs.writeFileSync(path.join(out, "llms.txt"), llms, "utf-8");
+  writeRoot(ctx, "llms.txt", llms);
 }
 
 /**
@@ -385,14 +432,20 @@ const SLIDER_JS =
 function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void {
   const OUT = ctx.langDir;
   const PER = ctx.per;
-  for (const name of fs.readdirSync(OUT)) {
-    if (name.endsWith(".html")) fs.unlinkSync(path.join(OUT, name));
-  }
-  const favOut = path.join(OUT, "favicons");
-  fs.rmSync(favOut, { recursive: true, force: true });
-  fs.mkdirSync(favOut, { recursive: true });
-  for (const [, fname] of ctx.favFiles) {
-    fs.copyFileSync(path.join(ctx.faviconCacheDir, fname), path.join(favOut, fname));
+  if (!ctx.sink) {
+    for (const name of fs.readdirSync(OUT)) {
+      if (name.endsWith(".html")) fs.unlinkSync(path.join(OUT, name));
+    }
+    const favOut = path.join(OUT, "favicons");
+    fs.rmSync(favOut, { recursive: true, force: true });
+    fs.mkdirSync(favOut, { recursive: true });
+    for (const [, fname] of ctx.favFiles) {
+      fs.copyFileSync(path.join(ctx.faviconCacheDir, fname), path.join(favOut, fname));
+    }
+  } else {
+    for (const [, fname] of ctx.favFiles) {
+      emitCopy(ctx, path.join(ctx.faviconCacheDir, fname), `favicons/${fname}`);
+    }
   }
   const latestEi = editions.length - 1;
   const latest = editions[latestEi];
@@ -1371,9 +1424,12 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
   write(ctx, "feed.xml", rss);
   write(ctx, "atom.xml", atom);
 
-  const pageCount = fs
-    .readdirSync(OUT)
-    .filter((n) => n.endsWith(".html")).length;
+  const pageCount = ctx.sink
+    ? [...ctx.sink.keys()]
+        .filter((k) => k.startsWith(langPrefix(ctx)))
+        .map((k) => k.slice(langPrefix(ctx).length))
+        .filter((n) => n.endsWith(".html") && !n.includes("/")).length
+    : fs.readdirSync(OUT).filter((n) => n.endsWith(".html")).length;
   const topHeat = Math.max(...latest.items.map((it) => it._heat ?? 0));
   console.log(
     `pages: ${pageCount} | topics: ${topics.length} | latest top heat: ${topHeat}`,

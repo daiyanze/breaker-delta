@@ -1,0 +1,10 @@
+.git
+node_modules
+**/node_modules
+**/dist
+site
+release-dist
+data
+favicon-cache
+*.md5
+.DS_Store

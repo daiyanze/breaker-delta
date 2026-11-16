@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 
 import { parseTrackRecordFile } from "@breaker-delta/core";
 
-import { buildDocsSite, buildSite, optionsFromEnv } from "../src/index.js";
+import { buildDocsSite, buildSite, optionsFromEnv, renderSiteMap } from "../src/index.js";
 import { pyQuote } from "../src/py.js";
 
 const ROOT = path.resolve(
@@ -558,6 +558,39 @@ test("topic page has wave chart and visible nofollow links", async () => {
     assert.ok(main.includes("创作参考") && main.includes("钩子三选一"));
     assert.ok(main.includes("Hormozi")); // long-form skeleton attribution
     assert.ok(main.includes('class="help"')); // wave-height explainer
+  } finally {
+    cleanup(b);
+  }
+});
+
+test("renderSiteMap produces exactly the files buildSite writes", async () => {
+  const b = await buildFixture();
+  try {
+    const map = await renderSiteMap({
+      rootDir: ROOT,
+      editionsDir: path.join(b.tmpdir, "editions"),
+      outDir: path.join(b.tmpdir, "unused-in-sink-mode"),
+      baseUrl: "https://example.com/triple-sigma",
+    });
+    // Every file on disk is in the map with identical bytes, and the
+    // map holds nothing extra.
+    const onDisk = new Map<string, Uint8Array>();
+    const walk = (dir: string, rel: string): void => {
+      for (const name of fs.readdirSync(dir)) {
+        const p = path.join(dir, name);
+        const r = rel === "" ? name : `${rel}/${name}`;
+        if (fs.statSync(p).isDirectory()) walk(p, r);
+        else onDisk.set(r, fs.readFileSync(p));
+      }
+    };
+    walk(b.outDir, "");
+    assert.deepStrictEqual([...map.keys()].sort(), [...onDisk.keys()].sort());
+    for (const [rel, bytes] of onDisk) {
+      // Buffer vs Uint8Array: compare bytes, not prototypes.
+      assert.ok(Buffer.from(map.get(rel)!).equals(Buffer.from(bytes)), rel);
+    }
+    // Sink mode must not touch the filesystem output path at all.
+    assert.ok(!fs.existsSync(path.join(b.tmpdir, "unused-in-sink-mode")));
   } finally {
     cleanup(b);
   }

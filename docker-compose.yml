@@ -1,0 +1,24 @@
+# Breaker Delta self-hosted instance.
+#
+#   cp .env.example .env    # set BD_PUSH_TOKEN (and BD_BASE_URL if public)
+#   mkdir -p data           # your data dir: config.yaml, editions/, state/
+#   docker compose up -d
+#   open http://localhost:8080
+#
+# The data/ directory is yours: prepare it by hand, with the
+# breaker-delta-setup wizard Skill, or by copying an existing data
+# repo's contents. The container never writes outside /data except
+# its favicon cache (data/favicon-cache).
+
+services:
+  radar:
+    build: .
+    image: breaker-delta
+    container_name: breaker-delta
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/data
+    env_file:
+      - .env
+    restart: unless-stopped

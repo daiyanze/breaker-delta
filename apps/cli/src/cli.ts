@@ -3,9 +3,10 @@
 //   breaker-delta [--data-dir <dir>] [--config <path>] [--json]
 //                 [--root-dir <dir>] <command> [command args]
 //
-// Commands: scan, review, record, publish, docs, preset, doctor, mcp.
-// With no command, scan runs (the Python `python -m radar` one-command
-// path). Exit codes: 0 success, 1 runtime error, 2 usage error.
+// Commands: scan, review, record, publish, docs, preset, doctor,
+// serve, mcp. With no command, scan runs (the Python
+// `python -m radar` one-command path). Exit codes: 0 success,
+// 1 runtime error, 2 usage error.
 
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -30,8 +31,9 @@ import {
   type CliContext,
 } from "./context.js";
 import { runMcp } from "./mcp.js";
+import { cmdServe } from "./serve.js";
 
-const HELP = `breaker-delta ${VERSION} — web hot-topic radar (scan / review / record / publish / docs / preset / doctor / mcp)
+const HELP = `breaker-delta ${VERSION} — web hot-topic radar (scan / review / record / publish / docs / preset / doctor / serve / mcp)
 
 Usage:
   breaker-delta [--data-dir <dir>] [--config <path>] [--root-dir <dir>] [--json] <command> [args]
@@ -69,6 +71,14 @@ Commands:
                      (docs.breakerdelta.com) from the engine root alone;
                      no data dir is read. TS_DOCS_URL / TS_MAIN_URL /
                      TS_DOCS_OUT set the same values by environment.
+  serve [--port 8080] [--host 0.0.0.0] [--base-url <url>]
+                     Run the dynamic server (self-hosted instances):
+                     renders the site into memory, re-renders when the
+                     data dir changes, serves it over HTTP. Optional
+                     push API (/api/record, /api/editions) when
+                     BD_PUSH_TOKEN is set; optional scan scheduler via
+                     BD_SCAN_TIMES=06:00,18:00. This is the Docker
+                     image's entrypoint.
   preset list        List the presets bundled with the engine (categories,
                      feeds, brief), marking the one this instance selects.
   preset init <name> Copy a bundled preset's config + brief.md into the
@@ -90,6 +100,7 @@ const VALUE_FLAGS = new Set([
   "data-dir", "config", "root-dir",
   "edition", "date", "name", "result",
   "out", "base-url", "data-repo", "langs", "docs-url", "main-url",
+  "port", "host",
 ]);
 const BOOL_FLAGS = new Set(["json", "help", "creator", "no-creator", "online"]);
 
@@ -210,6 +221,14 @@ export async function main(argv: string[]): Promise<number> {
           docsUrl: flagStr(flags, "docs-url"),
           mainUrl: flagStr(flags, "main-url"),
           langs: flagStr(flags, "langs"),
+        });
+      }
+      case "serve": {
+        if (positionals.length > 1) throw new UsageError(`serve: unexpected argument: ${positionals[1]}`);
+        return await cmdServe(ctx, {
+          port: flagStr(flags, "port"),
+          host: flagStr(flags, "host"),
+          baseUrl: flagStr(flags, "base-url"),
         });
       }
       case "preset": {

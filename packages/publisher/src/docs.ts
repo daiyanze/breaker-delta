@@ -72,7 +72,7 @@ export const DOC_PAGES: DocPage[] = [
 <ul class="tips">
 <li><a href="docs-getting-started.html">快速开始</a> — 环境要求、从克隆到跑出第一期、数据目录长什么样。</li>
 <li><a href="docs-reading.html">看懂站点</a> — 海浪榜 / 涨潮榜 / 回波 / 分类 / 数据源 / 战绩 / 归档逐页说明，外加浪高公式与分级规则。</li>
-<li><a href="docs-cli.html">CLI 参考</a> — scan / review / record / publish / docs / preset / doctor / mcp 八个命令、全局参数与退出码。</li>
+<li><a href="docs-cli.html">CLI 参考</a> — scan / review / record / publish / docs / preset / doctor / serve / mcp 九个命令、全局参数与退出码。</li>
 <li><a href="docs-config.html">配置</a> — config.yaml 里真正会动到的开关：关键词三件套、主题权重、信息源开关、新词词汇表。</li>
 <li><a href="docs-skill.html">Skill 与 MCP</a> — 把雷达装进 agent 工具（Claude Code、Codex 等），或把同一个程序当 MCP 服务器用。</li>
 <li><a href="docs-extension.html">Chrome 扩展</a> — 安装、收波、投波、设置、权限与隐私、常见问题。</li>
@@ -94,7 +94,7 @@ export const DOC_PAGES: DocPage[] = [
 <ul class="tips">
 <li><a href="docs-getting-started.html">Getting Started</a> — requirements, from clone to your first edition, and what a data directory looks like.</li>
 <li><a href="docs-reading.html">Reading the Site</a> — Wave Board / Rising / Echoes / Categories / Sources / Track Record / Archive, plus the wave-height formula and grading rules.</li>
-<li><a href="docs-cli.html">CLI Reference</a> — the eight commands (scan / review / record / publish / docs / preset / doctor / mcp), global options and exit codes.</li>
+<li><a href="docs-cli.html">CLI Reference</a> — the nine commands (scan / review / record / publish / docs / preset / doctor / serve / mcp), global options and exit codes.</li>
 <li><a href="docs-config.html">Configuration</a> — the config.yaml knobs people actually turn: keyword mute / boost / alert, topic weights, source switches, the new-term vocabulary.</li>
 <li><a href="docs-skill.html">Skill &amp; MCP</a> — install the radar into an agent harness (Claude Code, Codex, …), or run the same bundle as an MCP server.</li>
 <li><a href="docs-extension.html">Chrome Extension</a> — install, capture, submit, settings, permissions and privacy, troubleshooting.</li>
@@ -253,8 +253,8 @@ $BD --data-dir /path/to/your-data publish --out site        # build the static s
     file: "docs-cli.html",
     title: { zh: "📖 CLI 参考", en: "📖 CLI Reference" },
     desc: {
-      zh: "Breaker Delta CLI 参考：scan、review、record、publish、docs、preset、doctor、mcp 八个命令，全局参数、publish 的 TS_* 环境变量与退出码。",
-      en: "Breaker Delta CLI reference: scan, review, record, publish, docs, preset, doctor and mcp, global options, the TS_* publish environment variables and exit codes.",
+      zh: "Breaker Delta CLI 参考：scan、review、record、publish、docs、preset、doctor、serve、mcp 九个命令，全局参数、publish 的 TS_* 环境变量与退出码。",
+      en: "Breaker Delta CLI reference: scan, review, record, publish, docs, preset, doctor, serve and mcp, global options, the TS_* publish environment variables and exit codes.",
     },
     body: {
       zh: `<section class="panel"><div class="panel-h"><span>CLI 参考</span></div>
@@ -279,6 +279,7 @@ $BD --data-dir /path/to/your-data publish --out site        # build the static s
 <li><b>preset list</b> — 列出引擎内置的行业 preset（分类数、订阅源数、是否有简报），并标出当前实例选中的那个。</li>
 <li><b>preset init &lt;名&gt;</b> — 把某个内置 preset 的 config 与 brief.md 复制进数据目录，成为你自己的可改副本；数据目录已有 config 时拒绝覆盖。</li>
 <li><b>doctor [--online]</b> — 离线自检 Node、配置、数据目录与引擎根目录，含分类完整性检查（写了 categories 却解析不出有效规则会判 fail，免得 publish 时静默回退到内置分类）；加 --online 再抽查 config 里声明的订阅源地址是否可达（死源只 warn 不 fail）。有检查不通过时退出码为 1。</li>
+<li><b>serve [--port 8080] [--host 0.0.0.0] [--base-url &lt;url&gt;]</b> — 动态服务（自部署实例用，也是 Docker 镜像的入口）：把站点渲染进内存对外服务，数据目录变化即重渲染。环境变量：BD_PUSH_TOKEN 开启带口令的推送 API（POST /api/record、/api/editions），BD_SCAN_TIMES=06:00,18:00 开启内置定时扫描（只抓候选），BD_BASE_URL 设定站点根地址，/api/health 是健康检查（见 <a href="docs-deploy.html">自建与部署</a> 的 Docker 一节）。</li>
 <li><b>mcp</b> — 以 stdio 方式运行 MCP 服务器，提供 radar_scan 与 radar_review 两个工具（见 <a href="docs-skill.html">Skill 与 MCP</a>）。</li>
 </ul>
 <h3 style="margin:16px 0 6px">常用例子</h3>
@@ -324,6 +325,7 @@ TS_MAIN_URL      主站地址：文档站的回链指向它（默认 https://bre
 <li><b>preset list</b> — list the industry presets bundled with the engine (category count, feed count, brief), marking the one this instance selects.</li>
 <li><b>preset init &lt;name&gt;</b> — copy a bundled preset's config and brief.md into the data dir as your own editable copy; refuses to overwrite an existing config.</li>
 <li><b>doctor [--online]</b> — offline self-check of Node, config, data dir and engine root, including taxonomy integrity (a categories section that yields no valid rules fails, instead of silently falling back to the built-in taxonomy at publish time). --online additionally spot-checks a sample of the feed URLs the config declares (dead feeds warn, never fail). Exits 1 when any check fails.</li>
+<li><b>serve [--port 8080] [--host 0.0.0.0] [--base-url &lt;url&gt;]</b> — the dynamic server for self-hosted instances (and the Docker image's entrypoint): renders the site into memory, serves it, and re-renders when the data dir changes. Environment: BD_PUSH_TOKEN enables the token-gated push API (POST /api/record, /api/editions), BD_SCAN_TIMES=06:00,18:00 turns on the built-in scan schedule (candidates only), BD_BASE_URL sets the site root, and /api/health is the health endpoint (see the Docker section of <a href="docs-deploy.html">Deploy Your Own</a>).</li>
 <li><b>mcp</b> — run the stdio MCP server with the tools radar_scan and radar_review (see <a href="docs-skill.html">Skill &amp; MCP</a>).</li>
 </ul>
 <h3 style="margin:16px 0 6px">Common examples</h3>
@@ -555,8 +557,8 @@ TS_MAIN_URL      Main site URL: the docs site links back here (default https://b
     file: "docs-deploy.html",
     title: { zh: "📖 自建与部署", en: "📖 Deploy Your Own" },
     desc: {
-      zh: "Breaker Delta 自建实例：引擎仓与数据仓的分工、数据仓的形状、GitHub Pages 自动构建流程、TS_* 覆盖项与常见部署故障。",
-      en: "Run your own Breaker Delta instance: the engine-repo / data-repo split, the data repo's shape, the GitHub Pages build flow, TS_* overrides and common deployment failures.",
+      zh: "Breaker Delta 自建实例：引擎仓与数据仓的分工、数据仓的形状、GitHub Pages 自动构建流程、Docker 动态实例、TS_* 覆盖项与常见部署故障。",
+      en: "Run your own Breaker Delta instance: the engine-repo / data-repo split, the data repo's shape, the GitHub Pages build flow, the Docker dynamic instance, TS_* overrides and common deployment failures.",
     },
     body: {
       zh: `<section class="panel"><div class="panel-h"><span>自建与部署</span></div>
@@ -579,6 +581,15 @@ TS_MAIN_URL      Main site URL: the docs site links back here (default https://b
 <li>之后每次往数据仓推数据（比如扫描流程推入新一期），CI 自动重建，站点自动更新，不需要手动部署。</li>
 </ol>
 <p>官方实例现在跑在 Cloudflare Pages 上（项目直连仓库、推送自动构建）：主站项目连数据仓、构建时 clone 引擎仓，文档项目连引擎仓直接构建，两个项目各绑各的域名（breakerdelta.com 与 docs.breakerdelta.com）。构建命令与上面 GitHub Actions 版完全一致，只是执行方从 GitHub 换成 Cloudflare；自建实例两个平台任选其一即可。</p>
+<h3 style="margin:16px 0 6px">Docker：一台机器跑全部（动态实例）</h3>
+<p>不想依赖 Pages 的话，引擎自带一个动态服务（<span style="font-family:var(--mono)">serve</span> 命令）：站点在内存里渲染，数据目录一有变化就自动重渲染，不再生成成千上万个静态文件。引擎仓根目录有现成的 Dockerfile 与 docker-compose.yml：</p>
+<ol class="ol-list">
+<li>准备一个数据目录（就是上面数据仓的形状：config.yaml、editions/、state/；可以用 breaker-delta-setup 向导 Skill 对话生成，或直接拷一份现成数据仓）。</li>
+<li><span style="font-family:var(--mono)">cp .env.example .env</span>，至少把 <span style="font-family:var(--mono)">BD_PUSH_TOKEN</span> 设成一串长随机字符串（推送 API 的口令）；公网访问再设 <span style="font-family:var(--mono)">BD_BASE_URL</span> 为你的地址。</li>
+<li>把数据目录放到 compose 文件旁的 <span style="font-family:var(--mono)">data/</span> 下，<span style="font-family:var(--mono)">docker compose up -d</span>，打开 http://localhost:8080 就是你的雷达。</li>
+<li>分工照旧：抓取可以交给容器（.env 里设 <span style="font-family:var(--mono)">BD_SCAN_TIMES</span> 定时扫描，只抓候选），分级由你自己的 agent 完成，再带口令 POST 到 <span style="font-family:var(--mono)">/api/editions</span>（成品期次）与 <span style="font-family:var(--mono)">/api/record</span>（话题回写台账）；推送完站点自动重渲染。不设口令则推送 API 关闭，服务只读。</li>
+</ol>
+<p>健康检查在 <span style="font-family:var(--mono)">/api/health</span>：ok 为 true 才算渲染就绪，首次启动要等第一轮渲染完成（冷启动还要抓一遍站点图标缓存，之后就快了）。</p>
 <h3 style="margin:16px 0 6px">域名布局：主体、文档、应用各住各的</h3>
 <p>官方站点的域名分工是固定的：<b>主站住根域名</b>（breakerdelta.com —— 榜单和话题页是公开内容，吃分享与搜索，根域名最干净）；<b>文档是独立站</b>（docs.breakerdelta.com —— 就是本站，由单独的 docs 仓用 <span style="font-family:var(--mono)">docs</span> 命令构建部署，不和主站挤同一个构建，主站导航里的「文档」只是链过来）；<b>app. 子域名预留</b>给将来需要登录的产品，现在不用。自建实例想用自己的域名同理：把 TS_BASE_URL 换成你的根地址即可，文档站可以链到官方 docs，也可以跑 docs 命令自建一份。</p>
 <h3 style="margin:16px 0 6px">一个真实踩过的坑</h3>
@@ -611,6 +622,15 @@ TS_MAIN_URL      Main site URL: the docs site links back here (default https://b
 <li>From then on, every push of new data (for example a scan pushing a new edition) triggers a rebuild — the site updates itself, no manual deploys.</li>
 </ol>
 <p>The official instance now runs on Cloudflare Pages (projects connected straight to the repos, built on every push): the main project connects to the data repo and clones the engine during its build, the docs project connects to the engine repo and builds directly, each with its own domain (breakerdelta.com and docs.breakerdelta.com). The build commands are exactly the ones above — only the runner changed from GitHub to Cloudflare; self-hosters can pick either platform.</p>
+<h3 style="margin:16px 0 6px">Docker: everything on one machine (dynamic instance)</h3>
+<p>If you would rather not depend on Pages, the engine ships a dynamic server (the <span style="font-family:var(--mono)">serve</span> command): the site renders in memory and re-renders automatically whenever the data dir changes — no tens of thousands of static files. The engine repo root carries a ready Dockerfile and docker-compose.yml:</p>
+<ol class="ol-list">
+<li>Prepare a data directory (the data-repo shape above: config.yaml, editions/, state/ — generate it conversationally with the breaker-delta-setup wizard Skill, or copy an existing data repo).</li>
+<li><span style="font-family:var(--mono)">cp .env.example .env</span> and set at least <span style="font-family:var(--mono)">BD_PUSH_TOKEN</span> to a long random string (the push API's credential); for a public instance also set <span style="font-family:var(--mono)">BD_BASE_URL</span>.</li>
+<li>Put the data directory in <span style="font-family:var(--mono)">data/</span> next to the compose file, run <span style="font-family:var(--mono)">docker compose up -d</span>, and open http://localhost:8080 — that is your radar.</li>
+<li>The division of labour is unchanged: fetching can live in the container (<span style="font-family:var(--mono)">BD_SCAN_TIMES</span> in .env schedules scans, candidates only), grading stays with your own agent, which POSTs the finished edition to <span style="font-family:var(--mono)">/api/editions</span> and topic write-backs to <span style="font-family:var(--mono)">/api/record</span> with the token; the site re-renders on every push. With no token set, the push API is off and the server is read-only.</li>
+</ol>
+<p>Health lives at <span style="font-family:var(--mono)">/api/health</span>: ok:true means the render is ready — at first boot, wait for the initial render (a cold start also fetches the favicon cache once; later renders are fast).</p>
 <h3 style="margin:16px 0 6px">Domain layout: main site, docs and app live apart</h3>
 <p>The official domains are split on purpose: the <b>main site sits at the apex</b> (breakerdelta.com — the boards and topic pages are public content that lives on sharing and search, and the apex is the cleanest address for both); the <b>docs are a separate site</b> (docs.breakerdelta.com — this site, built and deployed by its own docs repo running the <span style="font-family:var(--mono)">docs</span> command, never bundled into the main build; the main site's Docs tab simply links here); and the <b>app. subdomain is reserved</b> for a future logged-in product. For your own instance the same shape applies: point TS_BASE_URL at your apex, and either link to the official docs or build your own copy with the docs command.</p>
 <h3 style="margin:16px 0 6px">A real failure worth knowing</h3>

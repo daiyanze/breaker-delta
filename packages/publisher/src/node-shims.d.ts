@@ -16,6 +16,11 @@ declare class TextEncoder {
   encode(input?: string): Uint8Array;
 }
 
+declare class Buffer extends Uint8Array {
+  static from(data: Uint8Array): Buffer;
+  equals(other: Uint8Array): boolean;
+}
+
 interface FetchResponse {
   ok: boolean;
   status: number;
