@@ -41,6 +41,34 @@ Pages read through one store interface (`lib/store.ts`):
   Cloudflare D1 binding for the Workers target (binding wiring lands
   with the P2c cutover).
 
+## Official deployment (Workers, since the P2c cutover)
+
+breakerdelta.com runs this app as the Worker `breaker-delta-web`
+with the remote backend (`BD_DATA_BASE` → the public data repo's
+raw content, `BD_ASSETS_UPSTREAM` → the same repo's `web-assets/`).
+Deploy procedure (from this directory):
+
+1. `cp deploy/cloudflare.config.ts ./cloudflare.config.ts` — the
+   Cloudflare Vite plugin only emits the deploy bundle when the
+   config sits at the app root; remove the copy afterwards (the
+   Node/Docker builds fail with it present).
+2. `BD_TARGET=cf bun x vite build` → the deployable bundle lands
+   in `.cloudflare/output/v0/workers/default/bundle/` (entry +
+   module tree) with client assets in the sibling `assets/`.
+3. Copy `assets/_next/static/` into the data repo's
+   `web-assets/_next/static/` and push it (the asset bridge serves
+   the chunks from there — the deploy token cannot use the Workers
+   assets API).
+4. Upload the bundle as a multi-module Worker via the Cloudflare
+   connector's `cf_worker_deploy.py` (module parts must be
+   `application/javascript+module`), with bindings `BD_DATA_BASE`,
+   `BD_BASE_URL`, `BD_ASSETS_UPSTREAM`, compatibility date +
+   `nodejs_compat`.
+5. `rm ./cloudflare.config.ts`.
+
+Rollback: the static Pages project `breaker-delta` is kept as-is;
+re-attach the domain to it and restore its CNAME.
+
 ## Push API (P2c)
 
 Same contract as the CLI's `serve`, on both backends:

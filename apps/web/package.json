@@ -1,1 +1,32 @@
-{"dependencies":{"@breaker-delta/core":"0.22.0","@breaker-delta/fetchers":"0.22.0","@breaker-delta/publisher":"0.22.0","@vinext/cloudflare":"^1.3.4","react":"^19.3.1","react-dom":"^19.3.1","react-server-dom-webpack":"^19.3.1","vinext":"^1.4.5"},"devDependencies":{"@cloudflare/vite-plugin":"^2.0.0-beta.v.17","@types/node":"^24.0.0","@types/react":"^19.0.0","@types/react-dom":"^19.0.0","@vitejs/plugin-react":"^6.3.0","@vitejs/plugin-rsc":"^0.5.39","typescript":"^5.9.0","vite":"^8.3.0"},"name":"@breaker-delta/web","private":true,"scripts":{"build":"vite build","dev":"vite dev","start":"vite preview"},"type":"module","version":"0.1.0"}
+{
+  "dependencies": {
+    "@breaker-delta/core": "0.22.0",
+    "@breaker-delta/fetchers": "0.22.0",
+    "@breaker-delta/publisher": "0.22.0",
+    "@vinext/cloudflare": "^1.3.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-server-dom-webpack": "^19.3.1",
+    "vinext": "^1.4.5"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "2.0.0-beta.v.17",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "@vitejs/plugin-rsc": "^0.5.39",
+    "typescript": "^5.9.0",
+    "vite": "^8.3.0",
+    "cf": "1.0.0-beta.32"
+  },
+  "name": "@breaker-delta/web",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite dev",
+    "start": "vite preview"
+  },
+  "type": "module",
+  "version": "0.1.0"
+}
