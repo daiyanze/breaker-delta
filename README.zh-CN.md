@@ -29,6 +29,16 @@
 - 不用手写：**breaker-delta-setup** 向导 Skill 会采访你（行业、分类、信源——每个候选源先实测能抓到才收）并写好配置。
 - 配置分层（低到高）：preset 默认 ← 你的 `config.yaml` ← 环境变量。
 
+## 插件
+
+**插件**回答另一个问题——不是「看什么」（那是 preset 的事），而是「拿话题做什么」。面板插件是 `plugins/<id>/` 下的声明式包（清单 + 面板定义；数据型插件另加分级 prompt 与产出 schema——没有代码）。内置三个：
+
+- `creator`——话题页的创作参考面板（默认开；`TS_CREATOR=0` 仍可关）。
+- `investor`——投资研判（方向 / 标的 / 时间尺度 / 逻辑 / 风险），带强制免责声明；不给买卖指令。
+- `watchlist`——追番建议（作品 / 状态 / 入坑理由 / 追更节奏）。
+
+在 config.yaml 的 `plugins:` 段按实例启停。数据型插件只在分级 agent 真的产出了结构化研判的话题上渲染——没产出，就没面板。你自己的插件包可以放在数据目录的 `plugins/` 里，同 id 覆盖内置。
+
 ## 仓库结构
 
 本仓库按 agent 能直接用的分层组织：
@@ -38,6 +48,7 @@
 | 指令 | `skills/breaker-delta/` + `skills/breaker-delta-setup/` | 运行 Skill（扫描→分级→发布→报告）与配置向导 Skill |
 | 配置 | `config.example.yaml` | 信息源清单、量化门槛、关键词、时区——调参只动这里（YAML，JSON 兼容） |
 | 行业包 | `presets/` | 可替换的 preset（信源 / 分类 / 关键词 / 简报） |
+| 插件 | `plugins/` | 声明式话题页面板包（创作参考 / 投资研判 / 追番建议） |
 | 引擎 | `packages/` + `apps/` | 确定性工作交给代码（见下） |
 | 模板 | `templates/` | 部署起步模板（Cloudflare Pages，Beta） |
 | 状态 | *使用者的数据仓* | 期次、话题台账、战绩台账——实例数据不进本仓库 |

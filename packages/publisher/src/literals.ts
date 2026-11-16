@@ -538,7 +538,7 @@ export const LANDING: Record<string, string> = {
 </div></section>
 <section class="panel"><div class="panel-h"><span>Roadmap</span></div>
 <div class="detail">
-<p>The next presets are chosen by vote — finance, gaming, biotech and e-commerce are on the list. Vote or propose yours in <a href="https://github.com/daiyanze/breaker-delta/issues" rel="noopener">GitHub Issues</a>. Also coming: a plugin system (creator, investor and watchlist panels on topic pages) and a dynamic Cloudflare deployment form. The Docker form and this static form stay.</p>
+<p>The next presets are chosen by vote — finance, gaming, biotech and e-commerce are on the list. Vote or propose yours in <a href="https://github.com/daiyanze/breaker-delta/issues" rel="noopener">GitHub Issues</a>. The panel plugin system has landed: creator, investor and watchlist panels on topic pages, enabled per instance in config. Also coming: a dynamic Cloudflare deployment form. The Docker form and this static form stay.</p>
 </div></section>`,
  "zh": `<section class="panel"><div class="panel-h"><span>浪尖雷达 · 浪起之前，先有回波</span></div>
 <div class="detail">
@@ -585,7 +585,7 @@ export const LANDING: Record<string, string> = {
 </div></section>
 <section class="panel"><div class="panel-h"><span>路线图</span></div>
 <div class="detail">
-<p>下一批 preset 由投票决定 —— 金融、游戏、生物科技、电商已在名单上。去 <a href="https://github.com/daiyanze/breaker-delta/issues" rel="noopener">GitHub Issues</a> 投票或提你的行业。还在路上：插件系统（话题页的创作 / 投资研判 / 自选面板）和 Cloudflare 动态部署形态；Docker 形态与现在的静态形态都会保留。</p>
+<p>下一批 preset 由投票决定 —— 金融、游戏、生物科技、电商已在名单上。去 <a href="https://github.com/daiyanze/breaker-delta/issues" rel="noopener">GitHub Issues</a> 投票或提你的行业。插件系统已经落地：话题页的创作 / 投资研判 / 追番面板，按实例在 config 里启停。还在路上：Cloudflare 动态部署形态；Docker 形态与现在的静态形态都会保留。</p>
 </div></section>`,
  "ja": `<section class="panel"><div class="panel-h"><span>浪尖レーダー · 波が立つ前に、まず反響がある</span></div>
 <div class="detail">
@@ -632,7 +632,7 @@ export const LANDING: Record<string, string> = {
 </div></section>
 <section class="panel"><div class="panel-h"><span>ロードマップ</span></div>
 <div class="detail">
-<p>次の preset は投票で決まります —— 金融、ゲーム、バイオテクノロジー、EC が候補です。<a href="https://github.com/daiyanze/breaker-delta/issues" rel="noopener">GitHub Issues</a> で投票や提案をどうぞ。さらにプラグインシステム（トピックページの創作 / 投資判断 / ウォッチリストパネル）と Cloudflare の動的デプロイ形態も予定しています。Docker 形態と現在の静的形態は残ります。</p>
+<p>次の preset は投票で決まります —— 金融、ゲーム、バイオテクノロジー、EC が候補です。<a href="https://github.com/daiyanze/breaker-delta/issues" rel="noopener">GitHub Issues</a> で投票や提案をどうぞ。プラグインシステムは実装済みです（トピックページの創作 / 投資判断 / ウォッチリストパネル、config で有効化）。Cloudflare の動的デプロイ形態も予定しています。Docker 形態と現在の静的形態は残ります。</p>
 </div></section>`,
 };
 

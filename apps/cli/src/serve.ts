@@ -34,6 +34,7 @@ import {
   statePath,
   type CliContext,
 } from "./context.js";
+import { resolvePanelPlugins } from "./plugins.js";
 
 export interface ServeFlags {
   port?: string;
@@ -76,8 +77,14 @@ function buildOptions(ctx: CliContext, baseUrl: string): BuildOptions {
     outDir: path.join(ctx.dataDir, "site"),
     baseUrl,
   };
-  const catRules = catRulesFromConfig(loadCliConfig(ctx).config);
+  const cliConfig = loadCliConfig(ctx).config;
+  const catRules = catRulesFromConfig(cliConfig);
   if (catRules) opts.catRules = catRules;
+  opts.panelPlugins = resolvePanelPlugins(
+    ctx,
+    cliConfig as Record<string, unknown>,
+    envOpts.creator ?? true,
+  );
   return opts;
 }
 

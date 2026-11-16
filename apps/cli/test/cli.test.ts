@@ -312,6 +312,81 @@ test("publish builds the fixture site; json mode keeps stdout clean", async () =
   assert.deepStrictEqual(listFiles(site2), listFiles(site));
 });
 
+// ---------------------------------------------------------- plugins
+
+test("panel plugins: creator renders from its declarative definition; TS_CREATOR=0 removes it", () => {
+  const dir = makeDataDir((d) => {
+    writeEditions(d);
+    writeTrackRecord(d);
+  });
+  const site = path.join(dir, "site-plugins");
+  const r = runCli(CLI, [
+    "--data-dir", dir, "--root-dir", ROOT,
+    "publish", "--out", site,
+  ]);
+  assert.strictEqual(r.status, 0, r.stderr);
+  const page = fs.readFileSync(path.join(site, "示例模型发布.html"), "utf-8");
+  assert.ok(page.includes("✍️ 创作参考"));
+  assert.ok(page.includes('<div class="subh">短贴大纲</div>'));
+  const en = fs.readFileSync(path.join(site, "en", "示例模型发布.html"), "utf-8");
+  assert.ok(en.includes("Hormozi's four parts"), "definition strings render raw, like the legacy literals");
+
+  const site2 = path.join(dir, "site-noplugins");
+  const r2 = runCli(CLI, [
+    "--data-dir", dir, "--root-dir", ROOT,
+    "publish", "--out", site2,
+  ], { env: { ...process.env, TS_CREATOR: "0" } });
+  assert.strictEqual(r2.status, 0, r2.stderr);
+  const page2 = fs.readFileSync(path.join(site2, "示例模型发布.html"), "utf-8");
+  assert.ok(!page2.includes("创作参考"), "TS_CREATOR=0 still switches the creator panel off");
+});
+
+test("panel plugins: investor renders only for items carrying its data, disclaimer included", () => {
+  const dir = makeDataDir((d) => {
+    writeTrackRecord(d);
+    const ed = {
+      ...ED1,
+      items: [
+        {
+          ...ED1.items[0],
+          plugins: {
+            investor: {
+              direction: "利好",
+              tickers: ["NVDA 英伟达"],
+              horizon: "季度",
+              logic: "需求直接受益。",
+              risks: "估值已经很高。",
+            },
+          },
+        },
+        ED1.items[1],
+      ],
+    };
+    fs.writeFileSync(
+      path.join(d, "editions", `${ed.date}-${ed.slot}.json`),
+      JSON.stringify(ed),
+      "utf-8",
+    );
+    fs.writeFileSync(
+      path.join(d, "config.yaml"),
+      "plugins:\n  investor:\n    enabled: true\n",
+      "utf-8",
+    );
+  });
+  const site = path.join(dir, "site-inv");
+  const r = runCli(CLI, [
+    "--data-dir", dir, "--root-dir", ROOT,
+    "publish", "--out", site,
+  ]);
+  assert.strictEqual(r.status, 0, r.stderr);
+  const page = fs.readFileSync(path.join(site, "示例模型发布.html"), "utf-8");
+  assert.ok(page.includes("📈 投资研判"));
+  assert.ok(page.includes("NVDA 英伟达"));
+  assert.ok(page.includes("不构成投资建议"), "the mandatory disclaimer renders with the panel");
+  const echo = fs.readFileSync(path.join(site, "小回波.html"), "utf-8");
+  assert.ok(!echo.includes("投资研判"), "an item without investor data gets no investor panel");
+});
+
 // ------------------------------------------------- presets / categories
 
 test("publish honours a categories override from the instance config", () => {

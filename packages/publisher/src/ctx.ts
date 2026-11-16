@@ -39,6 +39,11 @@ export interface BuildOptions {
    *  preset's `categories` section); default is the ai-tech rule set. */
   catRules?: CatRuleSet;
   creator?: boolean;
+  /** Enabled panel plugins (Plugin-P0), already resolved by the
+   *  caller (CLI) from plugin definitions + config layering. When
+   *  present (even empty), the topic-page panel slot renders these
+   *  instead of the legacy creator switch. */
+  panelPlugins?: import("./plugins.js").PanelPluginDef[];
   pageSize?: number;
   archiveDays?: number;
   sourcesPerPage?: number;
@@ -69,6 +74,7 @@ export interface Ctx {
   langs: string[];
   catRules: CatRuleSet;
   creator: boolean;
+  panelPlugins: import("./plugins.js").PanelPluginDef[] | undefined;
   per: number;
   archiveDays: number;
   sourcesPer: number;
@@ -108,6 +114,7 @@ export function makeCtx(options: BuildOptions): Ctx {
     langs: options.langs ?? [...DEFAULT_LANGS],
     catRules: options.catRules ?? DEFAULT_CAT_RULE_SET,
     creator: options.creator ?? true,
+    panelPlugins: options.panelPlugins,
     per: options.pageSize ?? 100,
     archiveDays: options.archiveDays ?? 7,
     sourcesPer: options.sourcesPerPage ?? 20,

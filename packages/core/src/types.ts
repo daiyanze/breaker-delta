@@ -119,6 +119,9 @@ export interface TopicApp {
   links: string[];
   body: string;
   action: string;
+  /** Plugin grading output, carried only when the edition item has a
+   *  `plugins` namespace (Plugin-P0): { <pluginId>: { …fields } }. */
+  plugins?: Record<string, Record<string, unknown>>;
   i18n?: Record<string, ItemI18n> | null;
   is_new: boolean;
   heat_delta: number | null;

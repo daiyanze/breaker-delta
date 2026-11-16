@@ -289,3 +289,8 @@ sources:
     layer: 3
     verify_only: true
     rule: 只核对入选话题的曲线形状，永不作为发现来源
+
+# Panel plugins (Plugin-P0): see presets/ai-tech/config.yaml.
+plugins:
+  creator:
+    enabled: true

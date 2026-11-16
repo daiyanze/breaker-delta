@@ -1,0 +1,175 @@
+head:
+  title:
+    zh: "✍️ 创作参考"
+    en: "✍️ For creators"
+    ja: "✍️ クリエイター向け"
+  right:
+    zh: "框架取自公开写作 skills：tweet-writer（钩子公式 / PAS）、Hormozi 四段、Dan Koe 节奏"
+    en: "Frameworks from public writing skills: tweet-writer (hook formulas / PAS), Hormozi's four parts, Dan Koe's rhythm"
+    ja: "枠組みは公開ライティング skills から：tweet-writer（フック公式 / PAS）、Hormozi の4部、Dan Koe のリズム"
+blocks:
+  - type: "subh"
+    text:
+      zh: "短贴大纲"
+      en: "Short-post outline"
+      ja: "短文アウトライン"
+  - type: "note"
+    margin: 8
+    text:
+      zh: "钩子三选一（钩子决定 80–90%，先写钩子再写正文）"
+      en: "Three hook options (the hook decides 80–90% — write it first)"
+      ja: "フック3案（フックが 80–90% を決める。まずフックから書く）"
+  - type: "olist"
+    items:
+      - label:
+          zh: "数字型"
+          en: "Specific result"
+          ja: "数字型"
+        format:
+          zh: "「{name}」——浪高冲到 {heat}，{n} 个来源同时在报。"
+          en: "“{name}” — wave height {heat}, {n} sources reporting at once."
+          ja: "「{name}」——波高 {heat}、{n} ソースが同時に報道。"
+      - label:
+          zh: "好奇缺口"
+          en: "Curiosity gap"
+          ja: "好奇ギャップ"
+        format:
+          zh: "{hook} 但真正值得看的，不是这件事本身。"
+          en: "{hook} But the thing worth watching is not the event itself."
+          ja: "{hook} ただし本当に見るべきは、出来事そのものではない。"
+      - label:
+          zh: "信号型"
+          en: "Signal"
+          ja: "シグナル型"
+        format:
+          zh: "信号不在热闹那边：「{name}」已经排到第 {rank}，还在发酵。"
+          en: "The signal is not where the noise is: “{name}” is already at #{rank} and still developing."
+          ja: "シグナルは騒がしい側にない：「{name}」はすでに {rank} 位で、まだ発酵中。"
+  - type: "note"
+    margin: 10
+    text:
+      zh: "正文骨架 · PAS（问题 → 放大 → 事实）"
+      en: "Body skeleton · PAS (Problem → Agitate → Facts)"
+      ja: "本文の骨格 · PAS（問題 → 拡大 → 事実）"
+  - type: "olist"
+    items:
+      - label:
+          zh: "问题"
+          en: "Problem"
+          ja: "問題"
+        format:
+          zh: "{hook}"
+          en: "{hook}"
+          ja: "{hook}"
+      - label:
+          zh: "放大"
+          en: "Agitate"
+          ja: "拡大"
+        format:
+          zh: "{action}"
+          en: "{action}"
+          ja: "{action}"
+        when: "action"
+      - label:
+          zh: "事实"
+          en: "Facts"
+          ja: "事実"
+        format:
+          zh: "{body}<br>{dataLine} · 出处：{sourcesLine}"
+          en: "{body}<br>{dataLine} · Sources：{sourcesLine}"
+          ja: "{body}<br>{dataLine} · 出典：{sourcesLine}"
+  - type: "subh"
+    text:
+      zh: "短贴 tips"
+      en: "Short-post tips"
+      ja: "短文 tips"
+  - type: "tips"
+    lists:
+      zh:
+        - "单贴越短越好：一口气读完为准；英文单贴 110 字符内表现最佳（tweet-writer）。"
+        - "第一小时最关键：发在受众活跃的时段；链接放文末或回复里，别占正文开头。"
+        - "具体数字 > 形容词：「浪高 209、5 个来源同时报」比「非常火」可信得多。"
+        - "钩子公式轮换用：数字型 / 好奇缺口 / 反差观点 / 问题 / 故事，别连用同一种。"
+        - "Thread 每条独立成立，第一条必须是能单独转发的钩子。"
+      en:
+        - "Shorter wins: one breath per post; under ~110 characters performs best for single posts (tweet-writer)."
+        - "The first hour is critical: post when your audience is active; put links at the end or in a reply, not up front."
+        - "Specific numbers beat adjectives: 'wave 209, 5 sources at once' over 'it's huge'."
+        - "Rotate hook formulas: specific result / curiosity gap / contrarian / question / story."
+        - "In a thread, every post must stand alone; the first one must work as a standalone hook."
+      ja:
+        - "短いほど良い：一息で読める長さに。英語の単独ポストは110文字以内が最適（tweet-writer）。"
+        - "最初の一時間が勝負：読者が活発な時間帯に投稿し、リンクは末尾か返信へ。"
+        - "形容詞より具体的な数字：「波高209、5ソース同時報道」は「すごく話題」より信頼される。"
+        - "フック公式は使い回す：数字型 / 好奇ギャップ / 逆張り / 質問 / 物語。"
+        - "スレッドは各ポストが独立して成立すること。最初の一件は単独で通用するフックに。"
+  - type: "subh"
+    text:
+      zh: "长文大纲"
+      en: "Long-form outline"
+      ja: "長文アウトライン"
+  - type: "note"
+    margin: 8
+    text:
+      zh: "骨架 · Hormozi 四段（观点 → 故事 → 理由 → 软 CTA）"
+      en: "Skeleton · Hormozi's four parts (Idea → Story → Reasons → Soft CTA)"
+      ja: "骨格 · Hormozi の4部（主張 → 物語 → 理由 → ソフト CTA）"
+  - type: "olist"
+    items:
+      - label:
+          zh: "一个观点"
+          en: "One idea"
+          ja: "一つの主張"
+        format:
+          zh: "用一句话写下主张；先从「建议动作」里提炼，写不出就是还没想清"
+          en: "State your claim in one sentence — distill it from the suggested action; if you can't, the angle isn't clear yet"
+          ja: "主張を一文で書く。まず「おすすめアクション」から抽出を。書けないなら角度が定まっていない"
+      - label:
+          zh: "故事与证据"
+          en: "Story & evidence"
+          ja: "物語と証拠"
+        format:
+          zh: "{firstTitle} → {lastTitle}（浪高轨迹：{traj}）"
+          en: "{firstTitle} → {lastTitle}（Wave trail：{traj}）"
+          ja: "{firstTitle} → {lastTitle}（波高の軌跡：{traj}）"
+      - label:
+          zh: "理由，不是步骤"
+          en: "Reasons, not steps"
+          ja: "理由であって手順ではない"
+        format:
+          zh: "从技术、商业、使用者三个角度各写一条理由——讲为什么成立，不讲怎么做"
+          en: "One reason each from the tech, business and user angles — argue why it is true, not how to do it"
+          ja: "技術・ビジネス・利用者の三つの角度から理由を一つずつ——「なぜ成り立つか」を書き、「どうやるか」は書かない"
+      - label:
+          zh: "软 CTA"
+          en: "Soft CTA"
+          ja: "ソフト CTA"
+        format:
+          zh: "结尾轻带一句即可：后续会继续追踪它的浪高变化，想跟进的可以收藏这页"
+          en: "End lightly: I will keep tracking its wave height — bookmark this page to follow along"
+          ja: "締めは軽く：今後も波高の変化を追跡します。フォローしたい方はこのページを保存どうぞ"
+  - type: "subh"
+    text:
+      zh: "长文 tips"
+      en: "Long-form tips"
+      ja: "長文 tips"
+  - type: "tips"
+    lists:
+      zh:
+        - "一篇只讲一个观点：主张说不成一句话，就先别动笔（Hormozi）。"
+        - "理由不是步骤：从心理、经济、行为、竞争等角度把观点讲透，目标 4–6 条。"
+        - "节奏参考 Dan Koe：约 40% 短句独立成段、40% 对話式中句、20% 长段展开。"
+        - "动笔前先定角度：同一话题列几个角度，选信息增量最大的一个（Substack 写作流程）。"
+        - "说服靠具体：真实数字、真实案例、时间线——形容词最廉价。"
+      en:
+        - "One piece, one idea: if the claim does not fit in one sentence, do not start writing (Hormozi)."
+        - "Reasons, not steps: argue the idea from psychological, economic, behavioral and competitive angles — aim for 4–6."
+        - "Rhythm after Dan Koe: ~40% ultra-short paragraphs, ~40% conversational medium, ~20% longer expansive passages."
+        - "Pick the angle before drafting: list several angles for the same topic, take the one with the most new information (Substack workflow)."
+        - "Persuasion is concrete: real numbers, real cases, a timeline — adjectives are the cheapest currency."
+      ja:
+        - "一本に主張は一つ：一文で言えないなら、まだ書くな（Hormozi）。"
+        - "理由は手順ではない：心理・経済・行動・競合など複数の角度から主張を裏付ける。目標4–6個。"
+        - "リズムは Dan Koe 参考：約40%が短い独立段落、40%が会話的な中丈、20%が長い展開。"
+        - "書く前に角度を決める：同じ話題で角度をいくつか挙げ、情報量が最大のものを選ぶ（Substack の流れ）。"
+        - "説得は具体で：実数、実例、タイムライン。形容詞は一番安い。"

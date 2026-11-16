@@ -1,0 +1,20 @@
+head:
+  title:
+    zh: "📺 追番建议"
+    en: "📺 Watchlist Pick"
+    ja: "📺 追番おすすめ"
+blocks:
+  - type: "fields"
+    items:
+      - label: { zh: "作品", en: "Work", ja: "作品" }
+        field: "work"
+      - label: { zh: "媒介", en: "Medium", ja: "媒体" }
+        field: "medium"
+      - label: { zh: "状态", en: "Status", ja: "状況" }
+        field: "status"
+      - label: { zh: "入坑理由", en: "Why start", ja: "入坑理由" }
+        field: "reason"
+      - label: { zh: "追更节奏", en: "Pacing", ja: "追更ペース" }
+        field: "pace"
+      - label: { zh: "适合人群", en: "For", ja: "向いている人" }
+        field: "audience"

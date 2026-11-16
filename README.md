@@ -82,6 +82,16 @@ A **preset** is a swappable pack that aims the same engine at a different field:
 - You don't have to write one by hand: the **breaker-delta-setup** wizard Skill interviews you (industry, categories, sources — each candidate source is fetch-tested before it is accepted) and writes the config for you.
 - Configuration layers, lowest to highest: preset defaults ← your `config.yaml` ← environment variables.
 
+## Plugins
+
+A **plugin** answers the other question — not *what to watch* (that's the preset) but *what to do with a topic*. Panel plugins are declarative packs in `plugins/<id>/` (a manifest plus a panel definition; data-driven ones add a grading prompt and an output schema — no code). Three ship built in:
+
+- `creator` — the writing-reference panel on topic pages (on by default; `TS_CREATOR=0` still turns it off).
+- `investor` — an investment read (direction / tickers / horizon / logic / risks) with a mandatory disclaimer; never buy/sell instructions.
+- `watchlist` — an anime/manga watchlist pick (work / status / why start / pacing).
+
+Enable them per instance in the `plugins:` section of config.yaml. A data plugin renders only on topics where the grading agent actually produced its structured output — no output, no panel. Your own packs can live in your data dir's `plugins/` and override the built-in ones by id.
+
 ## Repository layout
 
 The repo is split into layers an agent can use directly:
@@ -91,6 +101,7 @@ The repo is split into layers an agent can use directly:
 | Instructions | `skills/breaker-delta/` + `skills/breaker-delta-setup/` | The run Skill (scan → grade → publish → report) and the setup wizard Skill |
 | Config | `config.example.yaml` | Source list, quantified thresholds, keywords, timezone — tuning happens here only (YAML, JSON-compatible) |
 | Presets | `presets/` | Swappable industry packs (sources / categories / keywords / brief) |
+| Plugins | `plugins/` | Declarative topic-page panel packs (creator / investor / watchlist) |
 | Engine | `packages/` + `apps/` | Deterministic work in code (below) |
 | Templates | `templates/` | Deployment starters (Cloudflare Pages, Beta) |
 | State | *your data repo* | Editions, the topic ledger, the track record — instance data never lives in this repo |

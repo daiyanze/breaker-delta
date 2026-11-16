@@ -451,5 +451,10 @@
       "verify_only": true,
       "rule": "只核对入选话题的曲线形状，永不作为发现来源"
     }
+  },
+  "plugins": {
+    "creator": {
+      "enabled": true
+    }
   }
 }

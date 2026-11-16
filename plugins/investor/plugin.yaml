@@ -1,0 +1,15 @@
+id: investor
+api: 1
+order: 20
+requires_data: true
+name:
+  zh: "投资研判"
+  en: "Investment Read"
+  ja: "投資見通し"
+description:
+  zh: "话题页的投资研判面板：影响方向、受影响标的、时间尺度、逻辑与风险。由分级 agent 按 schema 产出结构化研判，无产出的话题不显示。"
+  en: "An investment-read panel on topic pages: direction, affected tickers, horizon, logic and risks — structured output from the grading agent; topics without output show nothing."
+  ja: "トピックページの投資見通しパネル：方向、関連銘柄、時間軸、ロジックとリスク。分級エージェントの構造化出力がある話題だけに表示。"
+slots:
+  - panel
+  - grading

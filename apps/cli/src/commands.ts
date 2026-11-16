@@ -22,6 +22,8 @@ import { loadConfig, runScan, summaryLines } from "@breaker-delta/fetchers";
 import { buildDocsSite, buildSite, optionsFromEnv } from "@breaker-delta/publisher";
 import type { BuildOptions } from "@breaker-delta/publisher";
 
+import { resolvePanelPlugins } from "./plugins.js";
+
 import {
   findConfigFile,
   findPresetConfigFile,
@@ -245,8 +247,16 @@ export async function cmdPublish(ctx: CliContext, flags: PublishFlags): Promise<
   };
   // Category taxonomy comes from the effective config (preset base
   // layer merged with the instance config); absent = built-in default.
-  const catRules = catRulesFromConfig(loadCliConfig(ctx).config);
+  const cliConfig = loadCliConfig(ctx).config;
+  const catRules = catRulesFromConfig(cliConfig);
   if (catRules) opts.catRules = catRules;
+  // Panel plugins (Plugin-P0): definitions discovered under the
+  // engine root / data dir, enablement from the same merged config.
+  opts.panelPlugins = resolvePanelPlugins(
+    ctx,
+    cliConfig as Record<string, unknown>,
+    flags.creator ?? envOpts.creator ?? true,
+  );
   if (flags.baseUrl !== undefined) opts.baseUrl = flags.baseUrl;
   if (flags.dataRepo !== undefined) opts.dataRepo = flags.dataRepo;
   if (flags.langs !== undefined) {

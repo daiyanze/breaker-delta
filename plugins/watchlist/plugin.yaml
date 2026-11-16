@@ -1,0 +1,15 @@
+id: watchlist
+api: 1
+order: 20
+requires_data: true
+name:
+  zh: "追番建议"
+  en: "Watchlist Pick"
+  ja: "追番おすすめ"
+description:
+  zh: "话题页的追番建议面板：作品与媒介、连载状态、入坑理由、追更节奏与适合人群。由分级 agent 按 schema 产出，无产出的话题不显示。"
+  en: "A watchlist panel on topic pages: work and medium, serialization status, why to start, pacing advice and who it is for — from the grading agent's structured output only."
+  ja: "トピックページの追番パネル：作品と媒体、連載状況、入坑理由、追更ペースと向いている人。構造化出力がある話題だけに表示。"
+slots:
+  - panel
+  - grading

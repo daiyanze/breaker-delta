@@ -595,3 +595,57 @@ test("renderSiteMap produces exactly the files buildSite writes", async () => {
     cleanup(b);
   }
 });
+
+// ------------------------------------------------- panel plugins (P0)
+
+import { renderPanel, type PanelPluginDef } from "../src/plugins.js";
+
+test("renderPanel: data plugin hides without data, renders fields + disclaimer with it", () => {
+  const def: PanelPluginDef = {
+    id: "investor",
+    order: 20,
+    requiresData: true,
+    head: { title: { zh: "📈 投资研判" } },
+    blocks: [
+      {
+        type: "fields",
+        items: [
+          { label: { zh: "影响方向" }, field: "direction" },
+          { label: { zh: "逻辑" }, field: "logic" },
+          { label: { zh: "风险" }, field: "risks" },
+        ],
+      },
+    ],
+    disclaimer: { zh: "不构成投资建议。" },
+  };
+  // No grading output for this item: the panel must not appear at all
+  // (never template-assemble fake advice).
+  assert.strictEqual(renderPanel(def, "zh", {}, undefined), "");
+  const html = renderPanel(def, "zh", {}, { direction: "利好 <b>注意</b>", logic: "直接受益。" });
+  assert.ok(html.includes("影响方向"));
+  assert.ok(html.includes("利好 &lt;b&gt;注意&lt;/b&gt;"), "agent-produced values are escaped");
+  assert.ok(html.includes("直接受益。"));
+  assert.ok(!html.includes("风险"), "fields without values are skipped");
+  assert.ok(html.includes("不构成投资建议。"), "declared disclaimer is always rendered");
+});
+
+test("renderPanel: olist when-filter skips empty values; interpolation escapes values", () => {
+  const def: PanelPluginDef = {
+    id: "x",
+    order: 1,
+    requiresData: false,
+    head: { title: { zh: "T" } },
+    blocks: [
+      {
+        type: "olist",
+        items: [
+          { label: { zh: "甲" }, format: { zh: "{v}" } },
+          { label: { zh: "乙" }, format: { zh: "{v}" }, when: "act" },
+        ],
+      },
+    ],
+  };
+  const html = renderPanel(def, "zh", { v: { text: "<x>" }, act: { text: "" } }, undefined);
+  assert.ok(html.includes("<b>甲</b>：&lt;x&gt;"));
+  assert.ok(!html.includes("乙"), "item gated on an empty value is skipped");
+});

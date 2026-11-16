@@ -1,0 +1,26 @@
+# Structured grading output stored at edition item plugins.watchlist.
+fields:
+  - name: work
+    type: string
+    required: true
+    note: "作品名（原文 + 常用译名）"
+  - name: medium
+    type: enum
+    values: [TV动画, 漫画, 剧场版, 小说, 游戏]
+    required: true
+  - name: status
+    type: string
+    required: true
+    note: "连载状态，如 连载中·第2季度 / 已完结·全24话"
+  - name: reason
+    type: string
+    required: true
+    note: "一句话入坑理由：这个话题为什么值得追"
+  - name: pace
+    type: enum
+    values: [周追, 养肥再看, 补番优先]
+    required: true
+  - name: audience
+    type: list
+    of: string
+    note: "适合人群标签，如 硬科幻 / 作画党"

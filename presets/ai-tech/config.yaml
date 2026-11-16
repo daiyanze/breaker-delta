@@ -321,3 +321,10 @@ categories:
       keywords: [模型, Gemini, GPT, Claude, DeepSeek, LLM, 发布, 推出, 版本]
       en: AI Models
       ja: AIモデル
+
+# Panel plugins (Plugin-P0): enablement layering — preset defaults
+# here, instance config wins. creator is on unless turned off;
+# data plugins (investor / watchlist) stay off until enabled.
+plugins:
+  creator:
+    enabled: true

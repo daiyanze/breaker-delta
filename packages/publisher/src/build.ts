@@ -28,6 +28,7 @@ import {
   type Ctx,
 } from "./ctx.js";
 import { DOC_PAGES, JA_DOCS_NOTICE, docsNav } from "./docs.js";
+import { renderPanel, type PanelValue } from "./plugins.js";
 import { fetchFavicons } from "./favicon.js";
 import { loadConfigBlocks, loadEditions, sourceBlock, sourceKey } from "./load.js";
 import {
@@ -938,6 +939,32 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       `<div class="subh">${s(ctx, "ol_long")}</div>` +
       `<div class="note" style="margin-top:8px">${s(ctx, "cr_hz")}</div>${hzOl}` +
       `<div class="subh">${s(ctx, "tips_l")}</div><ul class="tips">${ltUl}</ul></section>`;
+    // Panel slot (Plugin-P0): when the caller resolved panel plugins,
+    // they render here from their declarative definitions; the legacy
+    // creator string above remains the fallback for direct API use
+    // without plugin resolution (an equivalence test pins them equal).
+    const panelValues: Record<string, PanelValue> = {
+      name: { text: locName },
+      heat: { text: String(last.heat) },
+      rank: { text: String(last.board_rank) },
+      n: { text: String(allSrcs.length) },
+      hook: { text: hook },
+      action: { text: locLast.action ?? "" },
+      body: { text: bodyHtml, raw: true },
+      dataLine: { text: dataLine, raw: true },
+      sourcesLine: { text: srcLine },
+      traj: { text: traj },
+      firstTitle: { text: locApp(ctx, t.apps[0]).title },
+      lastTitle: { text: locLast.title },
+    };
+    const panels =
+      ctx.panelPlugins !== undefined
+        ? ctx.panelPlugins
+            .map((d) => renderPanel(d, ctx.lang, panelValues, last.plugins?.[d.id]))
+            .join("")
+        : ctx.creator
+          ? creator
+          : "";
     const ths = sArr(ctx, "th");
     const thead =
       `<th>${ths[0]}</th><th class="n">${ths[1]}</th><th class="n">${ths[2]}</th>` +
@@ -958,7 +985,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       `<table><tr>${thead}</tr>${histRows}</table>` +
       `<div class="detail" style="margin-top:24px"><p>${bodyHtml}</p>${act}` +
       `${det}</div></section>` +
-      (ctx.creator ? creator : "") +
+      panels +
       foot(ctx);
     const ld: Record<string, unknown> = {
       "@context": "https://schema.org",
