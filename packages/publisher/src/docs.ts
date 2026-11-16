@@ -109,15 +109,24 @@ export const DOC_PAGES: DocPage[] = [
     file: "docs-getting-started.html",
     title: { zh: "📖 快速开始", en: "📖 Getting Started" },
     desc: {
-      zh: "Breaker Delta 快速开始：Bun 1.2+、克隆、打包单文件 CLI、准备数据目录、doctor 自检、scan 与 publish。",
-      en: "Breaker Delta getting started: Bun 1.2+, clone, bundle the single-file CLI, prepare a data dir, doctor, scan and publish.",
+      zh: "Breaker Delta 快速开始：Docker 五步到第一张榜单（agent 推送主线），或本地 Bun 模式 — 打包单文件 CLI、准备数据目录、doctor 自检、scan 与 publish。",
+      en: "Breaker Delta getting started: five Docker steps to your first board (the agent-push mainline), or local Bun mode — bundle the single-file CLI, prepare a data dir, doctor, scan and publish.",
     },
     body: {
       zh: `<section class="panel"><div class="panel-h"><span>快速开始</span></div>
 <div class="detail">
 <p>先分清两个东西：<b>引擎</b>是代码（抓取、算浪高、生成站点），<b>数据</b>是你的实例自己的东西（每一期、话题台账、战绩、配置）。引擎仓里不存任何实例数据；你跑出来的数据放在你自己的<b>数据目录</b>里。只看公开站点不需要装任何东西，这一页是给要自己跑的人的。</p>
-<h3 style="margin:16px 0 6px">环境要求</h3>
-<ul class="tips"><li>Bun ≥ 1.2。除此之外没有运行时依赖，不需要数据库、不需要服务器。</li></ul>
+<h3 style="margin:16px 0 6px">最快路径：Docker（推荐）</h3>
+<p>从零到第一张榜单只需要 Docker，全程不改一行代码。分级（把候选判成必看 / 关注 / 回波）由你自己的 agent 按方法论完成并推送进来 — 这是 Breaker Delta 的主线用法，容器负责抓取、渲染和托管。</p>
+<ol class="ol-list">
+<li><b>拿到引擎</b>（只是为了它根目录的 Dockerfile 与 compose 文件，不改任何文件）：<span style="font-family:var(--mono)">git clone https://github.com/daiyanze/breaker-delta.git &amp;&amp; cd breaker-delta</span>。前提是本机装了 Docker（Docker Desktop、OrbStack 均可）。</li>
+<li><b>准备数据目录</b>放进仓库根目录的 <span style="font-family:var(--mono)">data/</span> 下：推荐让你的 agent 加载 <b>breaker-delta-setup 向导 Skill</b>，对话里选完行业、分类和订阅源，它会把 config.yaml 与 brief.md 直接写好；或者先拷一份现成数据仓的内容进来，跑通再换自己的。</li>
+<li><b>设口令</b>：<span style="font-family:var(--mono)">cp .env.example .env</span>，把 <span style="font-family:var(--mono)">BD_PUSH_TOKEN</span> 设成一串长随机字符串 — agent 推送期次时要用它鉴权。</li>
+<li><b>启动</b>：<span style="font-family:var(--mono)">docker compose up -d</span>。等 <span style="font-family:var(--mono)">http://localhost:8080/api/health</span> 返回 ok:true（首次启动要抓一遍站点图标，稍久），打开 http://localhost:8080 就是你的第一张榜单。</li>
+<li><b>日常运转</b>：你的 agent 按 <b>breaker-delta 运行 Skill</b> 扫描、分级，然后带口令把成品期次 POST 到 <span style="font-family:var(--mono)">/api/editions</span>、话题回写 POST 到 <span style="font-family:var(--mono)">/api/record</span>，站点随即自动重渲染。想让容器自己定时抓候选，在 .env 里设 <span style="font-family:var(--mono)">BD_SCAN_TIMES</span>（分级仍由 agent 推送）。细节见 <a href="docs-deploy.html">自建与部署</a> 的 Docker 一节。</li>
+</ol>
+<h3 style="margin:16px 0 6px">本地模式（不用 Docker）</h3>
+<ul class="tips"><li>环境要求：Bun ≥ 1.2。除此之外没有运行时依赖，不需要数据库、不需要服务器。</li></ul>
 <h3 style="margin:16px 0 6px">第 1 步：拿到引擎并打包</h3>
 <pre class="cfgpre full">git clone https://github.com/daiyanze/breaker-delta.git
 cd breaker-delta
@@ -142,13 +151,22 @@ $BD --data-dir /path/to/your-data publish --out site        # 生成静态站点
 <li><b>publish</b> 把数据目录里的期次和台账生成完整静态站点，输出目录里直接就是可以部署的 HTML。</li>
 <li>每个命令都可以加 <span style="font-family:var(--mono)">--json</span> 得到机器可读输出；不带命令直接跑等于 scan。</li>
 </ul>
-<p>下一步：用 <a href="docs-config.html">配置</a> 把信息源和关键词调成你的行业，用 <a href="docs-deploy.html">自建与部署</a> 把站点挂到 GitHub Pages 上自动更新。</p>
+<p>下一步：用 <a href="docs-config.html">配置</a> 把信息源和关键词调成你的行业；部署形态（Docker 动态实例或 Pages 静态站）在 <a href="docs-deploy.html">自建与部署</a> 里选。</p>
 </div></section>`,
       en: `<section class="panel"><div class="panel-h"><span>Getting Started</span></div>
 <div class="detail">
 <p>First, keep two things apart: the <b>engine</b> is code (fetching, wave-height scoring, site generation); the <b>data</b> belongs to your instance (editions, the topic ledger, the track record, your config). The engine repo stores no instance data; everything you produce lives in your own <b>data directory</b>. Reading the public site needs no install at all — this page is for people who want to run their own.</p>
-<h3 style="margin:16px 0 6px">Requirements</h3>
-<ul class="tips"><li>Bun ≥ 1.2. No other runtime dependencies, no database, no server.</li></ul>
+<h3 style="margin:16px 0 6px">Fastest path: Docker (recommended)</h3>
+<p>Zero to your first board with nothing but Docker, and no code changes anywhere. Grading (turning candidates into Must / Watch / Echo) is done by your own agent under the methodology and pushed in — that is Breaker Delta's mainline usage; the container fetches, renders and hosts.</p>
+<ol class="ol-list">
+<li><b>Get the engine</b> (only for the Dockerfile and compose file at its root — you will not edit any of it): <span style="font-family:var(--mono)">git clone https://github.com/daiyanze/breaker-delta.git &amp;&amp; cd breaker-delta</span>. Requires Docker on the machine (Docker Desktop or OrbStack both work).</li>
+<li><b>Prepare a data directory</b> in <span style="font-family:var(--mono)">data/</span> at the repo root: the recommended route is to let your agent load the <b>breaker-delta-setup wizard Skill</b> — industry, categories and sources are chosen conversationally and it writes config.yaml and brief.md for you; or copy an existing data repo's contents in first and make it yours afterwards.</li>
+<li><b>Set the token</b>: <span style="font-family:var(--mono)">cp .env.example .env</span> and set <span style="font-family:var(--mono)">BD_PUSH_TOKEN</span> to a long random string — your agent authenticates its pushes with it.</li>
+<li><b>Start</b>: <span style="font-family:var(--mono)">docker compose up -d</span>. Wait until <span style="font-family:var(--mono)">http://localhost:8080/api/health</span> returns ok:true (the first boot also fetches the favicon cache, so it takes a little longer), then open http://localhost:8080 — your first board.</li>
+<li><b>Day to day</b>: your agent scans and grades under the <b>breaker-delta run Skill</b>, then POSTs each finished edition to <span style="font-family:var(--mono)">/api/editions</span> and topic write-backs to <span style="font-family:var(--mono)">/api/record</span> with the token; the site re-renders on every push. To let the container fetch candidates on a schedule, set <span style="font-family:var(--mono)">BD_SCAN_TIMES</span> in .env (grading still arrives via your agent). Details are in the Docker section of <a href="docs-deploy.html">Deploy Your Own</a>.</li>
+</ol>
+<h3 style="margin:16px 0 6px">Local mode (no Docker)</h3>
+<ul class="tips"><li>Requires Bun ≥ 1.2. No other runtime dependencies, no database, no server.</li></ul>
 <h3 style="margin:16px 0 6px">Step 1: get the engine and bundle it</h3>
 <pre class="cfgpre full">git clone https://github.com/daiyanze/breaker-delta.git
 cd breaker-delta
@@ -173,7 +191,7 @@ $BD --data-dir /path/to/your-data publish --out site        # build the static s
 <li><b>publish</b> turns the editions and ledger in the data dir into a complete static site, ready to deploy as-is.</li>
 <li>Every command accepts <span style="font-family:var(--mono)">--json</span> for machine-readable output; running with no command is the same as scan.</li>
 </ul>
-<p>Next: tune sources and keywords to your field in <a href="docs-config.html">Configuration</a>, and put the site on GitHub Pages with <a href="docs-deploy.html">Deploy Your Own</a>.</p>
+<p>Next: tune sources and keywords to your field in <a href="docs-config.html">Configuration</a>, and pick a deployment shape (Docker dynamic instance or a Pages static site) in <a href="docs-deploy.html">Deploy Your Own</a>.</p>
 </div></section>`,
     },
   },
