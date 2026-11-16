@@ -16,6 +16,7 @@ import {
   UsageError,
   cmdDocs,
   cmdDoctor,
+  cmdPlugins,
   cmdPresetInit,
   cmdPresetList,
   cmdPublish,
@@ -79,6 +80,11 @@ Commands:
                      BD_PUSH_TOKEN is set; optional scan scheduler via
                      BD_SCAN_TIMES=06:00,18:00. This is the Docker
                      image's entrypoint.
+  plugins score      Run enabled score plugins over the stored
+                     editions (the same pass publish runs) and write
+                     sub-scores into the items' plugins namespace.
+  plugins exit       Fire enabled exit plugins for editions they
+                     have not seen yet (per-plugin watermark).
   preset list        List the presets bundled with the engine (categories,
                      feeds, brief), marking the one this instance selects.
   preset init <name> Copy a bundled preset's config + brief.md into the
@@ -242,6 +248,11 @@ export async function main(argv: string[]): Promise<number> {
           return cmdPresetInit(ctx, positionals[2]);
         }
         throw new UsageError(`preset: expected "list" or "init <name>", got: ${sub ?? "(nothing)"}`);
+      }
+      case "plugins": {
+        const sub = positionals[1];
+        if (positionals.length > 2) throw new UsageError(`plugins: unexpected argument: ${positionals[2]}`);
+        return await cmdPlugins(ctx, sub);
       }
       case "doctor": {
         if (positionals.length > 1) throw new UsageError(`doctor: unexpected argument: ${positionals[1]}`);

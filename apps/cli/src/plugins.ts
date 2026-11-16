@@ -72,6 +72,72 @@ function loadPluginDir(dir: string): PanelPluginDef | null {
   };
 }
 
+/** Raw manifest of any plugin pack (panel, code, or both), as
+ *  parsed from plugin.yaml. Code-plugin fields (Plugin-P1) are all
+ *  optional; a pack with an `entry` is a code plugin. */
+export interface PluginManifestFull {
+  id: string;
+  api?: number;
+  order?: number;
+  name?: LocalizedText;
+  description?: LocalizedText;
+  slots?: string[];
+  entry?: string;
+  layer?: number;
+  permissions?: {
+    network?: string[] | string;
+    secrets?: string[];
+    write?: boolean;
+  };
+  score?: { label?: LocalizedText; min?: number; max?: number };
+  [key: string]: unknown;
+}
+
+export interface ManifestScan {
+  manifests: Map<string, { dir: string; manifest: PluginManifestFull }>;
+  errors: { dir: string; message: string }[];
+}
+
+/** The code-plugin slot names (Plugin-P1). */
+export const CODE_SLOTS = ["fetcher", "exit", "score"] as const;
+export type CodeSlot = (typeof CODE_SLOTS)[number];
+
+export function codeSlotsOf(manifest: PluginManifestFull): CodeSlot[] {
+  const declared = new Set(manifest.slots ?? []);
+  return CODE_SLOTS.filter((s) => declared.has(s));
+}
+
+/** Scan both plugin roots for manifests only (no panel
+ *  requirement): code plugins may not ship a panel.yaml. */
+export function scanPluginManifests(ctx: CliContext): ManifestScan {
+  const manifests = new Map<string, { dir: string; manifest: PluginManifestFull }>();
+  const errors: { dir: string; message: string }[] = [];
+  for (const base of [path.join(ctx.rootDir, "plugins"), path.join(ctx.dataDir, "plugins")]) {
+    if (!fs.existsSync(base)) continue;
+    for (const entry of fs.readdirSync(base)) {
+      const dir = path.join(base, entry);
+      if (!fs.statSync(dir).isDirectory()) continue;
+      const manifestFile = path.join(dir, "plugin.yaml");
+      if (!fs.existsSync(manifestFile)) continue;
+      try {
+        const manifest = readYamlFile(manifestFile) as unknown as PluginManifestFull;
+        if (!manifest.id || typeof manifest.id !== "string") {
+          throw new Error(`plugin at ${dir}: plugin.yaml has no string id`);
+        }
+        if (manifest.api !== undefined && manifest.api !== 1) {
+          throw new Error(
+            `plugin "${manifest.id}": unsupported api ${String(manifest.api)} (this engine speaks api 1)`,
+          );
+        }
+        manifests.set(manifest.id, { dir, manifest });
+      } catch (err) {
+        errors.push({ dir, message: err instanceof Error ? err.message : String(err) });
+      }
+    }
+  }
+  return { manifests, errors };
+}
+
 export interface PluginScan {
   defs: Map<string, PanelPluginDef>;
   dirs: Map<string, string>;
@@ -173,8 +239,11 @@ export function collectPluginChecks(
     string,
     { enabled?: boolean } | undefined
   >;
+  // Known ids = panel packs ∪ code packs (a code-only plugin like
+  // momentum has no panel def but is a real pack).
+  const { manifests } = scanPluginManifests(ctx);
   for (const [id, v] of Object.entries(section)) {
-    if (defs.has(id)) continue;
+    if (defs.has(id) || manifests.has(id)) continue;
     if (v?.enabled === true) {
       checks.push({
         name: "plugins",
@@ -210,6 +279,48 @@ export function collectPluginChecks(
   }
   if (defs.size === 0 && errors.length === 0) {
     checks.push({ name: "plugins", status: "warn", detail: "no plugin packs found under plugins/" });
+  }
+  // Plugin-P1 code plugins: entry presence, slot sanity, and the
+  // declared-permission surface of enabled packs.
+  for (const { dir, manifest } of manifests.values()) {
+    if (!manifest.entry) continue;
+    const slots = codeSlotsOf(manifest);
+    const on = section[manifest.id]?.enabled === true;
+    const name = `plugin:${manifest.id}`;
+    if (slots.length === 0) {
+      checks.push({
+        name,
+        status: "fail",
+        detail: "declares an entry but no code slot (fetcher | exit | score)",
+      });
+      continue;
+    }
+    const entryPath = `${dir}/${manifest.entry}`;
+    if (!fs.existsSync(entryPath)) {
+      checks.push({ name, status: "fail", detail: `entry ${manifest.entry} not found` });
+      continue;
+    }
+    if (!on) {
+      checks.push({ name, status: "ok", detail: `code plugin present, not enabled (slots: ${slots.join(", ")})` });
+      continue;
+    }
+    if (slots.includes("score") && !manifest.score?.label) {
+      checks.push({ name, status: "fail", detail: "score slot needs a score.label in plugin.yaml" });
+      continue;
+    }
+    const notes: string[] = [`enabled (slots: ${slots.join(", ")})`];
+    const perms = manifest.permissions ?? {};
+    if ((slots.includes("fetcher") || slots.includes("exit")) && perms.network === undefined) {
+      notes.push("no network declared — ctx.fetch will deny all hosts");
+    }
+    for (const secret of perms.secrets ?? []) {
+      if (!process.env[secret]) notes.push(`secret ${secret} is not set in the environment`);
+    }
+    checks.push({
+      name,
+      status: notes.length > 1 ? "warn" : "ok",
+      detail: notes.join("; "),
+    });
   }
   return checks;
 }

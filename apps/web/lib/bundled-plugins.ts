@@ -9,8 +9,23 @@ import creatorManifest from "../../../plugins/creator/plugin.yaml?raw";
 import creatorPanel from "../../../plugins/creator/panel.yaml?raw";
 import investorManifest from "../../../plugins/investor/plugin.yaml?raw";
 import investorPanel from "../../../plugins/investor/panel.yaml?raw";
+import mastodonTrendsManifest from "../../../plugins/mastodon-trends/plugin.yaml?raw";
+import momentumManifest from "../../../plugins/momentum/plugin.yaml?raw";
 import watchlistManifest from "../../../plugins/watchlist/plugin.yaml?raw";
 import watchlistPanel from "../../../plugins/watchlist/panel.yaml?raw";
+import webhookManifest from "../../../plugins/webhook/plugin.yaml?raw";
+
+/** Every engine plugin's manifest (panel and code plugins alike),
+ *  for surfaces that only need manifest data — e.g. score-plugin
+ *  display descriptors (Plugin-P1). */
+export const BUNDLED_MANIFESTS: string[] = [
+  creatorManifest,
+  investorManifest,
+  watchlistManifest,
+  momentumManifest,
+  webhookManifest,
+  mastodonTrendsManifest,
+];
 
 export interface BundledPlugin {
   manifestText: string;

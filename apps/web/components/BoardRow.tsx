@@ -6,6 +6,7 @@ import type { Lang, SiteData, Topic, TopicApp } from "../lib/data";
 import { catKey, catNameOf, levelLabelOf, locApp, trendPoints, tstamp } from "../lib/data";
 import { s } from "../lib/strings";
 import { AvatarStack } from "./AvatarStack";
+import { ScoreChips } from "./ScoreChips";
 import { Spark } from "./Spark";
 
 export interface RowSpec {
@@ -95,6 +96,7 @@ export function BoardRow({
           <DeltaChip v={row.heatDelta} lang={lang} zero="→0" />
         </span>
       </span>
+      <ScoreChips data={data} app={app} lang={lang} />
     </div>
   );
 }

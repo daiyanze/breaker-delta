@@ -1,0 +1,21 @@
+id: momentum
+api: 1
+order: 20
+name:
+  zh: "动量分"
+  en: "Momentum Score"
+  ja: "勢いスコア"
+description:
+  zh: "副评分代码插件：按话题的出现次数、浪高走势与来源广度算一个 0–100 的动量分，与浪高并列展示，不改动浪高本身。"
+  en: "Sub-score code plugin: a 0-100 momentum score from appearance count, heat trend and source breadth, shown next to the heat — never changes the heat itself."
+  ja: "副スコア・コードプラグイン：出現回数・浪高の推移・ソースの広がりから 0–100 の勢いスコアを算出。浪高そのものは変えない。"
+slots:
+  - score
+entry: plugin.ts
+score:
+  min: 0
+  max: 100
+  label:
+    zh: "动量"
+    en: "Momentum"
+    ja: "勢い"

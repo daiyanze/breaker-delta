@@ -19,7 +19,7 @@ import {
 import { ARC_NAMES, CAT_KEYS } from "@breaker-delta/publisher";
 import { slugify } from "@breaker-delta/core";
 
-import { loadPanelDefs, type PanelDef } from "./plugins";
+import { loadPanelDefs, loadScoreDescriptors, type PanelDef } from "./plugins";
 import { fmt, s } from "./strings";
 import { FileStore, SqliteStore, type SiteStore } from "./store";
 import { RemoteStore } from "./store-remote";
@@ -53,6 +53,8 @@ export interface SiteData {
   /** Board state per edition index, keyed by topic key. */
   states: Map<string, BoardState>[];
   panelDefs: PanelDef[];
+  /** Enabled score plugins' display descriptors (Plugin-P1). */
+  scorePlugins: import("./plugins").ScoreDescriptor[];
   config: Record<string, unknown>;
   configText: string | null;
   trackRecord: string | null;
@@ -210,6 +212,7 @@ export function getSiteData(): Promise<SiteData> {
     const bySlug = new Map(topics.map((t) => [t.slug, t]));
     const states = boardStates(topics, stored.editions.length);
     const panelDefs = loadPanelDefs(engineDir(), dir, stored.config);
+    const scorePlugins = loadScoreDescriptors(engineDir(), dir, stored.config);
     return {
       dataDir: dir,
       editions: stored.editions,
@@ -217,6 +220,7 @@ export function getSiteData(): Promise<SiteData> {
       bySlug,
       states,
       panelDefs,
+      scorePlugins,
       config: stored.config,
       configText: stored.configText,
       trackRecord: stored.trackRecord,

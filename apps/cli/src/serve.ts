@@ -35,6 +35,11 @@ import {
   type CliContext,
 } from "./context.js";
 import { resolvePanelPlugins } from "./plugins.js";
+import {
+  fetcherModules,
+  loadEnabledCodePlugins,
+  runExitPass,
+} from "./plugins-code.js";
 
 export interface ServeFlags {
   port?: string;
@@ -236,10 +241,16 @@ export async function cmdServe(ctx: CliContext, flags: ServeFlags): Promise<numb
       void (async () => {
         try {
           const { config } = loadCliConfig(ctx);
+          const codePlugins = await loadEnabledCodePlugins(
+            ctx,
+            config as Record<string, unknown>,
+            ["fetcher"],
+          );
           const report = await runScan(autoEdition(now), config, {
             baseDir: ctx.dataDir,
             stateDir: path.join(ctx.dataDir, "state"),
             env: process.env,
+            extraFetchers: fetcherModules(codePlugins),
           });
           for (const line of summaryLines(report)) log(line);
           log(`scan done; candidates at ${report._file} — grading is the agent's step (push the edition via /api/editions)`);
@@ -332,6 +343,21 @@ export async function cmdServe(ctx: CliContext, flags: ServeFlags): Promise<numb
         fs.mkdirSync(editionsDir, { recursive: true });
         fs.writeFileSync(file, JSON.stringify(ed, null, 2) + "\n", "utf-8");
         void render("edition pushed");
+        // Plugin-P1: a pushed edition is an ingestion event — fire
+        // enabled exit plugins for exactly this file. Best-effort:
+        // logged, never blocking or failing the push response.
+        void (async () => {
+          try {
+            const { config } = loadCliConfig(ctx);
+            const res2 = await runExitPass(ctx, config as Record<string, unknown>, editionsDir, {
+              onlyFiles: [`${ed.date}-${ed.slot}.json`],
+            });
+            for (const f of res2.fired) log(`plugin exit: ${f.plugin} <- ${f.file}`);
+            for (const e of res2.errors) log(`plugin exit error: ${e}`);
+          } catch (err) {
+            log(`plugin exit error: ${err instanceof Error ? err.message : String(err)}`);
+          }
+        })();
         jsonResponse(res, 200, { written: file, items: (ed.items as unknown[]).length });
         return;
       }

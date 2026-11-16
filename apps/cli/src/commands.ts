@@ -23,6 +23,13 @@ import { buildDocsSite, buildSite, optionsFromEnv } from "@breaker-delta/publish
 import type { BuildOptions } from "@breaker-delta/publisher";
 
 import { collectPluginChecks, resolvePanelPlugins } from "./plugins.js";
+import {
+  fetcherModules,
+  loadEnabledCodePlugins,
+  runExitPass,
+  runScorePass,
+  scoreDescriptors,
+} from "./plugins-code.js";
 
 import {
   findConfigFile,
@@ -53,10 +60,18 @@ export function autoEdition(now: Date = new Date()): string {
 export async function cmdScan(ctx: CliContext, editionArg?: string): Promise<number> {
   const edition = editionArg ?? autoEdition();
   const { config } = loadCliConfig(ctx);
+  // Plugin-P1: enabled fetcher plugins ride along as extra
+  // fetcher modules under the same controls as built-in sources.
+  const codePlugins = await loadEnabledCodePlugins(
+    ctx,
+    config as Record<string, unknown>,
+    ["fetcher"],
+  );
   const report = await runScan(edition, config, {
     baseDir: ctx.dataDir,
     stateDir: path.join(ctx.dataDir, "state"),
     env: process.env,
+    extraFetchers: fetcherModules(codePlugins),
   });
   if (ctx.json) {
     printJson(report);
@@ -257,6 +272,23 @@ export async function cmdPublish(ctx: CliContext, flags: PublishFlags): Promise<
     cliConfig as Record<string, unknown>,
     flags.creator ?? envOpts.creator ?? true,
   );
+  // Plugin-P1 score pass: enabled score plugins compute their
+  // sub-scores over the latest appearances and store them into
+  // the edition items BEFORE the build, so the render (and every
+  // other consumer of the edition files) sees them.
+  const scoreRes = await runScorePass(
+    ctx,
+    cliConfig as Record<string, unknown>,
+    opts.editionsDir ?? path.join(ctx.dataDir, "editions"),
+  );
+  if (scoreRes.plugins.length > 0) {
+    const line =
+      `plugin scores: ${scoreRes.plugins.join(", ")} — ` +
+      `${scoreRes.scored} item(s) updated in ${scoreRes.filesWritten} edition file(s)`;
+    if (ctx.json) console.error(line);
+    else out(ctx, line);
+  }
+  opts.scorePlugins = scoreDescriptors(ctx, cliConfig as Record<string, unknown>);
   if (flags.baseUrl !== undefined) opts.baseUrl = flags.baseUrl;
   if (flags.dataRepo !== undefined) opts.dataRepo = flags.dataRepo;
   if (flags.langs !== undefined) {
@@ -273,7 +305,59 @@ export async function cmdPublish(ctx: CliContext, flags: PublishFlags): Promise<
       pages: written.length,
     });
   }
+  // Plugin-P1 exit pass: fire exit plugins for editions they have
+  // not seen yet (per-plugin watermark under state/). Failures are
+  // reported, never fatal — exit is a side channel.
+  const exitRes = await runExitPass(
+    ctx,
+    cliConfig as Record<string, unknown>,
+    opts.editionsDir ?? path.join(ctx.dataDir, "editions"),
+  );
+  for (const f of exitRes.fired) {
+    const line = `plugin exit: ${f.plugin} <- ${f.file}`;
+    if (ctx.json) console.error(line);
+    else out(ctx, line);
+  }
+  for (const e of exitRes.errors) {
+    console.error(`plugin exit error: ${e}`);
+  }
   return 0;
+}
+
+// ------------------------------------------------------------ plugins (Plugin-P1 manual runs)
+
+/** `plugins score` / `plugins exit`: run one pass by hand (the
+ *  same passes publish runs automatically). Useful for instances
+ *  whose editions arrive by git rather than by publish. */
+export async function cmdPlugins(ctx: CliContext, sub: string | undefined): Promise<number> {
+  const { config } = loadCliConfig(ctx);
+  const cfg = config as Record<string, unknown>;
+  const editionsDir = path.join(ctx.dataDir, "editions");
+  if (sub === "score") {
+    const res = await runScorePass(ctx, cfg, editionsDir);
+    if (ctx.json) printJson(res);
+    else if (res.plugins.length === 0) out(ctx, "no score plugins enabled");
+    else {
+      out(
+        ctx,
+        `plugin scores: ${res.plugins.join(", ")} — ${res.scored} item(s) updated in ${res.filesWritten} edition file(s)`,
+      );
+    }
+    return 0;
+  }
+  if (sub === "exit") {
+    const res = await runExitPass(ctx, cfg, editionsDir);
+    if (ctx.json) printJson(res);
+    else {
+      if (res.fired.length === 0 && res.errors.length === 0) {
+        out(ctx, "no exit plugins fired (none enabled, or no new editions)");
+      }
+      for (const f of res.fired) out(ctx, `plugin exit: ${f.plugin} <- ${f.file}`);
+      for (const e of res.errors) out(ctx, `plugin exit error: ${e}`);
+    }
+    return res.errors.length > 0 ? 1 : 0;
+  }
+  throw new UsageError("plugins: expected a subcommand: score | exit");
 }
 
 // ------------------------------------------------------------ docs

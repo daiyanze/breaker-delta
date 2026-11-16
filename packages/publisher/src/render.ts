@@ -368,8 +368,25 @@ export function rowHtml(
     `<span class="rtitle"><a href="${topicHref(topic)}">${esc(locApp(ctx, app).title)}</a>${badge}${carried}</span>\n` +
     `${tag}${time}\n` +
     `${avatarStack(ctx, app.sources)}\n` +
-    `<span class="heat"><span class="spark">${spark}</span><span class="hv"><b>${app.heat}</b> <span>${s(ctx, "wave")}</span> ${hdelta}</span></span></div>`
+    `<span class="heat"><span class="spark">${spark}</span><span class="hv"><b>${app.heat}</b> <span>${s(ctx, "wave")}</span> ${hdelta}</span></span>${scoreChips(ctx, app)}</div>`
   );
+}
+
+/** Plugin-P1 sub-score chips: one pill per enabled score plugin
+ *  that has a stored score on this appearance. The heat stays the
+ *  one primary number; plugin scores ride alongside, labelled. */
+export function scoreChips(ctx: Ctx, app: App): string {
+  if (!ctx.scorePlugins || ctx.scorePlugins.length === 0) return "";
+  const plugins = (app as { plugins?: Record<string, Record<string, unknown>> }).plugins;
+  if (!plugins) return "";
+  let out = "";
+  for (const desc of ctx.scorePlugins) {
+    const value = plugins[desc.id]?.score;
+    if (typeof value !== "number" || !Number.isFinite(value)) continue;
+    const label = desc.label[ctx.lang as "zh" | "en" | "ja"] ?? desc.label.zh ?? desc.id;
+    out += `<span class="pscore" title="${esc(label)}">${esc(label)} ${value}</span>`;
+  }
+  return out;
 }
 
 export interface PageOptions {

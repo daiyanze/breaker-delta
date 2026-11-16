@@ -73,6 +73,7 @@ import {
   mastDocs,
   page,
   rowHtml,
+  scoreChips,
   shareLinks,
   srcName,
   topicHref,
@@ -979,6 +980,9 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       `<div><div style="font-family:var(--mono);font-size:26px;font-weight:700">#${last.board_rank}</div>` +
       `<div class="note">${s(ctx, "board_rank")} (${edLabel(editions[last.edition])})</div></div>` +
       `<div class="deltas">${deltaChips(ctx, lastDisp)}</div></div>` +
+      (scoreChips(ctx, last) !== ""
+        ? `<div style="display:flex;gap:8px;margin-top:10px">${scoreChips(ctx, last)}</div>`
+        : "") +
       `<div class="share"><span class="note">${s(ctx, "share")}</span>${share}</div>` +
       heatHelp(ctx) +
       `<h3 style="margin:26px 0 6px">${s(ctx, "chart")}</h3>${waveChart(ctx, t, editions)}` +

@@ -6,6 +6,7 @@ import type { PanelValue } from "@breaker-delta/publisher";
 import { Footer } from "../../../../components/Footer";
 import { Mast } from "../../../../components/Mast";
 import { Panel } from "../../../../components/Panel";
+import { ScoreChips } from "../../../../components/ScoreChips";
 import { WaveChart } from "../../../../components/WaveChart";
 import type { Topic, TopicApp } from "@breaker-delta/core";
 
@@ -118,6 +119,7 @@ export default async function TopicPage({
           </Link>
         </div>
         <div className="big-heat">{last.heat}</div>
+        <ScoreChips data={data} app={last} lang={l} />
         <div className="detail">
           {locLast.body.split("\n").map((p, i) => (
             <p key={i}>{p}</p>

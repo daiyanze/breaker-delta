@@ -30,6 +30,17 @@ import { missing } from "./common.js";
 import { FETCHERS } from "./fetchers/index.js";
 import { pyIsoformat } from "./py.js";
 
+/** The fetcher module shape (built-ins and plugin fetchers alike). */
+export interface FetcherModule {
+  SOURCE: string;
+  LAYER: number;
+  fetch: (
+    config: RadarConfig,
+    now: Date,
+    opts: { baseDir: string; env?: Record<string, string | undefined> },
+  ) => Promise<SourceResult>;
+}
+
 export interface ScanOptions {
   now?: Date;
   /** Directory the candidates file is written to
@@ -38,6 +49,9 @@ export interface ScanOptions {
   /** Base for relative state paths (vocab / sitemaps) and stateDir. */
   baseDir?: string;
   env?: Record<string, string | undefined>;
+  /** Extra fetcher modules (Plugin-P1 code plugins), run after
+   *  the built-ins under the same config controls. */
+  extraFetchers?: FetcherModule[];
 }
 
 export interface ScanReport {
@@ -63,7 +77,7 @@ export async function runScan(
   const baseDir = opts.baseDir ?? process.cwd();
   const results: SourceResult[] = [];
   const sourcesCfg = (config as Record<string, unknown>)?.sources;
-  for (const mod of FETCHERS) {
+  for (const mod of [...FETCHERS, ...(opts.extraFetchers ?? [])]) {
     const rawCfg =
       sourcesCfg !== null && typeof sourcesCfg === "object"
         ? (sourcesCfg as Record<string, unknown>)[mod.SOURCE]

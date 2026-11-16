@@ -11,7 +11,7 @@ import * as path from "node:path";
 import { parseYaml } from "@breaker-delta/fetchers";
 import type { PanelPluginDef } from "@breaker-delta/publisher";
 
-import { BUNDLED_PLUGINS } from "./bundled-plugins";
+import { BUNDLED_MANIFESTS, BUNDLED_PLUGINS } from "./bundled-plugins";
 
 export type PanelDef = PanelPluginDef;
 
@@ -109,4 +109,71 @@ export function loadPanelDefs(
   }
   enabled.sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
   return enabled;
+}
+
+// ------------------------------------------------------------ score descriptors (Plugin-P1)
+
+export interface ScoreDescriptor {
+  id: string;
+  label: { zh: string; en: string; ja: string };
+}
+
+interface ManifestFull {
+  id?: unknown;
+  slots?: unknown;
+  score?: { label?: { zh?: string; en?: string; ja?: string } };
+}
+
+/** Display descriptors for enabled score plugins. The web never
+ *  runs plugin code — scores arrive inside the items' plugins
+ *  namespace, computed by the CLI pipeline; this only resolves
+ *  which labels to draw next to them. Same discovery roots and
+ *  bundled fallback as the panel loader. */
+export function loadScoreDescriptors(
+  engineDir: string,
+  dataDir: string,
+  config: Record<string, unknown>,
+): ScoreDescriptor[] {
+  const manifests = new Map<string, ManifestFull>();
+  let engineScanned = false;
+  for (const [i, base] of [path.join(engineDir, "plugins"), path.join(dataDir, "plugins")].entries()) {
+    try {
+      if (!fs.existsSync(base)) continue;
+      for (const entry of fs.readdirSync(base)) {
+        const file = path.join(base, entry, "plugin.yaml");
+        if (!fs.existsSync(file)) continue;
+        const m = parseYamlText(fs.readFileSync(file, "utf-8")) as ManifestFull;
+        if (typeof m.id === "string") manifests.set(m.id, m);
+      }
+      if (i === 0) engineScanned = true;
+    } catch {
+      // Filesystem unavailable (Workers) — bundled fallback below.
+    }
+  }
+  if (!engineScanned) {
+    for (const text of BUNDLED_MANIFESTS) {
+      const m = parseYamlText(text) as ManifestFull;
+      if (typeof m.id === "string" && !manifests.has(m.id)) manifests.set(m.id, m);
+    }
+  }
+  const section = (config.plugins ?? {}) as Record<string, { enabled?: boolean } | undefined>;
+  const out: ScoreDescriptor[] = [];
+  for (const m of manifests.values()) {
+    const slots = Array.isArray(m.slots) ? (m.slots as string[]) : [];
+    if (!slots.includes("score")) continue;
+    const id = m.id as string;
+    if (section[id]?.enabled !== true) continue;
+    const label = m.score?.label;
+    if (!label) continue;
+    out.push({
+      id,
+      label: {
+        zh: label.zh ?? id,
+        en: label.en ?? label.zh ?? id,
+        ja: label.ja ?? label.zh ?? id,
+      },
+    });
+  }
+  out.sort((a, b) => a.id.localeCompare(b.id));
+  return out;
 }

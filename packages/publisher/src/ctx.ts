@@ -44,6 +44,9 @@ export interface BuildOptions {
    *  present (even empty), the topic-page panel slot renders these
    *  instead of the legacy creator switch. */
   panelPlugins?: import("./plugins.js").PanelPluginDef[];
+  /** Enabled score plugins (Plugin-P1): display descriptors only —
+   *  the scores themselves live in the items' plugins namespace. */
+  scorePlugins?: { id: string; label: import("./plugins.js").LocalizedText }[];
   pageSize?: number;
   archiveDays?: number;
   sourcesPerPage?: number;
@@ -75,6 +78,7 @@ export interface Ctx {
   catRules: CatRuleSet;
   creator: boolean;
   panelPlugins: import("./plugins.js").PanelPluginDef[] | undefined;
+  scorePlugins: { id: string; label: import("./plugins.js").LocalizedText }[];
   per: number;
   archiveDays: number;
   sourcesPer: number;
@@ -115,6 +119,7 @@ export function makeCtx(options: BuildOptions): Ctx {
     catRules: options.catRules ?? DEFAULT_CAT_RULE_SET,
     creator: options.creator ?? true,
     panelPlugins: options.panelPlugins,
+    scorePlugins: options.scorePlugins ?? [],
     per: options.pageSize ?? 100,
     archiveDays: options.archiveDays ?? 7,
     sourcesPer: options.sourcesPerPage ?? 20,
