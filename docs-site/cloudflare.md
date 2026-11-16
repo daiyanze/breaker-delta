@@ -25,9 +25,10 @@ after a manual "Create deployment" in the dashboard (trigger type
 `ad_hoc`) — and attaching a domain through the API still needs the
 matching CNAME record created by hand. The docs site is live at
 docs.breakerdelta.com and the main site at breaker-delta.pages.dev;
-the apex domain was attached right after. Whether pushes trigger
-builds automatically after the manual first deployment is exactly
-what the commit carrying this note tests.
+the apex domain was attached right after. Pushes did not trigger
+builds at first: the missing piece was the Cloudflare GitHub App's
+repository access for this account, which the owner granted on
+2026-11-16 — the commit carrying this note is the verification push.
 
 ## Project 1 — docs (breaker-delta-docs)
 
