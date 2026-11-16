@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { LANG_LABEL } from "@breaker-delta/publisher";
 
-import { LANGS, type Lang } from "../lib/data";
+import { LANGS, pluginPageTabsSync, type Lang } from "../lib/data";
 import { s, sArr } from "../lib/strings";
 import { DOCS_URL } from "./Footer";
 import { ThemeToggle } from "./ThemeToggle";
@@ -94,6 +94,15 @@ export function Mast({
             </Link>
           );
         })}
+        {pluginPageTabsSync().map((pg) => (
+          <Link
+            key={pg.id}
+            href={`/${lang}/plugin/${pg.slug}`}
+            className={active === `plugin:${pg.id}` ? "on" : ""}
+          >
+            {pg.title[lang] ?? pg.title.zh ?? pg.slug}
+          </Link>
+        ))}
       </nav>
     </>
   );

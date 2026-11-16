@@ -12,5 +12,5 @@
     "test": "bun run build && bun test dist/tsc/test"
   },
   "type": "module",
-  "version": "0.6.1"
+  "version": "0.7.0"
 }

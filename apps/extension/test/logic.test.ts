@@ -25,6 +25,8 @@ import {
   parseSettings,
   parseTopics,
   pendingEchoes,
+  pluginScore,
+  pluginScoreLabel,
   topicPageUrl,
 } from "../src/logic.js";
 
@@ -71,6 +73,24 @@ const ALERTS: AlertEntry[] = [
     dedupe_key: "local-model-y:surge:2026-11-15-morning",
   },
 ];
+
+describe("pluginScore (Plugin-P2 consumer contract)", () => {
+  it("reads the first numeric score from the plugins namespace", () => {
+    const topic = {
+      ...TOPICS[0],
+      plugins: { tickers: { entities: [{ type: "ticker", name: "NVDA" }] }, momentum: { score: 73 } },
+    } as TopicDataEntry;
+    assert.deepStrictEqual(pluginScore(topic), { id: "momentum", value: 73 });
+    assert.strictEqual(pluginScoreLabel("momentum"), "动量");
+    assert.strictEqual(pluginScoreLabel("other"), "other");
+  });
+
+  it("is null without plugin data or scores", () => {
+    assert.strictEqual(pluginScore(TOPICS[0]), null);
+    const topic = { ...TOPICS[0], plugins: { tickers: { entities: [] } } } as TopicDataEntry;
+    assert.strictEqual(pluginScore(topic), null);
+  });
+});
 
 describe("parseTopics / parseAlerts", () => {
   it("round-trips well-formed payloads", () => {

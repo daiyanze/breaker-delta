@@ -13,6 +13,11 @@ export interface TopicDataEntry {
   level: string | null;
   url_patterns: string[];
   title_keywords: string[];
+  /** Plugin data from the latest appearance's plugins namespace
+   *  (Plugin-P2: scores, entities, grading output) — the consumer
+   *  contract for the extension and other data readers. Absent
+   *  when no plugin stored anything for the topic. */
+  plugins?: Record<string, Record<string, unknown>>;
 }
 
 export interface TopicsData {
@@ -64,6 +69,7 @@ export function topicsData(editions: Edition[], topics: Topic[]): TopicsData {
       level: last.level,
       url_patterns: patterns,
       title_keywords: titleKeywords(t.name),
+      ...(last.plugins ? { plugins: last.plugins } : {}),
     });
   }
   const gen = editions.length > 0 ? (editions[editions.length - 1].published_at ?? null) : "";

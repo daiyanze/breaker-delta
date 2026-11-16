@@ -14,6 +14,8 @@ import {
   parseAlerts,
   parseSettings,
   parseTopics,
+  pluginScore,
+  pluginScoreLabel,
   SITE_BASE,
   topicPageUrl,
 } from "./logic.js";
@@ -50,6 +52,12 @@ function renderBadge(
     heat,
     document.createTextNode(` · 首现 ${topic.first_seen}`),
   );
+  const ps = pluginScore(topic);
+  if (ps) {
+    meta.appendChild(
+      document.createTextNode(` · ${pluginScoreLabel(ps.id)} ${ps.value}`),
+    );
+  }
   if (alert) {
     const breaking = document.createElement("span");
     breaking.className = "bd-badge-breaking";

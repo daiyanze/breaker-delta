@@ -47,6 +47,9 @@ export interface BuildOptions {
   /** Enabled score plugins (Plugin-P1): display descriptors only —
    *  the scores themselves live in the items' plugins namespace. */
   scorePlugins?: { id: string; label: import("./plugins.js").LocalizedText }[];
+  /** Enabled entity-extraction plugin ids (Plugin-P2): which
+   *  plugins namespaces hold entity lists to draw as chips. */
+  entityPlugins?: string[];
   pageSize?: number;
   archiveDays?: number;
   sourcesPerPage?: number;
@@ -79,6 +82,10 @@ export interface Ctx {
   creator: boolean;
   panelPlugins: import("./plugins.js").PanelPluginDef[] | undefined;
   scorePlugins: { id: string; label: import("./plugins.js").LocalizedText }[];
+  entityPlugins: string[];
+  /** Plugin page data loaded from the data dir (Plugin-P2), set by
+   *  the build before rendering. */
+  pluginPages: import("./load.js").PluginPageData[];
   per: number;
   archiveDays: number;
   sourcesPer: number;
@@ -120,6 +127,8 @@ export function makeCtx(options: BuildOptions): Ctx {
     creator: options.creator ?? true,
     panelPlugins: options.panelPlugins,
     scorePlugins: options.scorePlugins ?? [],
+    entityPlugins: options.entityPlugins ?? [],
+    pluginPages: [],
     per: options.pageSize ?? 100,
     archiveDays: options.archiveDays ?? 7,
     sourcesPer: options.sourcesPerPage ?? 20,

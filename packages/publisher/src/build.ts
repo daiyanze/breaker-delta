@@ -28,9 +28,9 @@ import {
   type Ctx,
 } from "./ctx.js";
 import { DOC_PAGES, JA_DOCS_NOTICE, docsNav } from "./docs.js";
-import { renderPanel, type PanelValue } from "./plugins.js";
+import { renderPanel, type PanelPluginDef, type PanelValue } from "./plugins.js";
 import { fetchFavicons } from "./favicon.js";
-import { loadConfigBlocks, loadEditions, sourceBlock, sourceKey } from "./load.js";
+import { loadConfigBlocks, loadEditions, loadPluginPages, sourceBlock, sourceKey } from "./load.js";
 import {
   ABOUT,
   HOOK_T,
@@ -72,6 +72,7 @@ import {
   mast,
   mastDocs,
   page,
+  entityChips,
   rowHtml,
   scoreChips,
   shareLinks,
@@ -140,6 +141,7 @@ export async function buildSite(options: BuildOptions): Promise<string[]> {
   const out = ctx.outDir;
   if (!ctx.sink) fs.mkdirSync(out, { recursive: true });
   const { editions, ledger } = loadEditions(ctx);
+  ctx.pluginPages = loadPluginPages(ctx);
   const topics = buildTopics(editions, ledger, ctx.catRules) as PubTopic[];
   const domainSet = new Set<string>();
   for (const t of topics) {
@@ -983,6 +985,9 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       (scoreChips(ctx, last) !== ""
         ? `<div style="display:flex;gap:8px;margin-top:10px">${scoreChips(ctx, last)}</div>`
         : "") +
+      (entityChips(ctx, last) !== ""
+        ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${entityChips(ctx, last)}</div>`
+        : "") +
       `<div class="share"><span class="note">${s(ctx, "share")}</span>${share}</div>` +
       heatHelp(ctx) +
       `<h3 style="margin:26px 0 6px">${s(ctx, "chart")}</h3>${waveChart(ctx, t, editions)}` +
@@ -1326,6 +1331,33 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       { path: "landing.html", desc: s(ctx, "desc_landing") },
     ),
   );
+
+  // Plugin pages (Plugin-P2): whole pages contributed by code
+  // plugins, drawn from the block data the CLI's page pass stored.
+  for (const pg of ctx.pluginPages) {
+    const blocks = pg.langs[ctx.lang]?.blocks ?? pg.langs.zh?.blocks ?? [];
+    const def: PanelPluginDef = {
+      id: pg.id,
+      order: 0,
+      requiresData: false,
+      head: { title: pg.title },
+      blocks,
+    };
+    const fname = `plugin-${pg.slug}.html`;
+    const title = pg.title[ctx.lang as "zh" | "en" | "ja"] ?? pg.title.zh ?? pg.slug;
+    write(
+      ctx,
+      fname,
+      page(
+        ctx,
+        title,
+        mast(ctx, `plugin:${pg.id}`, editions, { fname }) +
+          renderPanel(def, ctx.lang, {}, undefined) +
+          foot(ctx),
+        { path: fname, desc: title },
+      ),
+    );
+  }
 
   // (The usage docs are NOT part of this build: since the domain split
   // they are a standalone site — buildDocsSite / the CLI's docs command —

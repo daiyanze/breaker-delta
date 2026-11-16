@@ -11,6 +11,7 @@ description:
   ja: "副スコア・コードプラグイン：出現回数・浪高の推移・ソースの広がりから 0–100 の勢いスコアを算出。浪高そのものは変えない。"
 slots:
   - score
+  - page
 entry: plugin.ts
 score:
   min: 0
@@ -19,3 +20,9 @@ score:
     zh: "动量"
     en: "Momentum"
     ja: "勢い"
+page:
+  slug: momentum
+  title:
+    zh: "动量榜"
+    en: "Momentum Board"
+    ja: "勢いボード"

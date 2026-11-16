@@ -83,6 +83,13 @@ Commands:
   plugins score      Run enabled score plugins over the stored
                      editions (the same pass publish runs) and write
                      sub-scores into the items' plugins namespace.
+  plugins entities   Run enabled entity-extraction plugins (same
+                     pass publish runs) into the plugins namespace.
+  plugins review     Run enabled review-metric plugins over the
+                     topics due for their 14-day review and record
+                     their verdicts in the store.
+  plugins pages      Run enabled page plugins and store their
+                     block data under state/plugin-pages/.
   plugins exit       Fire enabled exit plugins for editions they
                      have not seen yet (per-plugin watermark).
   preset list        List the presets bundled with the engine (categories,

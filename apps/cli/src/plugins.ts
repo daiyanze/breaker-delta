@@ -90,6 +90,8 @@ export interface PluginManifestFull {
     write?: boolean;
   };
   score?: { label?: LocalizedText; min?: number; max?: number };
+  /** Page slot (Plugin-P2): the plugin contributes one whole page. */
+  page?: { slug?: string; title?: LocalizedText };
   [key: string]: unknown;
 }
 
@@ -98,8 +100,9 @@ export interface ManifestScan {
   errors: { dir: string; message: string }[];
 }
 
-/** The code-plugin slot names (Plugin-P1). */
-export const CODE_SLOTS = ["fetcher", "exit", "score"] as const;
+/** The code-plugin slot names (Plugin-P1: fetcher / exit / score;
+ *  Plugin-P2 adds entities / review / page). */
+export const CODE_SLOTS = ["fetcher", "exit", "score", "entities", "review", "page"] as const;
 export type CodeSlot = (typeof CODE_SLOTS)[number];
 
 export function codeSlotsOf(manifest: PluginManifestFull): CodeSlot[] {
@@ -291,7 +294,7 @@ export function collectPluginChecks(
       checks.push({
         name,
         status: "fail",
-        detail: "declares an entry but no code slot (fetcher | exit | score)",
+        detail: "declares an entry but no code slot (fetcher | exit | score | entities | review | page)",
       });
       continue;
     }
@@ -306,6 +309,10 @@ export function collectPluginChecks(
     }
     if (slots.includes("score") && !manifest.score?.label) {
       checks.push({ name, status: "fail", detail: "score slot needs a score.label in plugin.yaml" });
+      continue;
+    }
+    if (slots.includes("page") && (!manifest.page?.slug || !manifest.page?.title)) {
+      checks.push({ name, status: "fail", detail: "page slot needs page.slug and page.title in plugin.yaml" });
       continue;
     }
     const notes: string[] = [`enabled (slots: ${slots.join(", ")})`];

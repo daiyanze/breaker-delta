@@ -1,0 +1,14 @@
+id: tickers
+api: 1
+order: 35
+name:
+  zh: "标的抽取"
+  en: "Ticker Extraction"
+  ja: "銘柄抽出"
+description:
+  zh: "实体抽取代码插件：从话题标题与正文里抽取上市公司标的（$代码 与内置的中英公司名对照表），存入条目的 plugins.tickers.entities 并在话题页以 chip 展示。"
+  en: "Entity-extraction code plugin: pulls listed-company tickers ($CASHTAGS plus a built-in bilingual company-name table) from topic titles and bodies into plugins.tickers.entities, shown as chips on topic pages."
+  ja: "実体抽出コードプラグイン：話題のタイトルと本文から上場銘柄（$ティッカーと内蔵の会社名対照表）を抽出し plugins.tickers.entities に保存、トピックページにチップ表示する。"
+slots:
+  - entities
+entry: plugin.ts

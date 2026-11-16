@@ -64,6 +64,28 @@ export function matchTopic(topic: TopicDataEntry, url: string, title: string): b
   );
 }
 
+/** A topic's plugin sub-score (Plugin-P2 consumer contract): the
+ *  first plugins-namespace entry carrying a numeric `score`, as
+ *  stored by score plugins into data/topics.json. The extension
+ *  only displays it; labels are the plugins' own (momentum's is
+ *  动量； other ids display as-is). */
+export function pluginScore(
+  topic: TopicDataEntry,
+): { id: string; value: number } | null {
+  const plugins = topic.plugins;
+  if (!plugins) return null;
+  for (const [id, ns] of Object.entries(plugins)) {
+    const v = (ns as { score?: unknown } | null | undefined)?.score;
+    if (typeof v === "number" && Number.isFinite(v)) return { id, value: v };
+  }
+  return null;
+}
+
+/** Display label for a plugin score id. */
+export function pluginScoreLabel(id: string): string {
+  return id === "momentum" ? "动量" : id;
+}
+
 /** First topic matching the page, in topics.json order. */
 export function findTopic(
   topics: readonly TopicDataEntry[],

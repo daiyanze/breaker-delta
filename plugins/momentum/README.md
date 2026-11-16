@@ -22,3 +22,9 @@ plugins:
 Scores are computed by the CLI pipeline: `publish` runs the pass
 automatically; instances whose editions arrive by git can run
 `breaker-delta plugins score` explicitly.
+
+The pack also carries the **page** slot (Plugin-P2): a Momentum
+Board page ranking every scored topic, rendered at
+`plugin-momentum.html` / `/<lang>/plugin/momentum` and linked
+from the tab bar whenever the plugin is enabled and the page
+pass has run.

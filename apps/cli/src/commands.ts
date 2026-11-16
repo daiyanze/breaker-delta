@@ -24,9 +24,13 @@ import type { BuildOptions } from "@breaker-delta/publisher";
 
 import { collectPluginChecks, resolvePanelPlugins } from "./plugins.js";
 import {
+  entityPluginIds,
   fetcherModules,
   loadEnabledCodePlugins,
+  runEntitiesPass,
   runExitPass,
+  runPagePass,
+  runReviewPass,
   runScorePass,
   scoreDescriptors,
 } from "./plugins-code.js";
@@ -289,6 +293,33 @@ export async function cmdPublish(ctx: CliContext, flags: PublishFlags): Promise<
     else out(ctx, line);
   }
   opts.scorePlugins = scoreDescriptors(ctx, cliConfig as Record<string, unknown>);
+  // Plugin-P2 entities pass: same idea — extraction results are
+  // stored into the items before the build.
+  const entRes = await runEntitiesPass(
+    ctx,
+    cliConfig as Record<string, unknown>,
+    opts.editionsDir ?? path.join(ctx.dataDir, "editions"),
+  );
+  if (entRes.plugins.length > 0) {
+    const line =
+      `plugin entities: ${entRes.plugins.join(", ")} — ` +
+      `${entRes.stamped} item(s) updated in ${entRes.filesWritten} edition file(s)`;
+    if (ctx.json) console.error(line);
+    else out(ctx, line);
+  }
+  opts.entityPlugins = entityPluginIds(ctx, cliConfig as Record<string, unknown>);
+  // Plugin-P2 page pass: page plugins' block data lands in
+  // state/plugin-pages/ for the build (and the web app) to render.
+  const pageRes = await runPagePass(
+    ctx,
+    cliConfig as Record<string, unknown>,
+    opts.editionsDir ?? path.join(ctx.dataDir, "editions"),
+  );
+  if (pageRes.pages.length > 0) {
+    const line = `plugin pages: ${pageRes.pages.join(", ")}`;
+    if (ctx.json) console.error(line);
+    else out(ctx, line);
+  }
   if (flags.baseUrl !== undefined) opts.baseUrl = flags.baseUrl;
   if (flags.dataRepo !== undefined) opts.dataRepo = flags.dataRepo;
   if (flags.langs !== undefined) {
@@ -357,7 +388,38 @@ export async function cmdPlugins(ctx: CliContext, sub: string | undefined): Prom
     }
     return res.errors.length > 0 ? 1 : 0;
   }
-  throw new UsageError("plugins: expected a subcommand: score | exit");
+  if (sub === "entities") {
+    const res = await runEntitiesPass(ctx, cfg, editionsDir);
+    if (ctx.json) printJson(res);
+    else if (res.plugins.length === 0) out(ctx, "no entity plugins enabled");
+    else {
+      out(
+        ctx,
+        `plugin entities: ${res.plugins.join(", ")} — ${res.stamped} item(s) updated in ${res.filesWritten} edition file(s)`,
+      );
+    }
+    return 0;
+  }
+  if (sub === "review") {
+    const res = await runReviewPass(ctx, cfg, editionsDir);
+    if (ctx.json) printJson(res);
+    else if (res.plugins.length === 0) out(ctx, "no review plugins enabled");
+    else {
+      out(ctx, `plugin review: ${res.due} due, ${res.checked.length} verdict(s) recorded`);
+      for (const c of res.checked) {
+        out(ctx, `  ${c.name} -> ${c.result} (via ${c.plugin}${c.evidence ? `: ${c.evidence}` : ""})`);
+      }
+    }
+    return 0;
+  }
+  if (sub === "pages") {
+    const res = await runPagePass(ctx, cfg, editionsDir);
+    if (ctx.json) printJson(res);
+    else if (res.pages.length === 0) out(ctx, "no page plugins enabled");
+    else out(ctx, `plugin pages: ${res.pages.join(", ")}`);
+    return 0;
+  }
+  throw new UsageError("plugins: expected a subcommand: score | exit | entities | review | pages");
 }
 
 // ------------------------------------------------------------ docs

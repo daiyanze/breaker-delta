@@ -28,7 +28,15 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { buildTopics, heatOf, loadStore, topicKey } from "@breaker-delta/core";
+import {
+  buildTopics,
+  dueForReview,
+  heatOf,
+  loadStore,
+  recordReview,
+  saveStore,
+  topicKey,
+} from "@breaker-delta/core";
 import type { CandidateItem, Edition, SourceResult } from "@breaker-delta/core";
 
 import type { CliContext } from "./context.js";
@@ -46,6 +54,9 @@ const SLOT_EXPORTS: Record<CodeSlot, string> = {
   fetcher: "fetchCandidates",
   exit: "onEdition",
   score: "scoreTopic",
+  entities: "extractEntities",
+  review: "reviewTopic",
+  page: "buildPage",
 };
 
 export interface PluginCtx {
@@ -54,6 +65,9 @@ export interface PluginCtx {
   config: Record<string, unknown>;
   log: (msg: string) => void;
   now: () => Date;
+  /** Current render language during the page pass (Plugin-P2);
+   *  undefined outside it. */
+  lang?: string;
   /** Read an env var declared in permissions.secrets. */
   env: (name: string) => string | undefined;
   /** fetch() restricted to the manifest's network allowlist. */
@@ -317,7 +331,7 @@ export function loadEditionFiles(editionsDir: string): LoadedEditionFile[] {
   });
 }
 
-function persistEditionFiles(editionsDir: string, loaded: LoadedEditionFile[]): number {
+export function persistEditionFiles(editionsDir: string, loaded: LoadedEditionFile[]): number {
   let written = 0;
   for (const entry of loaded) {
     if (!entry.changed) continue;
@@ -480,6 +494,195 @@ export async function runExitPass(
   return result;
 }
 
+// ------------------------------------------------------------ entities slot (Plugin-P2)
+
+export interface EntitiesPassResult {
+  plugins: string[];
+  stamped: number;
+  filesWritten: number;
+}
+
+export interface ExtractedEntity {
+  type: string;
+  name: string;
+}
+
+/** Run enabled entity-extraction plugins over every topic's
+ *  latest appearance and store the entity list into that item's
+ *  plugins namespace (plugins.<id>.entities), same storage
+ *  contract and targeting as the score pass. */
+export async function runEntitiesPass(
+  ctx: CliContext,
+  config: Record<string, unknown>,
+  editionsDir: string,
+): Promise<EntitiesPassResult> {
+  const plugins = await loadEnabledCodePlugins(ctx, config, ["entities"]);
+  if (plugins.length === 0) return { plugins: [], stamped: 0, filesWritten: 0 };
+  const loaded = loadEditionFiles(editionsDir);
+  if (loaded.length === 0) return { plugins: plugins.map((p) => p.id), stamped: 0, filesWritten: 0 };
+  const editions = loaded.map((l) => l.data) as unknown as Edition[];
+  const ledger = loadStore(statePath(ctx)).topics;
+  const topics = buildTopics(editions, ledger);
+  let stamped = 0;
+  for (const topic of topics) {
+    const latest = topic.apps.reduce((a, b) => (b.edition > a.edition ? b : a));
+    const entry = loaded[latest.edition];
+    const targets = entry.data.items.filter(
+      (it) => topicKey(it as never, ledger)[0] === topic.key,
+    );
+    if (targets.length === 0) continue;
+    for (const plugin of plugins) {
+      const raw = (await (plugin.mod.extractEntities as Function)(
+        plugin.ctx,
+        topic,
+      )) as unknown;
+      if (!Array.isArray(raw)) {
+        throw new Error(`plugin "${plugin.id}": extractEntities must return an array`);
+      }
+      const seen = new Set<string>();
+      const entities: ExtractedEntity[] = [];
+      for (const e of raw as { type?: unknown; name?: unknown }[]) {
+        const name = typeof e?.name === "string" ? e.name : "";
+        if (name === "") continue;
+        const type = typeof e?.type === "string" && e.type !== "" ? e.type : "entity";
+        const key = `${type}:${name}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        entities.push({ type, name });
+        if (entities.length >= 24) break;
+      }
+      for (const item of targets) {
+        const ns = (item.plugins ?? {}) as Record<string, unknown>;
+        // An empty extraction stores nothing (no namespace noise in
+        // every item); a previously stored list is still refreshed,
+        // including being cleared when extraction now finds none.
+        if (entities.length === 0 && ns[plugin.id] === undefined) continue;
+        const stored = { entities };
+        if (JSON.stringify(ns[plugin.id]) !== JSON.stringify(stored)) {
+          ns[plugin.id] = stored;
+          item.plugins = ns;
+          entry.changed = true;
+          stamped += 1;
+        }
+      }
+    }
+  }
+  const filesWritten = persistEditionFiles(editionsDir, loaded);
+  return { plugins: plugins.map((p) => p.id), stamped, filesWritten };
+}
+
+// ------------------------------------------------------------ review slot (Plugin-P2)
+
+export interface ReviewPassResult {
+  plugins: string[];
+  due: number;
+  checked: { name: string; result: string; plugin: string; evidence?: string }[];
+}
+
+/** Run enabled review-metric plugins over the topics due for
+ *  their 14-day review. The mechanism is the engine's (due list,
+ *  recordReview, store write-back); the plugin only supplies the
+ *  metric's verdict. First non-null verdict wins. */
+export async function runReviewPass(
+  ctx: CliContext,
+  config: Record<string, unknown>,
+  editionsDir: string,
+): Promise<ReviewPassResult> {
+  const plugins = await loadEnabledCodePlugins(ctx, config, ["review"]);
+  if (plugins.length === 0) return { plugins: [], due: 0, checked: [] };
+  const store = loadStore(statePath(ctx));
+  const due = dueForReview(store);
+  const result: ReviewPassResult = { plugins: plugins.map((p) => p.id), due: due.length, checked: [] };
+  if (due.length === 0) return result;
+  const loaded = loadEditionFiles(editionsDir);
+  const editions = loaded.map((l) => l.data) as unknown as Edition[];
+  const topics = buildTopics(editions, store.topics);
+  const byName = new Map(topics.map((t) => [t.name, t]));
+  for (const dueTopic of due) {
+    const built = byName.get(dueTopic.name);
+    if (!built) continue;
+    for (const plugin of plugins) {
+      const verdict = (await (plugin.mod.reviewTopic as Function)(
+        plugin.ctx,
+        built,
+        dueTopic,
+      )) as { result?: unknown; evidence?: unknown } | null;
+      if (!verdict) continue;
+      if (verdict.result !== "hit" && verdict.result !== "miss") {
+        throw new Error(
+          `plugin "${plugin.id}": reviewTopic for "${dueTopic.name}" must return { result: "hit" | "miss" } or null`,
+        );
+      }
+      recordReview(store, dueTopic.name, verdict.result);
+      result.checked.push({
+        name: dueTopic.name,
+        result: verdict.result,
+        plugin: plugin.id,
+        ...(typeof verdict.evidence === "string" ? { evidence: verdict.evidence } : {}),
+      });
+      break;
+    }
+  }
+  if (result.checked.length > 0) saveStore(store, statePath(ctx));
+  return result;
+}
+
+// ------------------------------------------------------------ page slot (Plugin-P2)
+
+export interface PagePassResult {
+  pages: string[];
+}
+
+/** Run enabled page plugins and store their output as structured
+ *  block data under <dataDir>/state/plugin-pages/<id>.json — the
+ *  renderers (static + web) draw those blocks; they never execute
+ *  plugin code. buildPage runs once per language with ctx.lang
+ *  set, over the fully built site ({ topics, editions }). */
+export async function runPagePass(
+  ctx: CliContext,
+  config: Record<string, unknown>,
+  editionsDir: string,
+): Promise<PagePassResult> {
+  const plugins = await loadEnabledCodePlugins(ctx, config, ["page"]);
+  if (plugins.length === 0) return { pages: [] };
+  const loaded = loadEditionFiles(editionsDir);
+  const editions = loaded.map((l) => l.data) as unknown as Edition[];
+  const ledger = loadStore(statePath(ctx)).topics;
+  const topics = buildTopics(editions, ledger);
+  const site = { topics, editions };
+  const outDir = path.join(ctx.dataDir, "state", "plugin-pages");
+  fs.mkdirSync(outDir, { recursive: true });
+  const done: string[] = [];
+  for (const plugin of plugins) {
+    const page = plugin.manifest.page;
+    if (!page?.slug || !page?.title) {
+      throw new Error(`plugin "${plugin.id}": page slot needs page.slug and page.title in plugin.yaml`);
+    }
+    const langs: Record<string, { blocks: unknown[] }> = {};
+    for (const lang of ["zh", "en", "ja"]) {
+      const pctx: PluginCtx = { ...plugin.ctx, lang };
+      const blocks = (await (plugin.mod.buildPage as Function)(pctx, site)) as unknown;
+      if (!Array.isArray(blocks)) {
+        throw new Error(`plugin "${plugin.id}": buildPage(${lang}) must return a blocks array`);
+      }
+      langs[lang] = { blocks };
+    }
+    const file = {
+      id: plugin.id,
+      slug: page.slug,
+      title: {
+        zh: page.title.zh ?? plugin.id,
+        en: page.title.en ?? page.title.zh ?? plugin.id,
+        ja: page.title.ja ?? page.title.zh ?? plugin.id,
+      },
+      langs,
+    };
+    fs.writeFileSync(path.join(outDir, `${plugin.id}.json`), JSON.stringify(file, null, 2) + "\n", "utf-8");
+    done.push(plugin.id);
+  }
+  return { pages: done };
+}
+
 // ------------------------------------------------------------ render descriptors
 
 export interface ScoreDescriptor {
@@ -510,5 +713,22 @@ export function scoreDescriptors(
     });
   }
   out.sort((a, b) => a.id.localeCompare(b.id));
+  return out;
+}
+
+/** Enabled entity-extraction plugin ids, for renderers to know
+ *  which plugins namespaces hold entity lists worth drawing. */
+export function entityPluginIds(
+  ctx: CliContext,
+  config: Record<string, unknown>,
+): string[] {
+  const { manifests } = scanPluginManifests(ctx);
+  const out: string[] = [];
+  for (const { manifest } of manifests.values()) {
+    if (!codeSlotsOf(manifest).includes("entities")) continue;
+    if (pluginSection(config, manifest.id).enabled !== true) continue;
+    out.push(manifest.id);
+  }
+  out.sort();
   return out;
 }

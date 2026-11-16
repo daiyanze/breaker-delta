@@ -79,6 +79,10 @@ export interface StoreData {
   configText: string | null;
   /** track-record.md content, when the instance has one. */
   trackRecord: string | null;
+  /** Plugin page data (Plugin-P2) from state/plugin-pages/. The
+   *  remote backend returns [] — page files are not part of its
+   *  manifest yet, so plugin pages are a self-host feature. */
+  pluginPages: import("@breaker-delta/publisher").PluginPageData[];
   /** Precomputed topics (DB backends); null = caller runs buildTopics. */
   topics: Topic[] | null;
 }
@@ -157,6 +161,26 @@ export function parseConfigText(text: string | null): Record<string, unknown> {
   return (parseYaml(text) ?? {}) as Record<string, unknown>;
 }
 
+/** Plugin page files from <dir>/state/plugin-pages/ (Plugin-P2). */
+export function loadPluginPagesFromDir(
+  dir: string,
+): import("@breaker-delta/publisher").PluginPageData[] {
+  const pagesDir = path.join(dir, "state", "plugin-pages");
+  if (!fs.existsSync(pagesDir)) return [];
+  const out: import("@breaker-delta/publisher").PluginPageData[] = [];
+  for (const file of fs.readdirSync(pagesDir).sort()) {
+    if (!file.endsWith(".json")) continue;
+    try {
+      const data = JSON.parse(fs.readFileSync(path.join(pagesDir, file), "utf-8")) as
+        import("@breaker-delta/publisher").PluginPageData;
+      if (data.id && data.slug && data.title && data.langs) out.push(data);
+    } catch {
+      // Malformed page files are skipped, not fatal.
+    }
+  }
+  return out;
+}
+
 export class FileStore implements SiteStore {
   constructor(private dir: string) {}
   async load(): Promise<StoreData> {
@@ -167,6 +191,7 @@ export class FileStore implements SiteStore {
       config: parseConfigText(configText),
       configText,
       trackRecord: loadTrackRecordFromDir(this.dir),
+      pluginPages: loadPluginPagesFromDir(this.dir),
       topics: null,
     };
   }
@@ -237,6 +262,7 @@ export class SqliteStore implements SiteStore {
         .map((r) => JSON.parse(r.raw as string) as StoreTopic);
       const cfgRow = db.prepare("SELECT value FROM config WHERE key = 'config.yaml'").get();
       const trRow = db.prepare("SELECT value FROM config WHERE key = 'track-record.md'").get();
+      const ppRow = db.prepare("SELECT value FROM config WHERE key = 'plugin-pages.json'").get();
       const topicRows = db.prepare("SELECT key, name, slug FROM topics ORDER BY ord").all();
       const appRows = db
         .prepare("SELECT topic_key, raw FROM appearances ORDER BY topic_key, app_ord")
@@ -247,6 +273,9 @@ export class SqliteStore implements SiteStore {
         config: parseConfigText((cfgRow?.value as string) ?? null),
         configText: (cfgRow?.value as string) ?? null,
         trackRecord: (trRow?.value as string) ?? null,
+        pluginPages: ppRow?.value
+          ? (JSON.parse(ppRow.value as string) as import("@breaker-delta/publisher").PluginPageData[])
+          : [],
         topics: topicsFromRows(topicRows, appRows),
       };
     } finally {
@@ -271,6 +300,9 @@ export interface StorePayload {
   ledger: StoreTopic[];
   configText: string | null;
   trackRecord: string | null;
+  /** Plugin pages to store; undefined = preserve what's in the DB
+   *  (push payloads don't carry them). */
+  pluginPages?: import("@breaker-delta/publisher").PluginPageData[];
   sourceDir?: string;
 }
 
@@ -291,8 +323,21 @@ export function writeAllToDb(db: SqliteDb, payload: StorePayload): number {
   db.exec("BEGIN IMMEDIATE");
   let appearances = 0;
   try {
+    // Preserve stored plugin pages across rewrites that don't
+    // carry them (the push API), unless the payload provides them.
+    const oldPages =
+      payload.pluginPages === undefined
+        ? db.prepare("SELECT value FROM config WHERE key = 'plugin-pages.json'").get()
+        : null;
     for (const table of ["editions", "ledger", "config", "topics", "appearances", "meta"]) {
       db.exec(`DELETE FROM ${table}`);
+    }
+    const pagesJson =
+      payload.pluginPages !== undefined
+        ? JSON.stringify(payload.pluginPages)
+        : ((oldPages?.value as string) ?? null);
+    if (pagesJson !== null) {
+      db.prepare("INSERT INTO config (key, value) VALUES ('plugin-pages.json', ?)").run(pagesJson);
     }
     const insEd = db.prepare(
       "INSERT INTO editions (idx, date, slot, published_at, raw) VALUES (?, ?, ?, ?, ?)",
@@ -352,6 +397,7 @@ export async function importDataDir(dir: string, dbPath: string): Promise<Import
       ledger,
       configText,
       trackRecord,
+      pluginPages: loadPluginPagesFromDir(dir),
       sourceDir: dir,
     });
     const config = parseConfigText(configText);

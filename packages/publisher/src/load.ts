@@ -22,6 +22,32 @@ const hasOwn = (obj: object, key: string): boolean =>
  * item's _heat and in-edition _rank attached; the ledger is
  * ledgerPath's "topics" (missing file -> []).
  */
+/** Plugin page data (Plugin-P2): the block files the CLI's page
+ *  pass stored under <dataDir>/state/plugin-pages/. Renderers draw
+ *  them; plugin code never runs here. */
+export interface PluginPageData {
+  id: string;
+  slug: string;
+  title: import("./plugins.js").LocalizedText;
+  langs: Record<string, { blocks: import("./plugins.js").PanelBlock[] }>;
+}
+
+export function loadPluginPages(ctx: Ctx): PluginPageData[] {
+  const dir = path.join(path.dirname(ctx.editionsDir), "state", "plugin-pages");
+  if (!fs.existsSync(dir)) return [];
+  const out: PluginPageData[] = [];
+  for (const file of fs.readdirSync(dir).sort()) {
+    if (!file.endsWith(".json")) continue;
+    try {
+      const data = JSON.parse(fs.readFileSync(path.join(dir, file), "utf-8")) as PluginPageData;
+      if (data.id && data.slug && data.title && data.langs) out.push(data);
+    } catch {
+      // A malformed page file is skipped, not fatal to the build.
+    }
+  }
+  return out;
+}
+
 export function loadEditions(ctx: Ctx): { editions: Edition[]; ledger: StoreTopic[] } {
   let names: string[] = [];
   try {

@@ -83,8 +83,9 @@ export class D1Store implements SiteStore {
         configText: cfg?.value ?? null,
         trackRecord,
         topics: buildTopics(editions, ledger, catRulesFromConfig(config) ?? undefined),
+        pluginPages: [],
       };
     }
-    return { editions, ledger, config, configText: cfg?.value ?? null, trackRecord, topics };
+    return { editions, ledger, config, configText: cfg?.value ?? null, trackRecord, topics, pluginPages: [] };
   }
 }

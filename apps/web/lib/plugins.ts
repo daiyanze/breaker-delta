@@ -124,16 +124,9 @@ interface ManifestFull {
   score?: { label?: { zh?: string; en?: string; ja?: string } };
 }
 
-/** Display descriptors for enabled score plugins. The web never
- *  runs plugin code — scores arrive inside the items' plugins
- *  namespace, computed by the CLI pipeline; this only resolves
- *  which labels to draw next to them. Same discovery roots and
- *  bundled fallback as the panel loader. */
-export function loadScoreDescriptors(
-  engineDir: string,
-  dataDir: string,
-  config: Record<string, unknown>,
-): ScoreDescriptor[] {
+/** All plugin manifests visible to this instance (both roots,
+ *  bundled fallback when the filesystem is unavailable). */
+function scanManifests(engineDir: string, dataDir: string): Map<string, ManifestFull> {
   const manifests = new Map<string, ManifestFull>();
   let engineScanned = false;
   for (const [i, base] of [path.join(engineDir, "plugins"), path.join(dataDir, "plugins")].entries()) {
@@ -156,11 +149,28 @@ export function loadScoreDescriptors(
       if (typeof m.id === "string" && !manifests.has(m.id)) manifests.set(m.id, m);
     }
   }
+  return manifests;
+}
+
+function manifestSlots(m: ManifestFull): string[] {
+  return Array.isArray(m.slots) ? (m.slots as string[]) : [];
+}
+
+/** Display descriptors for enabled score plugins. The web never
+ *  runs plugin code — scores arrive inside the items' plugins
+ *  namespace, computed by the CLI pipeline; this only resolves
+ *  which labels to draw next to them. Same discovery roots and
+ *  bundled fallback as the panel loader. */
+export function loadScoreDescriptors(
+  engineDir: string,
+  dataDir: string,
+  config: Record<string, unknown>,
+): ScoreDescriptor[] {
+  const manifests = scanManifests(engineDir, dataDir);
   const section = (config.plugins ?? {}) as Record<string, { enabled?: boolean } | undefined>;
   const out: ScoreDescriptor[] = [];
   for (const m of manifests.values()) {
-    const slots = Array.isArray(m.slots) ? (m.slots as string[]) : [];
-    if (!slots.includes("score")) continue;
+    if (!manifestSlots(m).includes("score")) continue;
     const id = m.id as string;
     if (section[id]?.enabled !== true) continue;
     const label = m.score?.label;
@@ -175,5 +185,24 @@ export function loadScoreDescriptors(
     });
   }
   out.sort((a, b) => a.id.localeCompare(b.id));
+  return out;
+}
+
+/** Enabled entity-extraction plugin ids (Plugin-P2): which
+ *  plugins namespaces hold entity lists to draw as chips. */
+export function loadEntityPluginIds(
+  engineDir: string,
+  dataDir: string,
+  config: Record<string, unknown>,
+): string[] {
+  const manifests = scanManifests(engineDir, dataDir);
+  const section = (config.plugins ?? {}) as Record<string, { enabled?: boolean } | undefined>;
+  const out: string[] = [];
+  for (const m of manifests.values()) {
+    if (!manifestSlots(m).includes("entities")) continue;
+    const id = m.id as string;
+    if (section[id]?.enabled === true) out.push(id);
+  }
+  out.sort();
   return out;
 }

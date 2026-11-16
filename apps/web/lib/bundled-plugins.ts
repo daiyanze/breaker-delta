@@ -9,8 +9,10 @@ import creatorManifest from "../../../plugins/creator/plugin.yaml?raw";
 import creatorPanel from "../../../plugins/creator/panel.yaml?raw";
 import investorManifest from "../../../plugins/investor/plugin.yaml?raw";
 import investorPanel from "../../../plugins/investor/panel.yaml?raw";
+import heatReviewManifest from "../../../plugins/heat-review/plugin.yaml?raw";
 import mastodonTrendsManifest from "../../../plugins/mastodon-trends/plugin.yaml?raw";
 import momentumManifest from "../../../plugins/momentum/plugin.yaml?raw";
+import tickersManifest from "../../../plugins/tickers/plugin.yaml?raw";
 import watchlistManifest from "../../../plugins/watchlist/plugin.yaml?raw";
 import watchlistPanel from "../../../plugins/watchlist/panel.yaml?raw";
 import webhookManifest from "../../../plugins/webhook/plugin.yaml?raw";
@@ -25,6 +27,8 @@ export const BUNDLED_MANIFESTS: string[] = [
   momentumManifest,
   webhookManifest,
   mastodonTrendsManifest,
+  tickersManifest,
+  heatReviewManifest,
 ];
 
 export interface BundledPlugin {

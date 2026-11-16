@@ -226,6 +226,11 @@ export function mast(
     const href = keys[i] === "docs" ? `${ctx.docsUrl}${langPrefix(ctx)}docs.html` : h;
     tabHtml += `<a href="${href}" class="${keys[i] === active ? "on" : ""}">${tabs[i]}</a>`;
   });
+  // Plugin pages (Plugin-P2) join the tab bar after the built-ins.
+  for (const pg of ctx.pluginPages ?? []) {
+    const label = pg.title[ctx.lang as "zh" | "en" | "ja"] ?? pg.title.zh ?? pg.slug;
+    tabHtml += `<a href="plugin-${pg.slug}.html" class="${active === `plugin:${pg.id}` ? "on" : ""}">${esc(label)}</a>`;
+  }
   let ctl =
     `<button class="theme-btn" id="themeBtn" type="button" title="${s(ctx, "theme")}">◐</button>`;
   if (ctx.langs.length > 2) {
@@ -385,6 +390,24 @@ export function scoreChips(ctx: Ctx, app: App): string {
     if (typeof value !== "number" || !Number.isFinite(value)) continue;
     const label = desc.label[ctx.lang as "zh" | "en" | "ja"] ?? desc.label.zh ?? desc.id;
     out += `<span class="pscore" title="${esc(label)}">${esc(label)} ${value}</span>`;
+  }
+  return out;
+}
+
+/** Plugin-P2 entity chips: the entity names stored by enabled
+ *  extraction plugins on this appearance. */
+export function entityChips(ctx: Ctx, app: App): string {
+  if (!ctx.entityPlugins || ctx.entityPlugins.length === 0) return "";
+  const plugins = (app as { plugins?: Record<string, Record<string, unknown>> }).plugins;
+  if (!plugins) return "";
+  let out = "";
+  for (const id of ctx.entityPlugins) {
+    const entities = plugins[id]?.entities;
+    if (!Array.isArray(entities)) continue;
+    for (const e of entities as { type?: unknown; name?: unknown }[]) {
+      if (typeof e?.name !== "string" || e.name === "") continue;
+      out += `<span class="pscore" title="${esc(id)}">${esc(e.name)}</span>`;
+    }
   }
   return out;
 }

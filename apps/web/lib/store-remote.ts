@@ -64,6 +64,8 @@ export class RemoteStore implements SiteStore {
       config: parseConfigText(configText),
       configText,
       trackRecord,
+      // Plugin pages are not part of the remote manifest yet.
+      pluginPages: [],
       topics: null,
     };
   }

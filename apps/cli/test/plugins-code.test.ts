@@ -385,6 +385,111 @@ test("shipped webhook plugin delivers with the env token, once per edition", asy
   }
 });
 
+test("entities pass: tickers extracted into the plugins namespace, chips + topics.json follow", () => {
+  const dir = makeDataDir();
+  const item = {
+    level: "watch",
+    title: "AI 芯片大单",
+    body: "英伟达发布新一代芯片，$NVDA 大涨；特斯拉 Tesla 宣布采用，微软 Microsoft 跟进评估。",
+    action: "关注。",
+    sources: ["github"],
+    links: ["https://github.com/x/y"],
+    is_new: true,
+  };
+  writeEditions(dir, [
+    ["2026-11-12-morning.json", { ...ED1, items: [item] }],
+  ]);
+  // The store written by writeEditions names other topics; the
+  // entities pass keys off edition items, so an empty store is fine.
+  fs.writeFileSync(
+    path.join(dir, "state", "seen-topics.json"),
+    JSON.stringify({ topics: [] }),
+    "utf-8",
+  );
+  writeConfig(dir, "plugins:\n  tickers:\n    enabled: true\n");
+  const res = runCli(["--data-dir", dir, "plugins", "entities"]);
+  assert.equal(res.status, 0, res.stderr);
+  const saved = JSON.parse(
+    fs.readFileSync(path.join(dir, "editions", "2026-11-12-morning.json"), "utf-8"),
+  ) as { items: { plugins: { tickers: { entities: { name: string }[] } } }[] };
+  const names = saved.items[0].plugins.tickers.entities.map((e) => e.name);
+  assert.ok(names.includes("NVDA"), JSON.stringify(names));
+  assert.ok(names.includes("TSLA"), JSON.stringify(names));
+  assert.ok(names.includes("MSFT"), JSON.stringify(names));
+  // publish renders the entity chips on the topic page and carries
+  // the plugins namespace into data/topics.json.
+  const outDir = path.join(dir, "site");
+  const pub = runCli(["--data-dir", dir, "publish", "--out", outDir]);
+  assert.equal(pub.status, 0, pub.stderr);
+  const topicPage = fs.readFileSync(path.join(outDir, "ai-芯片大单.html"), "utf-8");
+  assert.ok(topicPage.includes("NVDA"));
+  const topicsJson = JSON.parse(
+    fs.readFileSync(path.join(outDir, "data", "topics.json"), "utf-8"),
+  ) as { topics: { plugins: { tickers: { entities: unknown[] } } }[] };
+  assert.ok(topicsJson.topics[0].plugins.tickers.entities.length >= 3);
+});
+
+test("review pass: heat-review verdicts land in the store (hit + miss)", () => {
+  const dir = makeDataDir();
+  const ed3 = {
+    ...ED2,
+    date: "2026-11-13",
+    slot: "morning",
+    published_at: "2026-11-13T06:00:00+09:00",
+  };
+  writeEditions(dir, [
+    ["2026-11-12-morning.json", ED1],
+    ["2026-11-12-evening.json", ED2],
+    ["2026-11-13-morning.json", ed3],
+  ]);
+  // Age both topics past the 14-day review horizon.
+  const storePath = path.join(dir, "state", "seen-topics.json");
+  const store = JSON.parse(fs.readFileSync(storePath, "utf-8")) as {
+    topics: { name: string; first_seen: string }[];
+  };
+  for (const t of store.topics) t.first_seen = "2026-10-01";
+  fs.writeFileSync(storePath, JSON.stringify(store, null, 2), "utf-8");
+  writeConfig(dir, "plugins:\n  heat-review:\n    enabled: true\n");
+  const res = runCli(["--data-dir", dir, "plugins", "review"]);
+  assert.equal(res.status, 0, res.stderr);
+  assert.match(res.stdout, /2 due, 2 verdict\(s\) recorded/);
+  const after = JSON.parse(fs.readFileSync(storePath, "utf-8")) as {
+    topics: { name: string; review?: { result: string } }[];
+  };
+  const byName = new Map(after.topics.map((t) => [t.name, t]));
+  // 示例模型发布 appears in all three editions -> hit; 小回波 once -> miss.
+  assert.equal(byName.get("示例模型发布")?.review?.result, "hit");
+  assert.equal(byName.get("小回波")?.review?.result, "miss");
+  const again = runCli(["--data-dir", dir, "plugins", "review"]);
+  assert.equal(again.status, 0, again.stderr);
+  assert.match(again.stdout, /0 due, 0 verdict\(s\) recorded/);
+});
+
+test("page pass: momentum board stored as blocks and rendered as a tabbed page", () => {
+  const dir = makeDataDir();
+  writeEditions(dir, [
+    ["2026-11-12-morning.json", ED1],
+    ["2026-11-12-evening.json", ED2],
+  ]);
+  writeConfig(dir, "plugins:\n  momentum:\n    enabled: true\n");
+  const outDir = path.join(dir, "site");
+  const pub = runCli(["--data-dir", dir, "publish", "--out", outDir]);
+  assert.equal(pub.status, 0, pub.stderr);
+  const pageFile = path.join(dir, "state", "plugin-pages", "momentum.json");
+  assert.ok(fs.existsSync(pageFile), "page data stored");
+  const pageData = JSON.parse(fs.readFileSync(pageFile, "utf-8")) as {
+    slug: string;
+    langs: { zh: { blocks: unknown[] } };
+  };
+  assert.equal(pageData.slug, "momentum");
+  assert.ok(Array.isArray(pageData.langs.zh.blocks));
+  const html = fs.readFileSync(path.join(outDir, "plugin-momentum.html"), "utf-8");
+  assert.ok(html.includes("动量榜"), "page title rendered");
+  assert.ok(html.includes("示例模型发布"), "ranked topic rendered");
+  const board = fs.readFileSync(path.join(outDir, "index.html"), "utf-8");
+  assert.ok(board.includes('href="plugin-momentum.html"'), "tab links to the plugin page");
+});
+
 test("shipped momentum plugin math", async () => {
   const mod = (await import(
     path.join(ROOT, "plugins", "momentum", "plugin.ts")

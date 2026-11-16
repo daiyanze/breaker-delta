@@ -19,9 +19,14 @@ import {
 import { ARC_NAMES, CAT_KEYS } from "@breaker-delta/publisher";
 import { slugify } from "@breaker-delta/core";
 
-import { loadPanelDefs, loadScoreDescriptors, type PanelDef } from "./plugins";
+import {
+  loadEntityPluginIds,
+  loadPanelDefs,
+  loadScoreDescriptors,
+  type PanelDef,
+} from "./plugins";
 import { fmt, s } from "./strings";
-import { FileStore, SqliteStore, type SiteStore } from "./store";
+import { FileStore, SqliteStore, loadPluginPagesFromDir, type SiteStore } from "./store";
 import { RemoteStore } from "./store-remote";
 
 export const LANGS = ["zh", "en", "ja"] as const;
@@ -55,6 +60,10 @@ export interface SiteData {
   panelDefs: PanelDef[];
   /** Enabled score plugins' display descriptors (Plugin-P1). */
   scorePlugins: import("./plugins").ScoreDescriptor[];
+  /** Enabled entity-extraction plugin ids (Plugin-P2). */
+  entityPlugins: string[];
+  /** Plugin page data (Plugin-P2) from the active store. */
+  pluginPages: import("@breaker-delta/publisher").PluginPageData[];
   config: Record<string, unknown>;
   configText: string | null;
   trackRecord: string | null;
@@ -65,6 +74,19 @@ export function dataDir(): string {
   // apps/web -> repo root is ../.. ; the official data checkout is a
   // sibling of the engine repo.
   return path.resolve(process.cwd(), "../../../breaker-delta-data");
+}
+
+/** Plugin page tabs for the masthead (Plugin-P2): read straight
+ *  from the data dir so the (synchronous) Mast component can show
+ *  them without a store round-trip. The remote backend has no
+ *  plugin pages yet; the plugin route itself reads the store. */
+export function pluginPageTabsSync(): import("@breaker-delta/publisher").PluginPageData[] {
+  if (remoteBase()) return [];
+  try {
+    return loadPluginPagesFromDir(dataDir());
+  } catch {
+    return [];
+  }
 }
 
 /** The SQLite path when the DB backend is selected, else null. */
@@ -213,6 +235,7 @@ export function getSiteData(): Promise<SiteData> {
     const states = boardStates(topics, stored.editions.length);
     const panelDefs = loadPanelDefs(engineDir(), dir, stored.config);
     const scorePlugins = loadScoreDescriptors(engineDir(), dir, stored.config);
+    const entityPlugins = loadEntityPluginIds(engineDir(), dir, stored.config);
     return {
       dataDir: dir,
       editions: stored.editions,
@@ -221,6 +244,8 @@ export function getSiteData(): Promise<SiteData> {
       states,
       panelDefs,
       scorePlugins,
+      entityPlugins,
+      pluginPages: stored.pluginPages,
       config: stored.config,
       configText: stored.configText,
       trackRecord: stored.trackRecord,

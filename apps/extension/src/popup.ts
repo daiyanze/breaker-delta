@@ -13,6 +13,8 @@ import {
   parseSettings,
   parseTopics,
   pendingEchoes,
+  pluginScore,
+  pluginScoreLabel,
   topicPageUrl,
 } from "./logic.js";
 import type { Echo, Settings } from "./logic.js";
@@ -264,6 +266,12 @@ function renderMatch(
     heat.className = "heat";
     heat.textContent = `浪高 ${topic.heat}`;
     $("match-meta").append(heat, document.createTextNode(" · "), meta);
+    const ps = pluginScore(topic);
+    if (ps) {
+      const score = document.createElement("span");
+      score.textContent = ` · ${pluginScoreLabel(ps.id)} ${ps.value}`;
+      $("match-meta").appendChild(score);
+    }
     if (alert) {
       const breaking = document.createElement("span");
       breaking.textContent = " · ⚡正在破圈";
