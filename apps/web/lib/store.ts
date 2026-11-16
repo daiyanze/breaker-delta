@@ -74,6 +74,11 @@ export interface StoreData {
   editions: Edition[];
   ledger: StoreTopic[];
   config: Record<string, unknown>;
+  /** The instance's raw config.yaml text (sources pages show its
+   * per-group blocks verbatim), when one exists. */
+  configText: string | null;
+  /** track-record.md content, when the instance has one. */
+  trackRecord: string | null;
   /** Precomputed topics (DB backends); null = caller runs buildTopics. */
   topics: Topic[] | null;
 }
@@ -97,12 +102,17 @@ export function loadEditionsFromDir(dir: string): Edition[] {
   const keyed = names.map((n) => {
     const m = /(\d{4}-\d{2}-\d{2})-(\w+)/.exec(n);
     if (!m) throw new Error(`edition filename does not parse: ${n}`);
-    return { n, date: m[1], order: SLOT_ORDER[m[2]] ?? 9 };
+    return { n, date: m[1], slot: m[2], order: SLOT_ORDER[m[2]] ?? 9 };
   });
   keyed.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.order - b.order));
   const editions: Edition[] = [];
-  for (const { n } of keyed) {
+  for (const { n, slot } of keyed) {
     const ed = JSON.parse(fs.readFileSync(path.join(edDir, n), "utf-8")) as Edition;
+    // The official instance's edition JSONs carry no slot field at
+    // all — the filename suffix is the only source. Adopt it (known
+    // slots only) so routes get distinct morning/evening URLs where
+    // the static build collapses both into one -None file.
+    if (ed.slot == null && slot in SLOT_ORDER) ed.slot = slot;
     for (const it of ed.items) it._heat = heatOf(it);
     const ranked = [...ed.items].sort((a, b) => b._heat - a._heat);
     ranked.forEach((it, i) => {
@@ -126,6 +136,12 @@ export function loadConfigTextFromDir(dir: string): string | null {
   return fs.readFileSync(p, "utf-8");
 }
 
+export function loadTrackRecordFromDir(dir: string): string | null {
+  const p = path.join(dir, "track-record.md");
+  if (!fs.existsSync(p)) return null;
+  return fs.readFileSync(p, "utf-8");
+}
+
 export function parseConfigText(text: string | null): Record<string, unknown> {
   if (!text) return {};
   return (parseYaml(text) ?? {}) as Record<string, unknown>;
@@ -134,10 +150,13 @@ export function parseConfigText(text: string | null): Record<string, unknown> {
 export class FileStore implements SiteStore {
   constructor(private dir: string) {}
   async load(): Promise<StoreData> {
+    const configText = loadConfigTextFromDir(this.dir);
     return {
       editions: loadEditionsFromDir(this.dir),
       ledger: loadLedgerFromDir(this.dir),
-      config: parseConfigText(loadConfigTextFromDir(this.dir)),
+      config: parseConfigText(configText),
+      configText,
+      trackRecord: loadTrackRecordFromDir(this.dir),
       topics: null,
     };
   }
@@ -207,6 +226,7 @@ export class SqliteStore implements SiteStore {
         .all()
         .map((r) => JSON.parse(r.raw as string) as StoreTopic);
       const cfgRow = db.prepare("SELECT value FROM config WHERE key = 'config.yaml'").get();
+      const trRow = db.prepare("SELECT value FROM config WHERE key = 'track-record.md'").get();
       const topicRows = db.prepare("SELECT key, name, slug FROM topics ORDER BY ord").all();
       const appRows = db
         .prepare("SELECT topic_key, raw FROM appearances ORDER BY topic_key, app_ord")
@@ -215,6 +235,8 @@ export class SqliteStore implements SiteStore {
         editions,
         ledger,
         config: parseConfigText((cfgRow?.value as string) ?? null),
+        configText: (cfgRow?.value as string) ?? null,
+        trackRecord: (trRow?.value as string) ?? null,
         topics: topicsFromRows(topicRows, appRows),
       };
     } finally {
@@ -241,6 +263,7 @@ export async function importDataDir(dir: string, dbPath: string): Promise<Import
   const editions = loadEditionsFromDir(dir);
   const ledger = loadLedgerFromDir(dir);
   const configText = loadConfigTextFromDir(dir);
+  const trackRecord = loadTrackRecordFromDir(dir);
   const config = parseConfigText(configText);
   const topics = buildTopics(editions, ledger, catRulesFromConfig(config) ?? undefined);
 
@@ -263,6 +286,9 @@ export async function importDataDir(dir: string, dbPath: string): Promise<Import
       for (const t of ledger) insLed.run(t.name, JSON.stringify(t));
       if (configText !== null) {
         db.prepare("INSERT INTO config (key, value) VALUES ('config.yaml', ?)").run(configText);
+      }
+      if (trackRecord !== null) {
+        db.prepare("INSERT INTO config (key, value) VALUES ('track-record.md', ?)").run(trackRecord);
       }
       const insTopic = db.prepare(
         "INSERT INTO topics (key, name, slug, ord) VALUES (?, ?, ?, ?)",

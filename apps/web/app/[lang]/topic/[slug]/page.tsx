@@ -3,12 +3,15 @@ import { notFound } from "next/navigation";
 
 import type { PanelValue } from "@breaker-delta/publisher";
 
+import { Footer } from "../../../../components/Footer";
 import { Mast } from "../../../../components/Mast";
 import { Panel } from "../../../../components/Panel";
+import { WaveChart } from "../../../../components/WaveChart";
 import type { Topic, TopicApp } from "@breaker-delta/core";
 
 import {
   catKey,
+  catNameOf,
   getSiteData,
   isLang,
   locApp,
@@ -106,12 +109,12 @@ export default async function TopicPage({
   const ths = ["date", "heat", "rank", "title"];
   return (
     <div className="wrap">
-      <Mast lang={l} active="" />
+      <Mast lang={l} active="" path={`topic/${t.slug}`} />
       <section className="panel">
         <div className="panel-h">
           <span>{locTopicName(t, l)}</span>
           <Link className="tag" href={`/${l}/category/${catKey(last.category)}`}>
-            {last.category}
+            {catNameOf(data, last.category, l)}
           </Link>
         </div>
         <div className="big-heat">{last.heat}</div>
@@ -141,6 +144,8 @@ export default async function TopicPage({
             </ul>
           </div>
         ) : null}
+        <h3 style={{ margin: "26px 0 6px" }}>{s(l, "chart")}</h3>
+        <WaveChart topic={t} editionCount={data.editions.length} lang={l} />
         <table>
           <thead>
             <tr>
@@ -174,6 +179,7 @@ export default async function TopicPage({
           data={last.plugins?.[def.id]}
         />
       ))}
+      <Footer lang={l} />
     </div>
   );
 }

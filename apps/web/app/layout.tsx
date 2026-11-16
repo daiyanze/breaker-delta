@@ -22,6 +22,14 @@ export default async function RootLayout({
         {/* The static build's stylesheet, shared verbatim (P2: one
             source of styles until the design itself is revisited). */}
         <style dangerouslySetInnerHTML={{ __html: CSS }} />
+        {/* Apply the stored theme before first paint, as the static
+            pages do (THEME_HEAD in render.ts). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'try{var t=localStorage.getItem("ts-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}',
+          }}
+        />
       </head>
       <body>{children}</body>
     </html>

@@ -43,6 +43,10 @@ export class D1Store implements SiteStore {
       .prepare("SELECT value FROM config WHERE key = 'config.yaml'")
       .first<{ value: string }>();
     const config = parseConfigText(cfg?.value ?? null);
+    const tr = await this.db
+      .prepare("SELECT value FROM config WHERE key = 'track-record.md'")
+      .first<{ value: string }>();
+    const trackRecord = tr?.value ?? null;
 
     const topicRes = await this.db
       .prepare("SELECT key, name, slug FROM topics ORDER BY ord")
@@ -76,9 +80,11 @@ export class D1Store implements SiteStore {
         editions,
         ledger,
         config,
+        configText: cfg?.value ?? null,
+        trackRecord,
         topics: buildTopics(editions, ledger, catRulesFromConfig(config) ?? undefined),
       };
     }
-    return { editions, ledger, config, topics };
+    return { editions, ledger, config, configText: cfg?.value ?? null, trackRecord, topics };
   }
 }

@@ -22,13 +22,19 @@ export { loadConfigBlocks, loadEditions, sourceBlock, sourceKey, yamlSourceBlock
 // dynamic front end renders with the same strings/styles as the
 // static build instead of drifting copies.
 export {
+  ABOUT,
   ARC_NAMES,
+  CAT_I18N,
   CAT_KEYS,
   CSS,
   HTML_LANG,
+  LANDING,
   LANG_LABEL,
   LEVELS,
+  LEVEL_I18N,
   SLOT_LABEL_I18N,
+  SOURCE_DOMAINS,
+  SRC_NAMES,
   STRINGS,
 } from "./literals.js";
 export { fetchFavicons } from "./favicon.js";
