@@ -9,7 +9,6 @@ import * as path from "node:path";
 import {
   alertsData,
   buildTopics,
-  CAT_RULES,
   parseTrackRecordFile,
   RESERVED_FILES,
   slugify,
@@ -112,7 +111,7 @@ export async function buildSite(options: BuildOptions): Promise<string[]> {
   const out = ctx.outDir;
   fs.mkdirSync(out, { recursive: true });
   const { editions, ledger } = loadEditions(ctx);
-  const topics = buildTopics(editions, ledger) as PubTopic[];
+  const topics = buildTopics(editions, ledger, ctx.catRules) as PubTopic[];
   const domainSet = new Set<string>();
   for (const t of topics) {
     for (const a of t.apps) {
@@ -996,7 +995,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
   });
 
   // categories & levels: tag index page + one page per category / level
-  const catOrder = [...CAT_RULES.map(([c]) => c), "行业动态"];
+  const catOrder = [...ctx.catRules.rules.map(([c]) => c), ctx.catRules.fallback];
   const catSts = new Map<string, BoardState[]>();
   for (const cat of catOrder) {
     catSts.set(cat, stsLatest.filter((st) => st.app.category === cat));

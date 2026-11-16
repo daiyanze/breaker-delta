@@ -9,6 +9,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 import {
+  catRulesFromConfig,
   dueForReview,
   loadStore,
   recordReview,
@@ -231,6 +232,10 @@ export async function cmdPublish(ctx: CliContext, flags: PublishFlags): Promise<
     faviconCacheDir: path.join(ctx.rootDir, "favicon-cache"),
     outDir: path.resolve(flags.out ?? envOpts.outDir ?? path.join(ctx.dataDir, "site")),
   };
+  // Category taxonomy comes from the effective config (preset base
+  // layer merged with the instance config); absent = built-in default.
+  const catRules = catRulesFromConfig(loadCliConfig(ctx).config);
+  if (catRules) opts.catRules = catRules;
   if (flags.baseUrl !== undefined) opts.baseUrl = flags.baseUrl;
   if (flags.dataRepo !== undefined) opts.dataRepo = flags.dataRepo;
   if (flags.langs !== undefined) {
@@ -331,8 +336,12 @@ export function collectDoctorChecks(ctx: CliContext): DoctorCheck[] {
     checks.push({ name: "config", status: "fail", detail: "no config file found in data dir or engine root" });
   } else {
     try {
-      loadCliConfig(ctx);
-      checks.push({ name: "config", status: "ok", detail: configFile });
+      const loaded = loadCliConfig(ctx);
+      checks.push({
+        name: "config",
+        status: "ok",
+        detail: loaded.preset ? `${configFile} (preset: ${loaded.preset})` : configFile,
+      });
     } catch (err) {
       checks.push({
         name: "config",

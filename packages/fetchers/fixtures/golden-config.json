@@ -2,6 +2,7 @@
  "yaml_file": "config.example.yaml",
  "json_file": "config.example.json",
  "expected_from_yaml": {
+  "preset": "ai-tech",
   "language": "zh-CN",
   "timezone": "Asia/Tokyo",
   "state_file": "state/seen-topics.json",
@@ -456,6 +457,7 @@
  },
  "expected_from_json": {
   "$comment": "Generated from config.example.yaml — edit the YAML, not this file. Kept for JSON-based tooling; the loader prefers YAML.",
+  "preset": "ai-tech",
   "language": "zh-CN",
   "timezone": "Asia/Tokyo",
   "state_file": "state/seen-topics.json",

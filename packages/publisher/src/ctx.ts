@@ -5,6 +5,8 @@
 
 import * as path from "node:path";
 
+import { DEFAULT_CAT_RULE_SET, type CatRuleSet } from "@breaker-delta/core";
+
 import { CAT_I18N, HTML_LANG, LEVEL_I18N, STRINGS } from "./literals.js";
 
 export interface BuildOptions {
@@ -26,6 +28,9 @@ export interface BuildOptions {
   mainUrl?: string;
   dataRepo?: string;
   langs?: string[];
+  /** Category taxonomy for this build (from the instance config /
+   *  preset's `categories` section); default is the ai-tech rule set. */
+  catRules?: CatRuleSet;
   creator?: boolean;
   pageSize?: number;
   archiveDays?: number;
@@ -55,6 +60,7 @@ export interface Ctx {
   mainUrl: string;
   dataRepo: string;
   langs: string[];
+  catRules: CatRuleSet;
   creator: boolean;
   per: number;
   archiveDays: number;
@@ -91,6 +97,7 @@ export function makeCtx(options: BuildOptions): Ctx {
     mainUrl: normalizeBaseUrl(options.mainUrl ?? DEFAULT_MAIN_URL),
     dataRepo: options.dataRepo ?? DEFAULT_DATA_REPO,
     langs: options.langs ?? [...DEFAULT_LANGS],
+    catRules: options.catRules ?? DEFAULT_CAT_RULE_SET,
     creator: options.creator ?? true,
     per: options.pageSize ?? 100,
     archiveDays: options.archiveDays ?? 7,
@@ -160,7 +167,7 @@ export function sArr(ctx: Ctx, key: string): string[] {
 
 export function catName(ctx: Ctx, cat: string): string {
   if (ctx.lang === "zh") return cat;
-  return CAT_I18N[cat]?.[ctx.lang] ?? cat;
+  return ctx.catRules.i18n?.[cat]?.[ctx.lang] ?? CAT_I18N[cat]?.[ctx.lang] ?? cat;
 }
 
 export function levelLabel(ctx: Ctx, level: string | null | undefined): string {

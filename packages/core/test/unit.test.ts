@@ -8,7 +8,9 @@ import { describe, it } from "node:test";
 import {
   alertsData,
   buildTopics,
+  catRulesFromConfig,
   classify,
+  DEFAULT_CAT_RULE_SET,
   heatOf,
   itemTime,
   scanTokens,
@@ -41,6 +43,55 @@ describe("classify rule order", () => {
   });
   it("安全 precedes 开源 within the same text", () => {
     strictEqual(classify("开源仓库爆出漏洞", ""), "安全");
+  });
+});
+
+describe("configurable category rules (presets)", () => {
+  const finance = catRulesFromConfig({
+    categories: {
+      fallback: "市场动态",
+      rules: [
+        { name: "货币政策", keywords: ["利率", "央行"], en: "Monetary Policy" },
+        { name: "公司财报", keywords: ["财报", "营收"] },
+      ],
+    },
+  });
+  it("object form parses rules, fallback and i18n names", () => {
+    deepStrictEqual(finance?.rules, [
+      ["货币政策", ["利率", "央行"]],
+      ["公司财报", ["财报", "营收"]],
+    ]);
+    strictEqual(finance?.fallback, "市场动态");
+    deepStrictEqual(finance?.i18n, { "货币政策": { en: "Monetary Policy" } });
+  });
+  it("classify honours a custom rule set and its fallback", () => {
+    strictEqual(classify("央行宣布调整利率", "", finance!), "货币政策");
+    strictEqual(classify("某公司发布新模型", "", finance!), "市场动态");
+    strictEqual(classify("某公司发布新模型", ""), "AI 模型");
+  });
+  it("bare-list and name->keywords map forms parse too", () => {
+    deepStrictEqual(
+      catRulesFromConfig({ categories: [{ name: "宏观", keywords: ["GDP"] }] })?.rules,
+      [["宏观", ["GDP"]]],
+    );
+    deepStrictEqual(
+      catRulesFromConfig({ categories: { "宏观": ["GDP"], fallback: "其他" } }),
+      { rules: [["宏观", ["GDP"]]], fallback: "其他" },
+    );
+  });
+  it("absent or empty categories yield null (default stays)", () => {
+    strictEqual(catRulesFromConfig({}), null);
+    strictEqual(catRulesFromConfig({ categories: { rules: [] } }), null);
+    strictEqual(catRulesFromConfig({ categories: [{ name: "x", keywords: [] }] }), null);
+    strictEqual(catRulesFromConfig(null), null);
+  });
+  it("buildTopics threads the rule set into appearance categories", () => {
+    const ed = {
+      date: "2026-11-16", slot: "morning", published_at: "2026-11-16T06:00:00+09:00",
+      items: [{ title: "央行调整利率", body: "", level: "must", sources: ["a", "b"], links: [], is_new: true, _heat: 100, _rank: 1 }],
+    } as unknown as Edition;
+    strictEqual(buildTopics([ed], [], finance!)[0].apps[0].category, "货币政策");
+    strictEqual(buildTopics([ed], [])[0].apps[0].category, DEFAULT_CAT_RULE_SET.fallback);
   });
 });
 

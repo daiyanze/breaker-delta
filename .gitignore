@@ -1,6 +1,10 @@
 config.json
 config.yaml
 config.yml
+# …but preset packages are product assets, not instance configs:
+!presets/*/config.yaml
+!presets/*/config.yml
+!presets/*/config.json
 site/
 favicon-cache/
 state/*.tmp

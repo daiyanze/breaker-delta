@@ -5,6 +5,10 @@
 # 子集支持：缩进映射、列表、行内 [a, b] / {k: v}、引号字符串、注释；
 # 不支持锚点与多行字符串。所有选项不填都用默认行为，老 config.json 照常可读。
 
+# 行业 preset：继承 presets/ai-tech/ 的整套订阅（源、权重、分类）。
+# 换行业时改这一行指向自己的 preset，或删掉它并在本文件里写全配置。
+preset: ai-tech
+
 language: zh-CN
 timezone: Asia/Tokyo
 state_file: state/seen-topics.json

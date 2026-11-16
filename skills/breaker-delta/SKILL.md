@@ -10,7 +10,7 @@ description: Run one edition (morning/evening) of the twice-daily web hot-topic 
 ## 输入
 
 - **命令行**：单文件版 Breaker Delta CLI（仓库 `apps/cli/dist/breaker-delta.mjs`，只需 Bun ≥ 1.2），下文记作 `$BD_CLI`，即 `bun /path/to/breaker-delta.mjs`（把路径换成本机实际路径）。所有命令都显式带 `--data-dir <数据目录>`（或设环境变量 `BD_DATA_DIR`）；数据目录里放该实例的 `editions/`、`state/`、`track-record.md` 与配置。
-- `config.yaml`（兼容 `config.json`，在数据目录里；都没有就用引擎侧的 `config.example.yaml`）：信息源、门槛、关键词、期次、时区都在里面，**不要把门槛硬编码在脑子里**。
+- `config.yaml`（兼容 `config.json`，在数据目录里；都没有就用引擎侧的 `config.example.yaml`）：信息源、门槛、关键词、期次、时区都在里面，**不要把门槛硬编码在脑子里**。config 里写了 `preset: <名字>` 时，引擎侧 `presets/<名字>/config.yaml` 是基础层（整套行业订阅：源、权重、分类体系），实例 config 的同名顶层段覆盖它；话题的分类体系在 preset 的 `categories` 段，由发布器自动套用，agent 不要手工给单条话题改分类——觉得分类不对，改的是规则。
 - `<数据目录>/state/seen-topics.json`：话题台账。先读，再扫。
 - 期次：morning（06:00 JST，分工见 config）或 evening（18:00 JST）。
 

@@ -1,5 +1,6 @@
 {
   "$comment": "Generated from config.example.yaml — edit the YAML, not this file. Kept for JSON-based tooling; the loader prefers YAML.",
+  "preset": "ai-tech",
   "language": "zh-CN",
   "timezone": "Asia/Tokyo",
   "state_file": "state/seen-topics.json",

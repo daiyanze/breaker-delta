@@ -32,6 +32,10 @@ export interface RadarConfig {
     [key: string]: unknown;
   };
   topics?: Record<string, number> | unknown;
+  /** Bundled preset name (presets/<name>/config.yaml is the base layer). */
+  preset?: string;
+  /** Category taxonomy override; parsed by catRulesFromConfig(). */
+  categories?: unknown;
   grading?: { relevance_topics?: unknown[]; [key: string]: unknown };
   filters?: { max_age_hours?: unknown; [key: string]: unknown };
   vocab?: {

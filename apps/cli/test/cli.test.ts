@@ -312,6 +312,94 @@ test("publish builds the fixture site; json mode keeps stdout clean", async () =
   assert.deepStrictEqual(listFiles(site2), listFiles(site));
 });
 
+// ------------------------------------------------- presets / categories
+
+test("publish honours a categories override from the instance config", () => {
+  const dir = makeDataDir((d) => {
+    writeEditions(d);
+    writeTrackRecord(d);
+    // One item that hits the custom 货币政策 rule (the shared fixture
+    // items all land in the custom fallback).
+    const ed3 = {
+      ...ED1,
+      date: "2026-11-13",
+      slot: "morning",
+      published_at: "2026-11-13T06:00:00+09:00",
+      items: [
+        {
+          level: "must",
+          title: "央行宣布调整利率",
+          body: "货币政策操作。",
+          action: "关注。",
+          sources: ["央行官网", "财经媒体"],
+          links: ["https://example.com/rate"],
+          is_new: true,
+        },
+      ],
+    };
+    fs.writeFileSync(
+      path.join(d, "editions", "2026-11-13-morning.json"),
+      JSON.stringify(ed3),
+      "utf-8",
+    );
+    fs.writeFileSync(
+      path.join(d, "config.yaml"),
+      [
+        "categories:",
+        "  fallback: 市场动态",
+        "  fallback_en: Market Wrap",
+        "  rules:",
+        "    - name: 货币政策",
+        "      keywords: [利率, 央行]",
+        "      en: Monetary Policy",
+        "",
+      ].join("\n"),
+      "utf-8",
+    );
+  });
+  const site = path.join(dir, "site");
+  const r = runCli(CLI, [
+    "--data-dir", dir, "--root-dir", ROOT,
+    "publish", "--out", site, "--base-url", "https://example.com/finance",
+  ]);
+  assert.strictEqual(r.status, 0, r.stderr);
+  const cats = fs.readFileSync(path.join(site, "categories.html"), "utf-8");
+  assert.ok(cats.includes("市场动态"), "custom fallback category shows on the categories page");
+  assert.ok(!cats.includes("AI 模型"), "default taxonomy is replaced, not merged");
+  const enCats = fs.readFileSync(path.join(site, "en", "categories.html"), "utf-8");
+  assert.ok(enCats.includes("Market Wrap"), "fallback_en names the fallback in English builds");
+  // Each custom category gets its OWN page file (the pre-preset catKey
+  // mapped every unknown category to category-industry.html).
+  assert.ok(fs.existsSync(path.join(site, "category-货币政策.html")), "rule category has its own page");
+  assert.ok(fs.existsSync(path.join(site, "category-市场动态.html")), "fallback category has its own page");
+});
+
+test("preset: ai-tech reproduces the default taxonomy; unknown preset fails doctor", () => {
+  const dir = makeDataDir((d) => {
+    writeEditions(d);
+    writeTrackRecord(d);
+    fs.writeFileSync(path.join(d, "config.yaml"), "preset: ai-tech\n", "utf-8");
+  });
+  const site = path.join(dir, "site");
+  const r = runCli(CLI, [
+    "--data-dir", dir, "--root-dir", ROOT,
+    "publish", "--out", site, "--base-url", "https://example.com/preset",
+  ]);
+  assert.strictEqual(r.status, 0, r.stderr);
+  assert.ok(fs.existsSync(path.join(site, "category-ai-models.html")), "ai-tech preset keeps the AI 模型 category page");
+
+  const bad = makeDataDir((d) => {
+    writeEditions(d);
+    fs.writeFileSync(path.join(d, "config.yaml"), "preset: no-such-preset\n", "utf-8");
+  });
+  const rd = runCli(CLI, ["--data-dir", bad, "--root-dir", ROOT, "--json", "doctor"]);
+  assert.strictEqual(rd.status, 1);
+  const doc = JSON.parse(rd.stdout);
+  const cfg = doc.checks.find((c: any) => c.name === "config");
+  assert.strictEqual(cfg.status, "fail");
+  assert.match(cfg.detail, /no-such-preset/);
+});
+
 // ---------------------------------------------------------- scan (offline)
 
 test("scan with every source disabled is deterministic and offline", () => {

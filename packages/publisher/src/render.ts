@@ -4,7 +4,7 @@
 // quirks like the trailing space in class="rank " and the always-
 // Chinese level label in topic history tables.
 
-import { topicFile, type Edition } from "@breaker-delta/core";
+import { slugify, topicFile, type Edition } from "@breaker-delta/core";
 
 import { catName, levelLabel, langPrefix, s, sArr, type Ctx } from "./ctx.js";
 import {
@@ -85,7 +85,11 @@ export function srcName(ctx: Ctx, name: string): string {
 }
 
 export function catKey(cat: string): string {
-  return hasOwn(CAT_KEYS, cat) ? CAT_KEYS[cat] : "industry";
+  // Known categories keep their stable English keys. A category from
+  // a custom preset taxonomy gets its own slugified key — mapping
+  // every unknown category to "industry" (the pre-preset behaviour)
+  // would make all custom categories share one page file.
+  return hasOwn(CAT_KEYS, cat) ? CAT_KEYS[cat] : slugify(cat, "category");
 }
 
 export function catFile(cat: string): string {

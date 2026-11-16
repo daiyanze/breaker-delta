@@ -4,7 +4,7 @@
 // exactly as publish.load() does (heat desc, stable order).
 
 import * as fs from "node:fs";
-import { classify } from "./classify.js";
+import { classify, type CatRuleSet } from "./classify.js";
 import { RESERVED_FILES, slugify } from "./slug.js";
 import { publishTokens } from "./tokens.js";
 import type { Edition, StoreTopic, Topic, TopicApp } from "./types.js";
@@ -39,7 +39,11 @@ export function topicKey(
   return [`own:${title}`, title];
 }
 
-export function buildTopics(editions: Edition[], ledger: Pick<StoreTopic, "name">[]): Topic[] {
+export function buildTopics(
+  editions: Edition[],
+  ledger: Pick<StoreTopic, "name">[],
+  catRules?: CatRuleSet,
+): Topic[] {
   const topics = new Map<string, Topic>();
   const order: string[] = [];
   editions.forEach((ed, ei) => {
@@ -56,7 +60,7 @@ export function buildTopics(editions: Edition[], ledger: Pick<StoreTopic, "name"
         date: ed.date,
         slot: ed.slot ?? null,
         published: ed.published_at ?? null,
-        category: classify(it.title ?? "", it.body ?? ""),
+        category: classify(it.title ?? "", it.body ?? "", catRules),
         title: it.title ?? name,
         level: it.level === "seed" ? "echo" : (it.level ?? null), // legacy "seed" normalizes to "echo"
         heat: it._heat,
