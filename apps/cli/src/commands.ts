@@ -18,12 +18,13 @@ import {
   upsertTopic,
 } from "@breaker-delta/core";
 import type { TopicStore } from "@breaker-delta/core";
-import { runScan, summaryLines } from "@breaker-delta/fetchers";
+import { loadConfig, runScan, summaryLines } from "@breaker-delta/fetchers";
 import { buildDocsSite, buildSite, optionsFromEnv } from "@breaker-delta/publisher";
 import type { BuildOptions } from "@breaker-delta/publisher";
 
 import {
   findConfigFile,
+  findPresetConfigFile,
   loadCliConfig,
   resolveConfigDir,
   statePath,
@@ -292,6 +293,143 @@ export function cmdDocs(ctx: CliContext, flags: DocsFlags): number {
   return 0;
 }
 
+// ------------------------------------------------------------ preset
+
+export interface PresetInfo {
+  name: string;
+  configFile: string | null;
+  brief: boolean;
+  /** Valid category rules in the preset config; null = config unreadable. */
+  categories: number | null;
+  /** Feed URLs declared across the preset's source groups. */
+  feeds: number;
+  /** True when the current instance config selects this preset. */
+  selected: boolean;
+}
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+/** Feed entries ({name, url}) an effective config declares, per source group. */
+export function collectFeedProbes(
+  config: unknown,
+): { group: string; name: string; url: string }[] {
+  const probes: { group: string; name: string; url: string }[] = [];
+  if (!isRecord(config) || !isRecord(config["sources"])) return probes;
+  for (const [group, section] of Object.entries(config["sources"])) {
+    if (!isRecord(section) || section["enabled"] === false) continue;
+    if (!Array.isArray(section["feeds"])) continue;
+    for (const feed of section["feeds"]) {
+      if (isRecord(feed) && typeof feed["url"] === "string" && feed["url"] !== "") {
+        probes.push({
+          group,
+          name: typeof feed["name"] === "string" ? feed["name"] : feed["url"],
+          url: feed["url"],
+        });
+      }
+    }
+  }
+  return probes;
+}
+
+export function listPresets(ctx: CliContext): PresetInfo[] {
+  const dir = path.join(ctx.rootDir, "presets");
+  if (!isDir(dir)) return [];
+  let selected: string | null = null;
+  try {
+    selected = loadCliConfig(ctx).preset;
+  } catch {
+    selected = null; // a broken instance config must not hide the catalog
+  }
+  return fs
+    .readdirSync(dir)
+    .filter((name) => isDir(path.join(dir, name)))
+    .sort()
+    .map((name) => {
+      const configFile = findPresetConfigFile(ctx.rootDir, name);
+      let categories: number | null = null;
+      let feeds = 0;
+      if (configFile) {
+        try {
+          const cfg: unknown = loadConfig(configFile);
+          const rules = catRulesFromConfig(cfg);
+          categories = rules ? rules.rules.length : 0;
+          feeds = collectFeedProbes(cfg).length;
+        } catch {
+          categories = null;
+        }
+      }
+      return {
+        name,
+        configFile,
+        brief: fs.existsSync(path.join(dir, name, "brief.md")),
+        categories,
+        feeds,
+        selected: selected === name,
+      };
+    });
+}
+
+export function cmdPresetList(ctx: CliContext): number {
+  const presets = listPresets(ctx);
+  if (ctx.json) {
+    printJson({ presets });
+    return 0;
+  }
+  if (presets.length === 0) {
+    out(ctx, `no presets bundled under ${path.join(ctx.rootDir, "presets")}`);
+    return 0;
+  }
+  for (const p of presets) {
+    const bits: string[] = [];
+    bits.push(p.categories === null ? "config unreadable" : `${p.categories} categories`);
+    bits.push(`${p.feeds} feeds`);
+    bits.push(p.brief ? "brief.md" : "no brief.md");
+    out(ctx, `${p.name} — ${bits.join(", ")}${p.selected ? " (selected by this instance)" : ""}`);
+  }
+  return 0;
+}
+
+export function cmdPresetInit(ctx: CliContext, name: string | undefined): number {
+  if (!name) {
+    throw new UsageError("preset init: a preset name is required (see: preset list)");
+  }
+  const configFile = findPresetConfigFile(ctx.rootDir, name);
+  if (!configFile) {
+    const available = listPresets(ctx).map((p) => p.name);
+    throw new UsageError(
+      `preset init: unknown preset "${name}"` +
+        (available.length > 0 ? ` (available: ${available.join(", ")})` : " (no presets bundled)"),
+    );
+  }
+  const presetDir = path.join(ctx.rootDir, "presets", name);
+  const copies: { from: string; to: string }[] = [
+    { from: configFile, to: path.join(ctx.dataDir, path.basename(configFile)) },
+  ];
+  const briefFrom = path.join(presetDir, "brief.md");
+  if (fs.existsSync(briefFrom)) {
+    copies.push({ from: briefFrom, to: path.join(ctx.dataDir, "brief.md") });
+  }
+  for (const c of copies) {
+    if (fs.existsSync(c.to)) {
+      throw new RuntimeError(
+        `preset init: ${c.to} already exists — refusing to overwrite. Edit it, or move it away and re-run.`,
+      );
+    }
+  }
+  fs.mkdirSync(ctx.dataDir, { recursive: true });
+  for (const c of copies) fs.copyFileSync(c.from, c.to);
+  if (ctx.json) {
+    printJson({ preset: name, written: copies.map((c) => c.to) });
+    return 0;
+  }
+  for (const c of copies) out(ctx, `wrote ${c.to}`);
+  out(ctx, `preset "${name}" copied into the data dir — it is yours now: edit the copy, the bundled preset stays untouched.`);
+  out(ctx, "next: breaker-delta doctor, then scan.");
+  return 0;
+}
+
 // ------------------------------------------------------------ doctor
 
 export interface DoctorCheck {
@@ -332,11 +470,15 @@ export function collectDoctorChecks(ctx: CliContext): DoctorCheck[] {
     detail: ctx.dataDir,
   });
   const configFile = findConfigFile(ctx);
+  let loadedConfig: unknown = null;
+  let loadedPreset: string | null = null;
   if (!configFile) {
     checks.push({ name: "config", status: "fail", detail: "no config file found in data dir or engine root" });
   } else {
     try {
       const loaded = loadCliConfig(ctx);
+      loadedConfig = loaded.config;
+      loadedPreset = loaded.preset;
       checks.push({
         name: "config",
         status: "ok",
@@ -348,6 +490,38 @@ export function collectDoctorChecks(ctx: CliContext): DoctorCheck[] {
         status: "fail",
         detail: `${configFile}: ${err instanceof Error ? err.message : String(err)}`,
       });
+    }
+  }
+  if (loadedConfig !== null) {
+    // Taxonomy integrity: a categories section that parses to zero
+    // valid rules would silently fall back to the built-in taxonomy
+    // at publish time — that is a config bug, so it fails here.
+    const section = isRecord(loadedConfig) ? loadedConfig["categories"] : undefined;
+    if (section === undefined || section === null) {
+      checks.push({
+        name: "categories",
+        status: "ok",
+        detail: "built-in default taxonomy (no categories section in the effective config)",
+      });
+    } else {
+      const rules = catRulesFromConfig(loadedConfig);
+      checks.push(
+        rules
+          ? {
+              name: "categories",
+              status: "ok",
+              detail:
+                `${rules.rules.length} categories + fallback "${rules.fallback}"` +
+                (loadedPreset ? ` (via preset: ${loadedPreset})` : ""),
+            }
+          : {
+              name: "categories",
+              status: "fail",
+              detail:
+                "categories section present but yields no valid rules — " +
+                "publish would silently use the built-in taxonomy",
+            },
+      );
     }
   }
   const editionsDir = path.join(ctx.dataDir, "editions");
@@ -403,8 +577,90 @@ export function collectDoctorChecks(ctx: CliContext): DoctorCheck[] {
   return checks;
 }
 
-export function cmdDoctor(ctx: CliContext): number {
+const FEED_PROBE_SAMPLE = 3;
+const FEED_PROBE_TIMEOUT_MS = 6000;
+
+export type FetchFn = (url: string, init?: FetchInit) => Promise<FetchResponse>;
+
+/**
+ * Online spot-check (doctor --online): probe a sample of the feed
+ * URLs the effective config declares, per source group. Only
+ * config-declared feeds can be probed — code-defined sources (HN,
+ * GitHub, …) have no URL in config and are skipped. A dead feed is
+ * a warn, not a fail: feeds rot transiently, and dropping a source
+ * is the setup wizard's call, not doctor's.
+ */
+export async function collectOnlineChecks(
+  config: unknown,
+  fetchFn: FetchFn = fetch,
+): Promise<DoctorCheck[]> {
+  const probes = collectFeedProbes(config);
+  if (probes.length === 0) {
+    return [
+      {
+        name: "feeds",
+        status: "warn",
+        detail: "no config-declared feeds to probe (code-defined sources are not probed)",
+      },
+    ];
+  }
+  const byGroup = new Map<string, { name: string; url: string }[]>();
+  for (const p of probes) {
+    const arr = byGroup.get(p.group) ?? [];
+    arr.push(p);
+    byGroup.set(p.group, arr);
+  }
+  const checks: DoctorCheck[] = [];
+  await Promise.all(
+    [...byGroup.entries()].map(async ([group, feeds]) => {
+      const sample = feeds.slice(0, FEED_PROBE_SAMPLE);
+      const dead: string[] = [];
+      await Promise.all(
+        sample.map(async (feed) => {
+          try {
+            const res = await fetchFn(feed.url, {
+              redirect: "follow",
+              signal: AbortSignal.timeout(FEED_PROBE_TIMEOUT_MS),
+              headers: { "user-agent": "breaker-delta-doctor" },
+            });
+            if (res.status >= 400) dead.push(`${feed.name} (HTTP ${res.status})`);
+            void res.body?.cancel().catch(() => {});
+          } catch (err) {
+            dead.push(`${feed.name} (${err instanceof Error ? err.name : "error"})`);
+          }
+        }),
+      );
+      checks.push({
+        name: `feeds:${group}`,
+        status: dead.length === 0 ? "ok" : "warn",
+        detail:
+          dead.length === 0
+            ? `${sample.length}/${feeds.length} sampled feeds reachable`
+            : `unreachable: ${dead.join(", ")} (sampled ${sample.length}/${feeds.length})`,
+      });
+    }),
+  );
+  return checks.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export async function cmdDoctor(
+  ctx: CliContext,
+  opts: { online?: boolean } = {},
+): Promise<number> {
   const checks = collectDoctorChecks(ctx);
+  if (opts.online) {
+    let config: unknown = null;
+    try {
+      config = loadCliConfig(ctx).config;
+    } catch {
+      config = null; // the config check above already reports the failure
+    }
+    if (config !== null) {
+      checks.push(...(await collectOnlineChecks(config)));
+    } else {
+      checks.push({ name: "feeds", status: "warn", detail: "skipped — config could not be loaded" });
+    }
+  }
   const fails = checks.filter((c) => c.status === "fail").length;
   if (ctx.json) {
     printJson({ ok: fails === 0, dataDir: ctx.dataDir, rootDir: ctx.rootDir, checks });

@@ -34,6 +34,29 @@ declare const console: {
   error(...args: unknown[]): void;
 };
 
+interface FetchResponse {
+  ok: boolean;
+  status: number;
+  headers: { get(name: string): string | null };
+  body: { cancel(): Promise<void> } | null;
+  arrayBuffer(): Promise<ArrayBuffer>;
+  text(): Promise<string>;
+}
+
+interface FetchInit {
+  headers?: Record<string, string>;
+  method?: string;
+  body?: string;
+  redirect?: string;
+  signal?: unknown;
+}
+
+declare function fetch(url: string, init?: FetchInit): Promise<FetchResponse>;
+
+declare const AbortSignal: {
+  timeout(milliseconds: number): unknown;
+};
+
 // Minimal ambient declarations for the Node.js built-ins this package
 // uses (executed by Bun). Like the other packages, devDependencies carry no @types/node;
 // runtime behaviour is Bun's (Node-compatible APIs).

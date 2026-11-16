@@ -18,6 +18,11 @@ import { fileURLToPath } from "node:url";
 import { CAT_RULES, catRulesFromConfig } from "@breaker-delta/core";
 import { loadConfig } from "@breaker-delta/fetchers";
 
+import {
+  collectFeedProbes,
+  collectOnlineChecks,
+  type FetchFn,
+} from "../src/commands.js";
 import { loadCliConfig, type CliContext } from "../src/context.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -86,5 +91,67 @@ describe("loadCliConfig preset layering", () => {
     strictEqual(preset, null);
     strictEqual(config.language, "en");
     strictEqual(config.categories, undefined);
+  });
+});
+
+describe("doctor --online feed probes", () => {
+  const config = {
+    sources: {
+      official_blogs: {
+        feeds: [
+          { name: "A", url: "https://a.example/feed" },
+          { name: "B", url: "https://b.example/feed" },
+          { name: "C", url: "https://c.example/feed" },
+          { name: "D", url: "https://d.example/feed" },
+        ],
+      },
+      off_group: { enabled: false, feeds: [{ name: "X", url: "https://x.example/feed" }] },
+      hackernews: { layer: 1 }, // code-defined: no feeds to probe
+    },
+  };
+
+  it("collectFeedProbes skips disabled groups and feed-less groups", () => {
+    const probes = collectFeedProbes(config);
+    strictEqual(probes.length, 4);
+    strictEqual(probes.every((p) => p.group === "official_blogs"), true);
+  });
+
+  function fakeFetch(statusByUrl: Record<string, number>): FetchFn {
+    return async (url: string) => ({
+      ok: true,
+      status: statusByUrl[url] ?? 200,
+      headers: { get: () => null },
+      body: null,
+      arrayBuffer: async () => new ArrayBuffer(0),
+      text: async () => "",
+    });
+  }
+
+  it("samples at most 3 feeds per group; all-live is ok", async () => {
+    const seen: string[] = [];
+    const counting: FetchFn = async (url: string) => {
+      seen.push(url);
+      return fakeFetch({})(url);
+    };
+    const checks = await collectOnlineChecks(config, counting);
+    strictEqual(seen.length, 3); // 4 declared, sample capped at 3
+    strictEqual(checks.length, 1);
+    strictEqual(checks[0].name, "feeds:official_blogs");
+    strictEqual(checks[0].status, "ok");
+  });
+
+  it("a dead sampled feed is a warn naming the feed, never a fail", async () => {
+    const checks = await collectOnlineChecks(
+      config,
+      fakeFetch({ "https://b.example/feed": 404 }),
+    );
+    strictEqual(checks[0].status, "warn");
+    strictEqual(checks[0].detail.includes("B (HTTP 404)"), true);
+  });
+
+  it("a config with no declared feeds yields one explanatory warn", async () => {
+    const checks = await collectOnlineChecks({ sources: { hackernews: {} } }, fakeFetch({}));
+    strictEqual(checks.length, 1);
+    strictEqual(checks[0].status, "warn");
   });
 });

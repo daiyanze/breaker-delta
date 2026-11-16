@@ -3,8 +3,8 @@
 //   breaker-delta [--data-dir <dir>] [--config <path>] [--json]
 //                 [--root-dir <dir>] <command> [command args]
 //
-// Commands: scan, review, record, publish, docs, doctor, mcp. With no
-// command, scan runs (the Python `python -m radar` one-command
+// Commands: scan, review, record, publish, docs, preset, doctor, mcp.
+// With no command, scan runs (the Python `python -m radar` one-command
 // path). Exit codes: 0 success, 1 runtime error, 2 usage error.
 
 import * as path from "node:path";
@@ -15,6 +15,8 @@ import {
   UsageError,
   cmdDocs,
   cmdDoctor,
+  cmdPresetInit,
+  cmdPresetList,
   cmdPublish,
   cmdRecord,
   cmdRecordReview,
@@ -29,7 +31,7 @@ import {
 } from "./context.js";
 import { runMcp } from "./mcp.js";
 
-const HELP = `breaker-delta ${VERSION} — web hot-topic radar (scan / review / record / publish / docs / doctor / mcp)
+const HELP = `breaker-delta ${VERSION} — web hot-topic radar (scan / review / record / publish / docs / preset / doctor / mcp)
 
 Usage:
   breaker-delta [--data-dir <dir>] [--config <path>] [--root-dir <dir>] [--json] <command> [args]
@@ -67,8 +69,15 @@ Commands:
                      (docs.breakerdelta.com) from the engine root alone;
                      no data dir is read. TS_DOCS_URL / TS_MAIN_URL /
                      TS_DOCS_OUT set the same values by environment.
-  doctor             Offline self-check of node, config, data dir and engine
-                     root. Exit 1 when any check fails.
+  preset list        List the presets bundled with the engine (categories,
+                     feeds, brief), marking the one this instance selects.
+  preset init <name> Copy a bundled preset's config + brief.md into the
+                     data dir as your own editable copy. Refuses to
+                     overwrite an existing config.
+  doctor [--online]  Offline self-check of node, config, data dir and engine
+                     root (including taxonomy integrity). --online also
+                     spot-checks a sample of the config's feed URLs.
+                     Exit 1 when any check fails.
   mcp                Run the stdio MCP server (tools: radar_scan, radar_review).
 `;
 
@@ -82,7 +91,7 @@ const VALUE_FLAGS = new Set([
   "edition", "date", "name", "result",
   "out", "base-url", "data-repo", "langs", "docs-url", "main-url",
 ]);
-const BOOL_FLAGS = new Set(["json", "help", "creator", "no-creator"]);
+const BOOL_FLAGS = new Set(["json", "help", "creator", "no-creator", "online"]);
 
 function parseArgs(argv: string[]): Parsed {
   const positionals: string[] = [];
@@ -203,9 +212,21 @@ export async function main(argv: string[]): Promise<number> {
           langs: flagStr(flags, "langs"),
         });
       }
+      case "preset": {
+        const sub = positionals[1];
+        if (sub === "list") {
+          if (positionals.length > 2) throw new UsageError(`preset list: unexpected argument: ${positionals[2]}`);
+          return cmdPresetList(ctx);
+        }
+        if (sub === "init") {
+          if (positionals.length > 3) throw new UsageError(`preset init: unexpected argument: ${positionals[3]}`);
+          return cmdPresetInit(ctx, positionals[2]);
+        }
+        throw new UsageError(`preset: expected "list" or "init <name>", got: ${sub ?? "(nothing)"}`);
+      }
       case "doctor": {
         if (positionals.length > 1) throw new UsageError(`doctor: unexpected argument: ${positionals[1]}`);
-        return cmdDoctor(ctx);
+        return await cmdDoctor(ctx, { online: flags.get("online") === true });
       }
       case "mcp": {
         if (positionals.length > 1) throw new UsageError(`mcp: unexpected argument: ${positionals[1]}`);

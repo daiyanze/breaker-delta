@@ -72,7 +72,7 @@ export const DOC_PAGES: DocPage[] = [
 <ul class="tips">
 <li><a href="docs-getting-started.html">快速开始</a> — 环境要求、从克隆到跑出第一期、数据目录长什么样。</li>
 <li><a href="docs-reading.html">看懂站点</a> — 海浪榜 / 涨潮榜 / 回波 / 分类 / 数据源 / 战绩 / 归档逐页说明，外加浪高公式与分级规则。</li>
-<li><a href="docs-cli.html">CLI 参考</a> — scan / review / record / publish / docs / doctor / mcp 七个命令、全局参数与退出码。</li>
+<li><a href="docs-cli.html">CLI 参考</a> — scan / review / record / publish / docs / preset / doctor / mcp 八个命令、全局参数与退出码。</li>
 <li><a href="docs-config.html">配置</a> — config.yaml 里真正会动到的开关：关键词三件套、主题权重、信息源开关、新词词汇表。</li>
 <li><a href="docs-skill.html">Skill 与 MCP</a> — 把雷达装进 agent 工具（Claude Code、Codex 等），或把同一个程序当 MCP 服务器用。</li>
 <li><a href="docs-extension.html">Chrome 扩展</a> — 安装、收波、投波、设置、权限与隐私、常见问题。</li>
@@ -94,7 +94,7 @@ export const DOC_PAGES: DocPage[] = [
 <ul class="tips">
 <li><a href="docs-getting-started.html">Getting Started</a> — requirements, from clone to your first edition, and what a data directory looks like.</li>
 <li><a href="docs-reading.html">Reading the Site</a> — Wave Board / Rising / Echoes / Categories / Sources / Track Record / Archive, plus the wave-height formula and grading rules.</li>
-<li><a href="docs-cli.html">CLI Reference</a> — the seven commands (scan / review / record / publish / docs / doctor / mcp), global options and exit codes.</li>
+<li><a href="docs-cli.html">CLI Reference</a> — the eight commands (scan / review / record / publish / docs / preset / doctor / mcp), global options and exit codes.</li>
 <li><a href="docs-config.html">Configuration</a> — the config.yaml knobs people actually turn: keyword mute / boost / alert, topic weights, source switches, the new-term vocabulary.</li>
 <li><a href="docs-skill.html">Skill &amp; MCP</a> — install the radar into an agent harness (Claude Code, Codex, …), or run the same bundle as an MCP server.</li>
 <li><a href="docs-extension.html">Chrome Extension</a> — install, capture, submit, settings, permissions and privacy, troubleshooting.</li>
@@ -253,8 +253,8 @@ $BD --data-dir /path/to/your-data publish --out site        # build the static s
     file: "docs-cli.html",
     title: { zh: "📖 CLI 参考", en: "📖 CLI Reference" },
     desc: {
-      zh: "Breaker Delta CLI 参考：scan、review、record、publish、docs、doctor、mcp 七个命令，全局参数、publish 的 TS_* 环境变量与退出码。",
-      en: "Breaker Delta CLI reference: scan, review, record, publish, docs, doctor and mcp, global options, the TS_* publish environment variables and exit codes.",
+      zh: "Breaker Delta CLI 参考：scan、review、record、publish、docs、preset、doctor、mcp 八个命令，全局参数、publish 的 TS_* 环境变量与退出码。",
+      en: "Breaker Delta CLI reference: scan, review, record, publish, docs, preset, doctor and mcp, global options, the TS_* publish environment variables and exit codes.",
     },
     body: {
       zh: `<section class="panel"><div class="panel-h"><span>CLI 参考</span></div>
@@ -276,7 +276,9 @@ $BD --data-dir /path/to/your-data publish --out site        # build the static s
 <li><b>record review --name &lt;话题&gt; --result hit|miss</b> — 给一个话题登记 14 天复核结果。</li>
 <li><b>publish [--out &lt;dir&gt;] [--base-url &lt;url&gt;] [--data-repo &lt;owner/repo&gt;] [--langs zh,en,ja] [--creator|--no-creator]</b> — 从数据目录生成静态站点。命令行参数覆盖 TS_* 环境变量，环境变量覆盖默认值（见下）。</li>
 <li><b>docs [--out &lt;dir&gt;] [--docs-url &lt;url&gt;] [--main-url &lt;url&gt;] [--langs zh,en,ja]</b> — 构建独立的文档站（就是本站），只需要引擎根目录，不读数据目录。--docs-url 决定文档站自己的地址（默认 https://docs.breakerdelta.com/），--main-url 是文档里「雷达主页」回链指向的主站地址（默认 https://breakerdelta.com/）；环境变量 TS_DOCS_URL / TS_MAIN_URL / TS_DOCS_OUT 同义。</li>
-<li><b>doctor</b> — 离线自检 Node、配置、数据目录与引擎根目录；有检查不通过时退出码为 1。</li>
+<li><b>preset list</b> — 列出引擎内置的行业 preset（分类数、订阅源数、是否有简报），并标出当前实例选中的那个。</li>
+<li><b>preset init &lt;名&gt;</b> — 把某个内置 preset 的 config 与 brief.md 复制进数据目录，成为你自己的可改副本；数据目录已有 config 时拒绝覆盖。</li>
+<li><b>doctor [--online]</b> — 离线自检 Node、配置、数据目录与引擎根目录，含分类完整性检查（写了 categories 却解析不出有效规则会判 fail，免得 publish 时静默回退到内置分类）；加 --online 再抽查 config 里声明的订阅源地址是否可达（死源只 warn 不 fail）。有检查不通过时退出码为 1。</li>
 <li><b>mcp</b> — 以 stdio 方式运行 MCP 服务器，提供 radar_scan 与 radar_review 两个工具（见 <a href="docs-skill.html">Skill 与 MCP</a>）。</li>
 </ul>
 <h3 style="margin:16px 0 6px">常用例子</h3>
@@ -319,7 +321,9 @@ TS_MAIN_URL      主站地址：文档站的回链指向它（默认 https://bre
 <li><b>record review --name &lt;topic&gt; --result hit|miss</b> — record a 14-day review outcome for one topic.</li>
 <li><b>publish [--out &lt;dir&gt;] [--base-url &lt;url&gt;] [--data-repo &lt;owner/repo&gt;] [--langs zh,en,ja] [--creator|--no-creator]</b> — build the static site from the data dir. Flags override the TS_* environment variables, which override defaults (below).</li>
 <li><b>docs [--out &lt;dir&gt;] [--docs-url &lt;url&gt;] [--main-url &lt;url&gt;] [--langs zh,en,ja]</b> — build the standalone docs site (this site). Needs only the engine root; no data dir is read. --docs-url sets the docs site's own URL (default https://docs.breakerdelta.com/), --main-url the main radar site the docs link back to (default https://breakerdelta.com/); TS_DOCS_URL / TS_MAIN_URL / TS_DOCS_OUT do the same by environment.</li>
-<li><b>doctor</b> — offline self-check of Node, config, data dir and engine root; exits 1 when any check fails.</li>
+<li><b>preset list</b> — list the industry presets bundled with the engine (category count, feed count, brief), marking the one this instance selects.</li>
+<li><b>preset init &lt;name&gt;</b> — copy a bundled preset's config and brief.md into the data dir as your own editable copy; refuses to overwrite an existing config.</li>
+<li><b>doctor [--online]</b> — offline self-check of Node, config, data dir and engine root, including taxonomy integrity (a categories section that yields no valid rules fails, instead of silently falling back to the built-in taxonomy at publish time). --online additionally spot-checks a sample of the feed URLs the config declares (dead feeds warn, never fail). Exits 1 when any check fails.</li>
 <li><b>mcp</b> — run the stdio MCP server with the tools radar_scan and radar_review (see <a href="docs-skill.html">Skill &amp; MCP</a>).</li>
 </ul>
 <h3 style="margin:16px 0 6px">Common examples</h3>

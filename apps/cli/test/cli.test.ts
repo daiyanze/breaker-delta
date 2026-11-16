@@ -549,3 +549,88 @@ test("the single-file bundle runs standalone from a lonely directory", () => {
     fs.readFileSync(path.join(siteA, "index.html"), "utf-8"),
   );
 });
+
+// ---------------------------------------------------------- preset commands
+
+test("preset list describes the bundled presets and marks the selected one", () => {
+  const dir = makeDataDir((d) => {
+    fs.writeFileSync(path.join(d, "config.yaml"), "preset: ai-tech\n", "utf-8");
+  });
+  const r = runCli(CLI, ["--data-dir", dir, "--root-dir", ROOT, "--json", "preset", "list"]);
+  assert.strictEqual(r.status, 0, r.stderr);
+  const doc = JSON.parse(r.stdout);
+  const ai = doc.presets.find((p: any) => p.name === "ai-tech");
+  assert.ok(ai, "ai-tech is listed");
+  assert.strictEqual(ai.selected, true);
+  assert.strictEqual(ai.brief, true);
+  assert.ok(ai.categories >= 1, "preset config yields category rules");
+  assert.ok(ai.feeds >= 30, "preset config declares its feeds");
+
+  const human = runCli(CLI, ["--data-dir", dir, "--root-dir", ROOT, "preset", "list"]);
+  assert.match(human.stdout, /ai-tech — \d+ categories, \d+ feeds, brief\.md \(selected by this instance\)/);
+});
+
+test("preset init copies config + brief into the data dir and refuses to overwrite", () => {
+  const dir = tmpdir(); // deliberately not pre-created as a data dir
+  const r = runCli(CLI, ["--data-dir", dir, "--root-dir", ROOT, "preset", "init", "ai-tech"]);
+  assert.strictEqual(r.status, 0, r.stderr);
+  const copied = fs.readFileSync(path.join(dir, "config.yaml"), "utf-8");
+  const bundled = fs.readFileSync(path.join(ROOT, "presets", "ai-tech", "config.yaml"), "utf-8");
+  assert.strictEqual(copied, bundled);
+  assert.ok(fs.existsSync(path.join(dir, "brief.md")), "brief.md copied");
+
+  const again = runCli(CLI, ["--data-dir", dir, "--root-dir", ROOT, "preset", "init", "ai-tech"]);
+  assert.strictEqual(again.status, 1);
+  assert.match(again.stderr, /already exists/);
+
+  const unknown = runCli(CLI, ["--data-dir", dir, "--root-dir", ROOT, "preset", "init", "nope"]);
+  assert.strictEqual(unknown.status, 2);
+  assert.match(unknown.stderr, /unknown preset "nope" \(available: ai-tech\)/);
+
+  const noSub = runCli(CLI, ["--data-dir", dir, "--root-dir", ROOT, "preset"]);
+  assert.strictEqual(noSub.status, 2);
+});
+
+test("doctor fails a categories section that yields no valid rules", () => {
+  const dir = makeDataDir((d) => {
+    writeEditions(d);
+    writeTrackRecord(d);
+    fs.writeFileSync(
+      path.join(d, "config.yaml"),
+      "categories:\n  fallback: 杂谈\n  rules: []\n",
+      "utf-8",
+    );
+  });
+  const r = runCli(CLI, ["--data-dir", dir, "--root-dir", ROOT, "--json", "doctor"]);
+  assert.strictEqual(r.status, 1);
+  const doc = JSON.parse(r.stdout);
+  const cats = doc.checks.find((c: any) => c.name === "categories");
+  assert.strictEqual(cats.status, "fail");
+  assert.match(cats.detail, /no valid rules/);
+  // Offline doctor never probes feeds.
+  assert.ok(!doc.checks.some((c: any) => c.name.startsWith("feeds")), "no feed checks offline");
+});
+
+test("doctor reports the effective taxonomy (preset or built-in default)", () => {
+  const viaPreset = makeDataDir((d) => {
+    writeEditions(d);
+    writeTrackRecord(d);
+    fs.writeFileSync(path.join(d, "config.yaml"), "preset: ai-tech\n", "utf-8");
+  });
+  let r = runCli(CLI, ["--data-dir", viaPreset, "--root-dir", ROOT, "--json", "doctor"]);
+  assert.strictEqual(r.status, 0, r.stdout + r.stderr);
+  let cats = JSON.parse(r.stdout).checks.find((c: any) => c.name === "categories");
+  assert.strictEqual(cats.status, "ok");
+  assert.match(cats.detail, /categories \+ fallback "行业动态" \(via preset: ai-tech\)/);
+
+  const plain = makeDataDir((d) => {
+    writeEditions(d);
+    writeTrackRecord(d);
+    fs.writeFileSync(path.join(d, "config.yaml"), "grading:\n  max_items_per_report: 8\n", "utf-8");
+  });
+  r = runCli(CLI, ["--data-dir", plain, "--root-dir", ROOT, "--json", "doctor"]);
+  assert.strictEqual(r.status, 0, r.stdout + r.stderr);
+  cats = JSON.parse(r.stdout).checks.find((c: any) => c.name === "categories");
+  assert.strictEqual(cats.status, "ok");
+  assert.match(cats.detail, /built-in default taxonomy/);
+});
