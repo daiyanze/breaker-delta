@@ -70,14 +70,12 @@ if (!/export const VERSION = "[^"]+"/.test(ctx)) {
 writeFileSync(ctxFile, ctx.replace(/export const VERSION = "[^"]+"/, `export const VERSION = "${next}"`));
 console.log("  apps/cli/src/context.ts");
 
-// Sync the lockfiles (they record every workspace version and the
-// inter-package dependency specs; --frozen-lockfile / npm ci refuse an
-// out-of-sync lock). bun.lock is canonical since the Bun migration;
-// package-lock.json is kept in sync only until the last npm consumer
-// (the data repo's GitHub workflow) retires at the Cloudflare cutover.
+// Sync the lockfile (it records every workspace version and the
+// inter-package dependency specs; --frozen-lockfile refuses an
+// out-of-sync lock). bun.lock has been the only lockfile since the
+// Cloudflare cutover retired package-lock.json and its last npm
+// consumer (the data repo's GitHub workflow).
 console.log("  bun.lock (bun install)");
 execFileSync("bun", ["install"], { cwd: root, stdio: "inherit" });
-console.log("  package-lock.json (npm install --package-lock-only)");
-execFileSync("npm", ["install", "--package-lock-only", "--ignore-scripts"], { cwd: root, stdio: "inherit" });
 
 console.log(`bump: done. Next: add a CHANGELOG section, run bun test, commit, tag v${next}.`);
