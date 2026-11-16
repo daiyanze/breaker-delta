@@ -35,7 +35,7 @@ import {
   loadStore,
   recordReview,
   saveStore,
-  topicKey,
+  makeTopicKeyer,
 } from "@breaker-delta/core";
 import type { CandidateItem, Edition, SourceResult } from "@breaker-delta/core";
 
@@ -374,12 +374,13 @@ export async function runScorePass(
   const editions = loaded.map((l) => l.data) as unknown as Edition[];
   const ledger = loadStore(statePath(ctx)).topics;
   const topics = buildTopics(editions, ledger);
+  const keyer = makeTopicKeyer(ledger);
   let scored = 0;
   for (const topic of topics) {
     const latest = topic.apps.reduce((a, b) => (b.edition > a.edition ? b : a));
     const entry = loaded[latest.edition];
     const targets = entry.data.items.filter(
-      (it) => topicKey(it as never, ledger)[0] === topic.key,
+      (it) => keyer(it as never)[0] === topic.key,
     );
     if (targets.length === 0) continue;
     for (const plugin of plugins) {
@@ -523,12 +524,13 @@ export async function runEntitiesPass(
   const editions = loaded.map((l) => l.data) as unknown as Edition[];
   const ledger = loadStore(statePath(ctx)).topics;
   const topics = buildTopics(editions, ledger);
+  const keyer = makeTopicKeyer(ledger);
   let stamped = 0;
   for (const topic of topics) {
     const latest = topic.apps.reduce((a, b) => (b.edition > a.edition ? b : a));
     const entry = loaded[latest.edition];
     const targets = entry.data.items.filter(
-      (it) => topicKey(it as never, ledger)[0] === topic.key,
+      (it) => keyer(it as never)[0] === topic.key,
     );
     if (targets.length === 0) continue;
     for (const plugin of plugins) {

@@ -19,24 +19,56 @@ export function topicKey(
   it: { title?: string | null },
   ledger: Pick<StoreTopic, "name">[],
 ): [string, string] {
-  const title = it.title ?? "";
-  if (title.includes("Anthropic")) return ["arc:anthropic", "Anthropic IPO"];
-  if (["黄仁勋", "英伟达", "Nvidia"].some((k) => title.includes(k))) {
-    return ["arc:nvidia", "黄仁勋 / Nvidia 风波"];
-  }
-  const tt = publishTokens(title);
-  let best: Pick<StoreTopic, "name"> | null = null;
-  let bestN = 0;
-  for (const t of ledger) {
-    let n = 0;
-    for (const tok of publishTokens(t.name)) if (tt.has(tok)) n += 1;
-    if (n > bestN) {
-      best = t;
-      bestN = n;
+  return makeTopicKeyer(ledger)(it);
+}
+
+/**
+ * A topicKey with the ledger pre-indexed (scale fix, 2026-11-16):
+ * the one-shot topicKey re-tokenized every ledger name for every
+ * item — O(items × ledger) tokenizations, 15.8s at one year of
+ * data (730 editions / 3,094 ledger topics). The keyer tokenizes
+ * the ledger once and counts overlaps through a token → entries
+ * inverted index, then resolves the winner by scanning in ledger
+ * order with the same strict-greater rule, so results — including
+ * ties and the >= 6 threshold — are identical to the naive loop.
+ */
+export function makeTopicKeyer(
+  ledger: Pick<StoreTopic, "name">[],
+): (it: { title?: string | null }) => [string, string] {
+  const tokenSets = ledger.map((t) => publishTokens(t.name));
+  const byToken = new Map<string, number[]>();
+  tokenSets.forEach((set, idx) => {
+    for (const tok of set) {
+      const list = byToken.get(tok);
+      if (list) list.push(idx);
+      else byToken.set(tok, [idx]);
     }
-  }
-  if (best !== null && bestN >= 6) return [`led:${best.name}`, best.name];
-  return [`own:${title}`, title];
+  });
+  return (it: { title?: string | null }): [string, string] => {
+    const title = it.title ?? "";
+    if (title.includes("Anthropic")) return ["arc:anthropic", "Anthropic IPO"];
+    if (["黄仁勋", "英伟达", "Nvidia"].some((k) => title.includes(k))) {
+      return ["arc:nvidia", "黄仁勋 / Nvidia 风波"];
+    }
+    const tt = publishTokens(title);
+    const counts = new Map<number, number>();
+    for (const tok of tt) {
+      const hits = byToken.get(tok);
+      if (!hits) continue;
+      for (const idx of hits) counts.set(idx, (counts.get(idx) ?? 0) + 1);
+    }
+    let best: Pick<StoreTopic, "name"> | null = null;
+    let bestN = 0;
+    for (let idx = 0; idx < ledger.length; idx++) {
+      const n = counts.get(idx) ?? 0;
+      if (n > bestN) {
+        best = ledger[idx];
+        bestN = n;
+      }
+    }
+    if (best !== null && bestN >= 6) return [`led:${best.name}`, best.name];
+    return [`own:${title}`, title];
+  };
 }
 
 export function buildTopics(
@@ -46,9 +78,10 @@ export function buildTopics(
 ): Topic[] {
   const topics = new Map<string, Topic>();
   const order: string[] = [];
+  const keyer = makeTopicKeyer(ledger);
   editions.forEach((ed, ei) => {
     for (const it of ed.items) {
-      const [key, name] = topicKey(it, ledger);
+      const [key, name] = keyer(it);
       let t = topics.get(key);
       if (!t) {
         t = { key, name, apps: [], id: "", slug: "" };

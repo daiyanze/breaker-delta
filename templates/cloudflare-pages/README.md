@@ -9,8 +9,17 @@
 
 Cloudflare serves the **static** form of a Breaker Delta instance:
 your agent keeps producing editions in a data repo (or a local data
-dir), and Pages rebuilds and hosts the site. This is exactly how
-the official instance at breakerdelta.com runs.
+dir), and Pages rebuilds and hosts the site. (The official instance
+at breakerdelta.com ran exactly this way until 2026-11-16; it has
+since moved to the dynamic form — a Worker rendering from the same
+data repo — and this Pages setup remains its rollback path.)
+
+**Scale note:** the static form writes one file per page — at two
+editions a day, a year of history is roughly 21,000 files / 390 MB,
+which crosses the Pages free tier's 20,000-file limit at about day
+342. Long-lived instances should prefer the dynamic form (the root
+Docker image, or a Worker deployment as in `apps/web/README.md`),
+which renders pages on demand and has no file-count ceiling.
 
 You need: a data repo (or data dir) in the usual shape —
 `config.yaml`, `editions/`, `state/`, `track-record.md`. Generate

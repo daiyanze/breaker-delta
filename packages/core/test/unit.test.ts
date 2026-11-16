@@ -13,6 +13,7 @@ import {
   DEFAULT_CAT_RULE_SET,
   heatOf,
   itemTime,
+  makeTopicKeyer,
   scanTokens,
   slugify,
   topicWeights,
@@ -126,6 +127,31 @@ describe("itemTime", () => {
       itemTime({ source: "s", name: "n", url: "u", metrics: { published: "not a date" } }),
       null,
     );
+  });
+});
+
+describe("makeTopicKeyer: indexed ledger matching keeps topicKey semantics", () => {
+  const ledger = [
+    { name: "alpha beta gamma delta epsilon zeta eta theta" },
+    { name: "alpha beta gamma delta epsilon zeta eta iota" },
+    { name: "unrelated words here" },
+  ];
+  it("merges at >= 6 shared tokens, first ledger entry wins ties", () => {
+    const keyer = makeTopicKeyer(ledger);
+    // Shares 7 tokens with both entries 0 and 1 -> tie -> entry 0.
+    deepStrictEqual(keyer({ title: "alpha beta gamma delta epsilon zeta eta" }), [
+      "led:alpha beta gamma delta epsilon zeta eta theta",
+      "alpha beta gamma delta epsilon zeta eta theta",
+    ]);
+  });
+  it("stays its own topic below the threshold", () => {
+    const keyer = makeTopicKeyer(ledger);
+    deepStrictEqual(keyer({ title: "alpha beta gamma" }), ["own:alpha beta gamma", "alpha beta gamma"]);
+  });
+  it("hard-coded arcs run before ledger matching", () => {
+    const keyer = makeTopicKeyer(ledger);
+    deepStrictEqual(keyer({ title: "Anthropic 发布新模型" }), ["arc:anthropic", "Anthropic IPO"]);
+    deepStrictEqual(keyer({ title: "黄仁勋谈 AI 芯片" }), ["arc:nvidia", "黄仁勋 / Nvidia 风波"]);
   });
 });
 
