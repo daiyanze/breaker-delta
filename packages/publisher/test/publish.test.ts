@@ -157,11 +157,14 @@ test("build writes all outputs", async () => {
       "llms.txt", "favicon.svg", "og-image.png",
       "en/index.html", "ja/index.html",
       "示例模型发布.html", // topic page: title slug URL
-      "topic-t01.html", // legacy redirect stub
       "level-must.html", "level-echo.html",
     ]) {
       assert.ok(fs.existsSync(path.join(b.outDir, name)), name);
     }
+    assert.ok(
+      !fs.readdirSync(b.outDir).some((n) => /^topic-t\\d+\\.html$/.test(n)),
+      "no legacy topic-tNN redirect stubs are written",
+    );
     assert.ok(
       fs.readdirSync(b.outDir).some((n) => n.startsWith("category-")),
       "category pages written",

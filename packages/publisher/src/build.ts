@@ -297,7 +297,6 @@ export function writeDiscovery(ctx: Ctx, editions: Edition[], topics: PubTopic[]
       .filter((n) => n.endsWith(".html"))
       .sort(cpCompare);
     for (const name of names) {
-      if (/^topic-t\d+\.html$/.test(name)) continue; // redirect stub, noindex
       sm.push(
         `<url><loc>${ctx.baseUrl}${prefix}${pyQuote(name, "-._~")}</loc>` +
           `<lastmod>${modMap.get(name) ?? defaultMod}</lastmod></url>`,
@@ -931,15 +930,10 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
         ld,
       }),
     );
-    write(
-      ctx,
-      `topic-${t.id}.html`,
-      '<!DOCTYPE html><html><head><meta charset="utf-8">' +
-        `<meta http-equiv="refresh" content="0; url=${topicHref(t)}">` +
-        `<link rel="canonical" href="${tUrl}"><meta name="robots" content="noindex">` +
-        `<title>${esc(locName)}</title></head>` +
-        `<body><a href="${topicHref(t)}">${esc(locName)}</a></body></html>`,
-    );
+    // No legacy topic-tNN redirect stub: it cost one extra file per topic
+    // per language (44% of a year-scale build) against the Pages file
+    // limit; slug URLs are the only topic URLs since 2026-11-15, and the
+    // stubs were dropped 2026-11-16 (W1 hygiene) — old tNN links 404.
   }
 
   // edition snapshots
