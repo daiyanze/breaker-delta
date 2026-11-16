@@ -599,6 +599,7 @@ TS_MAIN_URL      Main site URL: the docs site links back here (default https://b
 <li>之后每次往数据仓推数据（比如扫描流程推入新一期），CI 自动重建，站点自动更新，不需要手动部署。</li>
 </ol>
 <p>官方实例现在跑在 Cloudflare Pages 上（项目直连仓库、推送自动构建）：主站项目连数据仓、构建时 clone 引擎仓，文档项目连引擎仓直接构建，两个项目各绑各的域名（breakerdelta.com 与 docs.breakerdelta.com）。构建命令与上面 GitHub Actions 版完全一致，只是执行方从 GitHub 换成 Cloudflare；自建实例两个平台任选其一即可。</p>
+<p>自建实例照这个形态跑 Cloudflare 的话，引擎仓的 <span style="font-family:var(--mono)">templates/cloudflare-pages/</span> 有现成模板（构建命令与官方实例同款、构建半段已验证；连接与上传半段依赖你自己的 Cloudflare / GitHub 账号，标 <b>Beta</b>，主推仍是下面的 Docker 路径）：含 git 连接自动构建与 wrangler 一条命令直传两种走法、TS_* 环境变量与推送不触发构建的已知坑。</p>
 <h3 style="margin:16px 0 6px">Docker：一台机器跑全部（动态实例）</h3>
 <p>不想依赖 Pages 的话，引擎自带一个动态服务（<span style="font-family:var(--mono)">serve</span> 命令）：站点在内存里渲染，数据目录一有变化就自动重渲染，不再生成成千上万个静态文件。引擎仓根目录有现成的 Dockerfile 与 docker-compose.yml：</p>
 <ol class="ol-list">
@@ -640,6 +641,7 @@ TS_MAIN_URL      Main site URL: the docs site links back here (default https://b
 <li>From then on, every push of new data (for example a scan pushing a new edition) triggers a rebuild — the site updates itself, no manual deploys.</li>
 </ol>
 <p>The official instance now runs on Cloudflare Pages (projects connected straight to the repos, built on every push): the main project connects to the data repo and clones the engine during its build, the docs project connects to the engine repo and builds directly, each with its own domain (breakerdelta.com and docs.breakerdelta.com). The build commands are exactly the ones above — only the runner changed from GitHub to Cloudflare; self-hosters can pick either platform.</p>
+<p>To run your own instance on Cloudflare in this shape, the engine repo's <span style="font-family:var(--mono)">templates/cloudflare-pages/</span> carries a ready template (the build command is the official instance's own and the build half is verified; the connect/upload half depends on your own Cloudflare / GitHub accounts and is marked <b>Beta</b> — Docker below stays the primary path): both the git-connected automatic build and the one-command wrangler upload, the TS_* variables, and the known pushes-not-triggering-builds pitfall.</p>
 <h3 style="margin:16px 0 6px">Docker: everything on one machine (dynamic instance)</h3>
 <p>If you would rather not depend on Pages, the engine ships a dynamic server (the <span style="font-family:var(--mono)">serve</span> command): the site renders in memory and re-renders automatically whenever the data dir changes — no tens of thousands of static files. The engine repo root carries a ready Dockerfile and docker-compose.yml:</p>
 <ol class="ol-list">
