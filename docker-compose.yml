@@ -7,8 +7,11 @@
 #
 # The data/ directory is yours: prepare it by hand, with the
 # breaker-delta-setup wizard Skill, or by copying an existing data
-# repo's contents. The container never writes outside /data except
-# its favicon cache (data/favicon-cache).
+# repo's contents. The container serves it with the dynamic web app
+# (P2) and writes only inside /data (pushed editions, the ledger).
+# To run on a SQLite database instead, import on the host
+# (apps/web: bun scripts/import.ts ./data ./data/breaker.db) and set
+# BD_DB_PATH=/data/breaker.db in .env.
 
 services:
   radar:

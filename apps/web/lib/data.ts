@@ -57,11 +57,16 @@ export interface SiteData {
   trackRecord: string | null;
 }
 
-function dataDir(): string {
+export function dataDir(): string {
   if (process.env.BD_DATA_DIR) return path.resolve(process.env.BD_DATA_DIR);
   // apps/web -> repo root is ../.. ; the official data checkout is a
   // sibling of the engine repo.
   return path.resolve(process.cwd(), "../../../breaker-delta-data");
+}
+
+/** The SQLite path when the DB backend is selected, else null. */
+export function dbPath(): string | null {
+  return process.env.BD_DB_PATH ? path.resolve(process.env.BD_DB_PATH) : null;
 }
 
 function engineDir(): string {
@@ -168,6 +173,11 @@ export function boardStatesNaive(topics: Topic[], editionCount: number): Map<str
 }
 
 let cache: Promise<SiteData> | null = null;
+
+/** Drop the memoized site data (after a push wrote new data). */
+export function invalidateSiteData(): void {
+  cache = null;
+}
 
 export function getSiteData(): Promise<SiteData> {
   if (cache) return cache;

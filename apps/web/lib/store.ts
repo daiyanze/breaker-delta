@@ -170,13 +170,13 @@ interface SqliteStatement {
   run(...params: unknown[]): unknown;
 }
 
-interface SqliteDb {
+export interface SqliteDb {
   prepare(sql: string): SqliteStatement;
   exec(sql: string): void;
   close(): void;
 }
 
-async function openSqlite(dbPath: string, readOnly: boolean): Promise<SqliteDb> {
+export async function openSqlite(dbPath: string, readOnly: boolean): Promise<SqliteDb> {
   // node:sqlite is built into Node >= 22.5 and Bun >= 1.2 alike —
   // the one SQLite API every target runtime here speaks (the vite
   // preview server runs under Node's loader even when launched via
@@ -256,63 +256,96 @@ export interface ImportReport {
   dbPath: string;
 }
 
+export interface StorePayload {
+  editions: Edition[];
+  ledger: StoreTopic[];
+  configText: string | null;
+  trackRecord: string | null;
+  sourceDir?: string;
+}
+
+/** Write a full payload into an open database, replacing whatever
+ * was there, in one transaction. Derived topics/appearances are
+ * recomputed with core's buildTopics. Returns the appearance count.
+ * Shared by the importer and the push API's SQLite path. */
+export function writeAllToDb(db: SqliteDb, payload: StorePayload): number {
+  const config = parseConfigText(payload.configText);
+  const topics = buildTopics(
+    payload.editions,
+    payload.ledger,
+    catRulesFromConfig(config) ?? undefined,
+  );
+  db.exec(DDL);
+  // node:sqlite has no transaction helper; bracket the writes
+  // manually (the whole write is one atomic unit).
+  db.exec("BEGIN IMMEDIATE");
+  let appearances = 0;
+  try {
+    for (const table of ["editions", "ledger", "config", "topics", "appearances", "meta"]) {
+      db.exec(`DELETE FROM ${table}`);
+    }
+    const insEd = db.prepare(
+      "INSERT INTO editions (idx, date, slot, published_at, raw) VALUES (?, ?, ?, ?, ?)",
+    );
+    payload.editions.forEach((ed, i) => {
+      insEd.run(i, ed.date, ed.slot ?? null, ed.published_at ?? null, JSON.stringify(ed));
+    });
+    const insLed = db.prepare("INSERT INTO ledger (name, raw) VALUES (?, ?)");
+    for (const t of payload.ledger) insLed.run(t.name, JSON.stringify(t));
+    if (payload.configText !== null) {
+      db.prepare("INSERT INTO config (key, value) VALUES ('config.yaml', ?)").run(payload.configText);
+    }
+    if (payload.trackRecord !== null) {
+      db.prepare("INSERT INTO config (key, value) VALUES ('track-record.md', ?)").run(payload.trackRecord);
+    }
+    const insTopic = db.prepare(
+      "INSERT INTO topics (key, name, slug, ord) VALUES (?, ?, ?, ?)",
+    );
+    const insApp = db.prepare(
+      "INSERT INTO appearances (topic_key, edition_idx, app_ord, heat, raw) VALUES (?, ?, ?, ?, ?)",
+    );
+    topics.forEach((t, ord) => {
+      insTopic.run(t.key, t.name, t.slug, ord);
+      // app_ord preserves buildTopics' exact order: one topic can
+      // have several appearances in the same edition (two items
+      // merged into one topic), so (topic, edition) is not a key.
+      t.apps.forEach((a, appOrd) => {
+        insApp.run(t.key, a.edition, appOrd, a.heat, JSON.stringify(a));
+        appearances += 1;
+      });
+    });
+    db.prepare("INSERT INTO meta (key, value) VALUES ('schema_version', ?)").run(SCHEMA_VERSION);
+    if (payload.sourceDir) {
+      db.prepare("INSERT INTO meta (key, value) VALUES ('source_dir', ?)").run(payload.sourceDir);
+    }
+    db.exec("COMMIT");
+  } catch (err) {
+    db.exec("ROLLBACK");
+    throw err;
+  }
+  return appearances;
+}
+
 /** Import a data directory into a fresh SQLite database at dbPath
- * (any existing file is replaced). Topics/appearances are derived
- * with the same core buildTopics the file path uses. */
+ * (any existing file is replaced). */
 export async function importDataDir(dir: string, dbPath: string): Promise<ImportReport> {
   const editions = loadEditionsFromDir(dir);
   const ledger = loadLedgerFromDir(dir);
   const configText = loadConfigTextFromDir(dir);
   const trackRecord = loadTrackRecordFromDir(dir);
-  const config = parseConfigText(configText);
-  const topics = buildTopics(editions, ledger, catRulesFromConfig(config) ?? undefined);
 
   if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
   const db = await openSqlite(dbPath, false);
   try {
-    db.exec(DDL);
-    // node:sqlite has no transaction helper; bracket the writes
-    // manually (the whole import is one atomic unit).
-    db.exec("BEGIN IMMEDIATE");
-    let appearances = 0;
-    try {
-      const insEd = db.prepare(
-        "INSERT INTO editions (idx, date, slot, published_at, raw) VALUES (?, ?, ?, ?, ?)",
-      );
-      editions.forEach((ed, i) => {
-        insEd.run(i, ed.date, ed.slot ?? null, ed.published_at ?? null, JSON.stringify(ed));
-      });
-      const insLed = db.prepare("INSERT INTO ledger (name, raw) VALUES (?, ?)");
-      for (const t of ledger) insLed.run(t.name, JSON.stringify(t));
-      if (configText !== null) {
-        db.prepare("INSERT INTO config (key, value) VALUES ('config.yaml', ?)").run(configText);
-      }
-      if (trackRecord !== null) {
-        db.prepare("INSERT INTO config (key, value) VALUES ('track-record.md', ?)").run(trackRecord);
-      }
-      const insTopic = db.prepare(
-        "INSERT INTO topics (key, name, slug, ord) VALUES (?, ?, ?, ?)",
-      );
-      const insApp = db.prepare(
-        "INSERT INTO appearances (topic_key, edition_idx, app_ord, heat, raw) VALUES (?, ?, ?, ?, ?)",
-      );
-      topics.forEach((t, ord) => {
-        insTopic.run(t.key, t.name, t.slug, ord);
-        // app_ord preserves buildTopics' exact order: one topic can
-        // have several appearances in the same edition (two items
-        // merged into one topic), so (topic, edition) is not a key.
-        t.apps.forEach((a, appOrd) => {
-          insApp.run(t.key, a.edition, appOrd, a.heat, JSON.stringify(a));
-          appearances += 1;
-        });
-      });
-      db.prepare("INSERT INTO meta (key, value) VALUES ('schema_version', ?)").run(SCHEMA_VERSION);
-      db.prepare("INSERT INTO meta (key, value) VALUES ('source_dir', ?)").run(dir);
-      db.exec("COMMIT");
-    } catch (err) {
-      db.exec("ROLLBACK");
-      throw err;
-    }
+    const appearances = writeAllToDb(db, {
+      editions,
+      ledger,
+      configText,
+      trackRecord,
+      sourceDir: dir,
+    });
+    const config = parseConfigText(configText);
+    const topics = buildTopics(editions, ledger, catRulesFromConfig(config) ?? undefined);
     return {
       editions: editions.length,
       items: editions.reduce((n, e) => n + e.items.length, 0),
