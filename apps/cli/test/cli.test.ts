@@ -478,7 +478,7 @@ test("docs builds the standalone docs site without a data dir", () => {
   const r = runCli(CLI, ["--json", "docs", "--out", out]);
   assert.strictEqual(r.status, 0, r.stderr);
   const doc = JSON.parse(r.stdout);
-  assert.strictEqual(doc.pages, 27); // 8 pages x 3 langs + 3 index stubs
+  assert.strictEqual(doc.pages, 30); // 9 pages x 3 langs + 3 index stubs (extension-privacy page added 2026-11-16)
   assert.strictEqual(doc.outDir, out);
   assert.strictEqual(doc.docsUrl, "https://docs.breakerdelta.com/");
   assert.ok(fs.existsSync(path.join(out, "docs.html")));
