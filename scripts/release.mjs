@@ -128,6 +128,7 @@ assets.push(cliAsset);
 const skillStage = path.join(outDir, "_skill");
 mkdirSync(path.join(skillStage, "skills"), { recursive: true });
 cpSync(path.join(root, "skills/breaker-delta"), path.join(skillStage, "skills/breaker-delta"), { recursive: true });
+cpSync(path.join(root, "skills/breaker-delta-setup"), path.join(skillStage, "skills/breaker-delta-setup"), { recursive: true });
 mkdirSync(path.join(skillStage, ".claude-plugin"), { recursive: true });
 cpSync(path.join(root, ".claude-plugin/plugin.json"), path.join(skillStage, ".claude-plugin/plugin.json"));
 mkdirSync(path.join(skillStage, "apps/cli/dist"), { recursive: true });
@@ -208,7 +209,7 @@ function extractNotes(version) {
     "## Downloads",
     "",
     `- \`breaker-delta-${version}.mjs\` — the single-file CLI (Bun ≥ 1.2, no dependencies). Run: \`bun breaker-delta-${version}.mjs --help\``,
-    `- \`breaker-delta-skill-${version}.zip\` — the Agent Skill (SKILL.md + plugin manifest + the CLI bundle, in repo layout). Unzip into a workspace and point your agent harness at \`skills/breaker-delta/\`.`,
+    `- \`breaker-delta-skill-${version}.zip\` — the Agent Skills (run skill + setup wizard skill + plugin manifest + the CLI bundle, in repo layout). Unzip into a workspace and point your agent harness at \`skills/\`.`,
     `- \`breaker-delta-extension-${extVersion}.zip\` — the Chrome extension (unpacked). Load via \`chrome://extensions/\` → Developer mode → Load unpacked. Ships without instance data; see the extension README for how to add \`topics.json\` / \`alerts.json\`.`,
     "- `SHA256SUMS.txt` — checksums for all assets.",
   ].join("\n");

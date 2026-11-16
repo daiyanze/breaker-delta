@@ -399,8 +399,8 @@ TS_MAIN_URL      Main site URL: the docs site links back here (default https://b
     file: "docs-skill.html",
     title: { zh: "📖 Skill 与 MCP", en: "📖 Skill & MCP" },
     desc: {
-      zh: "Breaker Delta 的 Skill 与 MCP 用法：把 skills/breaker-delta 装进 agent 工具后 agent 会怎么做、扫描频率由谁定、MCP 的 radar_scan 与 radar_review。",
-      en: "Breaker Delta as a Skill and as MCP: what the agent does once skills/breaker-delta is installed in a harness, who owns the schedule, and the MCP tools radar_scan and radar_review.",
+      zh: "Breaker Delta 的 Skill 与 MCP 用法：运行 Skill（skills/breaker-delta）装进 agent 工具后 agent 会怎么做、配置向导 Skill（skills/breaker-delta-setup）如何对话配出一个新实例、扫描频率由谁定、MCP 的 radar_scan 与 radar_review。",
+      en: "Breaker Delta as a Skill and as MCP: what the agent does once the run skill (skills/breaker-delta) is installed in a harness, how the setup wizard skill (skills/breaker-delta-setup) configures a new instance conversationally, who owns the schedule, and the MCP tools radar_scan and radar_review.",
     },
     body: {
       zh: `<section class="panel"><div class="panel-h"><span>Skill 与 MCP</span></div>
@@ -408,7 +408,7 @@ TS_MAIN_URL      Main site URL: the docs site links back here (default https://b
 <p>抓取和算分是代码做的，但「把候选判成必看 / 关注 / 回波」需要判断力——这部分是交给 agent 的。Breaker Delta 把这套判断写成了一份固定指令（Skill），任何 agent 照着跑，结果的结构和标准都一样，不靠临场发挥。</p>
 <h3 style="margin:16px 0 6px">当作 Skill 用</h3>
 <ul class="tips">
-<li>把引擎仓里的 <span style="font-family:var(--mono)">skills/breaker-delta/</span> 装进你的 agent 工具（Claude Code、Codex 等都支持 Skill 目录），或者直接让 agent 读 SKILL.md 并照着执行。</li>
+<li>把引擎仓里的 <span style="font-family:var(--mono)">skills/breaker-delta/</span>（运行：每期扫描与出报告）装进你的 agent 工具（Claude Code、Codex 等都支持 Skill 目录），或者直接让 agent 读 SKILL.md 并照着执行。第一次配置一个新实例（选行业、定分类、配订阅源）用另一个 <span style="font-family:var(--mono)">skills/breaker-delta-setup/</span> 向导 Skill，和 agent 对话就能配好，不用手写配置。</li>
 <li>agent 每一期的固定动作：先读台账 → 跑 CLI 的 scan 拿候选底稿 → 按方法论的门槛分级（共振数、增速、新鲜度、与你 config 里主题权重的相关性）→ 对台账去重（老话题只报状态变化）→ 用 record 写回台账 → 按固定模板出报告。</li>
 <li>缺失的源（通常只有 X 和当期失败的源）由 agent 用网页扫补齐并在报告里如实标注；你在 config 里关掉的源不算缺失，不补扫。</li>
 <li><b>扫描频率完全由你定</b>：可以用 agent 的定时任务、GitHub Actions 或手动触发。雷达本身不规定一天几次，产品文案里也不写死频率。</li>
@@ -433,7 +433,7 @@ TS_MAIN_URL      Main site URL: the docs site links back here (default https://b
 <p>Fetching and scoring are code, but grading candidates into Must / Watch / Echo takes judgment — and that part is delegated to an agent. Breaker Delta writes that judgment down as fixed instructions (a Skill), so any agent running it produces the same structure and standards instead of improvising.</p>
 <h3 style="margin:16px 0 6px">Use it as a Skill</h3>
 <ul class="tips">
-<li>Install <span style="font-family:var(--mono)">skills/breaker-delta/</span> from the engine repo into your agent harness (Claude Code, Codex and others support Skill folders), or simply have the agent read SKILL.md and follow it.</li>
+<li>Install <span style="font-family:var(--mono)">skills/breaker-delta/</span> (the run skill: scanning and reporting each edition) from the engine repo into your agent harness (Claude Code, Codex and others support Skill folders), or simply have the agent read SKILL.md and follow it. To configure a new instance (pick an industry, define categories, set up sources), use the companion <span style="font-family:var(--mono)">skills/breaker-delta-setup/</span> wizard skill — it interviews you in chat, no hand-written config needed.</li>
 <li>The agent's fixed routine per edition: read the ledger first → run the CLI's scan for the candidate file → grade against the methodology's thresholds (resonance, growth, freshness, relevance to your config's topic weights) → dedupe against the ledger (old topics only report state changes) → write back with record → report in the fixed format.</li>
 <li>Missing sources (usually only X, plus anything that failed that edition) are filled in by the agent scanning the web and are labeled as such in the report; sources you disabled in config are not missing and are not filled in.</li>
 <li><b>Scheduling is entirely yours</b>: your agent's cron, GitHub Actions, or manual runs. The radar prescribes no frequency, and no fixed schedule appears in its copy.</li>
