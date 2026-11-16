@@ -212,7 +212,7 @@ test("standalone docs site is bilingual zh/en with ja fallback to en", () => {
   const outDir = path.join(tmpdir, "docs-site");
   try {
     const written = buildDocsSite({ rootDir: ROOT, outDir });
-    assert.strictEqual(written.length, 27); // 8 pages x 3 langs + 3 index stubs
+    assert.strictEqual(written.length, 30); // 9 pages x 3 langs + 3 index stubs (extension-privacy page added 2026-11-16)
     for (const name of [
       "docs.html", "docs-getting-started.html", "docs-reading.html",
       "docs-cli.html", "docs-config.html", "docs-skill.html",

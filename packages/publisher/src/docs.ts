@@ -23,6 +23,7 @@ export const DOC_FILES: string[] = [
   "docs-skill.html",
   "docs-extension.html",
   "docs-deploy.html",
+  "docs-extension-privacy.html",
 ];
 
 const NAV_LABELS: Record<string, { zh: string; en: string }> = {
@@ -34,6 +35,7 @@ const NAV_LABELS: Record<string, { zh: string; en: string }> = {
   "docs-skill.html": { zh: "Skill 与 MCP", en: "Skill & MCP" },
   "docs-extension.html": { zh: "Chrome 扩展", en: "Extension" },
   "docs-deploy.html": { zh: "自建与部署", en: "Deploy Your Own" },
+  "docs-extension-privacy.html": { zh: "扩展隐私", en: "Extension Privacy" },
 };
 
 /** Sub-navigation chips shown at the top of every docs page. */
@@ -518,6 +520,7 @@ TS_MAIN_URL      Main site URL: the docs site links back here (default https://b
 <li><b>storage</b>：回波箱只存在你的浏览器本地。</li>
 <li>不申请 tabs / history / cookies / 全站权限；从不记录浏览历史；徽章的匹配在本地完成，结果不离开浏览器；没有遥测、没有第三方代码。</li>
 <li>投波后回波被标成「投波页已打开」——扩展看不到你是否真的在 GitHub 上点了提交，这个标记只表示页面打开过。很长的摘录会被截断，保证预填链接不超 GitHub 的长度上限。</li>
+<li>正式版隐私政策在 <a href="docs-extension-privacy.html">扩展隐私</a> 页（Chrome Web Store 提交用的就是这个地址）。</li>
 </ul>
 <h3 style="margin:16px 0 6px">常见问题</h3>
 <ul class="tips">
@@ -559,6 +562,7 @@ TS_MAIN_URL      Main site URL: the docs site links back here (default https://b
 <li><b>storage</b>: the echo inbox lives in your browser only.</li>
 <li>No tabs / history / cookies / all-URLs permission; browsing history is never recorded; badge matching happens locally and never leaves the browser; no telemetry, no third-party code.</li>
 <li>After submitting, an echo is marked "submit page opened" — the extension cannot see whether you actually clicked Submit on GitHub. Very long excerpts are truncated so prefilled URLs stay within GitHub's length limit.</li>
+<li>The formal privacy policy lives on the <a href="docs-extension-privacy.html">Extension Privacy</a> page (the URL the Chrome Web Store listing uses).</li>
 </ul>
 <h3 style="margin:16px 0 6px">Troubleshooting</h3>
 <ul class="tips">
@@ -662,6 +666,68 @@ TS_MAIN_URL      Main site URL: the docs site links back here (default https://b
 <li><b>Verify locally first</b>: run the same publish command locally before pushing (see <a href="docs-getting-started.html">Getting Started</a>) — if it builds locally, CI almost always builds too.</li>
 <li><b>Where a failed build usually breaks</b>: engine checkout = visibility / token; bundling = Bun version (needs ≥ 1.2); publish = run doctor against the data dir first.</li>
 </ul>
+</div></section>`,
+    },
+  },
+  {
+    file: "docs-extension-privacy.html",
+    title: { zh: "🔒 扩展隐私政策", en: "🔒 Extension Privacy Policy" },
+    desc: {
+      zh: "浪尖雷达 · 收波 Chrome 扩展的隐私政策：不收集、不传输、不出售任何用户数据；数据只存本地浏览器与你自己的实例。",
+      en: "Privacy policy for the Breaker Delta Echo Catcher Chrome extension: no collection, no transmission, no sale of user data; data stays in your browser and your own instance.",
+    },
+    body: {
+      zh: `<section class="panel"><div class="panel-h"><span>扩展隐私政策</span></div>
+<div class="detail">
+<p>本页是 Chrome 扩展「浪尖雷达 · 收波 — Breaker Delta Echo Catcher」的隐私政策。最后更新：2026-11-16。</p>
+<h3 style="margin:16px 0 6px">一句话版</h3>
+<p>这个扩展<b>不收集、不传输、不出售任何用户数据</b>。没有账号、没有统计、没有第三方服务。</p>
+<h3 style="margin:16px 0 6px">扩展在本地存什么</h3>
+<ul class="tips">
+<li>你点「收波」保存的页面种子（标题与链接），存在浏览器本地存储里。</li>
+<li>你的设置（实例站点地址等），存在浏览器本地存储里。</li>
+<li>从实例站点拉取的话题数据缓存（topics / alerts 的 JSON），存在浏览器本地存储里。</li>
+</ul>
+<h3 style="margin:16px 0 6px">扩展访问什么</h3>
+<ul class="tips">
+<li>内容脚本只在 github.com、news.ycombinator.com、reddit.com、x.com、producthunt.com 五个站点运行，用来在已收录话题的页面上显示浪高徽章。</li>
+<li>只有你打开弹窗或点击收波时，扩展才读取当前标签页的标题与链接，用于匹配话题与生成种子。</li>
+<li>扩展会从<b>你配置的实例站点</b>（默认 breakerdelta.com）拉取话题数据 JSON —— 这是数据，不是代码；扩展不执行任何远程代码。</li>
+<li>你明确把种子发送到自己配置的实例时，数据只发往那个实例，不发往任何其他地方。</li>
+</ul>
+<h3 style="margin:16px 0 6px">权限与用途</h3>
+<ul class="tips">
+<li><b>activeTab</b>：在你操作时读取当前页标题与链接。</li>
+<li><b>storage</b>：在本地保存种子、设置与话题缓存。</li>
+<li><b>scripting</b>：在你操作时把徽章与收波界面注入页面。</li>
+</ul>
+<p>扩展开源（Apache 2.0），源码与本政策的对应实现都在 <a href="https://github.com/daiyanze/breaker-delta" rel="noopener">GitHub 仓库</a>。问题请开 issue 联系作者。</p>
+</div></section>`,
+      en: `<section class="panel"><div class="panel-h"><span>Extension Privacy Policy</span></div>
+<div class="detail">
+<p>This page is the privacy policy of the Chrome extension "浪尖雷达 · 收波 — Breaker Delta Echo Catcher". Last updated: 2026-11-16.</p>
+<h3 style="margin:16px 0 6px">The short version</h3>
+<p>This extension <b>does not collect, transmit, or sell any user data</b>. No accounts, no analytics, no third-party services.</p>
+<h3 style="margin:16px 0 6px">What the extension stores locally</h3>
+<ul class="tips">
+<li>Seeds you capture with the capture button (page title and link), in local browser storage.</li>
+<li>Your settings (such as the instance site address), in local browser storage.</li>
+<li>A cache of topic data (topics / alerts JSON) fetched from the instance site, in local browser storage.</li>
+</ul>
+<h3 style="margin:16px 0 6px">What the extension accesses</h3>
+<ul class="tips">
+<li>Content scripts run only on github.com, news.ycombinator.com, reddit.com, x.com and producthunt.com, to display the wave-height badge on pages about already-tracked topics.</li>
+<li>Only when you open the popup or click capture does the extension read the current tab's title and link, to match topics and build a seed.</li>
+<li>The extension fetches topic data JSON from <b>the instance site you configure</b> (default: breakerdelta.com) — that is data, not code; the extension never executes remote code.</li>
+<li>When you explicitly send a seed to your own configured instance, it goes to that instance only, and nowhere else.</li>
+</ul>
+<h3 style="margin:16px 0 6px">Permissions and why</h3>
+<ul class="tips">
+<li><b>activeTab</b>: read the current page's title and link when you act.</li>
+<li><b>storage</b>: keep seeds, settings and the topic cache locally.</li>
+<li><b>scripting</b>: inject the badge and capture UI when you act.</li>
+</ul>
+<p>The extension is open source (Apache 2.0); the code implementing this policy is in the <a href="https://github.com/daiyanze/breaker-delta" rel="noopener">GitHub repo</a>. Questions: open an issue.</p>
 </div></section>`,
     },
   },
