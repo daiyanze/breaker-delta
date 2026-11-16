@@ -34,6 +34,7 @@ import {
   ABOUT,
   HOOK_T,
   HTML_LANG,
+  LANDING,
   LEVELS,
   LONG_TIPS,
   SHORT_TIPS,
@@ -375,7 +376,7 @@ export function writeDiscovery(ctx: Ctx, editions: Edition[], topics: PubTopic[]
   const llms =
     `# 浪尖雷达 Breaker Delta\n\n> 用「浪高」量化话题走势的热点雷达：海浪榜（全部话题按浪高排名）、` +
     `涨潮榜（浪高涨幅）、回波（新出现的话题），每个话题有独立页面与海浪图（浪高历史走势）。\n\n` +
-    `## 主要页面\n- [海浪榜](${ctx.baseUrl}index.html)\n- [涨潮榜](${ctx.baseUrl}rising.html)\n` +
+    `## 主要页面\n- [海浪榜](${ctx.baseUrl}index.html)\n- [产品介绍 Landing](${ctx.baseUrl}en/landing.html)\n- [涨潮榜](${ctx.baseUrl}rising.html)\n` +
     `- [回波](${ctx.baseUrl}echoes.html)\n- [分类](${ctx.baseUrl}categories.html)\n` +
     `- [数据源](${ctx.baseUrl}sources.html)\n- [战绩](${ctx.baseUrl}track-record.html)\n` +
     `- [投波](${ctx.baseUrl}submit.html)\n- [关于](${ctx.baseUrl}about.html)\n- [文档 Docs](${ctx.docsUrl}docs.html)\n- [Docs (English)](${ctx.docsUrl}en/docs.html)\n` +
@@ -1274,6 +1275,24 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
         ABOUT[ctx.lang] +
         foot(ctx),
       { path: "about.html", desc: s(ctx, "desc_about"), ld: aboutLd },
+    ),
+  );
+
+  // landing: PH-facing start page (hero / how it works / evidence /
+  // comparison / FAQ / roadmap). Body lives in literals (LANDING);
+  // {{DOCS}} expands to this instance's docs-site prefix.
+  write(
+    ctx,
+    "landing.html",
+    page(
+      ctx,
+      s(ctx, "landing_title"),
+      mast(ctx, "landing", editions, { fname: "landing.html" }) +
+        LANDING[ctx.lang].split("{{DOCS}}").join(
+          `${ctx.docsUrl}${langPrefix(ctx)}`,
+        ) +
+        foot(ctx),
+      { path: "landing.html", desc: s(ctx, "desc_landing") },
     ),
   );
 

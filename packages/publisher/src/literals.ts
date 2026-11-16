@@ -130,6 +130,8 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "desc_rising": "浪高涨幅最大的话题，正在涨潮的热点。",
   "desc_sources": "浪尖雷达的全部数据源与各自贡献的话题统计。",
   "desc_about": "浪尖雷达是什么、浪高算法、页面导览与作者信息。",
+  "desc_landing": "Breaker Delta 产品介绍：定位与原理、公开战绩、与 Google Trends 和聚合器的对比、常见问题与路线图。",
+  "landing_title": "产品介绍",
   "desc_docs": "浪尖雷达 Breaker Delta 使用文档：快速开始、看懂站点、CLI、配置、Skill 与 MCP、Chrome 扩展、自建与部署。",
   "desc_track": "浪尖雷达战绩复盘：每一期必看与关注话题的登记台账与 14 天复核结果。",
   "tr_title": "🏆 战绩 · 复盘台账",
@@ -286,6 +288,8 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "desc_rising": "Topics with the biggest wave-height gains.",
   "desc_sources": "All data sources and the topics each one feeds.",
   "desc_about": "What Breaker Delta is, the wave-height formula, page guide and author info.",
+  "desc_landing": "Breaker Delta landing: what it is, how resonance scoring works, the public track record, comparison with Google Trends and aggregators, FAQ and roadmap.",
+  "landing_title": "Why Breaker Delta",
   "desc_docs": "Breaker Delta documentation: getting started, reading the site, CLI, configuration, Skill and MCP, the Chrome extension, and deploying your own instance.",
   "desc_track": "Breaker Delta track record: every Must-read and Watch pick, registered in advance and reviewed after 14 days.",
   "tr_title": "🏆 Track Record",
@@ -442,6 +446,8 @@ export const STRINGS: Record<string, Record<string, string | string[]>> = {
   "desc_rising": "波高の伸びが最大のトピック。",
   "desc_sources": "全データソースと各ソースが寄与したトピック。",
   "desc_about": "浪尖レーダーについて、波高の計算式、ページ案内と作者情報。",
+  "desc_landing": "Breaker Delta の製品紹介：位置づけと仕組み、公開戦績、Google Trends やアグリゲータとの比較、FAQ とロードマップ。",
+  "landing_title": "製品紹介",
   "desc_docs": "Breaker Delta ドキュメント（英語版）。",
   "desc_track": "浪尖レーダーの戦績：必読・注目の各トピックを事前登録し、14日後に復核した台帳。",
   "tr_title": "🏆 戦績 · 復核台帳",
@@ -480,6 +486,154 @@ export const ABOUT: Record<string, string> = {
  "zh": "<section class=\"panel\"><div class=\"panel-h\"><span>关于浪尖雷达</span></div>\n<div class=\"detail\">\n<p>浪尖雷达（Breaker Delta）是一个热点追踪站：多源扫描科技与 AI 话题，用自有算法把每个话题量化成一个「浪高」，并持续追踪它的涨落。做这个站的目的很具体——让内容创作者能快速拿到可编辑、可发布的新闻素材：每个话题都有独立页面，给出正文、建议动作、数据源和原文链接。</p>\n<p>发布频度不固定：可以是日报、早晚报，也可以是小时报，期次只是标签，每一期的结构都一样。</p>\n<h3 style=\"margin:16px 0 6px\">浪高怎么算</h3>\n<p>浪高 v2（参考 AIHOT 的量级，不设上限）：等级基分（必看 60 / 关注 30 / 回波 10）+ 共振 20×来源数 + 证据 8×链接数 + 首现 25。一个话题至少要有 2 个独立来源互相印证才算热点，单源的先记为回波。</p>\n<p>排名是某个时间点上全部已知话题按浪高排序的结果（每页 100 个，超出分页）；升降对比的是上一个时间点。本期没有更新的话题，按最近一次的浪高结转并标注「结转」，不会假装是新数据。</p>\n<h3 style=\"margin:16px 0 6px\">页面导览</h3>\n<p><a href=\"index.html\">海浪榜</a>：全部话题按浪高排名，带时间滑块回看任意时间点。<a href=\"rising.html\">涨潮榜</a>：浪高涨幅最大的话题。<a href=\"echoes.html\">回波</a>：最近首次出现、还在发酵的话题。<a href=\"submit.html\">投波</a>：把你发现的单源新信号投进来。<a href=\"track-record.html\">战绩</a>：每期必看与关注的登记台账和复核结果。<a href=\"categories.html\">分类</a>：按安全 / 政策与监管 / 开源 / 商业与资本 / Agent 与应用 / AI 模型 / 行业动态浏览。<a href=\"sources.html\">数据源</a>：每个来源贡献了哪些话题。<a href=\"archive.html\">往期归档</a>：每一期的完整榜单快照。每个话题页有一张「海浪图」，画的是它的浪高走势，图上的点可以点进对应那一期。</p>\n<h3 style=\"margin:16px 0 6px\">技术说明</h3>\n<p>每一期的内容以 Markdown 保存在 GitHub 仓库里，可以直接阅读；站点由 Breaker Delta 引擎（Bun）在构建时生成静态 HTML。话题页的原文链接带 nofollow。列表里的来源图标是各站的 favicon，构建时抓取并缓存在本地，每次构建用条件请求校验，站点换了图标缓存会自动更新。海浪榜首页有一段小脚本驱动时间滑块（无第三方库），其余页面没有可执行脚本；禁用 JS 时首页显示最新一期，时间轴链接照常打开每期快照。界面语言在构建设置里选择（TS_LANGS），构建出两种以上语言时页面上才显示语言切换。</p>\n<h3 style=\"margin:16px 0 6px\">作者与订阅</h3>\n<p>作者 Dai：<a href=\"https://github.com/daiyanze/breaker-delta\" rel=\"noopener\">GitHub 仓库</a> · <a href=\"https://x.com/daiyanze\" rel=\"noopener\">X @daiyanze</a> · <a href=\"feed.xml\">RSS</a> · <a href=\"atom.xml\">Atom</a></p>\n<p class=\"note\">© 2026 Dai</p>\n</div></section>",
  "en": "<section class=\"panel\"><div class=\"panel-h\"><span>About Breaker Delta</span></div>\n<div class=\"detail\">\n<p>Breaker Delta （浪尖雷达） tracks tech and AI topics from many sources and quantifies each topic as a \"wave height\" that rises and falls over time. Its purpose is practical: give content creators ready-to-edit, ready-to-publish news material. Every topic has its own page with the story, a suggested action, its data sources and original links.</p>\n<p>Publishing frequency is not fixed: daily, twice a day, or hourly — an edition is just a label, and every edition has the same structure.</p>\n<h3 style=\"margin:16px 0 6px\">How the wave height works</h3>\n<p>Wave v2 (scale referenced from AIHOT, uncapped): level base (Must-read 60 / Watch 30 / Echo 10) + resonance 20×sources + evidence 8×links + 25 when first seen. A topic needs at least two independent sources to count as a hotspot; single-source signals start as echoes.</p>\n<p>Ranks compare all known topics at one point in time (100 per page); deltas compare with the previous point in time. Topics not updated in an edition are carried forward at their last wave height and marked \"carried\" — never dressed up as fresh data.</p>\n<h3 style=\"margin:16px 0 6px\">Pages</h3>\n<p><a href=\"index.html\">Wave Board</a>: all topics ranked by wave height, with a time slider. <a href=\"rising.html\">Rising</a>: biggest wave gains. <a href=\"echoes.html\">Echoes</a>: newly appeared topics. <a href=\"submit.html\">Submit a echo</a>: send in a single-source signal you spotted. <a href=\"track-record.html\">Track Record</a>: the registered ledger of picks and their review results. <a href=\"categories.html\">Categories</a>. <a href=\"sources.html\">Sources</a>: what each source feeds. <a href=\"archive.html\">Archive</a>: full snapshot of every edition. Each topic page carries a wave chart of its history.</p>\n<h3 style=\"margin:16px 0 6px\">Tech notes</h3>\n<p>Editions are kept as Markdown in the GitHub repo and built into static HTML by the Breaker Delta engine (Bun). Original links on topic pages are nofollow. Source icons are each site's favicon, fetched and cached at build time with conditional revalidation. The board's time slider is one small script (no libraries); other pages run no scripts. Interface languages are a build setting (TS_LANGS); the language switcher appears only when more than two languages are built.</p>\n<h3 style=\"margin:16px 0 6px\">Author & feeds</h3>\n<p>By Dai: <a href=\"https://github.com/daiyanze/breaker-delta\" rel=\"noopener\">GitHub</a> · <a href=\"https://x.com/daiyanze\" rel=\"noopener\">X @daiyanze</a> · <a href=\"feed.xml\">RSS</a> · <a href=\"atom.xml\">Atom</a></p>\n<p class=\"note\">© 2026 Dai</p>\n</div></section>",
  "ja": "<section class=\"panel\"><div class=\"panel-h\"><span>浪尖レーダーについて</span></div>\n<div class=\"detail\">\n<p>浪尖レーダー（Breaker Delta）は、テクノロジーと AI のトピックを複数ソースから追跡し、各トピックを「波高」として定量化して推移を追うサイトです。目的は具体的で、コンテンツ制作者が編集・公開しやすいニュース素材を素早く手に入れられること。各トピックには専用ページがあり、本文、おすすめアクション、データソース、原文リンクを掲載しています。</p>\n<p>発行頻度は固定ではありません。日刊、朝夕刊、時間刊でも、号はラベルにすぎず構造は同じです。</p>\n<h3 style=\"margin:16px 0 6px\">波高の計算</h3>\n<p>波高 v2（AIHOT のスケールを参考、上限なし）：レベル基礎点（必読 60 / 注目 30 / エコー 10）+ 共鳴 20×ソース数 + 根拠 8×リンク数 + 初出 25。ホットなトピックには独立したソースが最低2つ必要で、単一ソースはまず「エコー」として記録します。</p>\n<p>順位はある時点の全トピックを波高で並べたもの（1ページ100件）。前回比は直前の時点との比較です。その号で更新されなかったトピックは前回の波高を「繰越」として明示し、新しいデータのふりはしません。</p>\n<h3 style=\"margin:16px 0 6px\">ページ案内</h3>\n<p><a href=\"index.html\">ウェーブボード</a>：全トピックを波高順に、時間スライダー付き。<a href=\"rising.html\">上昇</a>：波高の伸びが最大。<a href=\"echoes.html\">エコー</a>：初登場のトピック。<a href=\"submit.html\">エコー投稿</a>：見つけた単一ソースのシグナルを送れます。<a href=\"track-record.html\">戦績</a>：登録台帳と復核結果。<a href=\"categories.html\">カテゴリ</a>。<a href=\"sources.html\">ソース</a>：各ソースの寄与。<a href=\"archive.html\">アーカイブ</a>：各号の完全なスナップショット。各トピックページには波高チャートがあります。</p>\n<h3 style=\"margin:16px 0 6px\">技術メモ</h3>\n<p>各号の内容は Markdown として GitHub リポジトリに保存され、Breaker Delta エンジン（Bun）が静的 HTML にビルドします。原文リンクは nofollow。ソースのアイコンは各サイトの favicon で、ビルド時に取得してローカルにキャッシュし、条件付きリクエストで検証します。時間スライダーは小さなスクリプト1つ（ライブラリなし）で、その他のページにスクリプトはありません。表示言語はビルド設定（TS_LANGS）で選び、3言語以上ビルドしたときだけ言語切替が表示されます。</p>\n<h3 style=\"margin:16px 0 6px\">作者とフィード</h3>\n<p>作者 Dai：<a href=\"https://github.com/daiyanze/breaker-delta\" rel=\"noopener\">GitHub</a> · <a href=\"https://x.com/daiyanze\" rel=\"noopener\">X @daiyanze</a> · <a href=\"feed.xml\">RSS</a> · <a href=\"atom.xml\">Atom</a></p>\n<p class=\"note\">© 2026 Dai</p>\n</div></section>"
+};
+
+/** Landing page body per language (PH-facing start page). The
+ *  {{DOCS}} token is replaced at build time with the instance's
+ *  docs-site prefix. Evidence numbers: fill after the 2026-11-25
+ *  track-record review — search EVIDENCE-NUMBERS. */
+export const LANDING: Record<string, string> = {
+ "en": `<section class="panel"><div class="panel-h"><span>Breaker Delta · Catch it before it breaks.</span></div>
+<div class="detail">
+<p style="font-size:19px;font-weight:700;line-height:1.45;margin:4px 0 8px">Open-source radar that spots emerging topics before they trend — scored by cross-source resonance, not volume.</p>
+<p>Breaker Delta watches 40+ sources — Hacker News, GitHub, Reddit, arXiv, official blogs and more — and turns every emerging topic into a <b>wave height</b>: how strong the signal is, where it came from, and whether it is still rising. Single-source noise stays an <b>echo</b>; a topic becomes a wave only when independent sources start moving together.</p>
+<p style="margin:12px 0 4px"><a href="index.html" style="border:1px solid currentColor;border-radius:8px;padding:6px 14px;text-decoration:none"><b>▶ See the live board</b></a>&nbsp; <a href="{{DOCS}}docs-deploy.html" style="border:1px solid currentColor;border-radius:8px;padding:6px 14px;text-decoration:none"><b>Deploy your own</b></a>&nbsp; <a href="https://github.com/daiyanze/breaker-delta" rel="noopener" style="border:1px solid currentColor;border-radius:8px;padding:6px 14px;text-decoration:none"><b>GitHub</b></a></p>
+</div></section>
+<section class="panel"><div class="panel-h"><span>How it works</span></div>
+<div class="detail">
+<ol class="ol-list">
+<li><b>Fetch</b> — scheduled scans pull candidates from 40+ sources. Each source bundle counts once, so syndicated copies cannot fake resonance.</li>
+<li><b>Resonance check</b> — a topic needs at least 2 independent sources to count as a hotspot. Single-source items are filed as echoes 🌀 and kept an eye on.</li>
+<li><b>Wave height</b> — every topic gets an uncapped score: grade base + 20 × sources + 8 × links + 25 on first sighting, tracked over time as a wave chart on its own page.</li>
+<li><b>Grading</b> — picks are graded Must-read 🔥 / Watch 👀 / Echo 🌀 by an AI agent under a published methodology, with the reasoning shown on the topic page.</li>
+<li><b>Review</b> — every Must / Watch pick enters a public track record and is re-checked 14 days later. Hits and misses both stay on the record.</li>
+</ol>
+</div></section>
+<section class="panel"><div class="panel-h"><span>Proof, not promises</span></div>
+<div class="detail">
+<p>The public instance has been running since 2026-11-11. Every graded pick is registered in the open <a href="track-record.html">track record</a> before its outcome is known — no cherry-picking after the fact.</p>
+<p>The first 14-day review lands on <b>2026-11-25</b>: hit rate, average lead time over mainstream coverage, and case timelines will be published here as soon as it is done.</p>
+</div></section>
+<section class="panel"><div class="panel-h"><span>How it compares</span></div>
+<div class="detail">
+<table><tr><th></th><th>Breaker Delta</th><th>Google Trends</th><th>Feedly / aggregators</th></tr>
+<tr><td><b>When you see it</b></td><td>Before it trends — first sightings and resonance</td><td>After search volume spikes</td><td>After publication, by recency and popularity</td></tr>
+<tr><td><b>What counts as hot</b></td><td>Cross-source resonance (≥ 2 independent sources)</td><td>Search volume</td><td>Volume and engagement</td></tr>
+<tr><td><b>Your data</b></td><td>Yours — self-hosted, plain files in your own repo</td><td>The platform's</td><td>The platform's</td></tr>
+<tr><td><b>Your field</b></td><td>Presets swap sources, categories and keywords per industry</td><td>Generic</td><td>Your feeds, their ranking</td></tr>
+<tr><td><b>Accountability</b></td><td>Public track record, reviewed 14 days later</td><td>—</td><td>—</td></tr></table>
+</div></section>
+<section class="panel"><div class="panel-h"><span>FAQ</span></div>
+<div class="detail">
+<h3 style="margin:12px 0 6px">Is it free and open source?</h3>
+<p>Yes — Apache 2.0. Self-hosting costs nothing beyond your own machine or a free-tier host, and the public instance is free to read.</p>
+<h3 style="margin:12px 0 6px">Who owns the data?</h3>
+<p>You do. An instance's editions, topic ledger and track record live in your own data directory or repo; the engine stores no instance data.</p>
+<h3 style="margin:12px 0 6px">Do I need an LLM API key?</h3>
+<p>No. Grading is done by an AI agent you already use, following the Breaker Delta Skill, and pushed into your instance. The server never holds a key.</p>
+<h3 style="margin:12px 0 6px">Can I aim it at my own industry?</h3>
+<p>Yes — that is what presets are: sources, categories, keyword defaults and an industry brief in one swappable pack. The setup wizard Skill interviews you and writes the config. The built-in example is ai-tech.</p>
+<h3 style="margin:12px 0 6px">What is this site, then?</h3>
+<p>breakerdelta.com is the author's own instance running the ai-tech preset. Same engine you can deploy — its data is his, the code is everyone's.</p>
+</div></section>
+<section class="panel"><div class="panel-h"><span>Roadmap</span></div>
+<div class="detail">
+<p>The next presets are chosen by vote — finance, gaming, biotech and e-commerce are on the list. Vote or propose yours in <a href="https://github.com/daiyanze/breaker-delta/issues" rel="noopener">GitHub Issues</a>. Also coming: a plugin system (creator, investor and watchlist panels on topic pages) and a dynamic Cloudflare deployment form. The Docker form and this static form stay.</p>
+</div></section>`,
+ "zh": `<section class="panel"><div class="panel-h"><span>浪尖雷达 · 浪起之前，先有回波</span></div>
+<div class="detail">
+<p style="font-size:19px;font-weight:700;line-height:1.45;margin:4px 0 8px">开源的热点雷达，在话题成浪之前发现它 —— 看跨源共振，不看声量。</p>
+<p>浪尖雷达持续扫描 40+ 个信源 —— Hacker News、GitHub、Reddit、arXiv、官方博客等 —— 把每个新话题量化成一个<b>浪高</b>：信号有多强、来自哪里、还在不在涨。单源的噪音只记为<b>回波</b>；只有多个独立信源同时动起来，话题才算成浪。</p>
+<p style="margin:12px 0 4px"><a href="index.html" style="border:1px solid currentColor;border-radius:8px;padding:6px 14px;text-decoration:none"><b>▶ 看实时榜单</b></a>&nbsp; <a href="{{DOCS}}docs-deploy.html" style="border:1px solid currentColor;border-radius:8px;padding:6px 14px;text-decoration:none"><b>部署你自己的</b></a>&nbsp; <a href="https://github.com/daiyanze/breaker-delta" rel="noopener" style="border:1px solid currentColor;border-radius:8px;padding:6px 14px;text-decoration:none"><b>GitHub</b></a></p>
+</div></section>
+<section class="panel"><div class="panel-h"><span>原理</span></div>
+<div class="detail">
+<ol class="ol-list">
+<li><b>抓取</b> —— 定时扫描从 40+ 信源拉候选；每个信源包只算一个来源，转载刷不出共振。</li>
+<li><b>共振判定</b> —— 话题至少要有 2 个独立来源互相印证才算热点；单源的先记为回波 🌀，继续观察。</li>
+<li><b>浪高</b> —— 每个话题有一个不设上限的分数：等级基分 + 20×来源数 + 8×链接数 + 首现 25，并在话题页上画成海浪图持续追踪。</li>
+<li><b>分级</b> —— 由 AI agent 按公开的方法论判成必看 🔥 / 关注 👀 / 回波 🌀，理由写在话题页上。</li>
+<li><b>复核</b> —— 每条必看与关注都登记进公开战绩台账，14 天后逐条复核；命中和打脸都留着。</li>
+</ol>
+</div></section>
+<section class="panel"><div class="panel-h"><span>用战绩说话</span></div>
+<div class="detail">
+<p>官方实例自 2026-11-11 起运行。每条分级在结果出来之前就登记进公开的<a href="track-record.html">战绩台账</a> —— 事后挑好的说，不算数。</p>
+<p>第一批 14 天复核在 <b>2026-11-25</b>：命中率、平均领先主流报道的时间、典型案例时间线，复核完成即公布在这里。</p>
+</div></section>
+<section class="panel"><div class="panel-h"><span>对比</span></div>
+<div class="detail">
+<table><tr><th></th><th>浪尖雷达</th><th>Google Trends</th><th>Feedly / 聚合器</th></tr>
+<tr><td><b>什么时候看到</b></td><td>成浪之前 —— 首现与共振</td><td>搜索量已经冲高之后</td><td>发布之后，按时近与热度排</td></tr>
+<tr><td><b>什么算热</b></td><td>跨源共振（≥ 2 个独立来源）</td><td>搜索量</td><td>声量与互动</td></tr>
+<tr><td><b>数据归谁</b></td><td>归你 —— 自部署，普通文件存在你自己的仓库</td><td>平台的</td><td>平台的</td></tr>
+<tr><td><b>能不能换行业</b></td><td>preset 整体换信源、分类与关键词</td><td>通用</td><td>源是你的，排序是它的</td></tr>
+<tr><td><b>判断可不可查</b></td><td>公开台账，14 天复核</td><td>—</td><td>—</td></tr></table>
+</div></section>
+<section class="panel"><div class="panel-h"><span>常见问题</span></div>
+<div class="detail">
+<h3 style="margin:12px 0 6px">免费吗？开源吗？</h3>
+<p>是 —— Apache 2.0 开源。自部署除你自己的机器或免费额度主机外不花钱，官方实例免费阅读。</p>
+<h3 style="margin:12px 0 6px">数据归谁？</h3>
+<p>归你。实例的期次、话题台账和战绩都存在你自己的数据目录或仓库里，引擎不存任何实例数据。</p>
+<h3 style="margin:12px 0 6px">需要 LLM API key 吗？</h3>
+<p>不需要。分级由你已经在用的 AI agent 按 Breaker Delta 的 Skill 完成并推送进你的实例，服务器不持有任何 key。</p>
+<h3 style="margin:12px 0 6px">能换成我自己的行业吗？</h3>
+<p>能 —— 这正是 preset 的用途：信源、分类、关键词默认值和行业简报打包成一个可整体替换的包。向导 Skill 会采访你并写好配置；内置的例子是 ai-tech。</p>
+<h3 style="margin:12px 0 6px">那这个站是什么？</h3>
+<p>breakerdelta.com 是作者自己的实例，跑 ai-tech preset。和你可以部署的是同一个引擎 —— 数据是他的，代码是大家的。</p>
+</div></section>
+<section class="panel"><div class="panel-h"><span>路线图</span></div>
+<div class="detail">
+<p>下一批 preset 由投票决定 —— 金融、游戏、生物科技、电商已在名单上。去 <a href="https://github.com/daiyanze/breaker-delta/issues" rel="noopener">GitHub Issues</a> 投票或提你的行业。还在路上：插件系统（话题页的创作 / 投资研判 / 自选面板）和 Cloudflare 动态部署形态；Docker 形态与现在的静态形态都会保留。</p>
+</div></section>`,
+ "ja": `<section class="panel"><div class="panel-h"><span>浪尖レーダー · 波が立つ前に、まず反響がある</span></div>
+<div class="detail">
+<p style="font-size:19px;font-weight:700;line-height:1.45;margin:4px 0 8px">オープンソースのホットトピック・レーダー。量ではなく、複数ソースの共鳴で「波になる前」を捉えます。</p>
+<p>浪尖レーダーは Hacker News、GitHub、Reddit、arXiv、公式ブログなど 40 以上のソースを継続的に走査し、新しいトピックを<b>波高</b>として定量化します：シグナルの強さ、出所、まだ上昇中かどうか。単一ソースのノイズは<b>エコー</b>として記録するだけ。複数の独立したソースが同時に動き始めて初めて「波」になります。</p>
+<p style="margin:12px 0 4px"><a href="index.html" style="border:1px solid currentColor;border-radius:8px;padding:6px 14px;text-decoration:none"><b>▶ ライブボードを見る</b></a>&nbsp; <a href="{{DOCS}}docs-deploy.html" style="border:1px solid currentColor;border-radius:8px;padding:6px 14px;text-decoration:none"><b>自分でデプロイ</b></a>&nbsp; <a href="https://github.com/daiyanze/breaker-delta" rel="noopener" style="border:1px solid currentColor;border-radius:8px;padding:6px 14px;text-decoration:none"><b>GitHub</b></a></p>
+</div></section>
+<section class="panel"><div class="panel-h"><span>仕組み</span></div>
+<div class="detail">
+<ol class="ol-list">
+<li><b>取得</b> —— 定期スキャンが 40 以上のソースから候補を集めます。ソースの束は1つとして数えるため、転載では共鳴を偽装できません。</li>
+<li><b>共鳴判定</b> —— ホットなトピックには独立したソースが最低2つ必要です。単一ソースはエコー 🌀 として記録し、観察を続けます。</li>
+<li><b>波高</b> —— 各トピックに上限なしのスコア：レベル基礎点 + 20×ソース数 + 8×リンク数 + 初出 25。トピックページの波形チャートで推移を追います。</li>
+<li><b>格付け</b> —— AI エージェントが公開された方法論に従い、必読 🔥 / 注目 👀 / エコー 🌀 に格付けし、理由をトピックページに明記します。</li>
+<li><b>復核</b> —— 必読と注目の全件を公開台帳に登録し、14 日後に1件ずつ復核します。当たりも外れも記録に残ります。</li>
+</ol>
+</div></section>
+<section class="panel"><div class="panel-h"><span>実績で示す</span></div>
+<div class="detail">
+<p>公式インスタンスは 2026-11-11 から稼働中。すべての格付けは結果が分かる前に公開の<a href="track-record.html">戦績台帳</a>へ登録されます —— 後から良いものだけ選ぶことはできません。</p>
+<p>最初の14日復核は <b>2026-11-25</b>：命中率、主流報道に対する平均リードタイム、代表事例のタイムラインを、完了次第ここに公開します。</p>
+</div></section>
+<section class="panel"><div class="panel-h"><span>比較</span></div>
+<div class="detail">
+<table><tr><th></th><th>浪尖レーダー</th><th>Google Trends</th><th>Feedly / アグリゲータ</th></tr>
+<tr><td><b>いつ見えるか</b></td><td>波になる前 —— 初出と共鳴</td><td>検索量が跳ねた後</td><td>公開後、新しさと人気順</td></tr>
+<tr><td><b>何を「熱い」とするか</b></td><td>複数ソースの共鳴（独立ソース ≥ 2）</td><td>検索量</td><td>量とエンゲージメント</td></tr>
+<tr><td><b>データの所有者</b></td><td>あなた —— セルフホスト、自分のリポジトリに通常ファイルで保存</td><td>プラットフォーム</td><td>プラットフォーム</td></tr>
+<tr><td><b>業界の切替</b></td><td>preset でソース・カテゴリ・キーワードを一式交換</td><td>汎用</td><td>フィードは自分、順位付けは相手</td></tr>
+<tr><td><b>検証可能性</b></td><td>公開台帳、14 日ごとに復核</td><td>—</td><td>—</td></tr></table>
+</div></section>
+<section class="panel"><div class="panel-h"><span>FAQ</span></div>
+<div class="detail">
+<h3 style="margin:12px 0 6px">無料でオープンソースですか？</h3>
+<p>はい —— Apache 2.0 です。セルフホストは自分のマシンや無料枠のホスト以外に費用がかからず、公式インスタンスは無料で読めます。</p>
+<h3 style="margin:12px 0 6px">データは誰のものですか？</h3>
+<p>あなたのものです。インスタンスの各号・トピック台帳・戦績は自分のデータディレクトリやリポジトリに保存され、エンジン側にインスタンスデータは残りません。</p>
+<h3 style="margin:12px 0 6px">LLM の API キーは必要ですか？</h3>
+<p>不要です。格付けは、あなたが普段使う AI エージェントが Breaker Delta の Skill に従って行い、あなたのインスタンスへ push します。サーバーがキーを持つことはありません。</p>
+<h3 style="margin:12px 0 6px">自分の業界向けにできますか？</h3>
+<p>できます —— それが preset です：ソース、カテゴリ、キーワードの初期値、業界ブリーフを1つの交換可能なパックにまとめます。セットアップウィザードの Skill が対話で聞き取り、設定を書き出します。内蔵の例は ai-tech です。</p>
+<h3 style="margin:12px 0 6px">では、このサイトは何ですか？</h3>
+<p>breakerdelta.com は作者自身のインスタンスで、ai-tech preset を運用しています。あなたがデプロイできるのと同じエンジン —— データは作者のもの、コードはみんなのものです。</p>
+</div></section>
+<section class="panel"><div class="panel-h"><span>ロードマップ</span></div>
+<div class="detail">
+<p>次の preset は投票で決まります —— 金融、ゲーム、バイオテクノロジー、EC が候補です。<a href="https://github.com/daiyanze/breaker-delta/issues" rel="noopener">GitHub Issues</a> で投票や提案をどうぞ。さらにプラグインシステム（トピックページの創作 / 投資判断 / ウォッチリストパネル）と Cloudflare の動的デプロイ形態も予定しています。Docker 形態と現在の静的形態は残ります。</p>
+</div></section>`,
 };
 
 export const SOURCE_DOMAINS: Record<string, string> = {
