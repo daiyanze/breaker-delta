@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@breaker-delta/config": "0.22.0",
     "@breaker-delta/core": "0.22.0",
     "@breaker-delta/stores": "0.22.0"
   },

@@ -29,7 +29,7 @@ import {
   type StoreTopic,
   type Topic,
 } from "@breaker-delta/core";
-import { parseYaml } from "@breaker-delta/fetchers";
+import { effectiveWebConfig } from "./bundled-presets";
 
 export const SCHEMA_VERSION = "1";
 
@@ -156,10 +156,11 @@ export function loadTrackRecordFromDir(dir: string): string | null {
   return fs.readFileSync(p, "utf-8");
 }
 
-export function parseConfigText(text: string | null): Record<string, unknown> {
-  if (!text) return {};
-  return (parseYaml(text) ?? {}) as Record<string, unknown>;
-}
+// Config text parsing is @breaker-delta/config's single
+// implementation (Rewrite Phase 1b); re-exported here because the
+// other store backends import it from this module.
+import { parseConfigText } from "@breaker-delta/config";
+export { parseConfigText };
 
 /** Plugin page files from <dir>/state/plugin-pages/ (Plugin-P2). */
 export function loadPluginPagesFromDir(
@@ -311,7 +312,7 @@ export interface StorePayload {
  * recomputed with core's buildTopics. Returns the appearance count.
  * Shared by the importer and the push API's SQLite path. */
 export function writeAllToDb(db: SqliteDb, payload: StorePayload): number {
-  const config = parseConfigText(payload.configText);
+  const config = effectiveWebConfig(parseConfigText(payload.configText));
   const topics = buildTopics(
     payload.editions,
     payload.ledger,

@@ -19,12 +19,11 @@ import * as path from "node:path";
 
 import {
   heatOf,
-  loadStore,
-  saveStore,
   upsertTopic,
   type Edition,
   type StoreTopic,
 } from "@breaker-delta/core";
+import { loadStore, saveStore } from "@breaker-delta/stores";
 
 import { dataDir, dbPath, invalidateSiteData } from "./data";
 import {

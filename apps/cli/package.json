@@ -3,6 +3,7 @@
     "breaker-delta": "dist/breaker-delta.mjs"
   },
   "dependencies": {
+    "@breaker-delta/config": "0.22.0",
     "@breaker-delta/core": "0.22.0",
     "@breaker-delta/fetchers": "0.22.0",
     "@breaker-delta/publisher": "0.22.0",

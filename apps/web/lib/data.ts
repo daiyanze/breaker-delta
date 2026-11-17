@@ -25,6 +25,7 @@ import {
   loadScoreDescriptors,
   type PanelDef,
 } from "./plugins";
+import { effectiveWebConfig } from "./bundled-presets";
 import { fmt, s } from "./strings";
 import { FileStore, SqliteStore, type SiteStore } from "./store";
 import { RemoteStore } from "./store-remote";
@@ -215,14 +216,18 @@ export function getSiteData(): Promise<SiteData> {
   cache = (async () => {
     const stored = await pickStore().load();
     const dir = remoteBase() ?? dataDir();
+    // The effective config (instance + bundled preset layering) is
+    // computed once here so every consumer below sees the same
+    // config the CLI would resolve (Rewrite Phase 1b).
+    const config = effectiveWebConfig(stored.config);
     const topics =
       stored.topics ??
-      buildTopics(stored.editions, stored.ledger, catRulesFromConfig(stored.config) ?? undefined);
+      buildTopics(stored.editions, stored.ledger, catRulesFromConfig(config) ?? undefined);
     const bySlug = new Map(topics.map((t) => [t.slug, t]));
     const states = boardStates(topics, stored.editions.length);
-    const panelDefs = loadPanelDefs(engineDir(), dir, stored.config);
-    const scorePlugins = loadScoreDescriptors(engineDir(), dir, stored.config);
-    const entityPlugins = loadEntityPluginIds(engineDir(), dir, stored.config);
+    const panelDefs = loadPanelDefs(engineDir(), dir, config);
+    const scorePlugins = loadScoreDescriptors(engineDir(), dir, config);
+    const entityPlugins = loadEntityPluginIds(engineDir(), dir, config);
     return {
       dataDir: dir,
       editions: stored.editions,
@@ -233,7 +238,7 @@ export function getSiteData(): Promise<SiteData> {
       scorePlugins,
       entityPlugins,
       pluginPages: stored.pluginPages,
-      config: stored.config,
+      config,
       configText: stored.configText,
       trackRecord: stored.trackRecord,
     };

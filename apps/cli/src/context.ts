@@ -13,7 +13,12 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { CONFIG_CANDIDATES, loadConfig } from "@breaker-delta/fetchers";
+import {
+  CONFIG_CANDIDATES,
+  findConfigFileIn,
+  findPresetConfigFileIn,
+  loadEffectiveConfig,
+} from "@breaker-delta/config";
 import type { RadarConfig } from "@breaker-delta/core";
 
 export const VERSION = "0.22.0";
@@ -87,68 +92,29 @@ export function statePath(ctx: CliContext): string {
 }
 
 /**
- * Config file resolution, mirroring radar/config.py's search: the
- * explicit --config path first (a missing explicit path falls
- * through to the candidates, exactly like Python), then the
- * candidate list in the data dir, then in the engine root (where
- * the config.example.* fallbacks live).
+ * Config resolution lives in @breaker-delta/config (Rewrite
+ * Phase 1b); these wrappers keep the CLI's historical names and
+ * CliContext-shaped signatures. Search order: data dir first, then
+ * the engine root (where the config.example.* fallbacks live); a
+ * preset named by the instance config becomes the base layer, and
+ * data-dir presets win over bundled ones.
  */
 export function findConfigFile(ctx: CliContext): string | null {
-  if (ctx.configPath) {
-    const explicit = path.isAbsolute(ctx.configPath)
-      ? ctx.configPath
-      : path.resolve(process.cwd(), ctx.configPath);
-    if (fs.existsSync(explicit)) return explicit;
-  }
-  for (const dir of [ctx.dataDir, ctx.rootDir]) {
-    for (const name of CONFIG_CANDIDATES) {
-      const p = path.join(dir, name);
-      if (fs.existsSync(p)) return p;
-    }
-  }
-  return null;
+  return findConfigFileIn([ctx.dataDir, ctx.rootDir], ctx.configPath);
 }
 
-const PRESET_NAME_RE = /^[a-z0-9][a-z0-9-_]*$/;
-const PRESET_CONFIG_CANDIDATES = ["config.yaml", "config.yml", "config.json"];
-
-/**
- * A preset's config file: presets/<name>/config.yaml (or .yml/.json).
- * The data dir is searched first (presets installed with
- * `preset add <url>` are user data and win over a bundled preset of
- * the same name), then the engine root's bundled presets. An
- * instance config names one via its `preset:` key and the preset
- * becomes the base config layer.
- */
 export function findPresetConfigFile(ctx: CliContext, name: string): string | null {
-  if (!PRESET_NAME_RE.test(name)) return null;
-  for (const base of [ctx.dataDir, ctx.rootDir]) {
-    for (const candidate of PRESET_CONFIG_CANDIDATES) {
-      const p = path.join(base, "presets", name, candidate);
-      if (fs.existsSync(p)) return p;
-    }
-  }
-  return null;
+  return findPresetConfigFileIn([ctx.dataDir, ctx.rootDir], name);
 }
 
 export function loadCliConfig(
   ctx: CliContext,
 ): { config: RadarConfig; file: string | null; preset: string | null; presetFile: string | null } {
-  const file = findConfigFile(ctx);
-  if (!file) return { config: {} as RadarConfig, file: null, preset: null, presetFile: null };
-  const config = loadConfig(file) as RadarConfig;
-  const preset = typeof config.preset === "string" && config.preset !== "" ? config.preset : null;
-  if (!preset) return { config, file, preset: null, presetFile: null };
-  const presetFile = findPresetConfigFile(ctx, preset);
-  if (!presetFile) {
-    throw new Error(
-      `config names preset "${preset}" but no presets/${preset}/config.yaml exists in the data dir (${ctx.dataDir}) or under the engine root (${ctx.rootDir})`,
-    );
-  }
-  const base = loadConfig(presetFile) as RadarConfig;
-  // Preset is the base layer; the instance config wins per top-level
-  // section (preset defaults <- user config, per the design doc).
-  return { config: { ...base, ...config }, file, preset, presetFile };
+  return loadEffectiveConfig({
+    dataDir: ctx.dataDir,
+    rootDir: ctx.rootDir,
+    configPath: ctx.configPath,
+  });
 }
 
 /**

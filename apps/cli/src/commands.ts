@@ -23,6 +23,7 @@ import {
 import type { Schema, TopicStore } from "@breaker-delta/core";
 import { loadConfig, runScan, summaryLines } from "@breaker-delta/fetchers";
 import { buildDocsSite, buildSite, loadLangPacksFromDir, optionsFromEnv } from "@breaker-delta/publisher";
+import { listPresetNamesIn } from "@breaker-delta/config";
 import { loadStore, saveStore } from "@breaker-delta/stores";
 import type { BuildOptions } from "@breaker-delta/publisher";
 
@@ -562,23 +563,14 @@ export function collectFeedProbes(
 }
 
 export function listPresets(ctx: CliContext): PresetInfo[] {
-  const roots = [ctx.dataDir, ctx.rootDir];
-  const names = new Set<string>();
-  for (const root of roots) {
-    const dir = path.join(root, "presets");
-    if (!isDir(dir)) continue;
-    for (const name of fs.readdirSync(dir)) {
-      if (isDir(path.join(dir, name))) names.add(name);
-    }
-  }
+  const names = listPresetNamesIn([ctx.dataDir, ctx.rootDir]);
   let selected: string | null = null;
   try {
     selected = loadCliConfig(ctx).preset;
   } catch {
     selected = null; // a broken instance config must not hide the catalog
   }
-  return [...names]
-    .sort()
+  return names
     .map((name) => {
       const configFile = findPresetConfigFile(ctx, name);
       const presetDir = configFile ? path.dirname(configFile) : path.join(ctx.rootDir, "presets", name);

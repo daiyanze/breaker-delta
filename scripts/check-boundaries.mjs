@@ -16,6 +16,7 @@ const strict = process.argv.includes("--strict");
 
 const AREAS = [
   { dir: "packages/core", pkg: "@breaker-delta/core", layer: "domain" },
+  { dir: "packages/config", pkg: "@breaker-delta/config", layer: "package" },
   { dir: "packages/stores", pkg: "@breaker-delta/stores", layer: "package" },
   { dir: "packages/fetchers", pkg: "@breaker-delta/fetchers", layer: "package" },
   { dir: "packages/publisher", pkg: "@breaker-delta/publisher", layer: "package" },
