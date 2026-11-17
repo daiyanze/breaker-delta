@@ -7,6 +7,7 @@ export function ThemeToggle({ title }: { title: string }) {
   return (
     <button
       className="theme-btn"
+      id="themeBtn"
       type="button"
       title={title}
       onClick={() => {
