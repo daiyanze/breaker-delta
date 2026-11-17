@@ -1,0 +1,14 @@
+{
+  "preset": "ai-tech",
+  "plugins": {
+    "creator": {
+      "enabled": true
+    },
+    "momentum": {
+      "enabled": true
+    },
+    "tickers": {
+      "enabled": true
+    }
+  }
+}

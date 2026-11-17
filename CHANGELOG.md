@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-（1.0.0 收编预备：本节为 0.22.0 之后全部变更，发布时整体改题 1.0.0。）
+（版本说明：本节为 0.22.0 之后全部变更；全量重写完成后整体改题 2.0.0，见 REWRITE-DESIGN 执行记录。）
+
+- **全量重写 Phase 0：契约地基（2026-11-17）**：按 REWRITE-DESIGN（最佳实践重写、行为等价、绞杀者六阶段；Dai 2026-11-17 批准，四项拍板全定）落地第一阶段。core 新增零依赖 schema 系统（`schema.ts`：描述符即数据，同一描述符生成 TS 类型（Infer<>，构建器泛型保形）与运行时校验器（validate()，错误带路径））；`schemas.ts` 为全部跨界结构各立一份 schema：期次（wire/loaded 两形）、话题台账、配置、插件 manifest、插件页面文件、installs 记录、topics/alerts 数据、record 条目。契约测试 +16（core 15 + CLI 1）：fixtures 用真实载荷（官方当日晚报期次、真实台账、动量榜页面文件、8 个内置 manifest、ai-tech 与官方两份配置），生产者产出（topicsData/alertsData）对消费者 schema 对拍；契约测试当场抓出三处 schema 与真实数据的偏差并已按实况修正（声明式 manifest 的 slots 含 panel/grading、config 的 sources 是分组对象而非数组）。校验器接入两个边界：doctor 新增 `data-schemas` 检查（数据目录全部期次/台账/installs/插件页面逐个验，官方数据实测 12 个文件全过、doctor 18 ok），installs 写盘前先验 schema。另加 import 边界检查脚本（scripts/check-boundaries.mjs，warn 模式：现存违规恰 5 处、全在 core 的 store/vocab/topics 文件 IO，即 Phase 1 的工作量）与引擎仓首个 CI 工作流（build + test + 边界检查）。零行为变更：全量 282 全绿（266 → +16）。
 
 - **Plugin-P3 第三项：语言包（2026-11-17）**：数据目录 `langpacks/<code>/pack.json`（{code, name, base, strings}）给发布器加一层 UI 文案叠加——code 为内置语言（zh/en/ja）时逐条覆盖原文案（改口径不用改引擎）；code 为新语言时以 base（默认 en）文案打底逐条盖上，构建自动多出一套该语言的页面（含导航切换、hreflang、html lang）。校验从严：键名必须在内置文案表内、列表型键（tabs 等）条数必须与底表一致、code 必须与目录名相同——doctor 报 fail、publish 拒绝带病构建。边界（设计如此）：语言包只管界面「壳」，期次内容仍来自各期自带 i18n，长文 blob（关于/落地页）、创作者钩子模板与等级名在新语言下回退 base 语言；适用于静态 publish 与 serve（Docker 自托管形态），vinext 动态 web 暂不读包。顺带修 levelLabel 与 HOOK_T/提示表在未知语言下无回退会崩/出 undefined 的隐患。publisher 测试 +3、CLI 测试 +1，全量 266 全绿。**Plugin-P3 三项至此全部落地。**
 - **Plugin-P3 第二项：plugin add / preset add \<url\>（2026-11-17）**：一条共享的取包/校验/安装机制——URL 指向包的主文件（plugin.yaml / config.yaml），同目录文件按相对路径取（即 GitHub raw 目录的形状）；https-only（http 仅限本机回环）、重定向不得离开原主机、只许裸文件名、≤8 文件、单文件 ≤256KiB、逐文件 SHA-256。声明式插件是纯数据、直接装；**代码插件先打印 manifest 的 slots/权限声明与全部文件哈希、必须加 --yes 才装**（代码插件与引擎同信任级，确认权在用户）。安装落数据目录 plugins/ 或 presets/ 并记录进 state/installs.json；doctor 复核哈希、漂移报 warn。preset 解析顺序改为数据目录优先（装来的预设压过同名内置预设），preset list 一并列出。CLI 测试 +4（本地 HTTP 实测：声明式直装/拒绝覆盖/doctor 验哈希与漂移、代码插件 --yes 流程、preset 装后可被配置解析、跨主机重定向与非 https 拒绝），全量 262 全绿。

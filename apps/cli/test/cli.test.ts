@@ -278,6 +278,34 @@ test("doctor passes a healthy data dir and fails a bare one", () => {
   assert.ok(bad.checks.some((c: any) => c.name === "track-record" && c.status === "warn"));
 });
 
+test("doctor data-schemas check: healthy data passes, corrupted edition fails", () => {
+  const dir = makeDataDir((d) => {
+    writeEditions(d);
+    writeTrackRecord(d);
+    writeStore(d, []);
+    fs.writeFileSync(path.join(d, "config.yaml"), "preset: ai-tech\n", "utf-8");
+  });
+  let r = runCli(CLI, ["--data-dir", dir, "--root-dir", ROOT, "--json", "doctor"]);
+  assert.strictEqual(r.status, 0, r.stdout + r.stderr);
+  let doc = JSON.parse(r.stdout);
+  assert.ok(
+    doc.checks.some((c: any) => c.name === "data-schemas" && c.status === "ok"),
+    "healthy data passes schema validation",
+  );
+
+  // Corrupt one edition: drop the required date field.
+  const edDir = path.join(dir, "editions");
+  const first = fs.readdirSync(edDir).filter((f) => f.endsWith(".json")).sort()[0];
+  const parsed = JSON.parse(fs.readFileSync(path.join(edDir, first), "utf-8"));
+  delete parsed.date;
+  fs.writeFileSync(path.join(edDir, first), JSON.stringify(parsed), "utf-8");
+  r = runCli(CLI, ["--data-dir", dir, "--root-dir", ROOT, "--json", "doctor"]);
+  assert.strictEqual(r.status, 1);
+  doc = JSON.parse(r.stdout);
+  const check = doc.checks.find((c: any) => c.name === "data-schemas");
+  assert.ok(check && check.status === "fail" && /date/.test(check.detail), check?.detail);
+});
+
 test("doctor plugin checks: enabled plugins validated, unknown enabled plugin fails", () => {
   const dir = makeDataDir((d) => {
     writeEditions(d);

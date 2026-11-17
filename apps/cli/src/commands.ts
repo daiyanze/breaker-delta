@@ -16,8 +16,13 @@ import {
   saveStore,
   todayLocal,
   upsertTopic,
+  editionSchema,
+  installsFileSchema,
+  pluginPageFileSchema,
+  topicStoreSchema,
+  validate,
 } from "@breaker-delta/core";
-import type { TopicStore } from "@breaker-delta/core";
+import type { Schema, TopicStore } from "@breaker-delta/core";
 import { loadConfig, runScan, summaryLines } from "@breaker-delta/fetchers";
 import { buildDocsSite, buildSite, loadLangPacksFromDir, optionsFromEnv } from "@breaker-delta/publisher";
 import type { BuildOptions } from "@breaker-delta/publisher";
@@ -870,7 +875,62 @@ export function collectDoctorChecks(ctx: CliContext): DoctorCheck[] {
     status: isDir(path.join(ctx.rootDir, "favicon-cache")) ? "ok" : "fail",
     detail: path.join(ctx.rootDir, "favicon-cache"),
   });
+  checks.push(...collectDataSchemaChecks(ctx));
   return checks;
+}
+
+/**
+ * Rewrite Phase 0: validate the data dir's cross-boundary files
+ * against the core schemas — every edition file, the topic store,
+ * the install records and any generated plugin pages. A fresh
+ * instance with no data files yet is ok; a file that fails its
+ * schema is a fail with the first problems named.
+ */
+export function collectDataSchemaChecks(ctx: CliContext): DoctorCheck[] {
+  const problems: string[] = [];
+  let files = 0;
+  const checkJson = (file: string, schema: Schema) => {
+    files += 1;
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(fs.readFileSync(file, "utf-8"));
+    } catch {
+      problems.push(`${path.basename(file)}: invalid JSON`);
+      return;
+    }
+    for (const err of validate(schema, parsed).slice(0, 2)) {
+      problems.push(`${path.basename(file)}: ${err}`);
+    }
+  };
+  const editionsDir = path.join(ctx.dataDir, "editions");
+  if (isDir(editionsDir)) {
+    for (const f of fs.readdirSync(editionsDir).filter((x) => x.endsWith(".json")).sort()) {
+      checkJson(path.join(editionsDir, f), editionSchema);
+    }
+  }
+  const storeFile = statePath(ctx);
+  if (fs.existsSync(storeFile)) checkJson(storeFile, topicStoreSchema);
+  const installsFile = path.join(ctx.dataDir, "state", "installs.json");
+  if (fs.existsSync(installsFile)) checkJson(installsFile, installsFileSchema);
+  const pagesDir = path.join(ctx.dataDir, "state", "plugin-pages");
+  if (isDir(pagesDir)) {
+    for (const f of fs.readdirSync(pagesDir).filter((x) => x.endsWith(".json")).sort()) {
+      checkJson(path.join(pagesDir, f), pluginPageFileSchema);
+    }
+  }
+  if (problems.length > 0) {
+    const shown = problems.slice(0, 3).join("; ");
+    return [{
+      name: "data-schemas",
+      status: "fail",
+      detail: problems.length > 3 ? `${shown}; +${problems.length - 3} more` : shown,
+    }];
+  }
+  return [{
+    name: "data-schemas",
+    status: "ok",
+    detail: files === 0 ? "no data files yet" : `${files} data file(s) match their schemas`,
+  }];
 }
 
 const FEED_PROBE_SAMPLE = 3;

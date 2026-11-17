@@ -26,6 +26,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { URL } from "node:url";
 
+import { installsFileSchema, validate } from "@breaker-delta/core";
 import { parseYaml } from "@breaker-delta/fetchers";
 
 import { RuntimeError, UsageError } from "./commands.js";
@@ -174,6 +175,12 @@ function recordInstall(
     installed_at: new Date().toISOString(),
     files: Object.fromEntries(files.map((f) => [f.name, f.sha256])),
   };
+  // Rewrite Phase 0: the install record is a cross-boundary file —
+  // never write one that fails its schema.
+  const schemaErrors = validate(installsFileSchema, all);
+  if (schemaErrors.length > 0) {
+    throw new RuntimeError(`installs record failed schema validation: ${schemaErrors[0]}`);
+  }
   fs.mkdirSync(path.dirname(installsPath(ctx)), { recursive: true });
   fs.writeFileSync(installsPath(ctx), JSON.stringify(all, null, 2) + "\n", "utf-8");
 }

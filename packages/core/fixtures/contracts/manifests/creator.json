@@ -1,0 +1,18 @@
+{
+  "id": "creator",
+  "api": 1,
+  "order": 10,
+  "name": {
+    "zh": "创作参考",
+    "en": "For Creators",
+    "ja": "クリエイター向け"
+  },
+  "description": {
+    "zh": "话题页的写作参考面板：短贴钩子、PAS 框架、长文大纲与写作提示。内容由话题自身数据模板拼装，无需分级注入。",
+    "en": "The creator reference panel on topic pages: short-post hooks, a PAS frame, a long-form outline and writing tips, assembled from the topic's own data — no grading injection needed.",
+    "ja": "トピックページの執筆参考パネル：短文フック、PAS フレーム、長文アウトラインと執筆ヒント。話題自身のデータから組み立てるため、分級注入は不要。"
+  },
+  "slots": [
+    "panel"
+  ]
+}

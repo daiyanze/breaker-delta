@@ -3,6 +3,8 @@
 // verified against packages/core/fixtures/golden.json.
 
 export * from "./types.js";
+export * from "./schema.js";
+export * from "./schemas.js";
 export * from "./heat.js";
 export * from "./classify.js";
 export * from "./slug.js";
