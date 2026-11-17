@@ -19,7 +19,7 @@ import {
 } from "@breaker-delta/core";
 import type { TopicStore } from "@breaker-delta/core";
 import { loadConfig, runScan, summaryLines } from "@breaker-delta/fetchers";
-import { buildDocsSite, buildSite, optionsFromEnv } from "@breaker-delta/publisher";
+import { buildDocsSite, buildSite, loadLangPacksFromDir, optionsFromEnv } from "@breaker-delta/publisher";
 import type { BuildOptions } from "@breaker-delta/publisher";
 
 import { addPlugin, addPreset, verifyInstalls, type AddResult } from "./add.js";
@@ -360,6 +360,21 @@ export async function cmdPublish(ctx: CliContext, flags: PublishFlags): Promise<
   );
   if (pageRes.pages.length > 0) {
     const line = `plugin pages: ${pageRes.pages.join(", ")}`;
+    if (ctx.json) console.error(line);
+    else out(ctx, line);
+  }
+  // Language packs (Plugin-P3): UI-string overlays from the data
+  // dir. A broken pack fails the publish here rather than silently
+  // rendering without it.
+  const packs = loadLangPacksFromDir(ctx.dataDir);
+  if (packs.problems.length > 0) {
+    throw new RuntimeError(
+      `language pack problems:\n${packs.problems.map((p) => `  ${p}`).join("\n")}`,
+    );
+  }
+  if (packs.packs.length > 0) {
+    opts.langPacks = packs.packs;
+    const line = `language packs: ${packs.packs.map((p) => p.code).join(", ")}`;
     if (ctx.json) console.error(line);
     else out(ctx, line);
   }
@@ -787,6 +802,24 @@ export function collectDoctorChecks(ctx: CliContext): DoctorCheck[] {
   }
   // URL-installed packs (Plugin-P3): re-verify the recorded hashes.
   checks.push(...verifyInstalls(ctx));
+  // Language packs (Plugin-P3): strict key validation lives in the
+  // publisher loader; surface its problems as doctor failures.
+  const lp = loadLangPacksFromDir(ctx.dataDir);
+  for (const problem of lp.problems) {
+    checks.push({ name: "language packs", status: "fail", detail: problem });
+  }
+  if (lp.packs.length > 0 && lp.problems.length === 0) {
+    checks.push({
+      name: "language packs",
+      status: "ok",
+      detail: lp.packs
+        .map(
+          (p) =>
+            `${p.code} (${["zh", "en", "ja"].includes(p.code) ? "override" : `new, base ${p.base}`}, ${Object.keys(p.strings).length} strings)`,
+        )
+        .join("; "),
+    });
+  }
   const editionsDir = path.join(ctx.dataDir, "editions");
   if (!isDir(editionsDir)) {
     checks.push({ name: "editions", status: "fail", detail: "editions/ missing" });

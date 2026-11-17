@@ -303,6 +303,7 @@ $BD --data-dir /path/to/your-data publish --out site        # build the static s
 <li><b>mcp</b> — 以 stdio 方式运行 MCP 服务器，提供 radar_scan / radar_review / radar_board / radar_topic / radar_editions 五个引擎工具，外加已启用插件注册的工具（见 <a href="docs-skill.html">Skill 与 MCP</a>）。</li>
 <li><b>plugins add &lt;url&gt;</b> — 从插件包 plugin.yaml 的网址安装插件（同目录文件按相对路径一并取）。声明式包直接装；代码插件会先打印权限清单与每个文件的 sha256 哈希、加 --yes 才装。安装记录写进 state/installs.json，doctor 会复核哈希、文件被改动会报漂移。</li>
 <li><b>preset add &lt;url&gt;</b> — 从 config.yaml 的网址把预设装进数据目录的 presets/，之后在配置里写 preset: &lt;名字&gt; 即可选用；数据目录的预设优先于同名的引擎内置预设。</li>
+<li><b>语言包</b> — 数据目录放 langpacks/&lt;语言代码&gt;/pack.json（{code, name, base, strings}）即可改界面文案或加一种界面语言：code 是内置语言（zh/en/ja）时逐条覆盖原文案；是新代码时以 base 语言（默认 en）的文案打底、包里的逐条盖上，站点多出一套该语言的页面。键名必须与内置文案表一致、列表型键名（tabs 等）条数必须相同，doctor 会校验报错。注意语言包只管界面「壳」：期次内容仍来自各期自带的译文，长文页（关于/落地页）与插件面板在新语言下回退到 base 语言显示。适用于静态 publish 与 serve（Docker）形态。</li>
 </ul>
 <h3 style="margin:16px 0 6px">常用例子</h3>
 <pre class="cfgpre full">BD="bun apps/cli/dist/breaker-delta.mjs"
@@ -351,6 +352,7 @@ TS_MAIN_URL      主站地址：文档站的回链指向它（默认 https://bre
 <li><b>mcp</b> — run the stdio MCP server with the engine tools radar_scan / radar_review / radar_board / radar_topic / radar_editions, plus tools registered by enabled plugins (see <a href="docs-skill.html">Skill &amp; MCP</a>).</li>
 <li><b>plugins add &lt;url&gt;</b> — install a plugin pack from the URL of its plugin.yaml (sibling files resolve relative to it). Declarative packs install directly; code plugins first print their declared permissions and every file's sha256 and install only with --yes. Installs are recorded in state/installs.json and doctor re-verifies the hashes, warning on drift.</li>
 <li><b>preset add &lt;url&gt;</b> — install a preset from the URL of its config.yaml into the data dir's presets/; select it with preset: &lt;name&gt; in config. A data-dir preset wins over a bundled one of the same name.</li>
+<li><b>Language packs</b> — put langpacks/&lt;code&gt;/pack.json ({code, name, base, strings}) in the data dir to reword the UI or add a UI language: a built-in code (zh/en/ja) overrides individual strings; a new code starts from the base language's table (default en) with the pack's strings on top and the site gains a full set of pages in that language. Keys must match the built-in string table and list-valued keys (tabs, …) must keep their length — doctor validates and fails loudly. A pack is the shell only: edition content still comes from each edition's own translations, and long-form pages (About / Landing) and plugin panels fall back to the base language under a new UI language. Applies to static publish and serve (Docker).</li>
 </ul>
 <h3 style="margin:16px 0 6px">Common examples</h3>
 <pre class="cfgpre full">BD="bun apps/cli/dist/breaker-delta.mjs"

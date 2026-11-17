@@ -18,6 +18,15 @@ export {
   type PanelValue,
 } from "./plugins.js";
 export { loadConfigBlocks, loadEditions, loadPluginPages, sourceBlock, sourceKey, yamlSourceBlocks, type PluginPageData } from "./load.js";
+export {
+  addedLangs,
+  blobLang,
+  loadLangPacksFromDir,
+  mergedHtmlLangs,
+  mergedLangLabels,
+  mergedStrings,
+  type LangPack,
+} from "./langpacks.js";
 // Shared presentation constants, re-exported for the P2 web app so the
 // dynamic front end renders with the same strings/styles as the
 // static build instead of drifting copies.

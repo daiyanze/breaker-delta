@@ -7,6 +7,14 @@ import * as path from "node:path";
 
 import { DEFAULT_CAT_RULE_SET, type CatRuleSet } from "@breaker-delta/core";
 
+import {
+  addedLangs,
+  blobLang,
+  mergedHtmlLangs,
+  mergedLangLabels,
+  mergedStrings,
+  type LangPack,
+} from "./langpacks.js";
 import { CAT_I18N, HTML_LANG, LEVEL_I18N, STRINGS } from "./literals.js";
 
 export interface BuildOptions {
@@ -28,6 +36,10 @@ export interface BuildOptions {
   mainUrl?: string;
   dataRepo?: string;
   langs?: string[];
+  /** Language packs (Plugin-P3) loaded from the data dir by the
+   *  caller; overrides merge over the built-in UI strings and new
+   *  codes extend the built language set (unless langs is pinned). */
+  langPacks?: LangPack[];
   /**
    * Render into this map instead of writing files (keys are POSIX
    * paths relative to the site root, values the file bytes). Used by
@@ -78,6 +90,15 @@ export interface Ctx {
   mainUrl: string;
   dataRepo: string;
   langs: string[];
+  /** Effective UI string tables with language packs applied. */
+  strings: Record<string, Record<string, string | string[]>>;
+  /** html lang attribute per language (packs add their own code). */
+  htmlLangs: Record<string, string>;
+  /** Language-switcher labels (a pack's name wins for its code). */
+  langLabels: Record<string, string>;
+  /** Which built-in language's long-form blobs (About/Landing) a
+   *  render in each language falls back to. */
+  blobLangs: Record<string, string>;
   catRules: CatRuleSet;
   creator: boolean;
   panelPlugins: import("./plugins.js").PanelPluginDef[] | undefined;
@@ -122,7 +143,18 @@ export function makeCtx(options: BuildOptions): Ctx {
     docsUrl: normalizeBaseUrl(options.docsUrl ?? DEFAULT_DOCS_URL),
     mainUrl: normalizeBaseUrl(options.mainUrl ?? DEFAULT_MAIN_URL),
     dataRepo: options.dataRepo ?? DEFAULT_DATA_REPO,
-    langs: options.langs ?? [...DEFAULT_LANGS],
+    langs:
+      options.langs ??
+      [...DEFAULT_LANGS, ...addedLangs(options.langPacks ?? [])],
+    strings: mergedStrings(options.langPacks ?? []),
+    htmlLangs: mergedHtmlLangs(options.langPacks ?? []),
+    langLabels: mergedLangLabels(options.langPacks ?? []),
+    blobLangs: Object.fromEntries(
+      [...DEFAULT_LANGS, ...addedLangs(options.langPacks ?? [])].map((l) => [
+        l,
+        blobLang(options.langPacks ?? [], l),
+      ]),
+    ),
     catRules: options.catRules ?? DEFAULT_CAT_RULE_SET,
     creator: options.creator ?? true,
     panelPlugins: options.panelPlugins,
@@ -186,14 +218,15 @@ export function optionsFromEnv(
 
 // ------------------------------------------------------------ strings
 
-/** publish.py's s(): the current language's string for a key. */
+/** publish.py's s(): the current language's string for a key
+ *  (language packs applied — see langpacks.ts). */
 export function s(ctx: Ctx, key: string): string {
-  return STRINGS[ctx.lang][key] as string;
+  return (ctx.strings[ctx.lang] ?? STRINGS[ctx.lang])[key] as string;
 }
 
 /** s() for the list-valued keys (tabs, th, tr_th). */
 export function sArr(ctx: Ctx, key: string): string[] {
-  return STRINGS[ctx.lang][key] as string[];
+  return (ctx.strings[ctx.lang] ?? STRINGS[ctx.lang])[key] as string[];
 }
 
 export function catName(ctx: Ctx, cat: string): string {
@@ -203,7 +236,8 @@ export function catName(ctx: Ctx, cat: string): string {
 
 export function levelLabel(ctx: Ctx, level: string | null | undefined): string {
   const table = (level != null ? LEVEL_I18N[level] : undefined) ?? LEVEL_I18N["echo"];
-  return table[ctx.lang];
+  // Pack-added languages have no LEVEL_I18N entry: fall back to en.
+  return table[ctx.lang] ?? table.en ?? table.zh;
 }
 
 export function langPrefix(ctx: Ctx): string {
@@ -211,5 +245,5 @@ export function langPrefix(ctx: Ctx): string {
 }
 
 export function htmlLang(ctx: Ctx): string {
-  return HTML_LANG[ctx.lang];
+  return ctx.htmlLangs[ctx.lang] ?? HTML_LANG[ctx.lang] ?? ctx.lang;
 }

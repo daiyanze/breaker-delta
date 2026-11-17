@@ -25,7 +25,7 @@ import * as path from "node:path";
 
 import { catRulesFromConfig } from "@breaker-delta/core";
 import { runScan, summaryLines } from "@breaker-delta/fetchers";
-import { optionsFromEnv, renderSiteMap } from "@breaker-delta/publisher";
+import { loadLangPacksFromDir, optionsFromEnv, renderSiteMap } from "@breaker-delta/publisher";
 import type { BuildOptions } from "@breaker-delta/publisher";
 
 import { applyRecord, autoEdition, validateEntries } from "./commands.js";
@@ -93,6 +93,12 @@ function buildOptions(ctx: CliContext, baseUrl: string): BuildOptions {
     cliConfig as Record<string, unknown>,
     envOpts.creator ?? true,
   );
+  // Language packs (Plugin-P3), same loader as publish.
+  const packs = loadLangPacksFromDir(ctx.dataDir);
+  if (packs.problems.length > 0) {
+    throw new Error(`language pack problems:\n${packs.problems.map((p) => `  ${p}`).join("\n")}`);
+  }
+  if (packs.packs.length > 0) opts.langPacks = packs.packs;
   return opts;
 }
 

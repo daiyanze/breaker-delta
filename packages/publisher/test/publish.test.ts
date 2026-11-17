@@ -649,3 +649,98 @@ test("renderPanel: olist when-filter skips empty values; interpolation escapes v
   assert.ok(html.includes("<b>甲</b>：&lt;x&gt;"));
   assert.ok(!html.includes("乙"), "item gated on an empty value is skipped");
 });
+
+// ---------------------------------------------------------- language packs (Plugin-P3)
+
+import { loadLangPacksFromDir } from "../src/index.js";
+import { STRINGS as BASE_STRINGS } from "../src/literals.js";
+
+function writePack(tmpdir: string, code: string, pack: Record<string, unknown>): void {
+  const dir = path.join(tmpdir, "langpacks", code);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, "pack.json"), JSON.stringify(pack), "utf-8");
+}
+
+test("language pack adds a language: shell strings applied, the rest falls back to base", async () => {
+  const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "bd-pub-lang-"));
+  try {
+    writePack(tmpdir, "ko", {
+      code: "ko",
+      name: "한국어",
+      base: "en",
+      strings: {
+        site_name: "코리안 레이더",
+        wave: "파도 높이",
+        tabs: (BASE_STRINGS.en.tabs as string[]).map((t, i) => (i === 0 ? "🌊 웨이브 보드" : t)),
+      },
+    });
+    const { packs, problems } = loadLangPacksFromDir(tmpdir);
+    assert.deepEqual(problems, []);
+    assert.equal(packs.length, 1);
+
+    const editionsDir = writeEditions(tmpdir);
+    const outDir = path.join(tmpdir, "site");
+    await buildSite({
+      rootDir: ROOT,
+      editionsDir,
+      outDir,
+      baseUrl: "https://example.com/triple-sigma",
+      langPacks: packs,
+    });
+    const ko = read(outDir, "ko/index.html");
+    assert.match(ko, /<html lang="ko">/);
+    assert.ok(ko.includes("코리안 레이더"), "pack site_name is used");
+    assert.ok(ko.includes("🌊 웨이브 보드"), "pack tab label is used");
+    assert.ok(ko.includes("한국어"), "switcher shows the pack name");
+    // A key the pack did not override falls back to the base (en) table.
+    assert.ok(ko.includes(BASE_STRINGS.en.carried as string), "unoverridden key falls back to base");
+    // Content is NOT the pack's business: topic titles stay as written.
+    assert.ok(ko.includes("示例模型发布"));
+    // Built-in languages are untouched.
+    const en = read(outDir, "en/index.html");
+    assert.ok(!en.includes("코리안 레이더"));
+  } finally {
+    fs.rmSync(tmpdir, { recursive: true, force: true });
+  }
+});
+
+test("language pack can override a built-in language's strings", async () => {
+  const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "bd-pub-lang-"));
+  try {
+    writePack(tmpdir, "en", {
+      code: "en",
+      strings: { site_name: "My Custom Radar" },
+    });
+    const { packs, problems } = loadLangPacksFromDir(tmpdir);
+    assert.deepEqual(problems, []);
+    const editionsDir = writeEditions(tmpdir);
+    const outDir = path.join(tmpdir, "site");
+    await buildSite({
+      rootDir: ROOT,
+      editionsDir,
+      outDir,
+      baseUrl: "https://example.com/triple-sigma",
+      langPacks: packs,
+    });
+    assert.ok(read(outDir, "en/index.html").includes("My Custom Radar"));
+    assert.ok(!read(outDir, "index.html").includes("My Custom Radar"));
+  } finally {
+    fs.rmSync(tmpdir, { recursive: true, force: true });
+  }
+});
+
+test("language pack validation: unknown keys, list length, code/dir mismatch", () => {
+  const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "bd-pub-lang-"));
+  try {
+    writePack(tmpdir, "ko", { code: "ko", strings: { no_such_key: "x" } });
+    writePack(tmpdir, "fr", { code: "fr", strings: { tabs: ["only-one"] } });
+    writePack(tmpdir, "de", { code: "es", strings: {} });
+    const { packs, problems } = loadLangPacksFromDir(tmpdir);
+    assert.equal(packs.length, 0);
+    assert.ok(problems.some((p) => p.includes('unknown string key "no_such_key"')), problems.join(" | "));
+    assert.ok(problems.some((p) => p.includes('"tabs" must have')), problems.join(" | "));
+    assert.ok(problems.some((p) => p.includes("does not match its directory name")), problems.join(" | "));
+  } finally {
+    fs.rmSync(tmpdir, { recursive: true, force: true });
+  }
+});

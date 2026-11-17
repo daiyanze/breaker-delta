@@ -374,7 +374,7 @@ export function writeDiscovery(ctx: Ctx, editions: Edition[], topics: PubTopic[]
   const langLinks = ctx.langs
     .map(
       (L) =>
-        `- [${HTML_LANG[L]}](${ctx.baseUrl}${L === "zh" ? "" : L + "/"}index.html)`,
+        `- [${ctx.htmlLangs[L] ?? L}](${ctx.baseUrl}${L === "zh" ? "" : L + "/"}index.html)`,
     )
     .join("\n");
   const llms =
@@ -617,7 +617,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     "@type": "WebSite",
     name: s(ctx, "site_name"),
     url: ctx.baseUrl + (ctx.lang === "zh" ? "" : ctx.lang + "/"),
-    inLanguage: HTML_LANG[ctx.lang],
+    inLanguage: ctx.htmlLangs[ctx.lang] ?? ctx.lang,
   };
   write(
     ctx,
@@ -896,7 +896,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       pyFormat(s(ctx, "wave_rank"), { h: last.heat, r: last.board_rank as number }) +
       " · " +
       pyFormat(s(ctx, "resonance"), { n: allSrcs.length });
-    const ht = HOOK_T[ctx.lang];
+    const ht = HOOK_T[ctx.blobLangs[ctx.lang] ?? "en"] ?? HOOK_T.en;
     const hooks: [string, string][] = [
       [
         "hk_num",
@@ -928,10 +928,12 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       `${esc(locLast.title)}（${s(ctx, "traj")}：${traj}）</li>` +
       `<li><b>${s(ctx, "hz3")}</b>：${s(ctx, "hz3_hint")}</li>` +
       `<li><b>${s(ctx, "hz4")}</b>：${s(ctx, "hz4_txt")}</li></ol>`;
-    const stUl = SHORT_TIPS[ctx.lang]
+    const stUl = (SHORT_TIPS[ctx.blobLangs[ctx.lang] ?? "en"] ?? SHORT_TIPS.en)
       .map((x) => `<li>${esc(x)}</li>`)
       .join("");
-    const ltUl = LONG_TIPS[ctx.lang].map((x) => `<li>${esc(x)}</li>`).join("");
+    const ltUl = (LONG_TIPS[ctx.blobLangs[ctx.lang] ?? "en"] ?? LONG_TIPS.en)
+      .map((x) => `<li>${esc(x)}</li>`)
+      .join("");
     const creator =
       `<section class="panel"><div class="panel-h"><span>${s(ctx, "creator_title")}</span>` +
       `<span class="r">${s(ctx, "cr_src")}</span></div>` +
@@ -1308,7 +1310,7 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       ctx,
       sArr(ctx, "tabs")[8],
       mast(ctx, "about", editions, { fname: "about.html" }) +
-        ABOUT[ctx.lang] +
+        (ABOUT[ctx.lang] ?? ABOUT[ctx.blobLangs[ctx.lang] ?? "en"] ?? ABOUT.en) +
         foot(ctx),
       { path: "about.html", desc: s(ctx, "desc_about"), ld: aboutLd },
     ),
@@ -1324,9 +1326,9 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
       ctx,
       s(ctx, "landing_title"),
       mast(ctx, "landing", editions, { fname: "landing.html" }) +
-        LANDING[ctx.lang].split("{{DOCS}}").join(
-          `${ctx.docsUrl}${langPrefix(ctx)}`,
-        ) +
+        (LANDING[ctx.lang] ?? LANDING[ctx.blobLangs[ctx.lang] ?? "en"] ?? LANDING.en)
+          .split("{{DOCS}}")
+          .join(`${ctx.docsUrl}${langPrefix(ctx)}`) +
         foot(ctx),
       { path: "landing.html", desc: s(ctx, "desc_landing") },
     ),

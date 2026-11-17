@@ -235,3 +235,25 @@ test("add: refuses non-loopback http and cross-host redirects", async () => {
     assert.match(redir.stderr + redir.stdout, /redirect leaves the original host/);
   });
 });
+
+test("doctor reports language packs: valid pack ok, unknown key fails", async () => {
+  const dir = tmpdir();
+  fs.mkdirSync(path.join(dir, "langpacks", "ko"), { recursive: true });
+  fs.writeFileSync(
+    path.join(dir, "langpacks", "ko", "pack.json"),
+    JSON.stringify({ code: "ko", name: "한국어", base: "en", strings: { wave: "파도 높이" } }),
+    "utf-8",
+  );
+  fs.writeFileSync(path.join(dir, "config.yaml"), "plugins: {}\n", "utf-8");
+  const ok = await runCliAsync(["--data-dir", dir, "doctor"]);
+  assert.match(ok.stdout, /language packs/);
+  assert.match(ok.stdout, /ko \(new, base en, 1 strings\)/);
+
+  fs.writeFileSync(
+    path.join(dir, "langpacks", "ko", "pack.json"),
+    JSON.stringify({ code: "ko", strings: { nope_key: "x" } }),
+    "utf-8",
+  );
+  const bad = await runCliAsync(["--data-dir", dir, "doctor"]);
+  assert.match(bad.stdout, /unknown string key "nope_key"/);
+});

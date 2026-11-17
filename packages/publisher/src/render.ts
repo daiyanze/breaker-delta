@@ -239,7 +239,7 @@ export function mast(
     for (const L of ctx.langs) {
       links +=
         `<a href="${root}${L === "zh" ? "" : L + "/"}${fname}" ` +
-        `class="${L === ctx.lang ? "on" : ""}">${LANG_LABEL[L]}</a>`;
+        `class="${L === ctx.lang ? "on" : ""}">${ctx.langLabels[L] ?? LANG_LABEL[L] ?? L}</a>`;
     }
     ctl += `<span class="langs">${links}</span>`;
   }
@@ -444,12 +444,12 @@ export function page(ctx: Ctx, title: string, body: string, opts?: PageOptions):
   let hreflang = "";
   for (const L of ctx.langs) {
     hreflang +=
-      `<link rel="alternate" hreflang="${HTML_LANG[L]}" ` +
+      `<link rel="alternate" hreflang="${ctx.htmlLangs[L] ?? HTML_LANG[L] ?? L}" ` +
       `href="${ctx.baseUrl}${L === "zh" ? "" : L + "/"}${path}">`;
   }
   hreflang += `<link rel="alternate" hreflang="x-default" href="${ctx.baseUrl}${path}">`;
   return (
-    `<!DOCTYPE html>\n<html lang="${HTML_LANG[ctx.lang]}"><head><meta charset="utf-8">` +
+    `<!DOCTYPE html>\n<html lang="${ctx.htmlLangs[ctx.lang] ?? HTML_LANG[ctx.lang] ?? ctx.lang}"><head><meta charset="utf-8">` +
     `<meta name="viewport" content="width=device-width, initial-scale=1">` +
     `<meta name="description" content="${esc(desc)}">` +
     `<link rel="canonical" href="${url}">${hreflang}` +
@@ -557,7 +557,7 @@ export function mastDocs(ctx: Ctx, fname: string): string {
     for (const L of ctx.langs) {
       links +=
         `<a href="${root}${L === "zh" ? "" : L + "/"}${fname}" ` +
-        `class="${L === ctx.lang ? "on" : ""}">${LANG_LABEL[L]}</a>`;
+        `class="${L === ctx.lang ? "on" : ""}">${ctx.langLabels[L] ?? LANG_LABEL[L] ?? L}</a>`;
     }
     ctl += `<span class="langs">${links}</span>`;
   }
