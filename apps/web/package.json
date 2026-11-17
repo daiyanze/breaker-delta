@@ -5,6 +5,7 @@
     "@breaker-delta/fetchers": "0.22.0",
     "@breaker-delta/plugin-host": "0.22.0",
     "@breaker-delta/publisher": "0.22.0",
+    "@breaker-delta/services": "0.22.0",
     "@breaker-delta/stores": "0.22.0",
     "@vinext/cloudflare": "^1.3.4",
     "react": "^19.3.1",

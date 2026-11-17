@@ -8,6 +8,7 @@
     "@breaker-delta/fetchers": "0.22.0",
     "@breaker-delta/plugin-host": "0.22.0",
     "@breaker-delta/publisher": "0.22.0",
+    "@breaker-delta/services": "0.22.0",
     "@breaker-delta/stores": "0.22.0"
   },
   "description": "Breaker Delta command line: scan / review / record / publish / doctor / mcp over @breaker-delta/core + fetchers + publisher. Bundles to a single self-contained breaker-delta.mjs.",

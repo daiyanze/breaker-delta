@@ -1,12 +1,11 @@
-import type { Edition } from "@breaker-delta/core";
+import { validatePushEdition } from "@breaker-delta/services";
 
 import { pushEdition } from "../../../lib/push";
 import { checkPushAuth, jsonError } from "../../../lib/push-auth";
 
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-
-// POST /api/editions — one finished edition object; same
-// validation, status codes and messages as the CLI's serve.
+// POST /api/editions — one finished edition object; validation,
+// status codes and messages are the shared push contract's
+// (@breaker-delta/services), identical to the CLI's serve.
 export async function POST(req: Request) {
   if (process.env.BD_DATA_BASE) {
     return jsonError(501, "push API is not available on the remote (read-only) backend");
@@ -19,20 +18,14 @@ export async function POST(req: Request) {
   } catch (err) {
     return jsonError(400, `invalid JSON body: ${err instanceof Error ? err.message : String(err)}`);
   }
-  const ed = parsed as { date?: unknown; slot?: unknown; items?: unknown };
-  if (
-    typeof ed?.date !== "string" ||
-    !DATE_RE.test(ed.date) ||
-    (ed.slot !== "morning" && ed.slot !== "evening") ||
-    !Array.isArray(ed.items)
-  ) {
-    return jsonError(
-      400,
-      "edition must be an object with date (YYYY-MM-DD), slot (morning|evening) and items[]",
-    );
+  let ed;
+  try {
+    ed = validatePushEdition(parsed);
+  } catch (err) {
+    return jsonError(400, err instanceof Error ? err.message : String(err));
   }
   const url = new URL(req.url);
-  const result = await pushEdition(ed as Edition, url.searchParams.get("replace") === "1");
+  const result = await pushEdition(ed, url.searchParams.get("replace") === "1");
   if (!result.ok) return jsonError(409, result.conflict);
   return Response.json({ written: true, items: result.items });
 }

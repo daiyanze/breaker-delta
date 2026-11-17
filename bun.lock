@@ -17,6 +17,7 @@
         "@breaker-delta/fetchers": "0.22.0",
         "@breaker-delta/plugin-host": "0.22.0",
         "@breaker-delta/publisher": "0.22.0",
+        "@breaker-delta/services": "0.22.0",
         "@breaker-delta/stores": "0.22.0",
       },
       "devDependencies": {
@@ -42,6 +43,7 @@
         "@breaker-delta/fetchers": "0.22.0",
         "@breaker-delta/plugin-host": "0.22.0",
         "@breaker-delta/publisher": "0.22.0",
+        "@breaker-delta/services": "0.22.0",
         "@breaker-delta/stores": "0.22.0",
         "@vinext/cloudflare": "^1.3.4",
         "react": "^19.3.1",
@@ -94,6 +96,7 @@
         "@breaker-delta/config": "0.22.0",
         "@breaker-delta/core": "0.22.0",
         "@breaker-delta/publisher": "0.22.0",
+        "@breaker-delta/stores": "0.22.0",
       },
     },
     "packages/publisher": {
@@ -105,6 +108,13 @@
       },
       "devDependencies": {
         "typescript": "^5",
+      },
+    },
+    "packages/services": {
+      "name": "@breaker-delta/services",
+      "version": "0.22.0",
+      "dependencies": {
+        "@breaker-delta/core": "0.22.0",
       },
     },
     "packages/stores": {
@@ -129,6 +139,8 @@
     "@breaker-delta/plugin-host": ["@breaker-delta/plugin-host@workspace:packages/plugin-host"],
 
     "@breaker-delta/publisher": ["@breaker-delta/publisher@workspace:packages/publisher"],
+
+    "@breaker-delta/services": ["@breaker-delta/services@workspace:packages/services"],
 
     "@breaker-delta/stores": ["@breaker-delta/stores@workspace:packages/stores"],
 

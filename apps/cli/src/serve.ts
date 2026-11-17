@@ -28,6 +28,13 @@ import { runScan, summaryLines } from "@breaker-delta/fetchers";
 import { loadLangPacksFromDir, optionsFromEnv, renderSiteMap } from "@breaker-delta/publisher";
 import type { BuildOptions } from "@breaker-delta/publisher";
 
+import {
+  checkBearerToken,
+  editionConflictMessage,
+  editionFileName,
+  validatePushEdition,
+} from "@breaker-delta/services";
+
 import { applyRecord, autoEdition, validateEntries } from "./commands.js";
 import { gradingConfigFrom, runGrade } from "./grade.js";
 import {
@@ -170,8 +177,6 @@ function jsonResponse(
   res.end(body);
 }
 
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-
 export async function cmdServe(ctx: CliContext, flags: ServeFlags): Promise<number> {
   const port = Number(flags.port ?? process.env.PORT ?? process.env.BD_PORT ?? 8080);
   if (!Number.isInteger(port) || port < 1 || port > 65535) {
@@ -292,12 +297,6 @@ export async function cmdServe(ctx: CliContext, flags: ServeFlags): Promise<numb
     log(`scan scheduler on: ${scanTimes.join(", ")} (local time)`);
   }
 
-  function authorized(req: http.IncomingMessage): boolean {
-    if (pushToken === "") return false;
-    const header = req.headers["authorization"];
-    return header === `Bearer ${pushToken}`;
-  }
-
   const server = http.createServer((req, res) => {
     void (async () => {
       const url = new URL(req.url ?? "/", "http://internal");
@@ -315,17 +314,18 @@ export async function cmdServe(ctx: CliContext, flags: ServeFlags): Promise<numb
         return;
       }
 
-      if (pathname === "/api/record" || pathname === "/api/editions") {
+      // The push contract lives at /api/* and, since Phase 2b, at
+      // the versioned /api/v1/* — same handlers, same semantics.
+      const isRecord = pathname === "/api/record" || pathname === "/api/v1/record";
+      const isEditions = pathname === "/api/editions" || pathname === "/api/v1/editions";
+      if (isRecord || isEditions) {
         if (req.method !== "POST") {
           jsonResponse(res, 405, { error: "POST only" });
           return;
         }
-        if (pushToken === "") {
-          jsonResponse(res, 403, { error: "push API disabled (set BD_PUSH_TOKEN)" });
-          return;
-        }
-        if (!authorized(req)) {
-          jsonResponse(res, 401, { error: "bad or missing bearer token" });
+        const auth = checkBearerToken(req.headers["authorization"], pushToken);
+        if (!auth.ok) {
+          jsonResponse(res, auth.status, { error: auth.error });
           return;
         }
         let parsed: unknown;
@@ -337,7 +337,7 @@ export async function cmdServe(ctx: CliContext, flags: ServeFlags): Promise<numb
           });
           return;
         }
-        if (pathname === "/api/record") {
+        if (isRecord) {
           try {
             const entries = validateEntries(parsed);
             const result = applyRecord(ctx, entries);
@@ -348,24 +348,22 @@ export async function cmdServe(ctx: CliContext, flags: ServeFlags): Promise<numb
           }
           return;
         }
-        // /api/editions: one finished edition object.
-        const ed = parsed as { date?: unknown; slot?: unknown; items?: unknown };
-        if (
-          typeof ed?.date !== "string" ||
-          !DATE_RE.test(ed.date) ||
-          (ed.slot !== "morning" && ed.slot !== "evening") ||
-          !Array.isArray(ed.items)
-        ) {
+        // /api/editions: one finished edition object. Envelope
+        // validation is the shared contract's (validatePushEdition).
+        let ed: { date: string; slot: string; items: unknown[] };
+        try {
+          ed = validatePushEdition(parsed) as { date: string; slot: string; items: unknown[] };
+        } catch (err) {
           jsonResponse(res, 400, {
-            error: "edition must be an object with date (YYYY-MM-DD), slot (morning|evening) and items[]",
+            error: err instanceof Error ? err.message : String(err),
           });
           return;
         }
         const editionsDir = path.join(ctx.dataDir, "editions");
-        const file = path.join(editionsDir, `${ed.date}-${ed.slot}.json`);
+        const file = path.join(editionsDir, editionFileName(ed.date, ed.slot));
         if (fs.existsSync(file) && url.searchParams.get("replace") !== "1") {
           jsonResponse(res, 409, {
-            error: `${ed.date}-${ed.slot}.json already exists (append ?replace=1 to overwrite)`,
+            error: editionConflictMessage(ed.date, ed.slot),
           });
           return;
         }

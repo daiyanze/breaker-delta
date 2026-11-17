@@ -17,11 +17,13 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+import type { Edition, StoreTopic } from "@breaker-delta/core";
 import {
-  upsertTopic,
-  type Edition,
-  type StoreTopic,
-} from "@breaker-delta/core";
+  applyRecordToStore,
+  editionConflictMessage,
+  validateRecordEntries,
+  type RecordEntry,
+} from "@breaker-delta/services";
 import { loadStore, saveStore } from "@breaker-delta/stores";
 import { attachEditionHeat, compareEditionOrder } from "@breaker-delta/stores/editions";
 
@@ -34,30 +36,12 @@ import {
   writeAllToDb,
 } from "./store";
 
-export interface RecordEntry {
-  name: string;
-  sources: string[];
-  grade: string;
-}
+export type { RecordEntry };
 
-/** validateEntries in apps/cli/src/commands.ts, same messages. */
+/** Entry validation is the push contract's, shared with the CLI
+ *  via @breaker-delta/services (Rewrite Phase 2b). */
 export function validateEntries(data: unknown): RecordEntry[] {
-  if (!Array.isArray(data)) {
-    throw new Error("record: input must be a JSON array of {name, sources, grade}");
-  }
-  return data.map((raw, i) => {
-    const e = raw as Record<string, unknown>;
-    if (typeof e?.name !== "string" || e.name === "") {
-      throw new Error(`record: entry ${i}: name must be a non-empty string`);
-    }
-    if (!Array.isArray(e.sources) || e.sources.some((x) => typeof x !== "string")) {
-      throw new Error(`record: entry ${i}: sources must be an array of strings`);
-    }
-    if (typeof e.grade !== "string" || e.grade === "") {
-      throw new Error(`record: entry ${i}: grade must be a non-empty string`);
-    }
-    return { name: e.name, sources: e.sources as string[], grade: e.grade };
-  });
+  return validateRecordEntries(data);
 }
 
 /** buildTopics requires editions to carry _heat/_rank (attached
@@ -90,7 +74,7 @@ export async function pushEdition(
     if (fs.existsSync(file) && !replace) {
       return {
         ok: false,
-        conflict: `${ed.date}-${ed.slot}.json already exists (append ?replace=1 to overwrite)`,
+        conflict: editionConflictMessage(ed.date, ed.slot ?? ""),
       };
     }
     fs.mkdirSync(editionsDir, { recursive: true });
@@ -105,7 +89,7 @@ export async function pushEdition(
   if (at >= 0 && !replace) {
     return {
       ok: false,
-      conflict: `${ed.date}-${ed.slot}.json already exists (append ?replace=1 to overwrite)`,
+      conflict: editionConflictMessage(ed.date, ed.slot ?? ""),
     };
   }
   const prepared = attachHeat(ed);
@@ -137,30 +121,16 @@ export async function pushRecord(entries: RecordEntry[]): Promise<RecordResult> 
   if (db === null) {
     const storePath = path.join(dataDir(), "state", "seen-topics.json");
     const store = loadStore(storePath);
-    let created = 0;
-    let updated = 0;
-    for (const entry of entries) {
-      const existed = store.topics.some((t) => t.name === entry.name);
-      upsertTopic(store, entry.name, entry.sources, entry.grade);
-      if (existed) updated += 1;
-      else created += 1;
-    }
+    const { created, updated, total } = applyRecordToStore(store, entries);
     saveStore(store, storePath);
     invalidateSiteData();
-    return { created, updated, total: store.topics.length };
+    return { created, updated, total };
   }
   const store = new SqliteStore(db);
   const cur = await store.load();
   const ledger: StoreTopic[] = cur.ledger.map((t) => JSON.parse(JSON.stringify(t)) as StoreTopic);
   const holder = { topics: ledger };
-  let created = 0;
-  let updated = 0;
-  for (const entry of entries) {
-    const existed = holder.topics.some((t) => t.name === entry.name);
-    upsertTopic(holder, entry.name, entry.sources, entry.grade);
-    if (existed) updated += 1;
-    else created += 1;
-  }
+  const { created, updated } = applyRecordToStore(holder, entries);
   const handle = await openSqlite(db, false);
   try {
     writeAllToDb(handle, {

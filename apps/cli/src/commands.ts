@@ -13,7 +13,6 @@ import {
   dueForReview,
   recordReview,
   todayLocal,
-  upsertTopic,
   editionSchema,
   installsFileSchema,
   pluginPageFileSchema,
@@ -25,6 +24,11 @@ import { loadConfig, runScan, summaryLines } from "@breaker-delta/fetchers";
 import { buildDocsSite, buildSite, loadLangPacksFromDir, optionsFromEnv } from "@breaker-delta/publisher";
 import { listPresetNamesIn } from "@breaker-delta/config";
 import { loadStore, saveStore } from "@breaker-delta/stores";
+import {
+  applyRecordToStore,
+  validateRecordEntries,
+  type RecordEntry,
+} from "@breaker-delta/services";
 import type { BuildOptions } from "@breaker-delta/publisher";
 
 import { addPlugin, addPreset, verifyInstalls, type AddResult } from "./add.js";
@@ -114,29 +118,17 @@ export function cmdReview(ctx: CliContext): number {
 
 // ------------------------------------------------------------ record
 
-export interface RecordEntry {
-  name: string;
-  sources: string[];
-  grade: string;
-}
+export type { RecordEntry } from "@breaker-delta/services";
 
+/** The record-entry validation is the push contract's, shared
+ *  with the web app via @breaker-delta/services (Rewrite Phase 2b);
+ *  this wrapper keeps the CLI's RuntimeError surface. */
 export function validateEntries(data: unknown): RecordEntry[] {
-  if (!Array.isArray(data)) {
-    throw new RuntimeError("record: input must be a JSON array of {name, sources, grade}");
+  try {
+    return validateRecordEntries(data);
+  } catch (err) {
+    throw new RuntimeError(err instanceof Error ? err.message : String(err));
   }
-  return data.map((raw, i) => {
-    const e = raw as Record<string, unknown>;
-    if (typeof e?.name !== "string" || e.name === "") {
-      throw new RuntimeError(`record: entry ${i}: name must be a non-empty string`);
-    }
-    if (!Array.isArray(e.sources) || e.sources.some((s) => typeof s !== "string")) {
-      throw new RuntimeError(`record: entry ${i}: sources must be an array of strings`);
-    }
-    if (typeof e.grade !== "string" || e.grade === "") {
-      throw new RuntimeError(`record: entry ${i}: grade must be a non-empty string`);
-    }
-    return { name: e.name, sources: e.sources as string[], grade: e.grade };
-  });
 }
 
 async function readAllStdin(): Promise<string> {
@@ -185,7 +177,8 @@ export async function cmdRecord(
   return 0;
 }
 
-/** The store write-back shared by `record` and the serve push API. */
+/** The store write-back shared by `record` and the serve push API;
+ *  the mutation itself is the services contract's applyRecordToStore. */
 export function applyRecord(
   ctx: CliContext,
   entries: RecordEntry[],
@@ -193,22 +186,9 @@ export function applyRecord(
 ): { created: number; updated: number; total: number; lines: string[] } {
   const storePath = statePath(ctx);
   const store: TopicStore = loadStore(storePath);
-  let created = 0;
-  let updated = 0;
-  const lines: string[] = [];
-  for (const entry of entries) {
-    const existed = store.topics.some((t) => t.name === entry.name);
-    upsertTopic(store, entry.name, entry.sources, entry.grade, date);
-    if (existed) {
-      updated += 1;
-      lines.push(`updated: ${entry.name}`);
-    } else {
-      created += 1;
-      lines.push(`created: ${entry.name}`);
-    }
-  }
+  const result = applyRecordToStore(store, entries, date);
   saveStore(store, storePath);
-  return { created, updated, total: store.topics.length, lines };
+  return result;
 }
 
 export function cmdRecordReview(
