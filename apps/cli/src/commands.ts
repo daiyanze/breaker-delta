@@ -25,14 +25,18 @@ import { buildDocsSite, buildSite, loadLangPacksFromDir, optionsFromEnv } from "
 import { listPresetNamesIn } from "@breaker-delta/config";
 import { loadStore, saveStore } from "@breaker-delta/stores";
 import {
+  applyConfigOptions,
   applyRecordToStore,
+  langPackError,
+  loadLangPackOptions,
+  runPublishPasses,
   validateRecordEntries,
   type RecordEntry,
 } from "@breaker-delta/services";
 import type { BuildOptions } from "@breaker-delta/publisher";
 
 import { addPlugin, addPreset, verifyInstalls, type AddResult } from "./add.js";
-import { collectPluginChecks, resolvePanelPlugins } from "./plugins.js";
+import { collectPluginChecks } from "./plugins.js";
 import {
   entityPluginIds,
   fetcherModules,
@@ -292,73 +296,41 @@ export async function cmdPublish(ctx: CliContext, flags: PublishFlags): Promise<
     faviconCacheDir: path.join(ctx.rootDir, "favicon-cache"),
     outDir: path.resolve(flags.out ?? envOpts.outDir ?? path.join(ctx.dataDir, "site")),
   };
-  // Category taxonomy comes from the effective config (preset base
-  // layer merged with the instance config); absent = built-in default.
+  // Category taxonomy + panel plugins come from the effective
+  // config (preset base layer merged with the instance config) —
+  // the services pipeline applies them (Rewrite Phase 2c), the
+  // same code serve's render options use.
   const cliConfig = loadCliConfig(ctx).config;
-  const catRules = catRulesFromConfig(cliConfig);
-  if (catRules) opts.catRules = catRules;
-  // Panel plugins (Plugin-P0): definitions discovered under the
-  // engine root / data dir, enablement from the same merged config.
-  opts.panelPlugins = resolvePanelPlugins(
+  applyConfigOptions(
+    opts,
     ctx,
-    cliConfig as Record<string, unknown>,
+    cliConfig,
     flags.creator ?? envOpts.creator ?? true,
   );
-  // Plugin-P1 score pass: enabled score plugins compute their
-  // sub-scores over the latest appearances and store them into
-  // the edition items BEFORE the build, so the render (and every
-  // other consumer of the edition files) sees them.
-  const scoreRes = await runScorePass(
+  // The pre-build plugin passes (Plugin-P1/P2): score and entities
+  // store their results into the edition items BEFORE the build,
+  // so the render (and every other consumer of the edition files)
+  // sees them; pages land in state/plugin-pages/ for the build.
+  const editionsDir = opts.editionsDir ?? path.join(ctx.dataDir, "editions");
+  const passes = await runPublishPasses(
     ctx,
     cliConfig as Record<string, unknown>,
-    opts.editionsDir ?? path.join(ctx.dataDir, "editions"),
+    editionsDir,
+    (line) => {
+      if (ctx.json) console.error(line);
+      else out(ctx, line);
+    },
   );
-  if (scoreRes.plugins.length > 0) {
-    const line =
-      `plugin scores: ${scoreRes.plugins.join(", ")} — ` +
-      `${scoreRes.scored} item(s) updated in ${scoreRes.filesWritten} edition file(s)`;
-    if (ctx.json) console.error(line);
-    else out(ctx, line);
-  }
-  opts.scorePlugins = scoreDescriptors(ctx, cliConfig as Record<string, unknown>);
-  // Plugin-P2 entities pass: same idea — extraction results are
-  // stored into the items before the build.
-  const entRes = await runEntitiesPass(
-    ctx,
-    cliConfig as Record<string, unknown>,
-    opts.editionsDir ?? path.join(ctx.dataDir, "editions"),
-  );
-  if (entRes.plugins.length > 0) {
-    const line =
-      `plugin entities: ${entRes.plugins.join(", ")} — ` +
-      `${entRes.stamped} item(s) updated in ${entRes.filesWritten} edition file(s)`;
-    if (ctx.json) console.error(line);
-    else out(ctx, line);
-  }
-  opts.entityPlugins = entityPluginIds(ctx, cliConfig as Record<string, unknown>);
-  // Plugin-P2 page pass: page plugins' block data lands in
-  // state/plugin-pages/ for the build (and the web app) to render.
-  const pageRes = await runPagePass(
-    ctx,
-    cliConfig as Record<string, unknown>,
-    opts.editionsDir ?? path.join(ctx.dataDir, "editions"),
-  );
-  if (pageRes.pages.length > 0) {
-    const line = `plugin pages: ${pageRes.pages.join(", ")}`;
-    if (ctx.json) console.error(line);
-    else out(ctx, line);
-  }
+  opts.scorePlugins = passes.scorePlugins;
+  opts.entityPlugins = passes.entityPlugins;
   // Language packs (Plugin-P3): UI-string overlays from the data
   // dir. A broken pack fails the publish here rather than silently
   // rendering without it.
-  const packs = loadLangPacksFromDir(ctx.dataDir);
+  const packs = loadLangPackOptions(opts, ctx.dataDir);
   if (packs.problems.length > 0) {
-    throw new RuntimeError(
-      `language pack problems:\n${packs.problems.map((p) => `  ${p}`).join("\n")}`,
-    );
+    throw new RuntimeError(langPackError(packs.problems).message);
   }
   if (packs.packs.length > 0) {
-    opts.langPacks = packs.packs;
     const line = `language packs: ${packs.packs.map((p) => p.code).join(", ")}`;
     if (ctx.json) console.error(line);
     else out(ctx, line);

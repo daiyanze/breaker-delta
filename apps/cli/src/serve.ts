@@ -23,15 +23,17 @@ import * as fs from "node:fs";
 import * as http from "node:http";
 import * as path from "node:path";
 
-import { catRulesFromConfig } from "@breaker-delta/core";
 import { runScan, summaryLines } from "@breaker-delta/fetchers";
-import { loadLangPacksFromDir, optionsFromEnv, renderSiteMap } from "@breaker-delta/publisher";
+import { optionsFromEnv, renderSiteMap } from "@breaker-delta/publisher";
 import type { BuildOptions } from "@breaker-delta/publisher";
 
 import {
+  applyConfigOptions,
   checkBearerToken,
   editionConflictMessage,
   editionFileName,
+  langPackError,
+  loadLangPackOptions,
   validatePushEdition,
 } from "@breaker-delta/services";
 
@@ -44,7 +46,6 @@ import {
   statePath,
   type CliContext,
 } from "./context.js";
-import { resolvePanelPlugins } from "./plugins.js";
 import {
   fetcherModules,
   loadEnabledCodePlugins,
@@ -92,20 +93,13 @@ function buildOptions(ctx: CliContext, baseUrl: string): BuildOptions {
     outDir: path.join(ctx.dataDir, "site"),
     baseUrl,
   };
+  // Category rules, panel plugins and language packs come from
+  // the services pipeline (Rewrite Phase 2c) — the same code the
+  // static publish path uses.
   const cliConfig = loadCliConfig(ctx).config;
-  const catRules = catRulesFromConfig(cliConfig);
-  if (catRules) opts.catRules = catRules;
-  opts.panelPlugins = resolvePanelPlugins(
-    ctx,
-    cliConfig as Record<string, unknown>,
-    envOpts.creator ?? true,
-  );
-  // Language packs (Plugin-P3), same loader as publish.
-  const packs = loadLangPacksFromDir(ctx.dataDir);
-  if (packs.problems.length > 0) {
-    throw new Error(`language pack problems:\n${packs.problems.map((p) => `  ${p}`).join("\n")}`);
-  }
-  if (packs.packs.length > 0) opts.langPacks = packs.packs;
+  applyConfigOptions(opts, ctx, cliConfig, envOpts.creator ?? true);
+  const packs = loadLangPackOptions(opts, ctx.dataDir);
+  if (packs.problems.length > 0) throw langPackError(packs.problems);
   return opts;
 }
 

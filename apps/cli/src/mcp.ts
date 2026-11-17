@@ -25,8 +25,10 @@ import { dueForReview } from "@breaker-delta/core";
 import { loadStore } from "@breaker-delta/stores";
 import { runScan, summaryLines } from "@breaker-delta/fetchers";
 
+import { assembleSite, type AssembledSite } from "@breaker-delta/services";
+
 import { loadCliConfig, statePath, VERSION, type CliContext } from "./context.js";
-import { buildToolSite, loadPluginTools, type LoadedPluginTool } from "./plugins-code.js";
+import { loadPluginTools, type LoadedPluginTool } from "./plugins-code.js";
 import * as path from "node:path";
 
 export const PROTOCOL_VERSION = "2024-11-05";
@@ -82,10 +84,10 @@ export const TOOLS = [
 
 // ------------------------------------------------------------ site cache
 
-type ToolSite = ReturnType<typeof buildToolSite>;
+type ToolSite = AssembledSite;
 let siteCache: ToolSite | null = null;
 function site(ctx: CliContext): ToolSite {
-  if (!siteCache) siteCache = buildToolSite(ctx);
+  if (!siteCache) siteCache = assembleSite(ctx.dataDir);
   return siteCache;
 }
 

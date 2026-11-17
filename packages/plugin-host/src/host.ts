@@ -766,15 +766,3 @@ export async function loadPluginTools(
   }
   return out;
 }
-
-/** Assemble the site object tool handlers receive: built topics +
- *  raw editions, loaded exactly like the other passes load them. */
-export function buildToolSite(ctx: PluginHostContext): {
-  topics: ReturnType<typeof buildTopics>;
-  editions: Edition[];
-} {
-  const loaded = loadEditionFiles(path.join(ctx.dataDir, "editions"));
-  const editions = loaded.map((l) => l.data) as unknown as Edition[];
-  const ledger = loadStore(storePath(ctx)).topics;
-  return { topics: buildTopics(editions, ledger), editions };
-}
