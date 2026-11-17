@@ -18,6 +18,8 @@ import {
   cmdDoctor,
   cmdGrade,
   cmdPlugins,
+  cmdPluginsAdd,
+  cmdPresetAdd,
   cmdPresetInit,
   cmdPresetList,
   cmdPublish,
@@ -102,11 +104,19 @@ Commands:
                      block data under state/plugin-pages/.
   plugins exit       Fire enabled exit plugins for editions they
                      have not seen yet (per-plugin watermark).
-  preset list        List the presets bundled with the engine (categories,
-                     feeds, brief), marking the one this instance selects.
-  preset init <name> Copy a bundled preset's config + brief.md into the
+  plugins add <url>  Install a plugin pack from the URL of its
+                     plugin.yaml (siblings resolve relative to it).
+                     Declarative packs install directly; code plugins
+                     print their permissions + file hashes and need
+                     --yes. --replace reinstalls over an existing pack.
+  preset list        List presets (bundled + installed in the data dir),
+                     marking the one this instance selects.
+  preset init <name> Copy a preset's config + brief.md into the
                      data dir as your own editable copy. Refuses to
                      overwrite an existing config.
+  preset add <url>   Install a preset from the URL of its config.yaml
+                     into the data dir's presets/ (--name overrides
+                     the name derived from the URL path).
   doctor [--online]  Offline self-check of node, config, data dir and engine
                      root (including taxonomy integrity). --online also
                      spot-checks a sample of the config's feed URLs.
@@ -128,7 +138,7 @@ const VALUE_FLAGS = new Set([
   "out", "base-url", "data-repo", "langs", "docs-url", "main-url",
   "port", "host",
 ]);
-const BOOL_FLAGS = new Set(["json", "help", "creator", "no-creator", "online"]);
+const BOOL_FLAGS = new Set(["json", "help", "creator", "no-creator", "online", "yes", "replace"]);
 
 function parseArgs(argv: string[]): Parsed {
   const positionals: string[] = [];
@@ -276,10 +286,24 @@ export async function main(argv: string[]): Promise<number> {
           if (positionals.length > 3) throw new UsageError(`preset init: unexpected argument: ${positionals[3]}`);
           return cmdPresetInit(ctx, positionals[2]);
         }
-        throw new UsageError(`preset: expected "list" or "init <name>", got: ${sub ?? "(nothing)"}`);
+        if (sub === "add") {
+          if (positionals.length > 3) throw new UsageError(`preset add: unexpected argument: ${positionals[3]}`);
+          return await cmdPresetAdd(ctx, positionals[2], {
+            replace: flags.get("replace") === true,
+            name: flagStr(flags, "name"),
+          });
+        }
+        throw new UsageError(`preset: expected "list", "init <name>" or "add <url>", got: ${sub ?? "(nothing)"}`);
       }
       case "plugins": {
         const sub = positionals[1];
+        if (sub === "add") {
+          if (positionals.length > 3) throw new UsageError(`plugins add: unexpected argument: ${positionals[3]}`);
+          return await cmdPluginsAdd(ctx, positionals[2], {
+            yes: flags.get("yes") === true,
+            replace: flags.get("replace") === true,
+          });
+        }
         if (positionals.length > 2) throw new UsageError(`plugins: unexpected argument: ${positionals[2]}`);
         return await cmdPlugins(ctx, sub);
       }

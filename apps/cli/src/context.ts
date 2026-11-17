@@ -113,16 +113,20 @@ const PRESET_NAME_RE = /^[a-z0-9][a-z0-9-_]*$/;
 const PRESET_CONFIG_CANDIDATES = ["config.yaml", "config.yml", "config.json"];
 
 /**
- * A bundled preset's config file: presets/<name>/config.yaml (or
- * .yml/.json) under the engine root. Presets are product assets
- * shipped with the engine; an instance config names one via its
- * `preset:` key and the preset becomes the base config layer.
+ * A preset's config file: presets/<name>/config.yaml (or .yml/.json).
+ * The data dir is searched first (presets installed with
+ * `preset add <url>` are user data and win over a bundled preset of
+ * the same name), then the engine root's bundled presets. An
+ * instance config names one via its `preset:` key and the preset
+ * becomes the base config layer.
  */
-export function findPresetConfigFile(rootDir: string, name: string): string | null {
+export function findPresetConfigFile(ctx: CliContext, name: string): string | null {
   if (!PRESET_NAME_RE.test(name)) return null;
-  for (const candidate of PRESET_CONFIG_CANDIDATES) {
-    const p = path.join(rootDir, "presets", name, candidate);
-    if (fs.existsSync(p)) return p;
+  for (const base of [ctx.dataDir, ctx.rootDir]) {
+    for (const candidate of PRESET_CONFIG_CANDIDATES) {
+      const p = path.join(base, "presets", name, candidate);
+      if (fs.existsSync(p)) return p;
+    }
   }
   return null;
 }
@@ -135,10 +139,10 @@ export function loadCliConfig(
   const config = loadConfig(file) as RadarConfig;
   const preset = typeof config.preset === "string" && config.preset !== "" ? config.preset : null;
   if (!preset) return { config, file, preset: null, presetFile: null };
-  const presetFile = findPresetConfigFile(ctx.rootDir, preset);
+  const presetFile = findPresetConfigFile(ctx, preset);
   if (!presetFile) {
     throw new Error(
-      `config names preset "${preset}" but no presets/${preset}/config.yaml exists under the engine root (${ctx.rootDir})`,
+      `config names preset "${preset}" but no presets/${preset}/config.yaml exists in the data dir (${ctx.dataDir}) or under the engine root (${ctx.rootDir})`,
     );
   }
   const base = loadConfig(presetFile) as RadarConfig;

@@ -301,6 +301,8 @@ $BD --data-dir /path/to/your-data publish --out site        # build the static s
 <li><b>doctor [--online]</b> — 离线自检 Node、配置、数据目录与引擎根目录，含分类完整性检查（写了 categories 却解析不出有效规则会判 fail，免得 publish 时静默回退到内置分类）与插件检查（插件包损坏、config 启用了不存在的插件、已启用数据插件的 schema 不合法都会判 fail）；加 --online 再抽查 config 里声明的订阅源地址是否可达（死源只 warn 不 fail）。有检查不通过时退出码为 1。</li>
 <li><b>serve [--port 8080] [--host 0.0.0.0] [--base-url &lt;url&gt;]</b> — 动态服务（自部署实例用，也是 Docker 镜像的入口）：把站点渲染进内存对外服务，数据目录变化即重渲染。环境变量：BD_PUSH_TOKEN 开启带口令的推送 API（POST /api/record、/api/editions），BD_SCAN_TIMES=06:00,18:00 开启内置定时扫描（只抓候选），BD_BASE_URL 设定站点根地址，/api/health 是健康检查（见 <a href="docs-deploy.html">自建与部署</a> 的 Docker 一节）。</li>
 <li><b>mcp</b> — 以 stdio 方式运行 MCP 服务器，提供 radar_scan / radar_review / radar_board / radar_topic / radar_editions 五个引擎工具，外加已启用插件注册的工具（见 <a href="docs-skill.html">Skill 与 MCP</a>）。</li>
+<li><b>plugins add &lt;url&gt;</b> — 从插件包 plugin.yaml 的网址安装插件（同目录文件按相对路径一并取）。声明式包直接装；代码插件会先打印权限清单与每个文件的 sha256 哈希、加 --yes 才装。安装记录写进 state/installs.json，doctor 会复核哈希、文件被改动会报漂移。</li>
+<li><b>preset add &lt;url&gt;</b> — 从 config.yaml 的网址把预设装进数据目录的 presets/，之后在配置里写 preset: &lt;名字&gt; 即可选用；数据目录的预设优先于同名的引擎内置预设。</li>
 </ul>
 <h3 style="margin:16px 0 6px">常用例子</h3>
 <pre class="cfgpre full">BD="bun apps/cli/dist/breaker-delta.mjs"
@@ -347,6 +349,8 @@ TS_MAIN_URL      主站地址：文档站的回链指向它（默认 https://bre
 <li><b>doctor [--online]</b> — offline self-check of Node, config, data dir and engine root, including taxonomy integrity (a categories section that yields no valid rules fails, instead of silently falling back to the built-in taxonomy at publish time) and plugin integrity (a broken plugin pack, config enabling an unknown plugin, or an enabled data plugin with an invalid schema all fail). --online additionally spot-checks a sample of the feed URLs the config declares (dead feeds warn, never fail). Exits 1 when any check fails.</li>
 <li><b>serve [--port 8080] [--host 0.0.0.0] [--base-url &lt;url&gt;]</b> — the dynamic server for self-hosted instances (and the Docker image's entrypoint): renders the site into memory, serves it, and re-renders when the data dir changes. Environment: BD_PUSH_TOKEN enables the token-gated push API (POST /api/record, /api/editions), BD_SCAN_TIMES=06:00,18:00 turns on the built-in scan schedule (candidates only), BD_BASE_URL sets the site root, and /api/health is the health endpoint (see the Docker section of <a href="docs-deploy.html">Deploy Your Own</a>).</li>
 <li><b>mcp</b> — run the stdio MCP server with the engine tools radar_scan / radar_review / radar_board / radar_topic / radar_editions, plus tools registered by enabled plugins (see <a href="docs-skill.html">Skill &amp; MCP</a>).</li>
+<li><b>plugins add &lt;url&gt;</b> — install a plugin pack from the URL of its plugin.yaml (sibling files resolve relative to it). Declarative packs install directly; code plugins first print their declared permissions and every file's sha256 and install only with --yes. Installs are recorded in state/installs.json and doctor re-verifies the hashes, warning on drift.</li>
+<li><b>preset add &lt;url&gt;</b> — install a preset from the URL of its config.yaml into the data dir's presets/; select it with preset: &lt;name&gt; in config. A data-dir preset wins over a bundled one of the same name.</li>
 </ul>
 <h3 style="margin:16px 0 6px">Common examples</h3>
 <pre class="cfgpre full">BD="bun apps/cli/dist/breaker-delta.mjs"

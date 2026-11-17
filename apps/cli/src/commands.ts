@@ -22,6 +22,7 @@ import { loadConfig, runScan, summaryLines } from "@breaker-delta/fetchers";
 import { buildDocsSite, buildSite, optionsFromEnv } from "@breaker-delta/publisher";
 import type { BuildOptions } from "@breaker-delta/publisher";
 
+import { addPlugin, addPreset, verifyInstalls, type AddResult } from "./add.js";
 import { collectPluginChecks, resolvePanelPlugins } from "./plugins.js";
 import {
   entityPluginIds,
@@ -542,20 +543,26 @@ export function collectFeedProbes(
 }
 
 export function listPresets(ctx: CliContext): PresetInfo[] {
-  const dir = path.join(ctx.rootDir, "presets");
-  if (!isDir(dir)) return [];
+  const roots = [ctx.dataDir, ctx.rootDir];
+  const names = new Set<string>();
+  for (const root of roots) {
+    const dir = path.join(root, "presets");
+    if (!isDir(dir)) continue;
+    for (const name of fs.readdirSync(dir)) {
+      if (isDir(path.join(dir, name))) names.add(name);
+    }
+  }
   let selected: string | null = null;
   try {
     selected = loadCliConfig(ctx).preset;
   } catch {
     selected = null; // a broken instance config must not hide the catalog
   }
-  return fs
-    .readdirSync(dir)
-    .filter((name) => isDir(path.join(dir, name)))
+  return [...names]
     .sort()
     .map((name) => {
-      const configFile = findPresetConfigFile(ctx.rootDir, name);
+      const configFile = findPresetConfigFile(ctx, name);
+      const presetDir = configFile ? path.dirname(configFile) : path.join(ctx.rootDir, "presets", name);
       let categories: number | null = null;
       let feeds = 0;
       if (configFile) {
@@ -571,12 +578,52 @@ export function listPresets(ctx: CliContext): PresetInfo[] {
       return {
         name,
         configFile,
-        brief: fs.existsSync(path.join(dir, name, "brief.md")),
+        brief: fs.existsSync(path.join(presetDir, "brief.md")),
         categories,
         feeds,
         selected: selected === name,
       };
     });
+}
+
+function printAddResult(ctx: CliContext, res: AddResult): void {
+  if (ctx.json) {
+    printJson({
+      kind: res.kind,
+      id: res.id,
+      dir: res.dir,
+      code: res.code,
+      files: res.files.map((f) => ({ name: f.name, sha256: f.sha256 })),
+    });
+    return;
+  }
+  out(ctx, `installed ${res.kind} "${res.id}" into ${res.dir}`);
+  for (const f of res.files) out(ctx, `  ${f.name}  sha256 ${f.sha256.slice(0, 12)}…`);
+  if (res.kind === "plugin") {
+    out(ctx, `enable it in config: plugins.${res.id}.enabled: true — then run doctor.`);
+  } else {
+    out(ctx, `use it by naming it in config: preset: ${res.id} — then run doctor.`);
+  }
+}
+
+export async function cmdPluginsAdd(
+  ctx: CliContext,
+  url: string | undefined,
+  opts: { yes: boolean; replace: boolean },
+): Promise<number> {
+  if (!url) throw new UsageError("plugins add: a URL to the pack's plugin.yaml is required");
+  printAddResult(ctx, await addPlugin(ctx, url, opts));
+  return 0;
+}
+
+export async function cmdPresetAdd(
+  ctx: CliContext,
+  url: string | undefined,
+  opts: { replace: boolean; name?: string },
+): Promise<number> {
+  if (!url) throw new UsageError("preset add: a URL to the preset's config.yaml is required");
+  printAddResult(ctx, await addPreset(ctx, url, opts));
+  return 0;
 }
 
 export function cmdPresetList(ctx: CliContext): number {
@@ -603,7 +650,7 @@ export function cmdPresetInit(ctx: CliContext, name: string | undefined): number
   if (!name) {
     throw new UsageError("preset init: a preset name is required (see: preset list)");
   }
-  const configFile = findPresetConfigFile(ctx.rootDir, name);
+  const configFile = findPresetConfigFile(ctx, name);
   if (!configFile) {
     const available = listPresets(ctx).map((p) => p.name);
     throw new UsageError(
@@ -611,7 +658,7 @@ export function cmdPresetInit(ctx: CliContext, name: string | undefined): number
         (available.length > 0 ? ` (available: ${available.join(", ")})` : " (no presets bundled)"),
     );
   }
-  const presetDir = path.join(ctx.rootDir, "presets", name);
+  const presetDir = path.dirname(configFile);
   const copies: { from: string; to: string }[] = [
     { from: configFile, to: path.join(ctx.dataDir, path.basename(configFile)) },
   ];
@@ -738,6 +785,8 @@ export function collectDoctorChecks(ctx: CliContext): DoctorCheck[] {
     // schema validated so a bad pack surfaces here, not at publish.
     checks.push(...collectPluginChecks(ctx, loadedConfig));
   }
+  // URL-installed packs (Plugin-P3): re-verify the recorded hashes.
+  checks.push(...verifyInstalls(ctx));
   const editionsDir = path.join(ctx.dataDir, "editions");
   if (!isDir(editionsDir)) {
     checks.push({ name: "editions", status: "fail", detail: "editions/ missing" });
