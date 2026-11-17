@@ -35,7 +35,7 @@ import {
   recordReview,
   makeTopicKeyer,
 } from "@breaker-delta/core";
-import { loadStore, saveStore } from "@breaker-delta/stores";
+import { loadEditionFilesFromDir, loadStore, saveStore } from "@breaker-delta/stores";
 import type { CandidateItem, Edition, SourceResult } from "@breaker-delta/core";
 
 import type { CliContext } from "./context.js";
@@ -280,55 +280,17 @@ interface LoadedEditionFile {
   changed: boolean;
 }
 
-const SLOT_SUFFIXES: [string, string][] = [
-  ["-morning", "morning"],
-  ["-evening", "evening"],
-  ["-pilot", "pilot"],
-];
-
-function editionSortKey(file: string): string {
-  const stem = file.replace(/\.json$/, "");
-  const date = stem.slice(0, 10);
-  let order = 1;
-  for (const [suffix, slot] of SLOT_SUFFIXES) {
-    if (stem.endsWith(suffix)) order = SLOT_ORDER[slot];
-  }
-  return `${date}#${order}#${file}`;
-}
-
-const SLOT_ORDER: Record<string, number> = { pilot: 0, morning: 1, evening: 2 };
-
-/** Load edition files the way every other consumer does: ordered
- *  by (date, slot) — pilot < morning < evening within a day, NOT
- *  raw filename order (evening sorts before morning as a string) —
- *  slot from the filename, _heat/_rank attached in memory. */
+/** Edition loading is @breaker-delta/stores' single implementation
+ *  (Rewrite Phase 1c): ordered by (date, slot) — pilot < morning <
+ *  evening within a day — slot from the filename, _heat/_rank
+ *  attached in memory. This wrapper adds the write-back tracking
+ *  flag the plugin passes use. */
 export function loadEditionFiles(editionsDir: string): LoadedEditionFile[] {
-  if (!fs.existsSync(editionsDir)) return [];
-  const files = fs
-    .readdirSync(editionsDir)
-    .filter((f) => f.endsWith(".json"))
-    .sort((a, b) => {
-      const ka = editionSortKey(a);
-      const kb = editionSortKey(b);
-      return ka < kb ? -1 : ka > kb ? 1 : 0;
-    });
-  return files.map((file) => {
-    const data = JSON.parse(
-      fs.readFileSync(path.join(editionsDir, file), "utf-8"),
-    ) as LoadedEditionFile["data"];
-    const stem = file.replace(/\.json$/, "");
-    for (const [suffix, slot] of SLOT_SUFFIXES) {
-      if (stem.endsWith(suffix)) (data as Record<string, unknown>).slot = slot;
-    }
-    const items = (data.items ?? []) as LoadedEditionFile["data"]["items"];
-    const heats = items.map((it) => heatOf(it as never));
-    const order = items.map((_, i) => i).sort((a, b) => heats[b] - heats[a]);
-    order.forEach((itemIdx, rank) => {
-      items[itemIdx]._heat = heats[itemIdx];
-      items[itemIdx]._rank = rank + 1;
-    });
-    return { file, data, changed: false };
-  });
+  return loadEditionFilesFromDir(editionsDir).map(({ file, data }) => ({
+    file,
+    data: data as LoadedEditionFile["data"],
+    changed: false,
+  }));
 }
 
 export function persistEditionFiles(editionsDir: string, loaded: LoadedEditionFile[]): number {

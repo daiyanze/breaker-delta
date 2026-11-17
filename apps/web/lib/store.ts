@@ -24,7 +24,6 @@ import * as path from "node:path";
 import {
   buildTopics,
   catRulesFromConfig,
-  heatOf,
   type Edition,
   type StoreTopic,
   type Topic,
@@ -93,36 +92,16 @@ export interface SiteStore {
 
 /* ---------------- file backend ---------------- */
 
-const SLOT_ORDER: Record<string, number> = { pilot: 0, morning: 1, evening: 2 };
-
-/** Parse edition files ({name, text}) into Edition objects:
- * ordered by the filename's date + slot suffix, filename slot
- * adopted when the JSON lacks one, _heat/_rank attached. Shared by
- * the file loader and the remote (fetch) loader. */
-export function editionsFromFiles(files: { name: string; text: string }[]): Edition[] {
-  const keyed = files.map(({ name, text }) => {
-    const m = /(\d{4}-\d{2}-\d{2})-(\w+)/.exec(name);
-    if (!m) throw new Error(`edition filename does not parse: ${name}`);
-    return { name, text, date: m[1], slot: m[2], order: SLOT_ORDER[m[2]] ?? 9 };
-  });
-  keyed.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.order - b.order));
-  const editions: Edition[] = [];
-  for (const { text, slot } of keyed) {
-    const ed = JSON.parse(text) as Edition;
-    // The official instance's edition JSONs carry no slot field at
-    // all — the filename suffix is the only source. Adopt it (known
-    // slots only) so routes get distinct morning/evening URLs where
-    // the static build collapses both into one -None file.
-    if (ed.slot == null && slot in SLOT_ORDER) ed.slot = slot;
-    for (const it of ed.items) it._heat = heatOf(it);
-    const ranked = [...ed.items].sort((a, b) => b._heat - a._heat);
-    ranked.forEach((it, i) => {
-      it._rank = i + 1;
-    });
-    editions.push(ed);
-  }
-  return editions;
-}
+/** Edition parsing is @breaker-delta/stores' single implementation
+ * (Rewrite Phase 1c), imported via the pure "./editions" subpath so
+ * no node:fs enters this module's graph through it. The official
+ * instance's edition JSONs carry no slot field at all — the
+ * filename suffix is the only source, so routes get distinct
+ * morning/evening URLs where the static build collapses both into
+ * one -None file. Re-exported here because the remote backend
+ * imports it from this module. */
+export { editionsFromFiles } from "@breaker-delta/stores/editions";
+import { editionsFromFiles } from "@breaker-delta/stores/editions";
 
 export function loadEditionsFromDir(dir: string): Edition[] {
   const edDir = path.join(dir, "editions");

@@ -18,12 +18,12 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 import {
-  heatOf,
   upsertTopic,
   type Edition,
   type StoreTopic,
 } from "@breaker-delta/core";
 import { loadStore, saveStore } from "@breaker-delta/stores";
+import { attachEditionHeat, compareEditionOrder } from "@breaker-delta/stores/editions";
 
 import { dataDir, dbPath, invalidateSiteData } from "./data";
 import {
@@ -62,27 +62,17 @@ export function validateEntries(data: unknown): RecordEntry[] {
 
 /** buildTopics requires editions to carry _heat/_rank (attached
  * by the load step); a pushed edition arrives raw, so attach them
- * exactly like the loaders do before it enters the DB path. (The
- * file path writes the raw object, as the CLI's serve does, and
- * its loader attaches them on read.) */
+ * with the shared loader's helper before it enters the DB path.
+ * (The file path writes the raw object, as the CLI's serve does,
+ * and its loader attaches them on read.) */
 function attachHeat(ed: Edition): Edition {
   const copy: Edition = { ...ed, items: ed.items.map((it) => ({ ...it })) };
-  for (const it of copy.items) it._heat = heatOf(it);
-  const ranked = [...copy.items].sort((a, b) => b._heat - a._heat);
-  ranked.forEach((it, i) => {
-    it._rank = i + 1;
-  });
+  attachEditionHeat(copy);
   return copy;
 }
 
-const SLOT_ORDER: Record<string, number> = { pilot: 0, morning: 1, evening: 2 };
-
 function sortEditions(editions: Edition[]): Edition[] {
-  return [...editions].sort(
-    (a, b) =>
-      (a.date < b.date ? -1 : a.date > b.date ? 1 : 0) ||
-      (SLOT_ORDER[a.slot ?? ""] ?? 9) - (SLOT_ORDER[b.slot ?? ""] ?? 9),
-  );
+  return [...editions].sort(compareEditionOrder);
 }
 
 export type PushEditionResult =

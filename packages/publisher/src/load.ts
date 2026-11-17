@@ -6,21 +6,21 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import { heatOf, type Edition, type StoreTopic } from "@breaker-delta/core";
+import { type Edition, type StoreTopic } from "@breaker-delta/core";
+import { loadEditionsFromDir } from "@breaker-delta/stores";
 
 import type { Ctx } from "./ctx.js";
-import { OFFICIAL_HINTS, SLOT, SRC_ALIASES, TECH_HINTS } from "./literals.js";
+import { OFFICIAL_HINTS, SRC_ALIASES, TECH_HINTS } from "./literals.js";
 import { pyJsonDumps, universalNewlines } from "./py.js";
 
 const hasOwn = (obj: object, key: string): boolean =>
   Object.prototype.hasOwnProperty.call(obj, key);
 
 /**
- * publish.py `load`: editions from editionsDir/*.json, sorted by
- * (date, slot order pilot<morning<evening, unknown slot 9) — the sort
- * key regex runs over the full path string, as in Python — with each
- * item's _heat and in-edition _rank attached; the ledger is
- * ledgerPath's "topics" (missing file -> []).
+ * publish.py `load`: the editions come from the shared stores
+ * loader (Rewrite Phase 1c; sorted by (date, slot order
+ * pilot<morning<evening, unknown slot 9), _heat/_rank attached);
+ * the ledger is ledgerPath's "topics" (missing file -> []).
  */
 /** Plugin page data (Plugin-P2): the block files the CLI's page
  *  pass stored under <dataDir>/state/plugin-pages/. Renderers draw
@@ -49,30 +49,11 @@ export function loadPluginPages(ctx: Ctx): PluginPageData[] {
 }
 
 export function loadEditions(ctx: Ctx): { editions: Edition[]; ledger: StoreTopic[] } {
-  let names: string[] = [];
-  try {
-    names = fs.readdirSync(ctx.editionsDir).filter((n) => n.endsWith(".json"));
-  } catch {
-    names = []; // glob over a missing directory yields nothing
-  }
-  const paths = names.map((n) => path.join(ctx.editionsDir, n));
-  const keyed = paths.map((p) => {
-    const m = /(\d{4}-\d{2}-\d{2})-(\w+)/.exec(p);
-    if (!m) throw new Error(`edition filename does not parse: ${p}`);
-    const order = hasOwn(SLOT, m[2]) ? SLOT[m[2]][1] : 9;
-    return { p, date: m[1], order };
-  });
-  keyed.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.order - b.order));
-  const editions: Edition[] = [];
-  for (const { p } of keyed) {
-    const ed = JSON.parse(fs.readFileSync(p, "utf-8")) as Edition;
-    for (const it of ed.items) it._heat = heatOf(it);
-    const ranked = [...ed.items].sort((a, b) => b._heat - a._heat);
-    ranked.forEach((it, i) => {
-      it._rank = i + 1;
-    });
-    editions.push(ed);
-  }
+  // Edition parsing is @breaker-delta/stores' single implementation
+  // (Rewrite Phase 1c). The publisher passes adoptSlot: false — its
+  // page names come from the edition JSON's own slot field (usually
+  // absent), exactly as publish.py behaved; see editions.ts.
+  const editions = loadEditionsFromDir(ctx.editionsDir, { adoptSlot: false });
   let ledger: StoreTopic[] = [];
   if (fs.existsSync(ctx.ledgerPath)) {
     const data = JSON.parse(fs.readFileSync(ctx.ledgerPath, "utf-8")) as {
