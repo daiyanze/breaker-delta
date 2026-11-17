@@ -17,7 +17,9 @@ import { HTML_LANG, STRINGS, s, sArr } from "@breaker-delta/i18n";
 import { renderToReadableStream } from "react-dom/server";
 
 import AboutPage from "../app/[lang]/about/page";
+import ArchivePage from "../app/[lang]/archive/page";
 import LandingPage from "../app/[lang]/landing/page";
+import TrackRecordPage from "../app/[lang]/track-record/page";
 
 const LANGS = ["zh", "en", "ja"] as const;
 type Lang = (typeof LANGS)[number];
@@ -169,6 +171,25 @@ const PAGES: PageDef[] = [
     component: LandingPage,
     title: (lang) => s(lang, "landing_title"),
     descKey: "desc_landing",
+  },
+  {
+    // NOT YET GATED: the static archive links each date's
+    // editions to the slot-collapsed edition-<date>-None.html
+    // files (the recorded publisher artifact), while the web
+    // links each edition by its real slot; the en rows also
+    // differ in slot-label rendering. Archive switches together
+    // with the edition pages, once the -None retirement is
+    // decided — see REWRITE-DESIGN.md Phase 3 record.
+    file: "archive.html",
+    component: ArchivePage,
+    title: (lang) => sArr(lang, "tabs")[7] ?? "Archive",
+    descKey: "desc_default",
+  },
+  {
+    file: "track-record.html",
+    component: TrackRecordPage,
+    title: (lang) => sArr(lang, "tabs")[6] ?? "Track record",
+    descKey: "desc_track",
   },
 ];
 
