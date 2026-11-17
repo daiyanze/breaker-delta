@@ -20,6 +20,7 @@ const AREAS = [
   { dir: "packages/stores", pkg: "@breaker-delta/stores", layer: "package" },
   { dir: "packages/fetchers", pkg: "@breaker-delta/fetchers", layer: "package" },
   { dir: "packages/publisher", pkg: "@breaker-delta/publisher", layer: "package" },
+  { dir: "packages/plugin-host", pkg: "@breaker-delta/plugin-host", layer: "package" },
   { dir: "apps/cli", pkg: "@breaker-delta/cli", layer: "app" },
   { dir: "apps/web", pkg: "@breaker-delta/web", layer: "app" },
   { dir: "apps/extension", pkg: "@breaker-delta/extension", layer: "app" },
