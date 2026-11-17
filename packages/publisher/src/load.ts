@@ -10,7 +10,11 @@ import { type Edition, type StoreTopic } from "@breaker-delta/core";
 import { loadEditionsFromDir } from "@breaker-delta/stores";
 
 import type { Ctx } from "./ctx.js";
-import { OFFICIAL_HINTS, SRC_ALIASES, TECH_HINTS } from "./literals.js";
+import {
+  OFFICIAL_HINTS,
+  SRC_ALIASES,
+  TECH_HINTS,
+} from "./assets.js";
 import { pyJsonDumps, universalNewlines } from "./py.js";
 
 const hasOwn = (obj: object, key: string): boolean =>

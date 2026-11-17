@@ -34,7 +34,11 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import { HTML_LANG, LANG_LABEL, STRINGS } from "./literals.js";
+import {
+  HTML_LANG,
+  LANG_LABEL,
+  STRINGS,
+} from "@breaker-delta/i18n";
 
 export const BASE_LANGS = ["zh", "en", "ja"] as const;
 const CODE_RE = /^[a-z]{2,3}(-[A-Za-z]{2,4})?$/;

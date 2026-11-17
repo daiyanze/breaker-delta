@@ -27,24 +27,23 @@ export {
   mergedStrings,
   type LangPack,
 } from "./langpacks.js";
-// Shared presentation constants, re-exported for the P2 web app so the
-// dynamic front end renders with the same strings/styles as the
-// static build instead of drifting copies.
+// Shared presentation constants, re-exported for the web app so
+// the dynamic front end renders with the same strings/styles as
+// the static build instead of drifting copies. The string tables
+// themselves live in @breaker-delta/i18n (Rewrite Phase 3b); the
+// stylesheet and data tables are the publisher's assets.
 export {
   ABOUT,
   ARC_NAMES,
   CAT_I18N,
-  CAT_KEYS,
-  CSS,
   HTML_LANG,
   LANDING,
   LANG_LABEL,
-  LEVELS,
   LEVEL_I18N,
   SLOT_LABEL_I18N,
-  SOURCE_DOMAINS,
   SRC_NAMES,
   STRINGS,
-} from "./literals.js";
+} from "@breaker-delta/i18n";
+export { CAT_KEYS, CSS, LEVELS, SOURCE_DOMAINS } from "./assets.js";
 export { fetchFavicons } from "./favicon.js";
 export type { App, BoardState, PubTopic, SourceStat } from "./types.js";

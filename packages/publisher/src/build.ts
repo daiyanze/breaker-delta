@@ -36,13 +36,15 @@ import {
   HOOK_T,
   HTML_LANG,
   LANDING,
-  LEVELS,
   LONG_TIPS,
   SHORT_TIPS,
-  SLOT,
   SLOT_LABEL_I18N,
+} from "@breaker-delta/i18n";
+import {
+  LEVELS,
+  SLOT,
   SOURCE_DOMAINS,
-} from "./literals.js";
+} from "./assets.js";
 import {
   cpCompare,
   cpSlice,

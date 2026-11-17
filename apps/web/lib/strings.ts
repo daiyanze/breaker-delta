@@ -1,7 +1,8 @@
-// UI string lookup over the publisher's STRINGS table (the same table
-// the static build renders from), with {key} interpolation.
+// UI string lookup over the i18n catalog's STRINGS table (the
+// same table the static build renders from), with {key}
+// interpolation.
 
-import { STRINGS } from "@breaker-delta/publisher";
+import { STRINGS } from "@breaker-delta/i18n";
 
 import type { Lang } from "./data";
 

@@ -15,7 +15,12 @@ import {
   mergedStrings,
   type LangPack,
 } from "./langpacks.js";
-import { CAT_I18N, HTML_LANG, LEVEL_I18N, STRINGS } from "./literals.js";
+import {
+  CAT_I18N,
+  HTML_LANG,
+  LEVEL_I18N,
+  STRINGS,
+} from "@breaker-delta/i18n";
 
 export interface BuildOptions {
   /** Engine/instance root: assets/, config files and defaults live here. */

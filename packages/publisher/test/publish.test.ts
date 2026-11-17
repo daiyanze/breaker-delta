@@ -653,7 +653,7 @@ test("renderPanel: olist when-filter skips empty values; interpolation escapes v
 // ---------------------------------------------------------- language packs (Plugin-P3)
 
 import { loadLangPacksFromDir } from "../src/index.js";
-import { STRINGS as BASE_STRINGS } from "../src/literals.js";
+import { STRINGS as BASE_STRINGS } from "@breaker-delta/i18n";
 
 function writePack(tmpdir: string, code: string, pack: Record<string, unknown>): void {
   const dir = path.join(tmpdir, "langpacks", code);

@@ -9,16 +9,18 @@ import { slugify, topicFile, type Edition } from "@breaker-delta/core";
 import { catName, levelLabel, langPrefix, s, sArr, type Ctx } from "./ctx.js";
 import {
   ARC_NAMES,
-  CAT_KEYS,
-  CSS,
   HTML_LANG,
   LANG_LABEL,
+  SRC_NAMES,
+} from "@breaker-delta/i18n";
+import {
+  CAT_KEYS,
+  CSS,
   LEVELS,
   SHARE_ICONS,
   SHARE_PLATFORMS,
   SOURCE_DOMAINS,
-  SRC_NAMES,
-} from "./literals.js";
+} from "./assets.js";
 import {
   cpLen,
   cpSlice,
