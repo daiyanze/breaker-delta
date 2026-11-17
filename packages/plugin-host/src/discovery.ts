@@ -23,6 +23,12 @@ function readText(file: string): string {
   return fs.readFileSync(file, "utf-8");
 }
 
+/** The two plugin roots for an instance, engine first (the data
+ *  dir's packs override by id — user plugins are user data). */
+export function pluginRootsOf(ctx: { rootDir: string; dataDir: string }): string[] {
+  return [path.join(ctx.rootDir, "plugins"), path.join(ctx.dataDir, "plugins")];
+}
+
 function* pluginDirs(roots: string[]): Generator<string> {
   for (const base of roots) {
     if (!fs.existsSync(base)) continue;

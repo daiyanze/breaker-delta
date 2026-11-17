@@ -1,1 +1,23 @@
-{"dependencies":{"@breaker-delta/config":"0.22.0","@breaker-delta/core":"0.22.0","@breaker-delta/publisher":"0.22.0"},"description":"Breaker Delta plugin host: manifest parsing/validation, discovery, enablement and doctor checks — one implementation for CLI and web (Rewrite Phase 2a).","exports":{".":{"default":"./dist/src/index.js","types":"./dist/src/index.d.ts"}},"name":"@breaker-delta/plugin-host","scripts":{"build":"tsc -p tsconfig.json","test":"bun run build && bun test dist/test"},"type":"module","types":"dist/src/index.d.ts","version":"0.22.0"}
+{
+  "dependencies": {
+    "@breaker-delta/config": "0.22.0",
+    "@breaker-delta/core": "0.22.0",
+    "@breaker-delta/publisher": "0.22.0",
+    "@breaker-delta/stores": "0.22.0"
+  },
+  "description": "Breaker Delta plugin host: manifest parsing/validation, discovery, enablement and doctor checks — one implementation for CLI and web (Rewrite Phase 2a).",
+  "exports": {
+    ".": {
+      "default": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
+  },
+  "name": "@breaker-delta/plugin-host",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "bun run build && bun test dist/test"
+  },
+  "type": "module",
+  "types": "dist/src/index.d.ts",
+  "version": "0.22.0"
+}

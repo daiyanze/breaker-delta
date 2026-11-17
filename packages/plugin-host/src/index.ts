@@ -1,7 +1,8 @@
 // @breaker-delta/plugin-host — the one plugin host: manifest
 // parsing and validation, discovery, enablement resolution and
-// doctor checks (Rewrite Phase 2a). The code-plugin execution
-// host (seven slots, permission enforcement) joins in Phase 2a-ii.
+// doctor checks, plus the code-plugin execution host (seven
+// slots, permission enforcement) (Rewrite Phase 2a).
 
 export * from "./manifests.js";
 export * from "./discovery.js";
+export * from "./host.js";
