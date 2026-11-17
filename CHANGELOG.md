@@ -4,6 +4,7 @@
 
 （版本说明：本节为 0.22.0 之后全部变更；全量重写完成后整体改题 2.0.0，见 REWRITE-DESIGN 执行记录。）
 
+- **期次页 -None 退役（2026-11-17，Dai 拍板）**：静态构建改按文件名槽位出期次页（edition-<日期>-<morning|evening|pilot>.html，同日多期不再互相覆盖），每个旧 -None 地址生成跳转页指向当日最晚一期；归档、话题出场、sitemap、alerts 的期次链接随之指向真实槽位。Phase 3 金标准已按对账结果修订（716 文件）。预渲染 archive 与期次页随之过门。
 - **全量重写 Phase 3c 续：track-record 过门、archive 暂缓（2026-11-17）**：预渲染登记表新增 track-record（三语过门，仅已登记差异）与 archive（未过门：静态归档链向槽位合并的 edition-<日期>-None.html、web 按真实槽位逐期链接，须与 edition 页型同批切换；en 行槽位标签渲染差异待查）。
 - **修复：动态站 landing 页文档链接被改写坏（2026-11-17）**：lib/data 的 rewriteLinks 会把已展开的 {{DOCS}} 绝对链接（https://docs.breakerdelta.com/docs-deploy.html）误判为站内页、改写成 /<lang>/topic/https://… 的坏链接，线上「部署你自己的」按钮一直跳错页（静态版无此问题）。改写规则现跳过含 :// 的绝对地址；由 Phase 3c 预渲染比对发现，修复已部署生产并验活。预渲染试点同步扩到 landing 页（三语通过比对门，仅剩已登记差异）。
 - **全量重写 Phase 3c（进行中）：静态预渲染骨架 + about 试点（2026-11-17）**：`apps/web/prerender/` 落地——独立 vite SSR 构建把 web 的 React 页面组件渲染进静态站的文件布局（next/link、next/navigation 垫片；与 publisher page() 同构的文档壳；web→静态 href 改写；ThemeToggle 补 id="themeBtn" 供静态主题脚本驱动）。试点 about 页 × 三语通过归一化比对门（可见文本 + 链接清单），仅剩两项已登记的既存 web/静态分歧（zh/ja 页眉英文 wordmark、语言切换本语言链接拼写），留 Phase 4 并轨裁决。其余页型按依赖序逐页切换中。

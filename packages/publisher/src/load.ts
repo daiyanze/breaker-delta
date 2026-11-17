@@ -54,10 +54,12 @@ export function loadPluginPages(ctx: Ctx): PluginPageData[] {
 
 export function loadEditions(ctx: Ctx): { editions: Edition[]; ledger: StoreTopic[] } {
   // Edition parsing is @breaker-delta/stores' single implementation
-  // (Rewrite Phase 1c). The publisher passes adoptSlot: false — its
-  // page names come from the edition JSON's own slot field (usually
-  // absent), exactly as publish.py behaved; see editions.ts.
-  const editions = loadEditionsFromDir(ctx.editionsDir, { adoptSlot: false });
+  // (Rewrite Phase 1c). The slot comes from the filename (the
+  // edition JSONs carry none): page names are edition-<date>-
+  // <slot>.html — the slot-collapsed -None names were retired
+  // 2026-11-17 (Dai's call; build.ts emits a redirect page at
+  // each old -None address).
+  const editions = loadEditionsFromDir(ctx.editionsDir);
   let ledger: StoreTopic[] = [];
   if (fs.existsSync(ctx.ledgerPath)) {
     const data = JSON.parse(fs.readFileSync(ctx.ledgerPath, "utf-8")) as {

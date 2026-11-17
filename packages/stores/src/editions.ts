@@ -15,7 +15,8 @@
 //     rank by heat descending with stable order for ties.
 //   - Slot adoption is the one declared per-consumer difference:
 //     with adoptSlot (the default) a known filename slot is written
-//     into the edition; the publisher passes adoptSlot: false
+//     into the edition; all current consumers adopt it (the
+//     publisher's -None page names were retired 2026-11-17)
 //     because its historical output names edition pages from the
 //     JSON's own slot field (usually absent → "None"), and changing
 //     that would change published URLs — a product decision, not a

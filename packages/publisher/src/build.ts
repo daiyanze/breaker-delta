@@ -1054,6 +1054,36 @@ function buildSiteLang(ctx: Ctx, editions: Edition[], topics: PubTopic[]): void 
     );
   });
 
+  // Legacy -None redirects (retired 2026-11-17, Dai's call):
+  // edition pages used to be named edition-<date>-None.html with
+  // a day's editions overwriting each other; each old address
+  // now redirects to that date's latest edition (slot order
+  // pilot < morning < evening).
+  {
+    const SLOT_ORDER: Record<string, number> = { pilot: 0, morning: 1, evening: 2 };
+    const latestByDate = new Map<string, Edition>();
+    for (const ed of editions) {
+      const cur = latestByDate.get(ed.date);
+      if (!cur || (SLOT_ORDER[ed.slot ?? ""] ?? 9) >= (SLOT_ORDER[cur.slot ?? ""] ?? 9)) {
+        latestByDate.set(ed.date, ed);
+      }
+    }
+    for (const [date, ed] of latestByDate) {
+      const target = edFile(ed);
+      const abs = `${ctx.baseUrl}${langPrefix(ctx)}${target}`;
+      write(
+        ctx,
+        `edition-${date}-None.html`,
+        `<!DOCTYPE html>\n<html lang="${ctx.htmlLangs[ctx.lang] ?? "zh-CN"}"><head><meta charset="utf-8">` +
+          `<title>${esc(edLabel(ed))} · Breaker Delta</title>` +
+          `<link rel="canonical" href="${abs}">` +
+          `<meta http-equiv="refresh" content="0; url=${target}">` +
+          `</head><body><p><a href="${target}">${esc(edLabel(ed))}</a></p>` +
+          `<script>location.replace(${JSON.stringify(target)})</script></body></html>`,
+      );
+    }
+  }
+
   const stateRow = (st: BoardState, rank?: number, showLevel = true): string => {
     const a: App = {
       ...st.app,

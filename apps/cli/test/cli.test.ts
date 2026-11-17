@@ -361,7 +361,7 @@ test("publish builds the fixture site; json mode keeps stdout clean", async () =
     "publish", "--out", site, "--base-url", "https://example.com/triple-sigma",
   ]);
   assert.strictEqual(r.status, 0, r.stderr);
-  assert.match(r.stdout, /pages: 21 \| topics: 2 \| latest top heat: 108/);
+  assert.match(r.stdout, /pages: 22 \| topics: 2 \| latest top heat: 108/);
   assert.ok(fs.existsSync(path.join(site, "index.html")));
   assert.ok(fs.existsSync(path.join(site, "data", "topics.json")));
   const tr = fs.readFileSync(path.join(site, "track-record.html"), "utf-8");
@@ -375,10 +375,10 @@ test("publish builds the fixture site; json mode keeps stdout clean", async () =
   ]);
   assert.strictEqual(r2.status, 0, r2.stderr);
   const doc = JSON.parse(r2.stdout); // stdout is exactly one JSON document
-  assert.strictEqual(doc.pages, 63); // 21 per language × 3; seeds.html redirect stubs (one per language) came with the 0.22.0 echo rename; docs pages left the main build in the docs-site split; legacy topic-tNN stubs were dropped 2026-11-16 (−2 per language here); landing.html added 2026-11-16 (+1 per language)
+  assert.strictEqual(doc.pages, 66); // 22 per language × 3; seeds.html redirect stubs (one per language) came with the 0.22.0 echo rename; docs pages left the main build in the docs-site split; legacy topic-tNN stubs were dropped 2026-11-16 (−2 per language here); landing.html added 2026-11-16 (+1 per language); edition pages split by real slot + one -None redirect per date 2026-11-17 (+1 net per language here: the fixture's morning+evening editions get separate slot pages instead of overwriting one -None page; the -None redirect file is written but not counted in the pages total)
   assert.strictEqual(doc.outDir, site2);
   assert.ok(!r2.stdout.includes("pages:"), "build logs must not pollute json stdout");
-  assert.match(r2.stderr, /pages: 21 \| topics: 2/); // they went to stderr instead
+  assert.match(r2.stderr, /pages: 22 \| topics: 2/); // they went to stderr instead
   assert.deepStrictEqual(listFiles(site2), listFiles(site));
 });
 

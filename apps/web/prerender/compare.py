@@ -14,6 +14,7 @@ all; differences are printed either way for the record.
 
 import re
 import sys
+import urllib.parse
 from collections import Counter
 
 
@@ -22,12 +23,23 @@ def visible_text(html: str) -> str:
     html = re.sub(r"<script.*?</script>", "", html, flags=re.S)
     html = re.sub(r"<style.*?</style>", "", html, flags=re.S)
     html = re.sub(r"<!--.*?-->", "", html, flags=re.S)
+    # Avatar equivalence: the static build renders a source as a
+    # favicon <img> when it has one cached, the web/prerender as
+    # a letter chip; both carry the source name in title. Reduce
+    # both forms to the name so the comparison is about content.
+    html = re.sub(r'<img class="avimg"[^>]*title="([^"]*)"[^>]*>', r" \1 ", html)
+    html = re.sub(r'<span class="av"[^>]*title="([^"]*)"[^>]*>[^<]*</span>', r" \1 ", html)
     text = re.sub(r"<[^>]+>", " ", html)
     return re.sub(r"\s+", " ", text).strip()
 
 
 def hrefs(html: str) -> Counter:
-    return Counter(re.findall(r'href="([^"]*)"', html))
+    # Percent-encoding equivalence: the static build encodes
+    # non-ASCII slugs in hrefs, React emits them raw; both
+    # address the same file.
+    return Counter(
+        urllib.parse.unquote(h) for h in re.findall(r'href="([^"]*)"', html)
+    )
 
 
 def main() -> int:

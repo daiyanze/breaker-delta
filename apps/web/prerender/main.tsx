@@ -18,6 +18,7 @@ import { renderToReadableStream } from "react-dom/server";
 
 import AboutPage from "../app/[lang]/about/page";
 import ArchivePage from "../app/[lang]/archive/page";
+import EditionPage from "../app/[lang]/edition/[id]/page";
 import LandingPage from "../app/[lang]/landing/page";
 import TrackRecordPage from "../app/[lang]/track-record/page";
 
@@ -173,13 +174,8 @@ const PAGES: PageDef[] = [
     descKey: "desc_landing",
   },
   {
-    // NOT YET GATED: the static archive links each date's
-    // editions to the slot-collapsed edition-<date>-None.html
-    // files (the recorded publisher artifact), while the web
-    // links each edition by its real slot; the en rows also
-    // differ in slot-label rendering. Archive switches together
-    // with the edition pages, once the -None retirement is
-    // decided — see REWRITE-DESIGN.md Phase 3 record.
+    // Gated 2026-11-17 after the -None retirement: the static
+    // archive now links real edition slots like the web does.
     file: "archive.html",
     component: ArchivePage,
     title: (lang) => sArr(lang, "tabs")[7] ?? "Archive",
@@ -193,8 +189,50 @@ const PAGES: PageDef[] = [
   },
 ];
 
+/** One edition snapshot page per edition file in the data dir
+ *  (id = <date>-<slot>, the web route's param shape). */
+async function renderEditions(): Promise<void> {
+  const dataDir = process.env.BD_DATA_DIR;
+  if (!dataDir) throw new Error("BD_DATA_DIR is required for edition pages");
+  const edDir = path.join(dataDir, "editions");
+  const files = fs
+    .readdirSync(edDir)
+    .filter((f) => /^\d{4}-\d{2}-\d{2}-\w+\.json$/.test(f))
+    .sort();
+  for (const f of files) {
+    const id = f.replace(/\.json$/, "");
+    const raw = JSON.parse(fs.readFileSync(path.join(edDir, f), "utf-8")) as {
+      date: string;
+      published_at?: string;
+    };
+    const label =
+      raw.published_at && raw.published_at.length >= 16
+        ? `${raw.published_at.slice(0, 10)} ${raw.published_at.slice(11, 16)}`
+        : raw.date;
+    for (const lang of LANGS) {
+      const body = await renderBody(
+        <EditionPage params={Promise.resolve({ lang, id })} />,
+      );
+      const file = `edition-${id}.html`;
+      const html = shell(
+        lang,
+        file,
+        `${label} · ${sArr(lang, "tabs")[0]}`,
+        s(lang, "desc_default"),
+        null,
+        rewriteStaticHrefs(cleanBody(body), lang),
+      );
+      const rel = lang === "zh" ? file : `${lang}/${file}`;
+      fs.mkdirSync(path.join(OUT, path.dirname(rel)), { recursive: true });
+      fs.writeFileSync(path.join(OUT, rel), html);
+      console.log("wrote", rel);
+    }
+  }
+}
+
 async function main(): Promise<void> {
   fs.mkdirSync(OUT, { recursive: true });
+  await renderEditions();
   for (const def of PAGES) {
     for (const lang of LANGS) {
       const body = await renderBody(
