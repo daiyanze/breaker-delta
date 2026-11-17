@@ -7,9 +7,12 @@
 //
 // Layout expected under BD_DATA_BASE (a raw-content base URL such
 // as https://raw.githubusercontent.com/<owner>/<repo>/main):
-//   editions.json            {"editions": ["2026-11-11-pilot.json", ...]}
+//   editions.json            {"editions": ["2026-11-11-pilot.json", ...],
+//                             "plugin_pages": ["momentum", ...]} (optional)
 //   editions/<name>          edition JSON files
 //   state/seen-topics.json   the ledger ({"topics": [...]})
+//   state/plugin-pages/<id>.json  plugin page data (Plugin-P2), listed
+//                             in the manifest's plugin_pages array
 //   config.yaml              optional
 //   track-record.md          optional
 // The manifest exists because raw content hosts cannot list a
@@ -17,6 +20,7 @@
 // edition.
 
 import type { StoreTopic } from "@breaker-delta/core";
+import type { PluginPageData } from "@breaker-delta/publisher";
 
 import { editionsFromFiles, parseConfigText, type SiteStore, type StoreData } from "./store";
 
@@ -40,9 +44,28 @@ export class RemoteStore implements SiteStore {
     const base = this.base.replace(/\/+$/, "");
     const manifest = JSON.parse(await fetchText(`${base}/editions.json`)) as {
       editions?: unknown;
+      plugin_pages?: unknown;
     };
     if (!Array.isArray(manifest.editions)) {
       throw new Error("remote data: editions.json has no editions[] list");
+    }
+    // Plugin pages (Plugin-P2/P3): the manifest lists plugin ids;
+    // each page's block data lives at state/plugin-pages/<id>.json,
+    // written by the CLI's `plugins pages` pass. Missing or malformed
+    // page files are skipped, mirroring the file backend.
+    const pageIds = Array.isArray(manifest.plugin_pages)
+      ? manifest.plugin_pages.filter((n): n is string => typeof n === "string")
+      : [];
+    const pluginPages: PluginPageData[] = [];
+    for (const id of pageIds) {
+      const text = await fetchTextOrNull(`${base}/state/plugin-pages/${encodeURIComponent(id)}.json`);
+      if (!text) continue;
+      try {
+        const data = JSON.parse(text) as PluginPageData;
+        if (data.id && data.slug && data.title && data.langs) pluginPages.push(data);
+      } catch {
+        // Malformed page files are skipped, not fatal.
+      }
     }
     const names = manifest.editions.filter((n): n is string => typeof n === "string");
     const files = await Promise.all(
@@ -64,8 +87,7 @@ export class RemoteStore implements SiteStore {
       config: parseConfigText(configText),
       configText,
       trackRecord,
-      // Plugin pages are not part of the remote manifest yet.
-      pluginPages: [],
+      pluginPages,
       topics: null,
     };
   }

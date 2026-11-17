@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { LANG_LABEL } from "@breaker-delta/publisher";
 
-import { LANGS, pluginPageTabsSync, type Lang } from "../lib/data";
+import { getSiteData, LANGS, type Lang } from "../lib/data";
 import { s, sArr } from "../lib/strings";
 import { DOCS_URL } from "./Footer";
 import { ThemeToggle } from "./ThemeToggle";
@@ -38,7 +38,7 @@ const TAB_HREFS: Record<string, string> = {
  * language switcher (same page in each language, like the static
  * build), nav tabs. `active` is a tab key; `path` is the current
  * page's route suffix ("" for the board). */
-export function Mast({
+export async function Mast({
   lang,
   active,
   path = "",
@@ -48,6 +48,9 @@ export function Mast({
   path?: string;
 }) {
   const tabs = sArr(lang, "tabs");
+  // Plugin page tabs come from the assembled site data, so every
+  // backend (file / SQLite / remote) gets them the same way.
+  const pluginPages = (await getSiteData()).pluginPages;
   const prefix = lang === "zh" ? "" : `${lang}/`;
   return (
     <>
@@ -94,7 +97,7 @@ export function Mast({
             </Link>
           );
         })}
-        {pluginPageTabsSync().map((pg) => (
+        {pluginPages.map((pg) => (
           <Link
             key={pg.id}
             href={`/${lang}/plugin/${pg.slug}`}

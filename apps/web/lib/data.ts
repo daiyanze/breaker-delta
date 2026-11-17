@@ -26,7 +26,7 @@ import {
   type PanelDef,
 } from "./plugins";
 import { fmt, s } from "./strings";
-import { FileStore, SqliteStore, loadPluginPagesFromDir, type SiteStore } from "./store";
+import { FileStore, SqliteStore, type SiteStore } from "./store";
 import { RemoteStore } from "./store-remote";
 
 export const LANGS = ["zh", "en", "ja"] as const;
@@ -74,19 +74,6 @@ export function dataDir(): string {
   // apps/web -> repo root is ../.. ; the official data checkout is a
   // sibling of the engine repo.
   return path.resolve(process.cwd(), "../../../breaker-delta-data");
-}
-
-/** Plugin page tabs for the masthead (Plugin-P2): read straight
- *  from the data dir so the (synchronous) Mast component can show
- *  them without a store round-trip. The remote backend has no
- *  plugin pages yet; the plugin route itself reads the store. */
-export function pluginPageTabsSync(): import("@breaker-delta/publisher").PluginPageData[] {
-  if (remoteBase()) return [];
-  try {
-    return loadPluginPagesFromDir(dataDir());
-  } catch {
-    return [];
-  }
 }
 
 /** The SQLite path when the DB backend is selected, else null. */
