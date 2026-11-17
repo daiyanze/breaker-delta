@@ -1,14 +1,10 @@
-// Topic store, ported from radar/store.py. The store is a single
-// JSON file (default `state/seen-topics.json`). Dates are ISO
+// Topic store logic, ported from radar/store.py. Dates are ISO
 // `YYYY-MM-DD` strings, mirroring Python's date.isoformat(); the
 // 14-day review comparison is a whole-day difference, like
-// Python's date subtraction.
+// Python's date subtraction. This module is pure: the file-backed
+// load/save lives in @breaker-delta/stores (Rewrite Phase 1).
 
-import * as fs from "node:fs";
-import * as path from "node:path";
 import type { StoreTopic, TopicReview, TopicStore } from "./types.js";
-
-export const DEFAULT_STATE_PATH = path.join("state", "seen-topics.json");
 
 function pad(n: number): string {
   return String(n).padStart(2, "0");
@@ -24,30 +20,6 @@ function dayDiff(later: string, earlier: string): number {
   const [y1, m1, d1] = earlier.split("-").map(Number);
   const [y2, m2, d2] = later.split("-").map(Number);
   return Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 86_400_000);
-}
-
-export function loadStore(storePath: string = DEFAULT_STATE_PATH): TopicStore {
-  if (!fs.existsSync(storePath)) return { topics: [] };
-  const data = JSON.parse(fs.readFileSync(storePath, "utf-8")) as TopicStore;
-  data.topics ??= [];
-  return data;
-}
-
-/** Write the store atomically (temp file + rename), like Python. */
-export function saveStore(store: TopicStore, storePath: string = DEFAULT_STATE_PATH): void {
-  const directory = path.dirname(path.resolve(storePath));
-  fs.mkdirSync(directory, { recursive: true });
-  const tmp = path.join(
-    directory,
-    `.seen-topics-${Date.now()}-${Math.floor(Math.random() * 1e9)}.tmp`,
-  );
-  try {
-    fs.writeFileSync(tmp, JSON.stringify(store, null, 2), "utf-8");
-    fs.renameSync(tmp, storePath);
-  } catch (err) {
-    if (fs.existsSync(tmp)) fs.unlinkSync(tmp);
-    throw err;
-  }
 }
 
 function emptyReview(firstSeen: string): TopicReview {

@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "@breaker-delta/core": "0.22.0"
+    "@breaker-delta/core": "0.22.0",
+    "@breaker-delta/stores": "0.22.0"
   },
   "devDependencies": {
     "typescript": "^5"

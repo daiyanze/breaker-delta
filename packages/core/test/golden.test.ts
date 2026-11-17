@@ -20,14 +20,11 @@ import {
   ENTITY_SOURCES,
   heatOf,
   itemTime,
-  loadStore,
   parseTrackRecord,
-  parseTrackRecordFile,
   publishTokens,
   recordReview,
   RESERVED_FILES,
   resonanceGroups,
-  saveStore,
   scanTokens,
   slugify,
   titleKeywords,
@@ -37,7 +34,28 @@ import {
   topicWeights,
   upsertTopic,
 } from "../src/index.js";
-import type { Edition, TopicStore } from "../src/index.js";
+import type { Edition, TopicStore, VocabIo } from "../src/index.js";
+
+// Test-local fs VocabIo for the pure applyVocab (the production
+// implementation is @breaker-delta/stores' fsVocabIo, covered by
+// that package's own tests).
+const testVocabIo: VocabIo = {
+  exists: (p) => fs.existsSync(p),
+  load: (p) => {
+    try {
+      const data: unknown = JSON.parse(fs.readFileSync(p, "utf-8"));
+      return data !== null && typeof data === "object" && !Array.isArray(data)
+        ? (data as Record<string, unknown>)
+        : {};
+    } catch {
+      return {};
+    }
+  },
+  save: (p, data) => {
+    fs.mkdirSync(path.dirname(p) || ".", { recursive: true });
+    fs.writeFileSync(p, JSON.stringify(data, null, 1), "utf-8");
+  },
+};
 
 const goldenPath = fileURLToPath(new URL("../../fixtures/golden.json", import.meta.url).href);
 const G = JSON.parse(fs.readFileSync(goldenPath, "utf-8"));
@@ -145,11 +163,8 @@ describe("golden: store", () => {
     throws(() => recordReview(store, "Nope", "hit", "2026-11-26"),
       (err: unknown) => err instanceof Error && err.message === S.record_missing.error_arg);
     deepStrictEqual(store, S.final_store);
-    const td = fs.mkdtempSync(path.join(os.tmpdir(), "bd-store-"));
-    const p = path.join(td, "sub", "seen.json");
-    saveStore(store, p);
-    deepStrictEqual(loadStore(p), S.roundtrip);
-    deepStrictEqual(loadStore(path.join(td, "nope.json")), S.missing_file);
+    // The file roundtrip (saveStore/loadStore) is covered by
+    // @breaker-delta/stores' tests against these same golden values.
   });
 });
 
@@ -160,13 +175,13 @@ describe("golden: vocab", () => {
     const cfg = { vocab: { window_days: 60, state_file: stateFile } };
     for (const round of G.vocab.rounds as Any[]) {
       const results = clone(round.input);
-      const stats = applyVocab(results, clone(cfg), new Date(round.now));
+      const stats = applyVocab(results, clone(cfg), new Date(round.now), testVocabIo);
       deepStrictEqual(stats, round.expected.stats);
       const novelItems = results.flatMap((r: Any) => r.items).filter((i: Any) => i.novel).map((i: Any) => i.name);
       deepStrictEqual(novelItems, round.expected.novel_items);
       deepStrictEqual(JSON.parse(fs.readFileSync(stateFile, "utf-8")), round.expected.saved_vocab);
     }
-    deepStrictEqual(applyVocab([], { vocab: { enabled: false } }, new Date()), G.vocab.disabled);
+    deepStrictEqual(applyVocab([], { vocab: { enabled: false } }, new Date(), testVocabIo), G.vocab.disabled);
     deepStrictEqual([...ENTITY_SOURCES].sort(), G.vocab.entity_sources);
   });
 });
@@ -222,8 +237,6 @@ describe("golden: track_record", () => {
   it("parses the sample ledger", () => {
     deepStrictEqual(parseTrackRecord(G.track_record.markdown), G.track_record.expected);
   });
-  it("missing file returns the empty structure", () => {
-    const td = fs.mkdtempSync(path.join(os.tmpdir(), "bd-track-"));
-    deepStrictEqual(parseTrackRecordFile(path.join(td, "nope.md")), G.track_record.missing_file);
-  });
+  // The missing-file case goes through parseTrackRecordFile, which
+  // lives in @breaker-delta/stores and is covered by its tests.
 });

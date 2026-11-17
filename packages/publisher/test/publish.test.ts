@@ -10,7 +10,7 @@ import { test } from "node:test";
 
 import { fileURLToPath } from "node:url";
 
-import { parseTrackRecordFile } from "@breaker-delta/core";
+import { parseTrackRecordFile } from "@breaker-delta/stores";
 
 import { buildDocsSite, buildSite, optionsFromEnv, renderSiteMap } from "../src/index.js";
 import { pyQuote } from "../src/py.js";

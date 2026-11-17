@@ -32,11 +32,10 @@ import {
   buildTopics,
   dueForReview,
   heatOf,
-  loadStore,
   recordReview,
-  saveStore,
   makeTopicKeyer,
 } from "@breaker-delta/core";
+import { loadStore, saveStore } from "@breaker-delta/stores";
 import type { CandidateItem, Edition, SourceResult } from "@breaker-delta/core";
 
 import type { CliContext } from "./context.js";

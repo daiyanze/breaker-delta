@@ -21,7 +21,8 @@
 // the config / state come from the CLI's --data-dir (or
 // BD_DATA_DIR) instead of the process working directory.
 
-import { dueForReview, loadStore } from "@breaker-delta/core";
+import { dueForReview } from "@breaker-delta/core";
+import { loadStore } from "@breaker-delta/stores";
 import { runScan, summaryLines } from "@breaker-delta/fetchers";
 
 import { loadCliConfig, statePath, VERSION, type CliContext } from "./context.js";

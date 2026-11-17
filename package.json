@@ -7,9 +7,9 @@
   "scripts": {
     "release": "bun scripts/release.mjs",
     "bump": "bun scripts/bump.mjs",
-    "build": "bun run --filter @breaker-delta/core build && bun run --filter @breaker-delta/fetchers build && bun run --filter @breaker-delta/publisher build && bun run --filter @breaker-delta/cli build && bun run --filter @breaker-delta/extension build",
+    "build": "bun run --filter @breaker-delta/core build && bun run --filter @breaker-delta/stores build && bun run --filter @breaker-delta/fetchers build && bun run --filter @breaker-delta/publisher build && bun run --filter @breaker-delta/cli build && bun run --filter @breaker-delta/extension build",
     "bundle": "bun run build && bun run --filter @breaker-delta/cli bundle",
-    "test": "bun run --filter @breaker-delta/core test && bun run --filter @breaker-delta/fetchers test && bun run --filter @breaker-delta/publisher test && bun run --filter @breaker-delta/cli test && bun run --filter @breaker-delta/extension test"
+    "test": "bun run --filter @breaker-delta/core test && bun run --filter @breaker-delta/stores test && bun run --filter @breaker-delta/fetchers test && bun run --filter @breaker-delta/publisher test && bun run --filter @breaker-delta/cli test && bun run --filter @breaker-delta/extension test"
   },
   "type": "module",
   "version": "0.22.0",

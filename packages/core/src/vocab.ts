@@ -4,12 +4,11 @@
 // very first run only builds the vocabulary and flags nothing.
 //
 // Storage goes through an injectable IO seam (load/save/exists) so
-// tests and hosts can keep the state wherever they like; the default
-// implementation uses node:fs with the same on-disk format as Python
-// (JSON, sorted keys, indent 1).
+// tests and hosts can keep the state wherever they like. This module
+// is pure (Rewrite Phase 1): the node:fs implementation lives in
+// @breaker-delta/stores as fsVocabIo, with the same on-disk format
+// as Python (JSON, sorted keys, indent 1).
 
-import * as fs from "node:fs";
-import * as path from "node:path";
 import type { RadarConfig, SourceResult } from "./types.js";
 
 export const ENTITY_SOURCES: ReadonlySet<string> = new Set([
@@ -18,7 +17,8 @@ export const ENTITY_SOURCES: ReadonlySet<string> = new Set([
 ]);
 
 export const DEFAULT_WINDOW_DAYS = 60;
-export const DEFAULT_STATE_FILE = path.join("state", "vocab.json");
+/** Default vocab state path (relative to the instance base dir). */
+export const DEFAULT_VOCAB_STATE_FILE = "state/vocab.json";
 
 export interface VocabIo {
   exists(path: string): boolean;
@@ -26,24 +26,6 @@ export interface VocabIo {
   load(path: string): Record<string, unknown>;
   save(path: string, data: Record<string, string>): void;
 }
-
-export const fsVocabIo: VocabIo = {
-  exists: (p) => fs.existsSync(p),
-  load: (p) => {
-    try {
-      const data: unknown = JSON.parse(fs.readFileSync(p, "utf-8"));
-      return data !== null && typeof data === "object" && !Array.isArray(data)
-        ? (data as Record<string, unknown>)
-        : {};
-    } catch {
-      return {};
-    }
-  },
-  save: (p, data) => {
-    fs.mkdirSync(path.dirname(p) || ".", { recursive: true });
-    fs.writeFileSync(p, JSON.stringify(data, null, 1), "utf-8");
-  },
-};
 
 function isoDateUTC(d: Date): string {
   // Python uses now.date() — the date in the datetime's own zone.
@@ -65,12 +47,12 @@ export function applyVocab(
   results: SourceResult[],
   config: RadarConfig,
   now: Date,
-  io: VocabIo = fsVocabIo,
+  io: VocabIo,
 ): VocabStats {
   const cfg = config?.vocab ?? {};
   if (cfg.enabled === false) return { enabled: false };
   const window = Math.trunc(Number(cfg.window_days ?? DEFAULT_WINDOW_DAYS));
-  const statePath = cfg.state_file ?? DEFAULT_STATE_FILE;
+  const statePath = cfg.state_file ?? DEFAULT_VOCAB_STATE_FILE;
   const baseline = !io.exists(statePath);
   const today = isoDateUTC(now);
   const horizon = isoDateUTC(new Date(now.getTime() - window * 86_400_000));

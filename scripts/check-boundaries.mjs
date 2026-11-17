@@ -4,9 +4,8 @@
 // The target architecture has one dependency direction: apps depend
 // on packages, packages never depend on apps, and the domain package
 // (@breaker-delta/core) depends on nothing — no sibling packages, no
-// node IO in src. This script reports violations; it runs in warn
-// mode (exit 0) until Phase 1 finishes the domain purification,
-// then CI flips it to --strict.
+// node IO in src. CI runs this with --strict (any violation fails);
+// without the flag it only reports (warn mode, for local triage).
 
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -17,6 +16,7 @@ const strict = process.argv.includes("--strict");
 
 const AREAS = [
   { dir: "packages/core", pkg: "@breaker-delta/core", layer: "domain" },
+  { dir: "packages/stores", pkg: "@breaker-delta/stores", layer: "package" },
   { dir: "packages/fetchers", pkg: "@breaker-delta/fetchers", layer: "package" },
   { dir: "packages/publisher", pkg: "@breaker-delta/publisher", layer: "package" },
   { dir: "apps/cli", pkg: "@breaker-delta/cli", layer: "app" },

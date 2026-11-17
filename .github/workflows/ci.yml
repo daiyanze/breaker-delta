@@ -17,5 +17,5 @@ jobs:
       - run: bun install
       - run: bun run build
       - run: bun run test
-      - name: Import boundaries (warn mode until Rewrite Phase 1)
-        run: bun scripts/check-boundaries.mjs
+      - name: Import boundaries
+        run: bun scripts/check-boundaries.mjs --strict

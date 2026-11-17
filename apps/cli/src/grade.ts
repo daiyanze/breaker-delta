@@ -16,7 +16,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import { loadStore } from "@breaker-delta/core";
+import { loadStore } from "@breaker-delta/stores";
 
 import { applyRecord } from "./commands.js";
 import { statePath, type CliContext } from "./context.js";

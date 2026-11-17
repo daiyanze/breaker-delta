@@ -3,7 +3,6 @@
 // Editions must already carry _heat/_rank, attached by the load step
 // exactly as publish.load() does (heat desc, stable order).
 
-import * as fs from "node:fs";
 import { classify, type CatRuleSet } from "./classify.js";
 import { RESERVED_FILES, slugify } from "./slug.js";
 import { publishTokens } from "./tokens.js";
@@ -182,7 +181,7 @@ export interface TrackData {
   first_review: string;
 }
 
-function emptyTrackData(): TrackData {
+export function emptyTrackData(): TrackData {
   return { groups: [], total: 0, reviewed: 0, hits: 0, first_review: "" };
 }
 
@@ -234,7 +233,4 @@ export function parseTrackRecord(markdown: string): TrackData {
   return data;
 }
 
-export function parseTrackRecordFile(filePath: string): TrackData {
-  if (!fs.existsSync(filePath)) return emptyTrackData();
-  return parseTrackRecord(fs.readFileSync(filePath, "utf-8"));
-}
+

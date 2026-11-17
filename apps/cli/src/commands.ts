@@ -11,9 +11,7 @@ import * as path from "node:path";
 import {
   catRulesFromConfig,
   dueForReview,
-  loadStore,
   recordReview,
-  saveStore,
   todayLocal,
   upsertTopic,
   editionSchema,
@@ -25,6 +23,7 @@ import {
 import type { Schema, TopicStore } from "@breaker-delta/core";
 import { loadConfig, runScan, summaryLines } from "@breaker-delta/fetchers";
 import { buildDocsSite, buildSite, loadLangPacksFromDir, optionsFromEnv } from "@breaker-delta/publisher";
+import { loadStore, saveStore } from "@breaker-delta/stores";
 import type { BuildOptions } from "@breaker-delta/publisher";
 
 import { addPlugin, addPreset, verifyInstalls, type AddResult } from "./add.js";

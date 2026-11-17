@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "@breaker-delta/core": "0.22.0"
+    "@breaker-delta/core": "0.22.0",
+    "@breaker-delta/stores": "0.22.0"
   },
   "description": "Breaker Delta static site generator (publisher), ported from radar/publish.py with byte-level parity.",
   "devDependencies": {

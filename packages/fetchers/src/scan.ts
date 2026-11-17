@@ -26,6 +26,7 @@ import type {
   SourceResult,
   VocabStats,
 } from "@breaker-delta/core";
+import { fsVocabIo } from "@breaker-delta/stores";
 import { missing } from "./common.js";
 import { FETCHERS } from "./fetchers/index.js";
 import { pyIsoformat } from "./py.js";
@@ -129,7 +130,7 @@ export async function runScan(
         : path.join(baseDir, vocabState),
     },
   };
-  const vocabStats = applyVocab(results, vocabConfig, now);
+  const vocabStats = applyVocab(results, vocabConfig, now, fsVocabIo);
   const report: ScanReport = {
     edition,
     scanned_at: pyIsoformat(now),

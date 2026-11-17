@@ -9,13 +9,13 @@ import * as path from "node:path";
 import {
   alertsData,
   buildTopics,
-  parseTrackRecordFile,
   RESERVED_FILES,
   slugify,
   topicFile,
   topicsData,
   type Edition,
 } from "@breaker-delta/core";
+import { parseTrackRecordFile } from "@breaker-delta/stores";
 
 import {
   catName,
