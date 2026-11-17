@@ -17,6 +17,7 @@ import { HTML_LANG, STRINGS, s, sArr } from "@breaker-delta/i18n";
 import { renderToReadableStream } from "react-dom/server";
 
 import AboutPage from "../app/[lang]/about/page";
+import LandingPage from "../app/[lang]/landing/page";
 
 const LANGS = ["zh", "en", "ja"] as const;
 type Lang = (typeof LANGS)[number];
@@ -141,30 +142,56 @@ async function renderBody(element: React.ReactElement): Promise<string> {
   return await new Response(stream).text();
 }
 
-async function main(): Promise<void> {
-  fs.mkdirSync(OUT, { recursive: true });
-  for (const lang of LANGS) {
-    const body = await renderBody(<AboutPage params={Promise.resolve({ lang })} />);
-    const title = sArr(lang, "tabs")[8] ?? "About";
-    const ld = {
+interface PageDef {
+  file: string;
+  component: (props: { params: Promise<{ lang: string }> }) => Promise<React.ReactNode>;
+  title: (lang: Lang) => string;
+  descKey: string;
+  ld?: (lang: Lang) => unknown;
+}
+
+const PAGES: PageDef[] = [
+  {
+    file: "about.html",
+    component: AboutPage,
+    title: (lang) => sArr(lang, "tabs")[8] ?? "About",
+    descKey: "desc_about",
+    ld: (lang) => ({
       "@context": "https://schema.org",
       "@type": "AboutPage",
-      name: `${title} · ${s(lang, "site_name")}`,
+      name: `${sArr(lang, "tabs")[8]} · ${s(lang, "site_name")}`,
       url: `${BASE_URL}${lang === "zh" ? "" : `${lang}/`}about.html`,
       author: { "@type": "Person", name: "Dai", url: "https://x.com/daiyanze" },
-    };
-    const html = shell(
-      lang,
-      "about.html",
-      title,
-      s(lang, "desc_about"),
-      ld,
-      rewriteStaticHrefs(cleanBody(body), lang),
-    );
-    const rel = lang === "zh" ? "about.html" : `${lang}/about.html`;
-    fs.mkdirSync(path.join(OUT, path.dirname(rel)), { recursive: true });
-    fs.writeFileSync(path.join(OUT, rel), html);
-    console.log("wrote", rel);
+    }),
+  },
+  {
+    file: "landing.html",
+    component: LandingPage,
+    title: (lang) => s(lang, "landing_title"),
+    descKey: "desc_landing",
+  },
+];
+
+async function main(): Promise<void> {
+  fs.mkdirSync(OUT, { recursive: true });
+  for (const def of PAGES) {
+    for (const lang of LANGS) {
+      const body = await renderBody(
+        <def.component params={Promise.resolve({ lang })} />,
+      );
+      const html = shell(
+        lang,
+        def.file,
+        def.title(lang),
+        s(lang, def.descKey),
+        def.ld?.(lang) ?? null,
+        rewriteStaticHrefs(cleanBody(body), lang),
+      );
+      const rel = lang === "zh" ? def.file : `${lang}/${def.file}`;
+      fs.mkdirSync(path.join(OUT, path.dirname(rel)), { recursive: true });
+      fs.writeFileSync(path.join(OUT, rel), html);
+      console.log("wrote", rel);
+    }
   }
   void STRINGS;
 }

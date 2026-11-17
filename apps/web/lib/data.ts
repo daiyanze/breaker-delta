@@ -486,8 +486,11 @@ export function rewriteLinks(html: string, lang: Lang): string {
     .replace(/href="feed\.xml"/g, `href="${lang === "zh" ? "/feed.xml" : `/${lang}/feed.xml`}"`)
     .replace(/href="atom\.xml"/g, `href="${lang === "zh" ? "/atom.xml" : `/${lang}/atom.xml`}"`)
     .replace(/href="([a-z0-9][a-z0-9-]*)\.html"/g, (_m, name: string) => `href="${page(name)}"`)
-    .replace(
-      /href="([^"]+?)\.html"/g,
-      (_m, name: string) => `href="/${lang}/topic/${name}"`,
+    .replace(/href="([^"]+?)\.html"/g, (m, name: string) =>
+      // Absolute URLs (the landing page's docs links, expanded
+      // from {{DOCS}} before this runs) are not site pages —
+      // leave them intact instead of mapping them onto a topic
+      // route (found by the Phase 3c prerender comparison).
+      name.includes("://") ? m : `href="/${lang}/topic/${name}"`,
     );
 }
