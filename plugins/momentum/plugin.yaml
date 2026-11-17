@@ -12,6 +12,7 @@ description:
 slots:
   - score
   - page
+  - tools
 entry: plugin.ts
 score:
   min: 0

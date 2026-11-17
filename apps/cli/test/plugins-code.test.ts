@@ -514,3 +514,54 @@ test("shipped momentum plugin math", async () => {
   assert.equal(falling?.value, 22); // 12 + 0 + 10
   assert.equal(mod.scoreTopic(null, { apps: [] }), null);
 });
+
+test("mcp: plugin tools register next to the engine tools and answer calls", () => {
+  const dir = makeDataDir((d) => {
+    writeEditions(d, [
+      ["2026-11-12-morning.json", ED1],
+      ["2026-11-12-evening.json", ED2],
+    ]);
+    writeConfig(d, "plugins:\n  momentum:\n    enabled: true\n");
+  });
+  const scored = runCli(["--data-dir", dir, "plugins", "score"]);
+  assert.equal(scored.status, 0, scored.stderr);
+
+  const input =
+    [
+      { jsonrpc: "2.0", id: 1, method: "initialize", params: {} },
+      { jsonrpc: "2.0", id: 2, method: "tools/list" },
+      { jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "momentum__top", arguments: {} } },
+      { jsonrpc: "2.0", id: 4, method: "tools/call", params: { name: "radar_board", arguments: {} } },
+      { jsonrpc: "2.0", id: 5, method: "tools/call", params: { name: "radar_topic", arguments: { query: "示例模型" } } },
+    ]
+      .map((m) => JSON.stringify(m))
+      .join("\n") + "\n";
+  const res = spawnSync(process.execPath, [CLI, "--data-dir", dir, "mcp"], {
+    input,
+    encoding: "utf-8",
+    timeout: 120_000,
+  });
+  assert.equal(res.status, 0, res.stderr);
+  const responses = (res.stdout as string)
+    .trim()
+    .split("\n")
+    .map((line) => JSON.parse(line));
+
+  const list = responses.find((m) => m.id === 2);
+  const names = list.result.tools.map((t: { name: string }) => t.name);
+  assert.ok(names.includes("momentum__top"), `tools/list missing momentum__top: ${names}`);
+  assert.ok(names.includes("radar_board") && names.includes("radar_topic") && names.includes("radar_editions"));
+
+  const top = responses.find((m) => m.id === 3);
+  assert.equal(top.result.isError, false);
+  assert.match(top.result.content[0].text, /示例模型发布 — momentum \d+ · heat \d+/);
+
+  const board = responses.find((m) => m.id === 4);
+  assert.equal(board.result.isError, false);
+  assert.match(board.result.content[0].text, /示例模型发布 — heat \d+ · must/);
+  assert.match(board.result.content[0].text, /momentum \d+/);
+
+  const topic = responses.find((m) => m.id === 5);
+  assert.equal(topic.result.isError, false);
+  assert.match(topic.result.content[0].text, /appearances: 2/);
+});

@@ -300,7 +300,7 @@ $BD --data-dir /path/to/your-data publish --out site        # build the static s
 <li><b>preset init &lt;名&gt;</b> — 把某个内置 preset 的 config 与 brief.md 复制进数据目录，成为你自己的可改副本；数据目录已有 config 时拒绝覆盖。</li>
 <li><b>doctor [--online]</b> — 离线自检 Node、配置、数据目录与引擎根目录，含分类完整性检查（写了 categories 却解析不出有效规则会判 fail，免得 publish 时静默回退到内置分类）与插件检查（插件包损坏、config 启用了不存在的插件、已启用数据插件的 schema 不合法都会判 fail）；加 --online 再抽查 config 里声明的订阅源地址是否可达（死源只 warn 不 fail）。有检查不通过时退出码为 1。</li>
 <li><b>serve [--port 8080] [--host 0.0.0.0] [--base-url &lt;url&gt;]</b> — 动态服务（自部署实例用，也是 Docker 镜像的入口）：把站点渲染进内存对外服务，数据目录变化即重渲染。环境变量：BD_PUSH_TOKEN 开启带口令的推送 API（POST /api/record、/api/editions），BD_SCAN_TIMES=06:00,18:00 开启内置定时扫描（只抓候选），BD_BASE_URL 设定站点根地址，/api/health 是健康检查（见 <a href="docs-deploy.html">自建与部署</a> 的 Docker 一节）。</li>
-<li><b>mcp</b> — 以 stdio 方式运行 MCP 服务器，提供 radar_scan 与 radar_review 两个工具（见 <a href="docs-skill.html">Skill 与 MCP</a>）。</li>
+<li><b>mcp</b> — 以 stdio 方式运行 MCP 服务器，提供 radar_scan / radar_review / radar_board / radar_topic / radar_editions 五个引擎工具，外加已启用插件注册的工具（见 <a href="docs-skill.html">Skill 与 MCP</a>）。</li>
 </ul>
 <h3 style="margin:16px 0 6px">常用例子</h3>
 <pre class="cfgpre full">BD="bun apps/cli/dist/breaker-delta.mjs"
@@ -346,7 +346,7 @@ TS_MAIN_URL      主站地址：文档站的回链指向它（默认 https://bre
 <li><b>preset init &lt;name&gt;</b> — copy a bundled preset's config and brief.md into the data dir as your own editable copy; refuses to overwrite an existing config.</li>
 <li><b>doctor [--online]</b> — offline self-check of Node, config, data dir and engine root, including taxonomy integrity (a categories section that yields no valid rules fails, instead of silently falling back to the built-in taxonomy at publish time) and plugin integrity (a broken plugin pack, config enabling an unknown plugin, or an enabled data plugin with an invalid schema all fail). --online additionally spot-checks a sample of the feed URLs the config declares (dead feeds warn, never fail). Exits 1 when any check fails.</li>
 <li><b>serve [--port 8080] [--host 0.0.0.0] [--base-url &lt;url&gt;]</b> — the dynamic server for self-hosted instances (and the Docker image's entrypoint): renders the site into memory, serves it, and re-renders when the data dir changes. Environment: BD_PUSH_TOKEN enables the token-gated push API (POST /api/record, /api/editions), BD_SCAN_TIMES=06:00,18:00 turns on the built-in scan schedule (candidates only), BD_BASE_URL sets the site root, and /api/health is the health endpoint (see the Docker section of <a href="docs-deploy.html">Deploy Your Own</a>).</li>
-<li><b>mcp</b> — run the stdio MCP server with the tools radar_scan and radar_review (see <a href="docs-skill.html">Skill &amp; MCP</a>).</li>
+<li><b>mcp</b> — run the stdio MCP server with the engine tools radar_scan / radar_review / radar_board / radar_topic / radar_editions, plus tools registered by enabled plugins (see <a href="docs-skill.html">Skill &amp; MCP</a>).</li>
 </ul>
 <h3 style="margin:16px 0 6px">Common examples</h3>
 <pre class="cfgpre full">BD="bun apps/cli/dist/breaker-delta.mjs"
@@ -445,7 +445,9 @@ TS_MAIN_URL      Main site URL: the docs site links back here (default https://b
 <ul class="tips">
 <li><b>radar_scan</b>：跑一期抓取层，返回候选与逐源状态。</li>
 <li><b>radar_review</b>：返回到期需要复核的话题清单。</li>
-<li>分级、写回和出报告仍按 Skill 的流程走；MCP 只是把这两个最常用的动作变成 agent 可以直接调用的工具。</li>
+<li><b>radar_board / radar_topic / radar_editions</b>：只读查询——当前看板（按最新浪高排序，带插件副分数与实体）、单个话题的完整出现史、已存期次清单，agent 不用再去翻网页或数据文件。</li>
+<li><b>插件工具</b>：启用了 tools 槽的代码插件会把自己的工具注册进来，命名为「插件 id__工具名」（例如 momentum__top 返回动量榜前列）。插件工具只读：拿组装好的站点数据作答，写路径仍归 CLI 命令。</li>
+<li>分级、写回和出报告仍按 Skill 的流程走；MCP 只是把常用动作变成 agent 可以直接调用的工具。</li>
 </ul>
 <h3 style="margin:16px 0 6px">边界</h3>
 <ul class="tips">
@@ -470,7 +472,9 @@ TS_MAIN_URL      Main site URL: the docs site links back here (default https://b
 <ul class="tips">
 <li><b>radar_scan</b>: run one edition's fetch layer and return candidates with per-source status.</li>
 <li><b>radar_review</b>: return the topics due for their 14-day review.</li>
-<li>Grading, write-back and reporting still follow the Skill flow; MCP simply exposes the two most-used actions as tools the agent can call directly.</li>
+<li><b>radar_board / radar_topic / radar_editions</b>: read-only queries — the current board (ranked by latest heat, with plugin sub-scores and entities inline), one topic's full appearance history, and the stored edition list, so an agent never has to scrape the site or the data files.</li>
+<li><b>Plugin tools</b>: enabled code plugins with a tools slot register their own tools, named <span style="font-family:var(--mono)">&lt;plugin-id&gt;__&lt;tool&gt;</span> (for example momentum__top returns the momentum leaders). Plugin tools are read-only: they answer from the assembled site data, and the write paths stay with the CLI commands.</li>
+<li>Grading, write-back and reporting still follow the Skill flow; MCP simply exposes the common actions as tools the agent can call directly.</li>
 </ul>
 <h3 style="margin:16px 0 6px">Boundaries</h3>
 <ul class="tips">

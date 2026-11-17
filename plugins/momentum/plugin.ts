@@ -102,3 +102,50 @@ export function buildPage(
     },
   ];
 }
+
+// ------------------------------------------------------------ tools slot (Plugin-P3)
+
+/** MCP tool registration: one read-only tool, `top`, exposed by the
+ *  host as momentum__top. Ranks topics by the momentum score stored
+ *  on their latest appearance — the same numbers the board page
+ *  shows; it computes nothing new. */
+export function pluginTools(): {
+  name: string;
+  description: string;
+  inputSchema: Record<string, unknown>;
+  call: (args: Record<string, unknown>, site: { topics: PageTopicLike[] }) => string;
+}[] {
+  return [
+    {
+      name: "top",
+      description:
+        "Top topics by momentum score (0-100: appearance count + heat trend + source breadth), " +
+        "as stored by the momentum score pass. Optional limit (default 10, max 50).",
+      inputSchema: {
+        type: "object",
+        properties: { limit: { type: "number" } },
+      },
+      call: (args, site) => {
+        const limit = Math.min(
+          Math.max(typeof args.limit === "number" ? args.limit : 10, 1),
+          50,
+        );
+        const rows: { name: string; score: number; heat: number }[] = [];
+        for (const t of site.topics) {
+          const last = t.apps[t.apps.length - 1];
+          const score = last?.plugins?.momentum?.score;
+          if (typeof score !== "number") continue;
+          rows.push({ name: t.name, score, heat: last.heat ?? 0 });
+        }
+        rows.sort((a, b) => b.score - a.score || b.heat - a.heat);
+        if (rows.length === 0) {
+          return "No momentum data yet: run the score pass first (breaker-delta plugins score).";
+        }
+        return rows
+          .slice(0, limit)
+          .map((r, i) => `#${i + 1} ${r.name} — momentum ${r.score} · heat ${r.heat}`)
+          .join("\n");
+      },
+    },
+  ];
+}

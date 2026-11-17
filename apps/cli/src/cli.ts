@@ -111,7 +111,10 @@ Commands:
                      root (including taxonomy integrity). --online also
                      spot-checks a sample of the config's feed URLs.
                      Exit 1 when any check fails.
-  mcp                Run the stdio MCP server (tools: radar_scan, radar_review).
+  mcp                Run the stdio MCP server (engine tools radar_scan /
+                     radar_review / radar_board / radar_topic /
+                     radar_editions, plus enabled plugins' tools as
+                     <plugin-id>__<tool>).
 `;
 
 interface Parsed {

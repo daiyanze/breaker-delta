@@ -57,6 +57,7 @@ const SLOT_EXPORTS: Record<CodeSlot, string> = {
   entities: "extractEntities",
   review: "reviewTopic",
   page: "buildPage",
+  tools: "pluginTools",
 };
 
 export interface PluginCtx {
@@ -733,4 +734,88 @@ export function entityPluginIds(
   }
   out.sort();
   return out;
+}
+
+// ------------------------------------------------------------ tools slot (Plugin-P3)
+
+/** One MCP tool contributed by a code plugin (Plugin-P3). The host
+ *  exposes it as `<plugin-id>__<name>`; the handler receives the
+ *  call arguments and the assembled site (topics + editions, the
+ *  same shape the page slot gets) and returns text or any
+ *  JSON-serializable value. Handlers run in the MCP server process
+ *  with the plugin's usual ctx (permissions enforced as elsewhere). */
+export interface PluginToolDef {
+  name: string;
+  description: string;
+  inputSchema: Record<string, unknown>;
+  call: (
+    args: Record<string, unknown>,
+    site: { topics: ReturnType<typeof buildTopics>; editions: Edition[] },
+  ) => unknown | Promise<unknown>;
+}
+
+export interface LoadedPluginTool {
+  pluginId: string;
+  exposedName: string;
+  def: PluginToolDef;
+}
+
+const TOOL_NAME_RE = /^[a-z][a-z0-9_]*$/;
+
+/** Load and validate the tools of every enabled tools-slot plugin. */
+export async function loadPluginTools(
+  ctx: CliContext,
+  config: Record<string, unknown>,
+): Promise<LoadedPluginTool[]> {
+  const plugins = await loadEnabledCodePlugins(ctx, config, ["tools"]);
+  const out: LoadedPluginTool[] = [];
+  const seen = new Set<string>();
+  for (const plugin of plugins) {
+    const raw = await (plugin.mod.pluginTools as Function)(plugin.ctx);
+    if (!Array.isArray(raw)) {
+      throw new Error(`plugin "${plugin.id}": pluginTools() must return an array`);
+    }
+    for (const entry of raw as Partial<PluginToolDef>[]) {
+      if (!entry || typeof entry.name !== "string" || !TOOL_NAME_RE.test(entry.name)) {
+        throw new Error(`plugin "${plugin.id}": tool name must match ${TOOL_NAME_RE}`);
+      }
+      if (typeof entry.description !== "string" || entry.description === "") {
+        throw new Error(`plugin "${plugin.id}": tool "${entry.name}" needs a description`);
+      }
+      if (typeof entry.call !== "function") {
+        throw new Error(`plugin "${plugin.id}": tool "${entry.name}" needs a call() handler`);
+      }
+      const exposedName = `${plugin.id}__${entry.name}`;
+      if (seen.has(exposedName)) {
+        throw new Error(`plugin "${plugin.id}": duplicate tool "${entry.name}"`);
+      }
+      seen.add(exposedName);
+      out.push({
+        pluginId: plugin.id,
+        exposedName,
+        def: {
+          name: entry.name,
+          description: entry.description,
+          inputSchema:
+            entry.inputSchema && typeof entry.inputSchema === "object"
+              ? (entry.inputSchema as Record<string, unknown>)
+              : { type: "object", properties: {} },
+          call: entry.call as PluginToolDef["call"],
+        },
+      });
+    }
+  }
+  return out;
+}
+
+/** Assemble the site object tool handlers receive: built topics +
+ *  raw editions, loaded exactly like the other passes load them. */
+export function buildToolSite(ctx: CliContext): {
+  topics: ReturnType<typeof buildTopics>;
+  editions: Edition[];
+} {
+  const loaded = loadEditionFiles(path.join(ctx.dataDir, "editions"));
+  const editions = loaded.map((l) => l.data) as unknown as Edition[];
+  const ledger = loadStore(statePath(ctx)).topics;
+  return { topics: buildTopics(editions, ledger), editions };
 }

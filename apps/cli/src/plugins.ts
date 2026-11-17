@@ -102,7 +102,7 @@ export interface ManifestScan {
 
 /** The code-plugin slot names (Plugin-P1: fetcher / exit / score;
  *  Plugin-P2 adds entities / review / page). */
-export const CODE_SLOTS = ["fetcher", "exit", "score", "entities", "review", "page"] as const;
+export const CODE_SLOTS = ["fetcher", "exit", "score", "entities", "review", "page", "tools"] as const;
 export type CodeSlot = (typeof CODE_SLOTS)[number];
 
 export function codeSlotsOf(manifest: PluginManifestFull): CodeSlot[] {
@@ -294,7 +294,7 @@ export function collectPluginChecks(
       checks.push({
         name,
         status: "fail",
-        detail: "declares an entry but no code slot (fetcher | exit | score | entities | review | page)",
+        detail: "declares an entry but no code slot (fetcher | exit | score | entities | review | page | tools)",
       });
       continue;
     }
