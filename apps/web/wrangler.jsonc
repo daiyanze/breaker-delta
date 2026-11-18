@@ -1,0 +1,10 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "bd-web",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-01",
+  "observability": { "enabled": true }
+
+  // M3: read-only binding to bd-content and a service binding to bd-pipeline.
+  // The web Worker never binds the private database.
+}
