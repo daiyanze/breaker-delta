@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
-    "declaration": true,
-    "forceConsistentCasingInFileNames": true,
-    "lib": [
-      "ES2022"
-    ],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "skipLibCheck": true,
-    "sourceMap": false,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
     "strict": true,
-    "target": "ES2022"
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true,
+    "noEmit": true
   }
 }

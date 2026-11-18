@@ -1,20 +1,23 @@
 {
-  "engines": {
-    "bun": ">=1.2.0"
-  },
   "name": "breaker-delta",
   "private": true,
-  "scripts": {
-    "release": "bun scripts/release.mjs",
-    "bump": "bun scripts/bump.mjs",
-    "build": "bun run --filter @breaker-delta/core build && bun run --filter @breaker-delta/config build && bun run --filter @breaker-delta/i18n build && bun run --filter @breaker-delta/stores build && bun run --filter @breaker-delta/fetchers build && bun run --filter @breaker-delta/publisher build && bun run --filter @breaker-delta/plugin-host build && bun run --filter @breaker-delta/services build && bun run --filter @breaker-delta/cli build && bun run --filter @breaker-delta/extension build",
-    "bundle": "bun run build && bun run --filter @breaker-delta/cli bundle",
-    "test": "bun run --filter @breaker-delta/core test && bun run --filter @breaker-delta/config test && bun run --filter @breaker-delta/i18n test && bun run --filter @breaker-delta/stores test && bun run --filter @breaker-delta/fetchers test && bun run --filter @breaker-delta/publisher test && bun run --filter @breaker-delta/plugin-host test && bun run --filter @breaker-delta/services test && bun run --filter @breaker-delta/cli test && bun run --filter @breaker-delta/extension test"
-  },
   "type": "module",
-  "version": "0.22.0",
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ]
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "check": "bun run typecheck && bun run lint && bun run test && bun run check:deps",
+    "typecheck": "bun --filter '*' typecheck",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "test": "bun test",
+    "check:deps": "bun scripts/check-deps.ts",
+    "probe": "bun scripts/probe-sources.ts",
+    "local": "bun apps/local/start.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "latest",
+    "@cloudflare/workers-types": "latest",
+    "@types/bun": "latest",
+    "typescript": "latest",
+    "wrangler": "latest"
+  }
 }

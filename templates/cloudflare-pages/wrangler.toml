@@ -1,7 +1,0 @@
-# Cloudflare Pages — Direct Upload path (see README.md).
-# Rename the project to your own radar's name, then:
-#   ./build.sh
-#   npx wrangler pages deploy site --project-name my-breaker-delta
-name = "my-breaker-delta"
-pages_build_output_dir = "site"
-compatibility_date = "2026-11-16"

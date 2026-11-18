@@ -1,0 +1,27 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "bd-pipeline",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-01",
+  "observability": { "enabled": true },
+
+  // The timer only decides whether a run is due. The interval is a setting.
+  "triggers": { "crons": ["*/15 * * * *"] },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "bd-content",
+      // Replace after `wrangler d1 create bd-content`. Not needed for local mode.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "../../packages/db/migrations"
+    }
+  ],
+  "r2_buckets": [{ "binding": "BLOBS", "bucket_name": "bd-blobs" }],
+  "workflows": [{ "name": "bd-run", "binding": "RUN_WORKFLOW", "class_name": "RunWorkflow" }],
+
+  // M1 moves this into the settings table.
+  "vars": { "RUN_INTERVAL_MINUTES": "60" }
+
+  // Secrets (wrangler secret put / .dev.vars): PROBE_TOKEN
+}

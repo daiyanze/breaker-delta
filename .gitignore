@@ -1,17 +1,9 @@
-config.json
-config.yaml
-config.yml
-# …but preset packages are product assets, not instance configs:
-!presets/*/config.yaml
-!presets/*/config.yml
-!presets/*/config.json
-site/
-favicon-cache/
-state/*.tmp
-state/candidates-*.json
-state/vocab.json
-state/sitemap-seen.json
-.DS_Store
 node_modules/
 dist/
-release-dist/
+.wrangler/
+.bd-data/
+.dev.vars
+.env
+.env.*
+*.log
+.DS_Store
