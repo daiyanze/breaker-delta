@@ -41,3 +41,19 @@ secret to manage and a red check on every PR without adding capacity.
 Issues labelled `owner:claude-ok` are done by the local agent. Nothing on
 GitHub starts work by itself: a label or a comment does not trigger anything
 while the workflows are off.
+
+## Amendment (2026-11-21): method, review agent, lessons
+
+- The working method is `docs/development.md`: explore, plan, code, verify,
+  PR, review, learn. A deviation from an ADR is raised with the owner before
+  it is built on.
+- After a PR is opened and CI is green, the writing session starts a
+  separate review agent with no context from the writing session. It follows
+  `.claude/commands/review.md`: it reads the diff before the description,
+  runs the checks, finds issues in three passes, validates each one, and
+  posts one comment. After fixes, a new agent re-reviews; after three rounds
+  the owner decides. The owner still merges.
+- Mistakes caught by the owner, CI or review become entries in
+  `docs/lessons.md`, read at the start of every task. A lesson that can be
+  enforced by a check becomes a check.
+
