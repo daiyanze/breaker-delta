@@ -13,7 +13,7 @@
  */
 import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { Miniflare } from "miniflare";
+import { convertV4MiniflareOptions, Miniflare } from "miniflare";
 import { d1Database } from "../apps/pipeline/src/cloudflare/d1.ts";
 import { databaseChecks } from "../packages/ports/src/conformance.ts";
 
@@ -46,17 +46,16 @@ const d1Checks = databaseChecks(async () => {
   if (!conformance) throw new Error("miniflare not started");
   return d1Database(await conformance.getD1Database(`C${next++}`));
 });
-conformance = new Miniflare({
-  workers: [
-    {
-      name: "conformance",
-      modules: true,
-      script: "export default { fetch() { return new Response('ok'); } };",
-      compatibilityDate: "2026-11-01",
-      d1Databases: d1Checks.map((_, i) => `C${i}`),
-    },
-  ],
-});
+// Miniflare 5 nests worker options under `config`; convertV4MiniflareOptions
+// accepts the flat v4 shape, which is the documented one.
+conformance = new Miniflare(
+  convertV4MiniflareOptions({
+    modules: true,
+    script: "export default { fetch() { return new Response('ok'); } };",
+    compatibilityDate: "2026-11-01",
+    d1Databases: d1Checks.map((_, i) => `C${i}`),
+  }),
+);
 for (const check of d1Checks) {
   try {
     await check.run();
@@ -68,21 +67,17 @@ for (const check of d1Checks) {
 await conformance.dispose();
 
 // 2. The built Worker: migrations, cron, a slot runs once.
-// Miniflare 5 takes worker options under `workers`.
-const mf = new Miniflare({
-  workers: [
-    {
-      name: "bd-pipeline",
-      modules: true,
-      modulesRoot: outDir,
-      scriptPath: join(outDir, script),
-      compatibilityDate: "2026-11-01",
-      d1Databases: ["DB"],
-      r2Buckets: ["BLOBS"],
-      bindings: { RUN_INTERVAL_MINUTES: "60", PROBE_TOKEN: "smoke" },
-    },
-  ],
-});
+const mf = new Miniflare(
+  convertV4MiniflareOptions({
+    modules: true,
+    modulesRoot: outDir,
+    scriptPath: join(outDir, script),
+    compatibilityDate: "2026-11-01",
+    d1Databases: ["DB"],
+    r2Buckets: ["BLOBS"],
+    bindings: { RUN_INTERVAL_MINUTES: "60", PROBE_TOKEN: "smoke" },
+  }),
+);
 try {
   const db = await mf.getD1Database("DB");
   const migrations = join(root, "packages", "db", "migrations");
