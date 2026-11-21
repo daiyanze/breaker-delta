@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "check": "bun run typecheck && bun run lint && bun run test && bun run check:deps",
-    "typecheck": "bun --filter '*' typecheck",
+    "typecheck": "bun --filter '*' typecheck && tsc --noEmit -p scripts",
     "lint": "biome check .",
     "format": "biome check --write .",
     "test": "bun test",
