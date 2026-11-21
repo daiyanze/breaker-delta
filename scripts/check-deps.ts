@@ -61,6 +61,21 @@ export const RULES: Rule[] = [
     why: "the local adapter runs on Bun, never on Cloudflare APIs (ADR 0018)",
   },
   {
+    dir: "apps/web/src/select.ts",
+    allow: [/^@bd\/(contracts|fixtures)$/, PORTS],
+    why: "the query-layer choice is shared by both adapters: no runtime APIs (ADR 0018)",
+  },
+  {
+    dir: "apps/web/src/local",
+    allow: [/^@bd\/(contracts|fixtures)$/, PORTS, /^bun:/, /^node:/],
+    why: "the local site adapter runs on Bun, never on Cloudflare APIs (ADR 0018)",
+  },
+  {
+    dir: "apps/local",
+    allow: [/^@bd\/(pipeline|web)\/local$/, /^bun:/, /^node:/],
+    why: "local mode starts the local adapters only: no wrangler, no Cloudflare (ADR 0018)",
+  },
+  {
     dir: "apps/web/src/core",
     allow: [/^@bd\/contracts$/, PORTS, /^bun:test$/],
     why: "the site core reads through the read contracts only (ADR 0018)",
@@ -78,6 +93,7 @@ const IMPORT =
 function files(dir: string): string[] {
   let out: string[] = [];
   for (const name of readdirSync(dir)) {
+    if (name === "node_modules") continue;
     const path = join(dir, name);
     if (statSync(path).isDirectory()) out = out.concat(files(path));
     else if (/\.(ts|tsx)$/.test(name)) out.push(path);
@@ -88,12 +104,10 @@ function files(dir: string): string[] {
 export function violations(root: string, rules: Rule[] = RULES): string[] {
   const found: string[] = [];
   for (const rule of rules) {
-    let list: string[];
-    try {
-      list = files(join(root, rule.dir));
-    } catch {
-      continue; // directory not created yet
-    }
+    const target = join(root, rule.dir);
+    if (!existsSync(target)) continue; // not created yet
+    // A rule names a directory or a single file.
+    const list = statSync(target).isDirectory() ? files(target) : [target];
     for (const file of list) {
       const source = readFileSync(file, "utf8");
       for (const match of source.matchAll(IMPORT)) {

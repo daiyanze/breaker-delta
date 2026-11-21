@@ -15,6 +15,10 @@
     "apps/local": {
       "name": "@bd/local",
       "version": "0.0.0",
+      "dependencies": {
+        "@bd/pipeline": "workspace:*",
+        "@bd/web": "workspace:*",
+      },
     },
     "apps/pipeline": {
       "name": "@bd/pipeline",

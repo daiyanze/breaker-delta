@@ -6,6 +6,7 @@
  * Usage: bun scripts/spike-local.ts
  * Prints one line per criterion and exits non-zero if any fails.
  */
+import { Database as SQLite } from "bun:sqlite";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -13,8 +14,9 @@ import { join } from "node:path";
 const root = join(import.meta.dir, "..");
 const port = Number(process.env.BD_PORT ?? 8799);
 const base = `http://127.0.0.1:${port}`;
+const webPort = Number(process.env.BD_WEB_PORT ?? 8798);
 const dataDir = mkdtempSync(join(tmpdir(), "bd-spike-"));
-const token = "dev"; // PROBE_TOKEN from apps/pipeline/.dev.vars.example
+const token = "spike";
 
 interface LastRun {
   slot: string;
@@ -35,10 +37,11 @@ function startLauncher() {
     env: {
       ...process.env,
       BD_PORT: String(port),
+      BD_WEB_PORT: String(webPort),
       BD_DATA_DIR: dataDir,
       // One tick at start-up only; the spike calls the handler itself.
       BD_TICK_SECONDS: "3600",
-      WRANGLER_SEND_METRICS: "false",
+      PROBE_TOKEN: token,
     },
     stdout: "inherit",
     stderr: "inherit",
@@ -47,7 +50,7 @@ function startLauncher() {
 
 async function stopLauncher(proc: ReturnType<typeof startLauncher>) {
   if (process.platform === "win32") {
-    // Kill the whole tree: launcher, wrangler and workerd.
+    // Kill the whole process tree.
     await Bun.spawn(["taskkill", "/pid", String(proc.pid), "/T", "/F"]).exited;
   } else {
     proc.kill("SIGINT");
@@ -87,19 +90,16 @@ async function manualTick(): Promise<{ slot: string; started: boolean; reason?: 
   return (await res.json()) as { slot: string; started: boolean; reason?: string };
 }
 
-async function runsInDatabase(): Promise<{ slot: string; started_at: number }[]> {
-  const sql = "SELECT slot, started_at FROM runs ORDER BY started_at";
-  const args = ["d1", "execute", "bd-content", "--local", "--persist-to", dataDir, "--json"];
-  const proc = Bun.spawn([process.execPath, "x", "wrangler", ...args, "--command", sql], {
-    cwd: join(root, "apps", "pipeline"),
-    env: { ...process.env, WRANGLER_SEND_METRICS: "false" },
-    stdout: "pipe",
-    stderr: "inherit",
-  });
-  const out = await new Response(proc.stdout).text();
-  await proc.exited;
-  const parsed = JSON.parse(out.slice(out.indexOf("["))) as { results: unknown[] }[];
-  return (parsed[0]?.results ?? []) as { slot: string; started_at: number }[];
+/** Read the runs table straight from the SQLite file the launcher wrote. */
+type StoredRun = { slot: string; started_at: number };
+
+async function runsInDatabase(): Promise<StoredRun[]> {
+  const db = new SQLite(join(dataDir, "content.db"), { readonly: true });
+  try {
+    return db.query("SELECT slot, started_at FROM runs ORDER BY started_at").all() as StoredRun[];
+  } finally {
+    db.close();
+  }
 }
 
 let launcher = startLauncher();
@@ -107,6 +107,8 @@ try {
   const up = await waitFor(180, health);
   record("starts with one command, no login", up !== null, up ? "launcher is up" : "no answer");
   record("/health answers", up?.ok === true, JSON.stringify(up));
+  const site = await fetch(`http://127.0.0.1:${webPort}/health`).catch(() => null);
+  record("the site answers", site?.ok === true, site ? `status ${site.status}` : "no answer");
   if (up === null) throw new Error("not up");
 
   // The launcher's first tick calls the scheduled handler (/__scheduled).
@@ -150,7 +152,7 @@ try {
   try {
     rmSync(dataDir, { recursive: true, force: true });
   } catch {
-    // workerd may still hold a file on Windows; the temp dir is cleaned by the OS.
+    // A file may still be held on Windows; the temp dir is cleaned by the OS.
   }
 }
 

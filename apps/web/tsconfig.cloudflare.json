@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": { "types": ["@cloudflare/workers-types"] },
-  "include": ["src/cloudflare"],
+  "include": ["src/cloudflare", "src/select.ts"],
   "exclude": ["src/**/*.test.ts"]
 }

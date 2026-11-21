@@ -4,6 +4,19 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L7 Prove a new guard catches a violation where it is meant to
+
+- **Date:** 2026-11-21. **Status:** active.
+- **What happened:** #178 said its check-deps rules keep Cloudflare off the
+  local path. The rules covered `src/local`, but not `apps/web/src/select.ts`,
+  which is on the same path, and a rule naming a single file was silently
+  skipped. The independent review found it with a throwaway tree.
+- **Rule:** When a PR claims a check enforces something, add a test that puts
+  a violation in every place the claim covers and shows the check reports it.
+- **Scope:** `scripts/check-deps.ts`, lint and type configurations, any guard.
+- **Evidence:** fixed in #178; the check-deps test now plants a violation in
+  `select.ts`.
+
 ## L6 Every way a step can fail must end in the step's failure record
 
 - **Date:** 2026-11-21. **Status:** active.

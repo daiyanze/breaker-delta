@@ -1,89 +1,47 @@
 /**
- * Local launcher (spike 1 in docs/spikes/m0.md). It:
- *   1. applies migrations to a local SQLite database under .bd-data/
- *   2. runs the pipeline Worker in the local Workers runtime, no account
- *   3. calls the scheduled handler on an interval, standing in for cron
+ * `bun run local`: Breaker Delta on this machine, with no cloud account and
+ * no Cloudflare tooling (ADR 0018). One process runs the pipeline (SQLite
+ * file, timer) and the site.
  *
- * Interim: this goes through wrangler. ADR 0018 replaces it with a native
- * Bun runtime shipped as one executable.
- *
- * Usage: bun run local
- * Environment: BD_PORT (8787), BD_TICK_SECONDS (60), BD_DATA_DIR (.bd-data).
+ * Environment:
+ *   BD_DATA_DIR       where the data lives (default .bd-data)
+ *   BD_PORT           pipeline port (default 8787)
+ *   BD_WEB_PORT       site port (default 8788)
+ *   BD_TICK_SECONDS   seconds between ticks (default 60)
+ *   RUN_INTERVAL_MINUTES, PROBE_TOKEN   as on Cloudflare
+ *   READ_SOURCE, FIXTURE_SET            what the site reads (see apps/web)
  */
-import { existsSync } from "node:fs";
-import { copyFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { startPipeline } from "@bd/pipeline/local";
+import { startSite } from "@bd/web/local";
 
+const env = process.env;
 const root = join(import.meta.dir, "..", "..");
-const pipeline = join(root, "apps", "pipeline");
-const dataDir = resolve(process.env.BD_DATA_DIR ?? join(root, ".bd-data"));
-const port = Number(process.env.BD_PORT ?? 8787);
-const tickSeconds = Number(process.env.BD_TICK_SECONDS ?? 60);
+const dataDir = resolve(env.BD_DATA_DIR ?? join(root, ".bd-data"));
 
-/** `bun x wrangler ...` with the wrangler in node_modules; works where `bunx` is not on PATH. */
-const wrangler = (args: string[]) => [process.execPath, "x", "wrangler", ...args];
+const pipeline = startPipeline({
+  dataDir,
+  port: Number(env.BD_PORT ?? 8787),
+  tickSeconds: Number(env.BD_TICK_SECONDS ?? 60),
+  vars: { RUN_INTERVAL_MINUTES: env.RUN_INTERVAL_MINUTES, PROBE_TOKEN: env.PROBE_TOKEN },
+});
+const site = startSite({
+  port: Number(env.BD_WEB_PORT ?? 8788),
+  vars: { READ_SOURCE: env.READ_SOURCE, FIXTURE_SET: env.FIXTURE_SET },
+});
 
-async function run(cmd: string[]): Promise<void> {
-  const proc = Bun.spawn(cmd, { cwd: pipeline, stdout: "inherit", stderr: "inherit" });
-  const code = await proc.exited;
-  if (code !== 0) throw new Error(`${cmd.join(" ")} exited with ${code}`);
-}
+console.log(`[local] pipeline ${pipeline.url}, site ${site.url}, data in ${dataDir}`);
+console.log("[local] Ctrl+C to stop.");
 
-const devVars = join(pipeline, ".dev.vars");
-if (!existsSync(devVars)) await copyFile(join(pipeline, ".dev.vars.example"), devVars);
-
-const migrate = ["d1", "migrations", "apply", "bd-content", "--local", "--persist-to", dataDir];
-await run(wrangler(migrate));
-
-const dev = Bun.spawn(
-  wrangler([
-    "dev",
-    "--local",
-    "--test-scheduled",
-    "--persist-to",
-    dataDir,
-    "--port",
-    String(port),
-    "--ip",
-    "127.0.0.1",
-  ]),
-  { cwd: pipeline, stdout: "inherit", stderr: "inherit" },
-);
-
-const base = `http://127.0.0.1:${port}`;
-
-async function waitUntilUp(): Promise<void> {
-  for (let i = 0; i < 120; i++) {
-    try {
-      if ((await fetch(`${base}/health`)).ok) return;
-    } catch {
-      // not up yet
-    }
-    await Bun.sleep(1000);
-  }
-  throw new Error("pipeline did not start within 120s");
-}
-
-async function tick(): Promise<void> {
-  try {
-    await fetch(`${base}/__scheduled?cron=*/15+*+*+*+*`);
-    const health = (await (await fetch(`${base}/health`)).json()) as unknown;
-    console.log(`[local] tick ${new Date().toISOString()}`, JSON.stringify(health));
-  } catch (err) {
-    console.error("[local] tick failed:", err instanceof Error ? err.message : err);
-  }
-}
-
-await waitUntilUp();
-console.log(`[local] pipeline is up at ${base}. Data in ${dataDir}. Ctrl+C to stop.`);
-await tick();
-const timer = setInterval(tick, tickSeconds * 1000);
-
-function stop() {
-  clearInterval(timer);
-  dev.kill();
+let stopping = false;
+async function stop() {
+  // A second Ctrl+C while a tick is still finishing exits at once.
+  if (stopping) process.exit(1);
+  stopping = true;
+  console.log("[local] stopping after the current tick (Ctrl+C again to force)");
+  await site.stop();
+  await pipeline.stop();
   process.exit(0);
 }
 process.on("SIGINT", stop);
 process.on("SIGTERM", stop);
-await dev.exited;
