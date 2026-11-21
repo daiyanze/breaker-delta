@@ -18,10 +18,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      # Node is kept until M0 confirms Wrangler and the test pool run on Bun alone.
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
+      # No Node on PATH (#13): delete the runner's preinstalled copy. A tool
+      # that needs a real Node fails; under `bun run` and `bun x`, Bun puts
+      # its own `node` shim on PATH instead, which is the point: Bun alone.
+      - name: Remove Node
+        run: |
+          for bin in node npm npx corepack; do
+            while p="$(command -v "$bin")"; do echo "removing $p"; sudo rm -f "$p"; hash -r; done
+          done
+          ! command -v node
       - run: bun install --frozen-lockfile
       - run: bun run check
 
@@ -35,13 +40,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
+      # No Node on PATH (#13): delete the runner's preinstalled copy. A tool
+      # that needs a real Node fails; under `bun run` and `bun x`, Bun puts
+      # its own `node` shim on PATH instead, which is the point: Bun alone.
+      - name: Remove Node
+        run: |
+          for bin in node npm npx corepack; do
+            while p="$(command -v "$bin")"; do echo "removing $p"; sudo rm -f "$p"; hash -r; done
+          done
+          ! command -v node
       - run: bun install --frozen-lockfile
+      # `--bun` runs wrangler on Bun instead of the `node` in its shebang.
       - name: Build both Workers (dry run)
         run: |
-          (cd apps/pipeline && bun x wrangler deploy --dry-run --outdir ../../.wrangler-dist/pipeline)
-          (cd apps/web && bun x wrangler deploy --dry-run --outdir ../../.wrangler-dist/web)
+          (cd apps/pipeline && bun x --bun wrangler deploy --dry-run --outdir ../../.wrangler-dist/pipeline)
+          (cd apps/web && bun x --bun wrangler deploy --dry-run --outdir ../../.wrangler-dist/web)
       - name: Run the built pipeline in the Workers runtime
         run: bun scripts/cloudflare-smoke.ts .wrangler-dist/pipeline

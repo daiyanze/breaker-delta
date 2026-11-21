@@ -36,9 +36,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
+      # No Node on PATH (#13): delete the runner's preinstalled copy. A tool
+      # that needs a real Node fails; under `bun run` and `bun x`, Bun puts
+      # its own `node` shim on PATH instead, which is the point: Bun alone.
+      - name: Remove Node
+        if: runner.os != 'Windows'
+        run: |
+          for bin in node npm npx corepack; do
+            while p="$(command -v "$bin")"; do echo "removing $p"; sudo rm -f "$p"; hash -r; done
+          done
+          ! command -v node
       # Production dependencies only: wrangler, miniflare and the other dev
       # tools stay out, so local mode is proven without them (ADR 0018, #174).
       - run: bun install --frozen-lockfile --production
