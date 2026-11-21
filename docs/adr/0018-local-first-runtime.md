@@ -1,6 +1,6 @@
 # 0018 Local-first runtime; Cloudflare is an adapter
 
-Date: 2026-11-21. Status: proposed. Supersedes 0004.
+Date: 2026-11-21. Status: accepted. Supersedes 0004.
 
 ## Decision
 
