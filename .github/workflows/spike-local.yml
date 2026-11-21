@@ -46,7 +46,7 @@ jobs:
         shell: bash
         run: |
           for pkg in wrangler miniflare; do
-            if [ -e "node_modules/$pkg" ] || ls node_modules/.bun 2>/dev/null | grep -q "^$pkg@"; then
+            if [ -e "node_modules/$pkg" ] || [ -L "node_modules/$pkg" ] || ls node_modules/.bun 2>/dev/null | grep -q "^$pkg@"; then
               echo "$pkg is installed" >&2; exit 1
             fi
           done
