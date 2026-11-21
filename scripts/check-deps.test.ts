@@ -71,9 +71,12 @@ describe("check-deps", () => {
   test("local mode may not reach for wrangler or Cloudflare (ADR 0018)", () => {
     file("apps/local/start.ts", 'import { unstable_dev } from "wrangler";');
     file("apps/web/src/local/s.ts", 'import { env } from "cloudflare:workers";');
+    // A rule can name a single file: select.ts is shared by both adapters.
+    file("apps/web/src/select.ts", 'import { connect } from "cloudflare:sockets";');
     const found = violations(root, RULES).join("\n");
     expect(found).toContain('apps/local/start.ts imports "wrangler"');
     expect(found).toContain('web/src/local/s.ts imports "cloudflare:workers"');
+    expect(found).toContain('web/src/select.ts imports "cloudflare:sockets"');
   });
 
   test("ports have no imports at all", () => {

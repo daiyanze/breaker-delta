@@ -14,6 +14,7 @@ import { join } from "node:path";
 const root = join(import.meta.dir, "..");
 const port = Number(process.env.BD_PORT ?? 8799);
 const base = `http://127.0.0.1:${port}`;
+const webPort = Number(process.env.BD_WEB_PORT ?? 8798);
 const dataDir = mkdtempSync(join(tmpdir(), "bd-spike-"));
 const token = "spike";
 
@@ -36,6 +37,7 @@ function startLauncher() {
     env: {
       ...process.env,
       BD_PORT: String(port),
+      BD_WEB_PORT: String(webPort),
       BD_DATA_DIR: dataDir,
       // One tick at start-up only; the spike calls the handler itself.
       BD_TICK_SECONDS: "3600",
@@ -105,6 +107,8 @@ try {
   const up = await waitFor(180, health);
   record("starts with one command, no login", up !== null, up ? "launcher is up" : "no answer");
   record("/health answers", up?.ok === true, JSON.stringify(up));
+  const site = await fetch(`http://127.0.0.1:${webPort}/health`).catch(() => null);
+  record("the site answers", site?.ok === true, site ? `status ${site.status}` : "no answer");
   if (up === null) throw new Error("not up");
 
   // The launcher's first tick calls the scheduled handler (/__scheduled).

@@ -10,7 +10,8 @@ on:
     paths:
       - apps/local/**
       - apps/pipeline/**
-      - packages/db/migrations/**
+      - apps/web/**
+      - packages/**
       - scripts/spike-local.ts
       - .github/workflows/spike-local.yml
       - bun.lock

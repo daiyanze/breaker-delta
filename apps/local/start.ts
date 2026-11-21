@@ -35,8 +35,10 @@ console.log("[local] Ctrl+C to stop.");
 
 let stopping = false;
 async function stop() {
-  if (stopping) return;
+  // A second Ctrl+C while a tick is still finishing exits at once.
+  if (stopping) process.exit(1);
   stopping = true;
+  console.log("[local] stopping after the current tick (Ctrl+C again to force)");
   await site.stop();
   await pipeline.stop();
   process.exit(0);
