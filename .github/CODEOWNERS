@@ -1,0 +1,8 @@
+# Protected paths: changes need the owner's review. See CLAUDE.md.
+/packages/core/       @daiyanze
+/packages/contracts/  @daiyanze
+/evals/               @daiyanze
+/.github/             @daiyanze
+/.claude/             @daiyanze
+/docs/adr/            @daiyanze
+/CLAUDE.md            @daiyanze

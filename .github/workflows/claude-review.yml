@@ -1,0 +1,48 @@
+name: claude-review
+
+# Guardrails: docs/adr/0007-claude-automation-guardrails.md
+# - Runs only for the repository owner and only for branches of this repo.
+# - Never uses pull_request_target. Fork PRs get no secrets and no Claude.
+# - For a PR opened by another workflow, the owner adds the `claude-review`
+#   label to trigger this.
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, labeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    if: >-
+      github.actor == 'daiyanze' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.draft == false &&
+      (github.event.action != 'labeled' || github.event.label.name == 'claude-review')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # TODO(M0): replace the ref with a commit SHA of v1.0.94 or later.
+      # The placeholder makes this job fail closed until it is pinned.
+      - uses: anthropics/claude-code-action@REPLACE_WITH_COMMIT_SHA
+        with:
+          # Use exactly one of the two credentials.
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            Review pull request #${{ github.event.pull_request.number }} in ${{ github.repository }}.
+            Follow .claude/commands/review.md exactly. Read CLAUDE.md first.
+            Post one summary comment with `gh pr comment`. Do not push commits.
+          claude_args: |
+            --allowedTools "Read,Grep,Glob,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"

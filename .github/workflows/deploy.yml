@@ -1,0 +1,46 @@
+name: deploy
+
+# Deploys run only after merge to main, in the protected `production`
+# environment (set required reviewers on it in repository settings).
+# Claude jobs never have access to this environment's secrets.
+#
+# DISABLED until M1: remove the `if: false` lines once the D1 database and
+# R2 bucket exist and wrangler.jsonc has the real database_id.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: false
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: bun install --frozen-lockfile
+      - run: bun run check
+      - name: Apply migrations
+        working-directory: apps/pipeline
+        run: bunx wrangler d1 migrations apply bd-content --remote
+      # Contract changes: pipeline first, then web.
+      - name: Deploy pipeline
+        working-directory: apps/pipeline
+        run: bunx wrangler deploy
+      - name: Deploy web
+        working-directory: apps/web
+        run: bunx wrangler deploy
