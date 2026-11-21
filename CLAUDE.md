@@ -81,6 +81,19 @@ component library. There is no separate landing page: `/` is the front page
 
 ## How to work here
 
+Development runs on a local agent on the owner's machine (ADR 0016):
+
+1. Pick an issue. Branch from `develop`. Never push to `develop` directly.
+2. Implement, then run `bun run check` locally.
+3. Push the branch and open a PR. CI runs `check`.
+4. A separate session reviews the PR with `.claude/commands/review.md`. The
+   session that wrote a PR does not review it.
+5. The owner merges. A merge to `develop` deploys both Workers to Cloudflare
+   once deploys are switched on.
+
+Keep the coding session away from fetched content: do not paste scan output,
+raw responses or `.bd-data/` into a session that can write code (invariant 6).
+
 - One concern per PR. Include tests for rules in `packages/core`.
 - A schema change needs a migration. Migrations only add (tables, columns,
   indexes). Drops and type changes take two releases.

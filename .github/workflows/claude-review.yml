@@ -5,6 +5,9 @@ name: claude-review
 # - Never uses pull_request_target. Fork PRs get no secrets and no Claude.
 # - For a PR opened by another workflow, the owner adds the `claude-review`
 #   label to trigger this.
+#
+# OFF by default (ADR 0016: development runs on a local agent). To turn it on,
+# add a model secret and set the repository variable CLAUDE_REVIEW to `on`.
 
 on:
   pull_request:
@@ -21,6 +24,7 @@ concurrency:
 jobs:
   review:
     if: >-
+      vars.CLAUDE_REVIEW == 'on' &&
       github.actor == 'daiyanze' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.draft == false &&
