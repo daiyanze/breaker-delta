@@ -35,13 +35,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      # No Node on this machine (#13): delete the runner's preinstalled
-      # copy, so anything that still reaches for it fails here.
+      # No Node on PATH (#13): delete the runner's preinstalled copy. A tool
+      # that needs a real Node fails; under `bun run` and `bun x`, Bun puts
+      # its own `node` shim on PATH instead, which is the point: Bun alone.
       - name: Remove Node
         if: runner.os != 'Windows'
         run: |
           for bin in node npm npx corepack; do
-            while command -v "$bin" >/dev/null; do sudo rm -f "$(command -v "$bin")"; hash -r; done
+            while p="$(command -v "$bin")"; do echo "removing $p"; sudo rm -f "$p"; hash -r; done
           done
           ! command -v node
       - run: bun install --frozen-lockfile

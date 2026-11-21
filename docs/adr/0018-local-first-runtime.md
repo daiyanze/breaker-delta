@@ -81,8 +81,8 @@ Blobs and Clock.
 ## Amendment (2026-11-21, #13)
 
 Nothing needs Node. In CI, `check`, `cloudflare` and `spike-local` (Linux
-and macOS) delete the runner's preinstalled Node, assert that `node` is
-gone, and pass:
+and macOS) delete the runner's preinstalled Node from PATH, assert that
+`node` is no longer found, and pass:
 - `bun install`, the whole of `bun run check`, and the local spike;
 - `bun x --bun wrangler deploy --dry-run` for both Workers, then the
   Miniflare smoke run.
@@ -95,7 +95,11 @@ There is no Workers test pool to check: the adapter's tests run in workerd
 through Miniflare (`scripts/cloudflare-smoke.ts`).
 
 Not yet proven:
-- `deploy.yml`, `preview.yml` and `claude-implement.yml` keep
-  `setup-node` until they first run with real credentials (#10, #11, #12).
+- `deploy.yml` and `preview.yml` keep `setup-node` until they first run
+  with real credentials (#10, #11, #12); `claude-implement.yml` keeps it
+  until it is switched on (#5).
+- Node outside PATH (the runner's tool cache, and the Node 24 that
+  GitHub's own actions run on) is not removed; nothing in this repository
+  looks there.
 - Windows `spike-local` still has the runner's Node. Its code path is the
   same one Linux and macOS prove without Node.
