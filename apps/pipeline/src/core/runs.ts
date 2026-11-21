@@ -17,10 +17,6 @@ export interface RunRow {
   finished_at: number | null;
 }
 
-export async function findRun(db: Db, slot: string): Promise<RunRow | null> {
-  return (await db.select(columns).from(runs).where(eq(runs.slot, slot)).get()) ?? null;
-}
-
 export async function lastRun(db: Db): Promise<RunRow | null> {
   return (await db.select(columns).from(runs).orderBy(desc(runs.startedAt)).limit(1).get()) ?? null;
 }

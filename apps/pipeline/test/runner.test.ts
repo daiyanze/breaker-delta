@@ -133,6 +133,15 @@ describe("runSlot", () => {
     expect(await t.run([broken.step])).toEqual({ status: "finished", runStatus: "failed" });
   });
 
+  test("an output that cannot be stored is a failed attempt, not a stuck run", async () => {
+    const t = setup();
+    const bad: Step = { name: "bad", run: async () => ({ count: 1n }) };
+    const outcome = await t.run([bad], { ...OPTIONS, maxAttempts: 2 });
+    expect(outcome).toMatchObject({ status: "failed", step: "bad" });
+    const run = await t.orm.select().from(runs).where(eq(runs.slot, SLOT)).get();
+    expect(run).toMatchObject({ status: "failed", leaseUntil: null });
+  });
+
   test("error text is cut short", async () => {
     const t = setup();
     const long: Step = {

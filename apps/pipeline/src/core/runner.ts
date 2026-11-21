@@ -12,7 +12,9 @@
  * - A failing step is retried up to `maxAttempts` times, then the step and
  *   the run are marked failed and later steps do not run.
  *
- * Steps pass ids and counts, never fetched text (invariant 6).
+ * Steps pass ids and counts, never fetched text (invariant 6). The runner
+ * stores a failed step's error message cut short, so a step must not put
+ * fetched text into the errors it throws.
  */
 import { type Db, runSteps, runs } from "@bd/db";
 import { and, eq, isNull, lt, or } from "drizzle-orm";
@@ -111,24 +113,26 @@ export async function runSlot(
   for (const step of steps) {
     if (outputs.has(step.name)) continue;
     let lastError = "";
-    let output: unknown;
-    let ok = false;
+    let output: unknown = null;
+    let json: string | null = null;
     let attempts = 0;
-    while (!ok && attempts < options.maxAttempts) {
+    while (json === null && attempts < options.maxAttempts) {
       attempts++;
       try {
-        output = await step.run({ slot, db, now, outputs });
-        ok = true;
+        output = (await step.run({ slot, db, now, outputs })) ?? null;
+        // Inside the try: an output that cannot be stored is a failed attempt.
+        json = JSON.stringify(output);
       } catch (err) {
         lastError = describe(err);
       }
     }
+    const ok = json !== null;
     const record = {
       slot,
       step: step.name,
       status: ok ? ("done" as const) : ("failed" as const),
       attempts,
-      output: ok ? JSON.stringify(output ?? null) : null,
+      output: json,
       error: ok ? null : lastError,
       finishedAt: now(),
     };
@@ -140,7 +144,7 @@ export async function runSlot(
       await finish(db, slot, "failed", now());
       return { status: "failed", resumed, step: step.name, error: lastError };
     }
-    outputs.set(step.name, output ?? null);
+    outputs.set(step.name, output);
     // Renew the lease so a long run is not taken over between steps.
     await db
       .update(runs)

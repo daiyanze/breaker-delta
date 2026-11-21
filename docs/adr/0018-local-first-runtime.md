@@ -14,7 +14,7 @@ not the runtime local mode imitates.
   | Database | `bun:sqlite` file | D1 |
   | Blobs | a directory | R2 |
   | Clock | `Date.now` | `Date.now` |
-  | Run execution (core, not a port) | step runner | the same step runner, called from the cron handler |
+  | Run execution | step runner | the same step runner, called from the cron handler |
   | Mail, models | configured transports (0005, 0012) | same |
 
 - Scheduling is not a port. The core exports `tick()`, and each adapter
@@ -69,3 +69,11 @@ it, not the other way round.
   the Workers runtime"; if it does not, the site uses a framework that does.
 - Invariant 8 ("no cloud-only service on the required path") stays and is
   stricter in practice: the required path also has no cloud vendor's tooling.
+
+## Amendment (2026-11-21, #177)
+
+Run execution is the core's step runner (`apps/pipeline/src/core/runner.ts`),
+not a port: both runtimes call the same code, so the `RunExecutor` port that
+#175 added for the interim Workflow is removed. The ports are Database,
+Blobs and Clock.
+

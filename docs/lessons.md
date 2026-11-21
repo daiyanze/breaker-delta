@@ -4,6 +4,20 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L6 Every way a step can fail must end in the step's failure record
+
+- **Date:** 2026-11-21. **Status:** active.
+- **What happened:** In #177 the runner serialised a step's output outside
+  the retry `try`. An output that cannot be serialised would have thrown out
+  of `runSlot`, leaving the run `running` and retried after every lease
+  expiry, never marked failed. The independent review found it.
+- **Rule:** In the runner and in steps, everything between "the step
+  started" and "the step's result is stored" sits inside the failure
+  handling, so a failure is recorded, never escapes.
+- **Scope:** `apps/pipeline/src/core/runner.ts` and pipeline steps.
+- **Evidence:** fixed in #177, with the test "an output that cannot be
+  stored is a failed attempt".
+
 ## L5 Check the design before picking a lower-level approach
 
 - **Date:** 2026-11-21. **Status:** active.
