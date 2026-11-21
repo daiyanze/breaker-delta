@@ -1,6 +1,6 @@
 # 0004 One codebase, two run modes
 
-Date: 2026-11-18. Status: accepted. Confirmed by spike 1 on 2026-11-21.
+Date: 2026-11-18. Status: superseded by 0018 on 2026-11-21.
 
 ## Decision
 
@@ -27,12 +27,7 @@ implementation. That costs a second implementation and more time.
 
 ## Spike 1 result (2026-11-21)
 
-The same Worker code runs locally with no Cloudflare account and no network,
-on Linux, macOS and Windows: the scheduler, the workflow and the SQLite
-database work, a slot runs once, and data survives a restart. The fallback is
-not needed; no native Bun implementation is planned.
-
-Open: a one-command install without cloning the repository. That is
-packaging, not runtime, and is decided when local packaging is scheduled.
-Details: `docs/spikes/m0.md`.
-
+The Workers runtime does run locally through wrangler, with no account and no
+network, on Linux, macOS and Windows (`docs/spikes/m0.md`). The approach is
+still dropped: it makes Cloudflare's toolchain a requirement of local mode.
+0018 replaces it with a native Bun runtime and a Cloudflare adapter.

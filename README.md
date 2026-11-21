@@ -14,7 +14,8 @@ checked again 14 days later, and the track record is public.
 | Local | Bun, no cloud account | `bun install && bun run local` |
 | Cloudflare | Workers Paid account | see `docs/deploy-cloudflare.md` (M4) |
 
-Both modes run the same code. See `docs/adr/0004-one-codebase-two-run-modes.md`.
+Both modes run the same code. Local mode runs on Bun alone; Cloudflare is a
+deployment adapter. See `docs/adr/0018-local-first-runtime.md`.
 
 ## Develop
 
@@ -22,7 +23,7 @@ Both modes run the same code. See `docs/adr/0004-one-codebase-two-run-modes.md`.
 bun install
 bun run check      # typecheck + lint + tests + dependency-direction check
 bun run probe      # M0 spike: which sources are reachable from this network
-bun run local      # M0 spike: run the pipeline Worker on this machine
+bun run local      # M0: run the pipeline on this machine (wrangler until ADR 0018 lands)
 ```
 
 ## Layout

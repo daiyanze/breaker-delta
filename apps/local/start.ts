@@ -4,6 +4,9 @@
  *   2. runs the pipeline Worker in the local Workers runtime, no account
  *   3. calls the scheduled handler on an interval, standing in for cron
  *
+ * Interim: this goes through wrangler. ADR 0018 replaces it with a native
+ * Bun runtime shipped as one executable.
+ *
  * Usage: bun run local
  * Environment: BD_PORT (8787), BD_TICK_SECONDS (60), BD_DATA_DIR (.bd-data).
  */

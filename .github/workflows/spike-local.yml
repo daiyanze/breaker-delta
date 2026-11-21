@@ -2,8 +2,8 @@ name: spike-local
 
 # Spike 1 (docs/spikes/m0.md): does `bun run local` work on each OS with no
 # Cloudflare account? Linux runs it with no network at all. Kept as a smoke
-# test for local mode: it runs when the launcher, the pipeline or the schema
-# changes.
+# test for local mode; it moves to the native executable from ADR 0018 once
+# that exists.
 
 on:
   pull_request:
