@@ -1,3 +1,4 @@
+/// <reference path="./sql.d.ts" />
 /**
  * The migrations, embedded in the build. `bun build --compile` bundles text
  * imports, so the local executable needs no `packages/db/migrations` folder.
