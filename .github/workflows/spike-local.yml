@@ -46,7 +46,19 @@ jobs:
             while p="$(command -v "$bin")"; do echo "removing $p"; sudo rm -f "$p"; hash -r; done
           done
           ! command -v node
-      - run: bun install --frozen-lockfile
+      # Production dependencies only: wrangler, miniflare and the other dev
+      # tools stay out, so local mode is proven without them (ADR 0018, #174).
+      - run: bun install --frozen-lockfile --production
+      - name: No Cloudflare tooling installed
+        shell: bash
+        run: |
+          for pkg in wrangler miniflare; do
+            # A glob, not `ls | grep -q`: under pipefail, grep exiting early
+            # kills ls with SIGPIPE and the test reads as "absent".
+            if [ -e "node_modules/$pkg" ] || [ -L "node_modules/$pkg" ] || compgen -G "node_modules/.bun/$pkg@*" >/dev/null; then
+              echo "$pkg is installed" >&2; exit 1
+            fi
+          done
 
       - name: Spike, offline (Linux)
         if: runner.os == 'Linux'
