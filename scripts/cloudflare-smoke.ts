@@ -67,15 +67,26 @@ for (const check of d1Checks) {
 await conformance.dispose();
 
 // 2. The built Worker: migrations, cron, a slot runs once.
+// Bindings, vars and the compatibility date come from wrangler.jsonc, so the
+// test fails if the config and the Worker drift apart.
+interface WranglerConfig {
+  compatibility_date: string;
+  d1_databases?: { binding: string }[];
+  r2_buckets?: { binding: string }[];
+  vars?: Record<string, string>;
+}
+const jsonc = readFileSync(join(root, "apps", "pipeline", "wrangler.jsonc"), "utf8");
+const config = JSON.parse(jsonc.replace(/^\s*\/\/.*$/gm, "")) as WranglerConfig;
+
 const mf = new Miniflare(
   convertV4MiniflareOptions({
     modules: true,
     modulesRoot: outDir,
     scriptPath: join(outDir, script),
-    compatibilityDate: "2026-11-01",
-    d1Databases: ["DB"],
-    r2Buckets: ["BLOBS"],
-    bindings: { RUN_INTERVAL_MINUTES: "60", PROBE_TOKEN: "smoke" },
+    compatibilityDate: config.compatibility_date,
+    d1Databases: (config.d1_databases ?? []).map((d) => d.binding),
+    r2Buckets: (config.r2_buckets ?? []).map((r) => r.binding),
+    bindings: { ...config.vars, PROBE_TOKEN: "smoke" },
   }),
 );
 try {
@@ -105,14 +116,21 @@ try {
     JSON.stringify({ outcome: first.outcome, lastRun: afterFirst.lastRun }),
   );
 
+  // A second cron event and a manual tick must leave the run untouched.
+  const snapshot = async () => {
+    const runRows = await db.prepare("SELECT * FROM runs").all();
+    const stepRows = await db.prepare("SELECT * FROM run_steps").all();
+    return JSON.stringify([runRows.results, stepRows.results]);
+  };
+  const before = await snapshot();
   await worker.scheduled({ cron: "*/15 * * * *" });
   const tick = await worker.fetch("http://bd.test/__tick", {
     headers: { authorization: "Bearer smoke" },
   });
-  const rows = await db.prepare("SELECT slot FROM runs").all();
-  const second = (await tick.json()) as { started: boolean };
-  const once = rows.results.length === 1 && second.started === false;
-  record("a slot runs once", once, `${rows.results.length} run(s)`);
+  const second = (await tick.json()) as { started: boolean; reason?: string };
+  const unchanged = (await snapshot()) === before;
+  const note = `tick ${JSON.stringify(second)}, runs and run_steps unchanged: ${unchanged}`;
+  record("a slot runs once", second.started === false && unchanged, note);
 } catch (err) {
   record("smoke test ran to the end", false, err instanceof Error ? err.message : String(err));
 } finally {
