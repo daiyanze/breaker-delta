@@ -35,9 +35,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
+      # No Node on this machine (#13): delete the runner's preinstalled
+      # copy, so anything that still reaches for it fails here.
+      - name: Remove Node
+        if: runner.os != 'Windows'
+        run: |
+          for bin in node npm npx corepack; do
+            while command -v "$bin" >/dev/null; do sudo rm -f "$(command -v "$bin")"; hash -r; done
+          done
+          ! command -v node
       - run: bun install --frozen-lockfile
 
       - name: Spike, offline (Linux)
