@@ -1,23 +1,26 @@
 /**
- * `bun run local`: Breaker Delta on this machine, with no cloud account and
- * no Cloudflare tooling (ADR 0018). One process runs the pipeline (SQLite
- * file, timer) and the site.
+ * `bun run local`, or the `breaker-delta` executable: Breaker Delta on this
+ * machine, with no cloud account and no Cloudflare tooling (ADR 0018). One
+ * process runs the pipeline (SQLite file, timer) and the site.
+ *
+ * Build the executable: `bun run build:local` (see package.json).
  *
  * Environment:
- *   BD_DATA_DIR       where the data lives (default .bd-data)
+ *   BD_DATA_DIR       where the data lives (default .bd-data in the current folder)
  *   BD_PORT           pipeline port (default 8787)
  *   BD_WEB_PORT       site port (default 8788)
  *   BD_TICK_SECONDS   seconds between ticks (default 60)
  *   RUN_INTERVAL_MINUTES, PROBE_TOKEN   as on Cloudflare
  *   READ_SOURCE, FIXTURE_SET            what the site reads (see apps/web)
  */
-import { join, resolve } from "node:path";
+import { resolve } from "node:path";
 import { startPipeline } from "@bd/pipeline/local";
 import { startSite } from "@bd/web/local";
 
 const env = process.env;
-const root = join(import.meta.dir, "..", "..");
-const dataDir = resolve(env.BD_DATA_DIR ?? join(root, ".bd-data"));
+// The current folder, not this file's: in the executable, files live in a
+// virtual filesystem.
+const dataDir = resolve(env.BD_DATA_DIR ?? ".bd-data");
 
 const pipeline = startPipeline({
   dataDir,
