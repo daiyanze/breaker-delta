@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mascots · Breaker Delta</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&amp;family=Instrument+Sans:wght@400..700&amp;display=swap">
+<style>
+body{margin:0}
+.tp{--cat:#14263B;--gull-line:#14263B;--gull-wing:#9DB8E8;--paper:#F2EFE4;--ink:#14263B;--ink2:#4A5868;--hair:#C9C6B8;--red:#C8351D;--blue:#1B55C0;--sky:#9DB8E8;--tint:#DCE6F5;--sun:#F4C535;--solid:#14263B;--onsun:#14263B;background:var(--paper);color:var(--ink);font-family:'Instrument Sans',system-ui,sans-serif;font-size:17px;line-height:1.55;font-variant-numeric:tabular-nums;overflow-x:hidden}
+.tp.dk{--cat:#3A506B;--paper:#0E1B2A;--ink:#EFE9D8;--ink2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--solid:#060E18}
+.lang{position:relative}
+.lang summary{list-style:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid var(--ink);cursor:pointer;font-weight:600;box-sizing:border-box}
+.lang summary::-webkit-details-marker{display:none}
+.lang .menu{position:absolute;right:0;top:calc(100% + 6px);z-index:5;background:var(--paper);border:1px solid var(--ink);min-width:170px;display:flex;flex-direction:column}
+.tp .lang .menu a{display:flex;align-items:center;min-height:44px;padding:0 16px;color:var(--ink);text-decoration:none}
+.tp .lang .menu a:hover{background:var(--tint)}
+.tp .lang .menu a[aria-current]{font-weight:700;box-shadow:inset 4px 0 0 var(--red)}
+.tp a{color:var(--blue);text-underline-offset:4px}
+.tp a:hover{color:var(--red)}
+.tp a.plain{color:var(--ink);text-decoration:none}
+.tp a.plain:hover{color:var(--blue)}
+.tp :focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.tp button,.tp input{font:inherit;color:inherit}
+.fr{font-family:'Fraunces',Georgia,serif}
+.wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+.nav{display:flex;flex-wrap:wrap}
+.tp .nav a{display:flex;align-items:center;min-height:48px;padding:0 16px;color:var(--ink);text-decoration:none;font-weight:500}
+.tp .nav a:hover{color:var(--blue)}
+.tp .nav a[aria-current]{font-weight:700;box-shadow:inset 0 -4px 0 var(--red)}
+.tp .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border:2px solid var(--ink);border-radius:0;background:transparent;color:var(--ink);font-size:17px;font-weight:600;text-decoration:none;cursor:pointer;box-sizing:border-box}
+.tp .btn:hover{background:var(--ink);color:var(--paper)}
+.sec{margin:0;font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:400;font-size:38px;line-height:1.08;letter-spacing:-0.02em}
+.sm{font-size:15px;color:var(--ink2)}
+.pip,.ring{width:11px;height:11px;border-radius:50%;box-sizing:border-box;flex:none;display:inline-block}
+.pip{background:var(--ink)}
+.ring{border:2px solid var(--ink)}
+.idx{display:flex;align-items:baseline;gap:10px;min-height:44px;padding:4px 0}
+.idx i{flex:1 1 20px;border-bottom:2px dotted var(--hair);transform:translateY(-4px)}
+.band{display:flex;gap:32px 72px;flex-wrap:wrap;align-items:flex-start;padding:72px 0;border-top:1px solid var(--ink)}
+.rail{flex:1 1 280px;max-width:340px;min-width:0;display:flex;flex-direction:column;gap:14px;position:sticky;top:24px}
+.list{flex:999 1 560px;min-width:0}
+.tp a.item{display:flex;gap:6px 28px;align-items:baseline;flex-wrap:wrap;padding:20px 0;border-bottom:1px solid var(--hair)}
+.tp a.item:first-child{padding-top:4px}
+.item .meta{flex:0 0 84px;font-weight:700}
+.item .hd{flex:1 1 320px;min-width:0;font-family:'Fraunces',Georgia,serif;font-size:26px;line-height:1.2;font-weight:600;text-wrap:pretty}
+.item .num{flex:0 0 160px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}
+.field{min-height:48px;padding:0 16px;border:2px solid var(--ink);background:var(--paper);box-sizing:border-box;flex:1 1 240px;font-size:17px}
+.tp a.hl{color:inherit;text-decoration:none}
+.tp a.hl:hover{color:inherit;text-decoration:underline;text-decoration-color:var(--red);text-decoration-thickness:.06em;text-underline-offset:.14em}
+.awning{height:22px;border:1.5px solid var(--ink);border-bottom:0;background:repeating-linear-gradient(90deg,var(--red) 0 24px,var(--paper) 24px 48px)}
+.scallop{height:13px;background:radial-gradient(circle at 12px 0,var(--red) 11.5px,transparent 12px) 0 0/48px 13px repeat-x,radial-gradient(circle at 36px 0,var(--hair) 11.5px,transparent 12px) 0 0/48px 13px repeat-x}
+.tp .ed{position:relative;flex:0 0 auto;width:68px;height:92px;padding:8px 8px 7px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;cursor:pointer;box-shadow:3px 3px 0 var(--hair);transition:transform .18s}
+.tp .ed:hover{transform:translateY(-5px);z-index:2}
+.tp .ed[aria-pressed="true"]{background:var(--sun);color:var(--onsun);border-color:var(--onsun);transform:translateY(-9px) rotate(-3deg);box-shadow:4px 6px 0 var(--ink);z-index:3}
+.ed b{display:block;height:5px;background:currentColor}
+.notice{flex:1 1 230px;min-width:0;border:1px solid var(--ink);outline:1px solid var(--ink);outline-offset:3px;padding:20px;display:flex;flex-direction:column;gap:10px;margin:4px}
+.ad{break-inside:avoid;margin:0 0 16px;padding:14px 16px;border:1px solid var(--ink);display:flex;flex-direction:column;gap:4px}
+.stub{flex:1 1 230px;min-width:0;border:2px dashed var(--ink);padding:20px;display:flex;flex-direction:column;gap:12px}
+.stamp{align-self:flex-start;border:3px solid var(--red);color:var(--red);font-weight:700;padding:2px 12px;transform:rotate(-5deg);border-radius:6px;transition:transform .2s}
+.stub:hover .stamp{transform:rotate(3deg) scale(1.06)}
+@keyframes stack{0%{opacity:0;transform:translateY(-40px)}7%{opacity:1;transform:translateY(0)}84%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(0)}}
+.slab{transform-box:fill-box;animation:stack 7s ease-out infinite both}
+@keyframes tail{0%,62%,100%{transform:rotate(0)}72%{transform:rotate(-13deg)}84%{transform:rotate(7deg)}}
+.tail{transform-box:view-box;transform-origin:118px 56px;animation:tail 7s ease-in-out infinite}
+@keyframes blink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(0.08)}}
+.eye{transform-box:fill-box;transform-origin:center;animation:blink 4.6s ease-in-out infinite}
+.cat{transition:transform .9s cubic-bezier(.5,0,.75,.35)}
+@keyframes rise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes sail{from{transform:translateX(-60px)}to{transform:translateX(1340px)}}
+@keyframes spin{to{transform:rotate(352deg)}}
+.crest{transform-box:fill-box;transform-origin:50% 100%;animation:rise 1.2s cubic-bezier(.2,.8,.2,1) both}
+.draw{stroke-dasharray:1;animation:draw 1.8s ease-out both}
+.sail{animation:sail 87.5s linear infinite}
+@keyframes rideY{0%,100%{transform:translateY(-3.5px)}50%{transform:translateY(3.5px)}}
+@keyframes rideR{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.rideY{animation:rideY 2.5s ease-in-out -1.875s infinite}
+.rideR{transform-box:fill-box;transform-origin:50% 100%;animation:rideR 2.5s ease-in-out infinite}
+.w4{animation:drift 30s linear infinite}
+.tp .stack{position:relative;flex:0 0 auto;width:86px;height:102px;border:0;background:none;padding:0;cursor:pointer;text-align:left;color:var(--ink)}
+.stack i{position:absolute;left:0;top:0;width:72px;height:88px;box-sizing:border-box;border:1.5px solid var(--ink);background:var(--paper);font-style:normal}
+.stack i:nth-child(1){transform:translate(12px,12px)}
+.stack i:nth-child(2){transform:translate(6px,6px)}
+.stack i:nth-child(3){display:flex;flex-direction:column;padding:8px 7px 7px}
+.stack.on i:nth-child(3){background:var(--sun);color:var(--onsun);border-color:var(--onsun)}
+.tp .cell{display:flex;flex-direction:column;gap:4px;align-items:flex-start;min-height:44px;padding:8px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;text-align:left;min-width:0}
+.tp .cell.on{background:var(--sun);color:var(--onsun);border-color:var(--onsun)}
+.tp .cell.later{border-style:dashed;border-color:var(--ink2);color:var(--ink2);cursor:default}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.tp .chips a{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border:1px solid var(--ink);color:var(--ink);text-decoration:none;font-weight:600;font-size:15px}
+.tp .chips a[aria-current]{background:var(--ink);color:var(--paper)}
+@keyframes wag{from{transform:rotate(-16deg)}to{transform:rotate(12deg)}}
+.tail.wag{transform-box:view-box;transform-origin:120px 58px;animation:wag .26s ease-in-out infinite alternate}
+@keyframes hopaway{0%,22%{transform:translateY(0)}58%{transform:translateY(-32px)}100%{transform:translateY(64px)}}
+@keyframes hopback{0%{transform:translateY(64px)}40%{transform:translateY(-26px)}62%,100%{transform:translateY(0)}}
+@keyframes standup{0%{transform:translateY(0)}22%,100%{transform:translateY(-12px)}}
+@keyframes liedown{0%,72%{transform:translateY(-12px)}100%{transform:translateY(0)}}
+@keyframes step{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+.catbtn{position:relative;z-index:0}
+@keyframes legout{0%{stroke-dashoffset:16}22%,100%{stroke-dashoffset:0}}
+@keyframes legin{0%,72%{stroke-dashoffset:0}100%{stroke-dashoffset:16}}
+.legs path{fill:none;stroke:var(--cat);stroke-width:5;stroke-dasharray:16;stroke-dashoffset:16;transform-box:fill-box;transform-origin:50% 0}
+@keyframes haunchin{0%,72%{opacity:0}100%{opacity:1}}
+.catbtn.gone .haunch{opacity:0}
+.bodyup{opacity:0}
+.catbtn.gone .bodyup{opacity:1}
+.catbtn.gone .bodylie{opacity:0}
+@keyframes bodyout{0%,72%{opacity:1}100%{opacity:0}}
+.catbtn.back .bodyup{animation:bodyout 1.1s ease-in-out}
+.catbtn.back .bodylie{animation:haunchin 1.1s ease-in-out}
+.catbtn.back .haunch{animation:haunchin 1.1s ease-in-out}
+.catbtn.gone .legs path{animation:legout .85s ease-out forwards}
+.catbtn.gone{animation:hopaway .85s ease-in forwards}
+.catbtn.gone .catbody{animation:standup .85s ease-out forwards}
+.catbtn.back{animation:hopback 1.1s ease-out}
+.catbtn.back .catbody{animation:liedown 1.1s ease-in-out}
+.catbtn.back .legs path:nth-child(odd){animation:step .16s ease-in-out .68s 2 alternate,legin 1.1s ease-in-out forwards}
+.catbtn.back .legs path:nth-child(even){animation:step .16s ease-in-out .68s 2 alternate-reverse,legin 1.1s ease-in-out forwards}
+.tp .stack i{transition:transform .25s ease}
+.stack[aria-expanded="true"] i:nth-child(1){transform:translate(20px,6px) rotate(7deg)}
+.stack[aria-expanded="true"] i:nth-child(2){transform:translate(10px,3px) rotate(3.5deg)}
+.stack[aria-expanded="true"] i:nth-child(3){transform:translate(0,-4px) rotate(-2deg)}
+.drawer{display:grid;grid-template-rows:0fr;transition:grid-template-rows .38s ease}
+.drawer.open{grid-template-rows:1fr}
+.drawer>div{overflow:hidden;min-height:0;visibility:hidden;transition:visibility 0s linear .38s}
+.drawer.open>div{visibility:visible;transition-delay:0s}
+.tp .ed.later{border:2px dashed var(--ink2);color:var(--ink2);box-shadow:none;background:none;cursor:default}
+.tp .ed.later:hover{transform:none}
+@keyframes drift{to{transform:translateX(-240px)}}
+@keyframes sweep{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(6deg)}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(6px) rotate(2deg)}}
+.w1{animation:drift 22s linear infinite}
+.w2{animation:drift 13s linear infinite reverse}
+.w3{animation:drift 9s linear infinite}
+.beam{transform-box:view-box;transform-origin:1132px 92px;animation:sweep 7s ease-in-out infinite}
+.boat{transform-box:fill-box;transform-origin:center;animation:bob 4s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.w1,.w2,.w3,.w4,.beam,.boat,.sail,.crest,.draw,.slab,.rideY,.rideR,.tail,.eye{animation:none}.tail.wag{animation:none}.catbtn.gone{animation:none;transform:translateY(64px)}.catbtn.back,.catbtn .catbody,.catbtn .legs path{animation:none}.drawer,.drawer>div,.tp .stack i{transition:none}}
+</style>
+<style>
+.drop::first-letter{font-family:'Fraunces',Georgia,serif;font-weight:900;font-size:4.3em;line-height:0.78;float:left;padding:8px 12px 0 0;color:var(--red)}
+.clip{break-inside:avoid;margin:0 0 22px;padding:18px 20px;border:1px solid var(--ink);background:var(--paper);box-shadow:5px 5px 0 var(--hair);display:flex;flex-direction:column;gap:8px}
+.tp a.clip{color:var(--ink);text-decoration:none}
+.tp a.clip:hover{box-shadow:5px 5px 0 var(--red)}
+.clip:nth-child(odd){transform:rotate(-0.5deg)}
+.clip:nth-child(even){transform:rotate(0.6deg)}
+.seg{display:flex}
+.tp .seg button{min-height:44px;padding:0 16px;border:1px solid var(--ink);background:none;margin-left:-1px;cursor:pointer;font-weight:600}
+.tp .seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.led{flex:1 1 260px;min-width:0;padding:22px 24px;display:flex;flex-direction:column;gap:10px}
+.led li{padding:8px 0;border-top:1px solid var(--hair)}
+summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--blue)}
+</style>
+<style>
+.kd{display:inline-flex;align-items:center;align-self:flex-start;border:2px solid var(--ink);font-weight:700;font-size:15px;padding:1px 10px;white-space:nowrap}
+.kd.new{background:var(--red);border-color:var(--red);color:var(--paper)}
+.kd.sum{border-color:var(--ink2);color:var(--ink2)}
+.kd.fix{border-color:var(--red);color:var(--red)}
+.kd.flat{border-style:dashed;border-color:var(--ink2);color:var(--ink2)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.tp .chips a{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid var(--ink);color:var(--ink);text-decoration:none;font-weight:600;font-size:15px}
+.tp .chips a[aria-current]{background:var(--ink);color:var(--paper)}
+.crow{display:flex;gap:10px 28px;flex-wrap:wrap;align-items:flex-start;padding:20px 0;border-bottom:1px solid var(--hair)}
+.crow:first-child{padding-top:4px}
+.bar{height:12px;background:var(--hair)}
+.bar b{display:block;height:12px;background:var(--blue)}
+</style>
+</helmet>
+<div class="tp" style="width: 1600px; height: 1880px; box-sizing: border-box; padding: 64px; display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; gap: 16px 64px; flex-wrap: wrap; align-items: flex-end"><h1 class="fr" style="flex: 1 1 480px; margin: 0; font-size: 64px; line-height: 0.95; font-weight: 900; letter-spacing: -0.03em">Delta and Breaker</h1><p style="flex: 1 1 380px; margin: 0; font-size: 19px; color: var(--ink2); max-width: 32em">Two mascots, named after the two halves of the product. Delta the cat lives at the newsstand and stands for the people who run it. Breaker the gull lives at sea and carries things between the sea and the reader. Neither one talks.</p></div>
+<div style="border-top: 4px solid var(--ink); padding-top: 20px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; gap: 16px 48px; align-items: baseline; flex-wrap: wrap"><h2 class="sec" style="margin: 0">Delta, the stand cat</h2><span class="sm" style="max-width: 44em">Black, with yellow eyes, a pink nose and pink inside the ears. Flat shapes, no outline. Appears on the newsstand roof, and wherever the stand or the desk is resting.</span></div>
+<div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 36px">
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="40 23 112 48" role="img" aria-label="The black cat napping, paws tucked in" style="width: 200px; height: auto; display: block"><path d="M118,60 C134,64 147,58 145,46 C144,39 136,39 137,45" style="fill: none; stroke: var(--cat, var(--solid)); stroke-width: 6; stroke-linecap: round"></path><path class="bodylie" d="M66,67 C62,51 78,41 97,41 C116,41 128,52 125,67 Z" style="fill: var(--cat, var(--solid))"></path>
+<path class="haunch" d="M101,66 C101,57 109,52 118,55" style="fill: none; stroke: var(--ink2); stroke-width: 1.2; stroke-linecap: round"></path>
+<path d="M50,43 L51,27 L62,37 Z M66,37 L77,27 L78,43 Z" style="fill: var(--cat, var(--solid)); stroke: var(--cat, var(--solid)); stroke-width: 3; stroke-linejoin: round"></path>
+<path d="M53,38 L53.5,32 L58,36 Z M70,36 L74.5,32 L75,38 Z" style="fill: #FF7A5C"></path>
+<ellipse cx="64" cy="51" rx="16.5" ry="14.5" style="fill: var(--cat, var(--solid))"></ellipse><ellipse class="haunch" cx="60" cy="66" rx="6" ry="3.6" style="fill: var(--cat, var(--solid)); stroke: var(--ink2); stroke-width: 1.2"></ellipse><ellipse class="haunch" cx="73" cy="66" rx="6" ry="3.6" style="fill: var(--cat, var(--solid)); stroke: var(--ink2); stroke-width: 1.2"></ellipse><path d="M54,51 q3.8,3.8 7.6,0 M66,51 q3.8,3.8 7.6,0" style="fill: none; stroke: var(--sun); stroke-width: 1.8; stroke-linecap: round"></path><path d="M62.4,55 h2.8 l-1.4,1.7 Z" style="fill: #FF7A5C"></path><path d="M63.8,56.7 q-1.6,2 -3.4,0.7 M63.8,56.7 q1.6,2 3.4,0.7" style="fill: none; stroke: var(--ink2); stroke-width: 1; stroke-linecap: round"></path><path d="M50,55 L43,53.5 M50,57.5 L44,59.5 M78,55 L85,53.5 M78,57.5 L84,59.5" style="fill: none; stroke: var(--ink2); stroke-width: 1; stroke-linecap: round"></path></svg></div><strong>Napping</strong><span class="sm" style="max-width: 15em">Its usual state. Paws tucked in, eyes shut.</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="40 23 112 48" role="img" aria-label="The black cat with half-open eyes" style="width: 200px; height: auto; display: block"><path d="M118,60 C134,64 147,58 145,46 C144,39 136,39 137,45" style="fill: none; stroke: var(--cat, var(--solid)); stroke-width: 6; stroke-linecap: round"></path><path class="bodylie" d="M66,67 C62,51 78,41 97,41 C116,41 128,52 125,67 Z" style="fill: var(--cat, var(--solid))"></path>
+<path class="haunch" d="M101,66 C101,57 109,52 118,55" style="fill: none; stroke: var(--ink2); stroke-width: 1.2; stroke-linecap: round"></path>
+<path d="M50,43 L51,27 L62,37 Z M66,37 L77,27 L78,43 Z" style="fill: var(--cat, var(--solid)); stroke: var(--cat, var(--solid)); stroke-width: 3; stroke-linejoin: round"></path>
+<path d="M53,38 L53.5,32 L58,36 Z M70,36 L74.5,32 L75,38 Z" style="fill: #FF7A5C"></path>
+<ellipse cx="64" cy="51" rx="16.5" ry="14.5" style="fill: var(--cat, var(--solid))"></ellipse><ellipse class="haunch" cx="60" cy="66" rx="6" ry="3.6" style="fill: var(--cat, var(--solid)); stroke: var(--ink2); stroke-width: 1.2"></ellipse><ellipse class="haunch" cx="73" cy="66" rx="6" ry="3.6" style="fill: var(--cat, var(--solid)); stroke: var(--ink2); stroke-width: 1.2"></ellipse><path d="M53.2,50.4 Q57.8,57.6 62.4,50.4 Z M65.2,50.4 Q69.8,57.6 74.4,50.4 Z" style="fill: var(--sun)"></path><path d="M55.1,50.4 a2.7,2.7 0 0 0 5.4,0 Z M67.1,50.4 a2.7,2.7 0 0 0 5.4,0 Z" style="fill: var(--cat, var(--solid))"></path><path d="M52.8,50.4 H62.8 M64.8,50.4 H74.8" style="stroke: var(--sun); stroke-width: 1.8; stroke-linecap: round"></path><path d="M62.4,55 h2.8 l-1.4,1.7 Z" style="fill: #FF7A5C"></path><path d="M63.8,56.7 q-1.6,2 -3.4,0.7 M63.8,56.7 q1.6,2 3.4,0.7" style="fill: none; stroke: var(--ink2); stroke-width: 1; stroke-linecap: round"></path><path d="M50,55 L43,53.5 M50,57.5 L44,59.5 M78,55 L85,53.5 M78,57.5 L84,59.5" style="fill: none; stroke: var(--ink2); stroke-width: 1; stroke-linecap: round"></path></svg></div><strong>Half awake</strong><span class="sm" style="max-width: 15em">After one press: eyes narrowed, large pupils, tail wagging.</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="40 10 112 62" role="img" aria-label="The black cat standing up" style="width: 200px; height: auto; display: block"><path d="M76,46 V66" style="stroke: var(--cat, var(--solid)); stroke-width: 6; stroke-linecap: round"></path><ellipse cx="74.5" cy="67" rx="5" ry="3" style="fill: var(--cat, var(--solid))"></ellipse><path d="M86,46 V66" style="stroke: var(--cat, var(--solid)); stroke-width: 6; stroke-linecap: round"></path><ellipse cx="84.5" cy="67" rx="5" ry="3" style="fill: var(--cat, var(--solid))"></ellipse><path d="M106,46 V66" style="stroke: var(--cat, var(--solid)); stroke-width: 6; stroke-linecap: round"></path><ellipse cx="104.5" cy="67" rx="5" ry="3" style="fill: var(--cat, var(--solid))"></ellipse><path d="M116,46 V66" style="stroke: var(--cat, var(--solid)); stroke-width: 6; stroke-linecap: round"></path><ellipse cx="114.5" cy="67" rx="5" ry="3" style="fill: var(--cat, var(--solid))"></ellipse><g transform="translate(0 -13)"><path d="M118,60 C134,64 147,58 145,46 C144,39 136,39 137,45" style="fill: none; stroke: var(--cat, var(--solid)); stroke-width: 6; stroke-linecap: round"></path><path class="bodylie" d="M66,58 C62,47 78,41 97,41 C116,41 129,49 127,58 C126,64 120,66 112,67 C102,69 88,69 78,67 C71,66 67,63 66,58 Z" style="fill: var(--cat, var(--solid))"></path>
+
+<path d="M50,43 L51,27 L62,37 Z M66,37 L77,27 L78,43 Z" style="fill: var(--cat, var(--solid)); stroke: var(--cat, var(--solid)); stroke-width: 3; stroke-linejoin: round"></path>
+<path d="M53,38 L53.5,32 L58,36 Z M70,36 L74.5,32 L75,38 Z" style="fill: #FF7A5C"></path>
+<ellipse cx="64" cy="51" rx="16.5" ry="14.5" style="fill: var(--cat, var(--solid))"></ellipse><circle cx="57.8" cy="50" r="4.4" style="fill: var(--sun)"></circle><circle cx="69.8" cy="50" r="4.4" style="fill: var(--sun)"></circle><circle cx="57.8" cy="50" r="2.2" style="fill: var(--cat, var(--solid))"></circle><circle cx="69.8" cy="50" r="2.2" style="fill: var(--cat, var(--solid))"></circle><circle cx="59.3" cy="48.4" r="1" style="fill: #FFFFFF"></circle><circle cx="71.3" cy="48.4" r="1" style="fill: #FFFFFF"></circle><path d="M62.4,55 h2.8 l-1.4,1.7 Z" style="fill: #FF7A5C"></path><path d="M63.8,56.7 q-1.6,2 -3.4,0.7 M63.8,56.7 q1.6,2 3.4,0.7" style="fill: none; stroke: var(--ink2); stroke-width: 1; stroke-linecap: round"></path><path d="M50,55 L43,53.5 M50,57.5 L44,59.5 M78,55 L85,53.5 M78,57.5 L84,59.5" style="fill: none; stroke: var(--ink2); stroke-width: 1; stroke-linecap: round"></path></g></svg></div><strong>Standing</strong><span class="sm" style="max-width: 15em">Legs out. Used when it jumps away and comes back.</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="40 -4 112 76" role="img" aria-label="Delta walking with its tail straight up" style="width: 200px; height: auto; display: block"><path d="M77,46 L72,66" style="stroke: var(--cat, var(--solid)); stroke-width: 6; stroke-linecap: round"></path><ellipse cx="70.5" cy="67" rx="5" ry="3" style="fill: var(--cat, var(--solid))"></ellipse><path d="M85,46 L92,66" style="stroke: var(--cat, var(--solid)); stroke-width: 6; stroke-linecap: round"></path><ellipse cx="90.5" cy="67" rx="5" ry="3" style="fill: var(--cat, var(--solid))"></ellipse><path d="M107,46 L102,66" style="stroke: var(--cat, var(--solid)); stroke-width: 6; stroke-linecap: round"></path><ellipse cx="100.5" cy="67" rx="5" ry="3" style="fill: var(--cat, var(--solid))"></ellipse><path d="M115,46 L122,66" style="stroke: var(--cat, var(--solid)); stroke-width: 6; stroke-linecap: round"></path><ellipse cx="120.5" cy="67" rx="5" ry="3" style="fill: var(--cat, var(--solid))"></ellipse><g transform="translate(0 -13)"><path d="M122,56 C128,44 123,30 127,16" style="fill: none; stroke: var(--cat, var(--solid)); stroke-width: 6; stroke-linecap: round"></path><path class="bodylie" d="M66,58 C62,47 78,41 97,41 C116,41 129,49 127,58 C126,64 120,66 112,67 C102,69 88,69 78,67 C71,66 67,63 66,58 Z" style="fill: var(--cat, var(--solid))"></path>
+
+<path d="M50,43 L51,27 L62,37 Z M66,37 L77,27 L78,43 Z" style="fill: var(--cat, var(--solid)); stroke: var(--cat, var(--solid)); stroke-width: 3; stroke-linejoin: round"></path>
+<path d="M53,38 L53.5,32 L58,36 Z M70,36 L74.5,32 L75,38 Z" style="fill: #FF7A5C"></path>
+<ellipse cx="64" cy="51" rx="16.5" ry="14.5" style="fill: var(--cat, var(--solid))"></ellipse><circle cx="57.8" cy="50" r="4.4" style="fill: var(--sun)"></circle><circle cx="69.8" cy="50" r="4.4" style="fill: var(--sun)"></circle><circle cx="57.8" cy="50" r="2.2" style="fill: var(--cat, var(--solid))"></circle><circle cx="69.8" cy="50" r="2.2" style="fill: var(--cat, var(--solid))"></circle><circle cx="59.3" cy="48.4" r="1" style="fill: #FFFFFF"></circle><circle cx="71.3" cy="48.4" r="1" style="fill: #FFFFFF"></circle><path d="M62.4,55 h2.8 l-1.4,1.7 Z" style="fill: #FF7A5C"></path><path d="M63.8,56.7 q-1.6,2 -3.4,0.7 M63.8,56.7 q1.6,2 3.4,0.7" style="fill: none; stroke: var(--ink2); stroke-width: 1; stroke-linecap: round"></path><path d="M50,55 L43,53.5 M50,57.5 L44,59.5 M78,55 L85,53.5 M78,57.5 L84,59.5" style="fill: none; stroke: var(--ink2); stroke-width: 1; stroke-linecap: round"></path></g></svg></div><strong>Walking</strong><span class="sm" style="max-width: 15em">Tail straight up, the way a cat greets someone. For first run.</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="0 0 132 82" role="img" aria-label="Delta stretching, front paws out and tail up" style="width: 210px; height: auto; display: block">
+<path d="M106,36 C120,28 120,12 112,8" style="fill: none; stroke: var(--cat, var(--solid)); stroke-width: 6; stroke-linecap: round"></path>
+<path d="M94,50 V74 M104,48 V74" style="fill: none; stroke: var(--cat, var(--solid)); stroke-width: 7; stroke-linecap: round"></path>
+<ellipse cx="92.5" cy="75" rx="5.5" ry="3" style="fill: var(--cat, var(--solid))"></ellipse><ellipse cx="102.5" cy="75" rx="5.5" ry="3" style="fill: var(--cat, var(--solid))"></ellipse>
+<path d="M86,32 C96,27 108,31 110,41 C111,50 104,56 94,58 C74,61 50,69 30,72 L27,58 C46,54 68,44 86,32 Z" style="fill: var(--cat, var(--solid))"></path>
+<path d="M40,68 H10 M40,73 H14" style="fill: none; stroke: var(--cat, var(--solid)); stroke-width: 6; stroke-linecap: round"></path>
+<path d="M18,50 L17,33 L30,43 Z M34,42 L45,32 L47,49 Z" style="fill: var(--cat, var(--solid)); stroke: var(--cat, var(--solid)); stroke-width: 3; stroke-linejoin: round"></path>
+<path d="M20.5,45 L20.5,38 L26,42 Z M38,42 L43,37 L44,44 Z" style="fill: #FF7A5C"></path>
+<ellipse cx="32" cy="57" rx="16.5" ry="14.5" style="fill: var(--cat, var(--solid))"></ellipse>
+<path d="M22,57 q3.6,-3.8 7.2,0 M34,57 q3.6,-3.8 7.2,0" style="fill: none; stroke: var(--sun); stroke-width: 1.8; stroke-linecap: round"></path>
+<path d="M30.4,61 h2.8 l-1.4,1.7 Z" style="fill: #FF7A5C"></path>
+</svg></div><strong>Stretching</strong><span class="sm" style="max-width: 15em">Just woken. For the first edition of the day.</span></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 36px">
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="0 0 100 114" role="img" aria-label="The black cat sitting, facing you" style="width: 110px; height: auto; display: block">
+<path d="M70,102 C92,106 96,82 84,74 C80,71 76,74 78,78" style="fill: none; stroke: var(--cat, var(--solid)); stroke-width: 7; stroke-linecap: round"></path>
+<path d="M28,108 C22,84 34,62 50,62 C66,62 78,84 72,108 Z" style="fill: var(--cat, var(--solid))"></path>
+<path d="M43,82 V102 M57,82 V102" style="fill: none; stroke: var(--ink2); stroke-width: 1.2; stroke-linecap: round"></path>
+<path d="M27,32 L27,6 L46,19 Z M54,19 L73,6 L73,32 Z" style="fill: var(--cat, var(--solid)); stroke: var(--cat, var(--solid)); stroke-width: 4; stroke-linejoin: round"></path>
+<path d="M31,25 L31,13 L40,19 Z M60,19 L69,13 L69,25 Z" style="fill: #FF7A5C"></path>
+<ellipse cx="50" cy="42" rx="27" ry="24" style="fill: var(--cat, var(--solid))"></ellipse>
+<circle cx="40.2" cy="43" r="7.6" style="fill: var(--sun)"></circle><circle cx="59.8" cy="43" r="7.6" style="fill: var(--sun)"></circle>
+<circle cx="40.2" cy="43" r="3.9" style="fill: var(--cat, var(--solid))"></circle><circle cx="59.8" cy="43" r="3.9" style="fill: var(--cat, var(--solid))"></circle>
+<circle cx="42.8" cy="40.2" r="1.8" style="fill: #FFFFFF"></circle><circle cx="62.4" cy="40.2" r="1.8" style="fill: #FFFFFF"></circle>
+<path d="M47.6,51 h4.8 l-2.4,2.8 Z" style="fill: #FF7A5C"></path>
+<path d="M50,53.8 q-2.6,3.4 -5.4,1.2 M50,53.8 q2.6,3.4 5.4,1.2" style="fill: none; stroke: var(--ink2); stroke-width: 1.2; stroke-linecap: round"></path>
+<path d="M29,50 L21,48.5 M29,53 L22,55.5 M71,50 L79,48.5 M71,53 L78,55.5" style="fill: none; stroke: var(--ink2); stroke-width: 1; stroke-linecap: round"></path>
+<ellipse cx="43" cy="107" rx="6.5" ry="4.5" style="fill: var(--cat, var(--solid)); stroke: var(--ink2); stroke-width: 1.2"></ellipse><ellipse cx="57" cy="107" rx="6.5" ry="4.5" style="fill: var(--cat, var(--solid)); stroke: var(--ink2); stroke-width: 1.2"></ellipse>
+</svg></div><strong>Sitting</strong><span class="sm" style="max-width: 15em">Facing the reader. For empty states and the desk sign-in.</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="0 0 104 114" role="img" aria-label="Delta sitting, seen from behind" style="width: 114px; height: auto; display: block">
+<path d="M62,104 C86,112 100,100 93,86" style="fill: none; stroke: var(--cat, var(--solid)); stroke-width: 7; stroke-linecap: round"></path>
+<path d="M28,108 C22,84 34,62 50,62 C66,62 78,84 72,108 Z" style="fill: var(--cat, var(--solid))"></path>
+<path d="M27,32 L27,6 L46,19 Z M54,19 L73,6 L73,32 Z" style="fill: var(--cat, var(--solid)); stroke: var(--cat, var(--solid)); stroke-width: 4; stroke-linejoin: round"></path>
+<ellipse cx="50" cy="42" rx="27" ry="24" style="fill: var(--cat, var(--solid))"></ellipse>
+<path d="M39,76 q5,-5 10,0 M51,76 q5,-5 10,0" style="fill: none; stroke: var(--ink2); stroke-width: 1.2; stroke-linecap: round"></path>
+<path d="M50,84 V100" style="fill: none; stroke: var(--ink2); stroke-width: 1.2; stroke-linecap: round"></path>
+</svg></div><strong>From behind</strong><span class="sm" style="max-width: 15em">Looking away, at the sea. For pages that end.</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="0 0 110 84" role="img" aria-label="Delta curled up asleep" style="width: 180px; height: auto; display: block">
+<ellipse cx="57" cy="48" rx="41" ry="29" style="fill: var(--cat, var(--solid))"></ellipse>
+<path d="M94,58 C90,78 52,80 30,72" style="fill: none; stroke: var(--cat, var(--solid)); stroke-width: 8; stroke-linecap: round"></path>
+<path d="M90,60 C84,71 58,73 42,69" style="fill: none; stroke: var(--ink2); stroke-width: 1.2; stroke-linecap: round"></path>
+<path d="M20,48 L19,31 L32,41 Z M36,40 L47,30 L49,47 Z" style="fill: var(--cat, var(--solid)); stroke: var(--cat, var(--solid)); stroke-width: 3; stroke-linejoin: round"></path>
+<path d="M22.5,43 L22.5,36 L28,40 Z M40,40 L45,35 L46,42 Z" style="fill: #FF7A5C"></path>
+<ellipse cx="34" cy="55" rx="17" ry="15" style="fill: var(--cat, var(--solid))"></ellipse>
+<path d="M24,56 q3.6,3.6 7.2,0 M36,56 q3.6,3.6 7.2,0" style="fill: none; stroke: var(--sun); stroke-width: 1.8; stroke-linecap: round"></path>
+<path d="M32.4,60 h2.8 l-1.4,1.7 Z" style="fill: #FF7A5C"></path>
+</svg></div><strong>Curled up</strong><span class="sm" style="max-width: 15em">Deep sleep. For the quiet front page and scheduled downtime.</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="0 0 100 64" role="img" aria-label="Delta peeking over an edge" style="width: 140px; height: auto; display: block">
+<path d="M27,30 L27,5 L46,18 Z M54,18 L73,5 L73,30 Z" style="fill: var(--cat, var(--solid)); stroke: var(--cat, var(--solid)); stroke-width: 4; stroke-linejoin: round"></path>
+<path d="M31,24 L31,12 L40,18 Z M60,18 L69,12 L69,24 Z" style="fill: #FF7A5C"></path>
+<ellipse cx="50" cy="40" rx="27" ry="24" style="fill: var(--cat, var(--solid))"></ellipse>
+<circle cx="40.2" cy="38" r="7.6" style="fill: var(--sun)"></circle><circle cx="59.8" cy="38" r="7.6" style="fill: var(--sun)"></circle>
+<circle cx="40.2" cy="38.6" r="3.9" style="fill: var(--cat, var(--solid))"></circle><circle cx="59.8" cy="38.6" r="3.9" style="fill: var(--cat, var(--solid))"></circle>
+<circle cx="42.8" cy="35.6" r="1.8" style="fill: #FFFFFF"></circle><circle cx="62.4" cy="35.6" r="1.8" style="fill: #FFFFFF"></circle>
+<rect x="0" y="50" width="100" height="14" style="fill: var(--paper)"></rect>
+<path d="M0,50 H100" style="stroke: var(--ink); stroke-width: 4"></path>
+<ellipse cx="28" cy="49" rx="7.5" ry="4.6" style="fill: var(--cat, var(--solid)); stroke: var(--ink2); stroke-width: 1.2"></ellipse><ellipse cx="72" cy="49" rx="7.5" ry="4.6" style="fill: var(--cat, var(--solid)); stroke: var(--ink2); stroke-width: 1.2"></ellipse>
+</svg></div><strong>Peeking</strong><span class="sm" style="max-width: 15em">Over any edge. For not found and for things still loading.</span></div>
+</div></div>
+<div style="border-top: 4px solid var(--ink); padding-top: 20px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; gap: 16px 48px; align-items: baseline; flex-wrap: wrap"><h2 class="sec" style="margin: 0">Breaker, the gull</h2><span class="sm" style="max-width: 44em">White, with an ink outline, a pale blue wing, a yellow beak with a red spot, dark wing tips and a pink cheek. Appears in the footer sky, beside the message in a bottle, in the emails and on the subscribe messages.</span></div>
+<div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 36px">
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="0 0 80 40" role="img" aria-label="The seabird far away, drawn as two arcs" style="width: 140px; height: auto; display: block"><path d="M12,26 q14,-16 28,0 q14,-16 28,0" style="fill: none; stroke: var(--gull-line, #14263B); stroke-width: 3.5; stroke-linecap: round"></path></svg></div><strong>Far away</strong><span class="sm" style="max-width: 15em">Two arcs. The form already used in the footer and above the bottle.</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="0 0 160 110" role="img" aria-label="The white seabird flying" style="width: 190px; height: auto; display: block">
+<path d="M76,56 C80,32 98,16 120,12 C112,32 104,48 100,62 Z" style="fill: var(--gull-wing, #9DB8E8); stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M120,12 C114,14 109,19 105,26 L117,22 Z" style="fill: var(--gull-line, #14263B)"></path>
+<path d="M120,64 L144,58 L140,76 Z" style="fill: var(--gull-line, #14263B); stroke: var(--gull-line, #14263B); stroke-width: 2; stroke-linejoin: round"></path>
+<path d="M29,58 C29,48 36,43 44,43 C52,43 57,47 59,53 C82,48 108,54 128,66 C104,84 60,86 42,72 C34,70 29,65 29,58 Z" style="fill: #FFFFFF; stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M64,60 C58,38 68,16 84,6 C90,28 92,46 90,64 Z" style="fill: #FFFFFF; stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M84,6 C79,10 75,17 72,25 L86,22 Z" style="fill: var(--gull-line, #14263B)"></path>
+<path d="M71,44 q7,3 14,0 M69,54 q9,3 18,0" style="fill: none; stroke: var(--gull-line, #14263B); stroke-width: 1.5; stroke-linecap: round"></path>
+<path d="M30,54 L16,59.5 L31,64 Z" style="fill: var(--sun); stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path><circle cx="22" cy="61" r="1.6" style="fill: var(--red)"></circle><circle cx="41" cy="54" r="3" style="fill: var(--gull-line, #14263B)"></circle><circle cx="42" cy="52.9" r="1.1" style="fill: #FFFFFF"></circle><circle cx="39" cy="63" r="3.2" style="fill: #FF7A5C; opacity: 0.5"></circle></svg></div><strong>Flying</strong><span class="sm" style="max-width: 15em">Arriving or leaving. Unsubscribed.</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="0 0 160 110" role="img" aria-label="Breaker flying with a letter in its beak" style="width: 190px; height: auto; display: block">
+<path d="M76,56 C80,32 98,16 120,12 C112,32 104,48 100,62 Z" style="fill: var(--gull-wing, #9DB8E8); stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M120,12 C114,14 109,19 105,26 L117,22 Z" style="fill: var(--gull-line, #14263B)"></path>
+<path d="M120,64 L144,58 L140,76 Z" style="fill: var(--gull-line, #14263B); stroke: var(--gull-line, #14263B); stroke-width: 2; stroke-linejoin: round"></path>
+<path d="M29,58 C29,48 36,43 44,43 C52,43 57,47 59,53 C82,48 108,54 128,66 C104,84 60,86 42,72 C34,70 29,65 29,58 Z" style="fill: #FFFFFF; stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M64,60 C58,38 68,16 84,6 C90,28 92,46 90,64 Z" style="fill: #FFFFFF; stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M84,6 C79,10 75,17 72,25 L86,22 Z" style="fill: var(--gull-line, #14263B)"></path>
+<path d="M71,44 q7,3 14,0 M69,54 q9,3 18,0" style="fill: none; stroke: var(--gull-line, #14263B); stroke-width: 1.5; stroke-linecap: round"></path>
+<path d="M30,54 L16,59.5 L31,64 Z" style="fill: var(--sun); stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path><circle cx="22" cy="61" r="1.6" style="fill: var(--red)"></circle><circle cx="41" cy="54" r="3" style="fill: var(--gull-line, #14263B)"></circle><circle cx="42" cy="52.9" r="1.1" style="fill: #FFFFFF"></circle><circle cx="39" cy="63" r="3.2" style="fill: #FF7A5C; opacity: 0.5"></circle><g transform="rotate(-8 14 70)"><rect x="2" y="62" width="24" height="16" style="fill: #FFFFFF; stroke: var(--gull-line, #14263B); stroke-width: 2"></rect><path d="M2,62 L14,72 L26,62" style="fill: none; stroke: var(--gull-line, #14263B); stroke-width: 2; stroke-linejoin: round"></path><circle cx="14" cy="73" r="2.6" style="fill: var(--red)"></circle></g></svg></div><strong>With a letter</strong><span class="sm" style="max-width: 15em">Delivering. For subscribe sent and both editions by email.</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="0 20 130 98" role="img" aria-label="The white seabird standing" style="width: 160px; height: auto; display: block"><path d="M58,90 V108 M72,90 V108" style="fill: none; stroke: var(--gull-line, #14263B); stroke-width: 6.5; stroke-linecap: butt"></path><path d="M58,106 L46,113 H63 Z M72,106 L60,113 H77 Z" style="fill: var(--sun); stroke: var(--gull-line, #14263B); stroke-width: 1.5; stroke-linejoin: round"></path><path d="M58,90 V109 M72,90 V109" style="fill: none; stroke: var(--sun); stroke-width: 4.5; stroke-linecap: butt"></path><path d="M100,72 L121,75 L104,87 Z" style="fill: var(--gull-line, #14263B); stroke: var(--gull-line, #14263B); stroke-width: 2; stroke-linejoin: round"></path>
+<path d="M24,44 C24,34 32,30 40,30 C50,30 55,38 55,46 C62,47 70,48 76,50 C94,55 105,66 111,76 C99,92 71,98 53,95 C39,92 31,86 30,74 C29,66 30,60 32,56 C27,54 24,50 24,44 Z" style="fill: #FFFFFF; stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M52,66 C66,58 86,64 100,78 C84,86 62,84 52,66 Z" style="fill: var(--gull-wing, #9DB8E8); stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M100,78 C96,74 91,71 86,69 L88,82 Z" style="fill: var(--gull-line, #14263B)"></path>
+<path d="M64,70 q7,5 14,3" style="fill: none; stroke: var(--gull-line, #14263B); stroke-width: 1.5; stroke-linecap: round"></path>
+<path d="M26,41 L12,46.5 L27,51 Z" style="fill: var(--sun); stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path><circle cx="18" cy="48" r="1.6" style="fill: var(--red)"></circle><circle cx="37" cy="41" r="3" style="fill: var(--gull-line, #14263B)"></circle><circle cx="38" cy="39.9" r="1.1" style="fill: #FFFFFF"></circle><circle cx="35" cy="50" r="3.2" style="fill: #FF7A5C; opacity: 0.5"></circle></svg></div><strong>Standing</strong><span class="sm" style="max-width: 15em">On a rock or the lighthouse rail.</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="0 20 130 92" role="img" aria-label="The white seabird floating on the water" style="width: 160px; height: auto; display: block"><path d="M100,72 L121,75 L104,87 Z" style="fill: var(--gull-line, #14263B); stroke: var(--gull-line, #14263B); stroke-width: 2; stroke-linejoin: round"></path>
+<path d="M24,44 C24,34 32,30 40,30 C50,30 55,38 55,46 C62,47 70,48 76,50 C94,55 105,66 111,76 C99,92 71,98 53,95 C39,92 31,86 30,74 C29,66 30,60 32,56 C27,54 24,50 24,44 Z" style="fill: #FFFFFF; stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M52,66 C66,58 86,64 100,78 C84,86 62,84 52,66 Z" style="fill: var(--gull-wing, #9DB8E8); stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M100,78 C96,74 91,71 86,69 L88,82 Z" style="fill: var(--gull-line, #14263B)"></path>
+<path d="M64,70 q7,5 14,3" style="fill: none; stroke: var(--gull-line, #14263B); stroke-width: 1.5; stroke-linecap: round"></path>
+<path d="M26,41 L12,46.5 L27,51 Z" style="fill: var(--sun); stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path><circle cx="18" cy="48" r="1.6" style="fill: var(--red)"></circle><circle cx="37" cy="41" r="3" style="fill: var(--gull-line, #14263B)"></circle><circle cx="38" cy="39.9" r="1.1" style="fill: #FFFFFF"></circle><circle cx="35" cy="50" r="3.2" style="fill: #FF7A5C; opacity: 0.5"></circle><path d="M-10,88 q10,-7 20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 V114 H-10 Z" style="fill: var(--blue)"></path></svg></div><strong>Floating</strong><span class="sm" style="max-width: 15em">Resting on the water beside the bottle.</span></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 36px">
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="0 4 100 114" role="img" aria-label="Breaker standing, seen from the front" style="width: 120px; height: auto; display: block"><path d="M42,92 V108 M58,92 V108" style="fill: none; stroke: var(--gull-line, #14263B); stroke-width: 6.5; stroke-linecap: butt"></path><path d="M42,106 L32,113 H50 Z M58,106 L50,113 H68 Z" style="fill: var(--sun); stroke: var(--gull-line, #14263B); stroke-width: 1.5; stroke-linejoin: round"></path><path d="M42,92 V109 M58,92 V109" style="fill: none; stroke: var(--sun); stroke-width: 4.5; stroke-linecap: butt"></path><path d="M50,12 C62,12 68,22 67,32 C80,40 86,56 84,72 C82,88 68,97 50,97 C32,97 18,88 16,72 C14,56 20,40 33,32 C32,22 38,12 50,12 Z" style="fill: #FFFFFF; stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M19,50 C9,60 10,80 24,90 C21,76 20,62 19,50 Z M81,50 C91,60 90,80 76,90 C79,76 80,62 81,50 Z" style="fill: var(--gull-wing, #9DB8E8); stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<circle cx="37" cy="35" r="3.2" style="fill: #FF7A5C; opacity: 0.5"></circle><circle cx="63" cy="35" r="3.2" style="fill: #FF7A5C; opacity: 0.5"></circle>
+<circle cx="42" cy="26" r="3" style="fill: var(--gull-line, #14263B)"></circle><circle cx="58" cy="26" r="3" style="fill: var(--gull-line, #14263B)"></circle><circle cx="43" cy="24.9" r="1.1" style="fill: #FFFFFF"></circle><circle cx="59" cy="24.9" r="1.1" style="fill: #FFFFFF"></circle>
+<path d="M50,29 L44.5,34 L50,41 L55.5,34 Z" style="fill: var(--sun); stroke: var(--gull-line, #14263B); stroke-width: 2.2; stroke-linejoin: round"></path><circle cx="50" cy="37" r="1.4" style="fill: var(--red)"></circle>
+</svg></div><strong>From the front</strong><span class="sm" style="max-width: 15em">Looking at the reader. For greetings and confirmations.</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="0 4 100 114" role="img" aria-label="Breaker standing, seen from behind" style="width: 120px; height: auto; display: block"><path d="M42,92 V108 M58,92 V108" style="fill: none; stroke: var(--gull-line, #14263B); stroke-width: 6.5; stroke-linecap: butt"></path><path d="M42,106 L32,113 H50 Z M58,106 L50,113 H68 Z" style="fill: var(--sun); stroke: var(--gull-line, #14263B); stroke-width: 1.5; stroke-linejoin: round"></path><path d="M42,92 V109 M58,92 V109" style="fill: none; stroke: var(--sun); stroke-width: 4.5; stroke-linecap: butt"></path><path d="M50,12 C62,12 68,22 67,32 C80,40 86,56 84,72 C82,88 68,97 50,97 C32,97 18,88 16,72 C14,56 20,40 33,32 C32,22 38,12 50,12 Z" style="fill: #FFFFFF; stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M44,95 L50,106 L56,95 Z" style="fill: var(--gull-line, #14263B); stroke: var(--gull-line, #14263B); stroke-width: 2; stroke-linejoin: round"></path>
+<path d="M22,48 C28,40 44,41 50,50 C50,66 46,82 41,93 C28,86 18,68 22,48 Z M78,48 C72,40 56,41 50,50 C50,66 54,82 59,93 C72,86 82,68 78,48 Z" style="fill: var(--gull-wing, #9DB8E8); stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M41,93 L43,81 L49,92 Z M59,93 L57,81 L51,92 Z" style="fill: var(--gull-line, #14263B)"></path>
+<path d="M32,62 q6,4 12,2 M56,64 q6,2 12,-2" style="fill: none; stroke: var(--gull-line, #14263B); stroke-width: 1.5; stroke-linecap: round"></path>
+</svg></div><strong>From behind</strong><span class="sm" style="max-width: 15em">Looking out to sea. For pages that end.</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="0 20 130 126" role="img" aria-label="Breaker perched on a post" style="width: 140px; height: auto; display: block"><path d="M58,90 V108 M72,90 V108" style="fill: none; stroke: var(--gull-line, #14263B); stroke-width: 6.5; stroke-linecap: butt"></path><path d="M58,106 L46,113 H63 Z M72,106 L60,113 H77 Z" style="fill: var(--sun); stroke: var(--gull-line, #14263B); stroke-width: 1.5; stroke-linejoin: round"></path><path d="M58,90 V109 M72,90 V109" style="fill: none; stroke: var(--sun); stroke-width: 4.5; stroke-linecap: butt"></path><path d="M100,72 L121,75 L104,87 Z" style="fill: var(--gull-line, #14263B); stroke: var(--gull-line, #14263B); stroke-width: 2; stroke-linejoin: round"></path>
+<path d="M24,44 C24,34 32,30 40,30 C50,30 55,38 55,46 C62,47 70,48 76,50 C94,55 105,66 111,76 C99,92 71,98 53,95 C39,92 31,86 30,74 C29,66 30,60 32,56 C27,54 24,50 24,44 Z" style="fill: #FFFFFF; stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M52,66 C66,58 86,64 100,78 C84,86 62,84 52,66 Z" style="fill: var(--gull-wing, #9DB8E8); stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M100,78 C96,74 91,71 86,69 L88,82 Z" style="fill: var(--gull-line, #14263B)"></path>
+<path d="M64,70 q7,5 14,3" style="fill: none; stroke: var(--gull-line, #14263B); stroke-width: 1.5; stroke-linecap: round"></path>
+<path d="M26,41 L12,46.5 L27,51 Z" style="fill: var(--sun); stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path><circle cx="18" cy="48" r="1.6" style="fill: var(--red)"></circle><circle cx="37" cy="41" r="3" style="fill: var(--gull-line, #14263B)"></circle><circle cx="38" cy="39.9" r="1.1" style="fill: #FFFFFF"></circle><circle cx="35" cy="50" r="3.2" style="fill: #FF7A5C; opacity: 0.5"></circle><rect x="46" y="114" width="38" height="34" style="fill: var(--ink2)"></rect><path d="M40,114 H90" style="stroke: var(--ink2); stroke-width: 5; stroke-linecap: round"></path></svg></div><strong>On a post</strong><span class="sm" style="max-width: 15em">Waiting. For sources that are late and for the next scan.</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: flex-end"><div style="height: 150px; display: flex; align-items: flex-end"><svg viewBox="-8 20 138 98" role="img" aria-label="Breaker calling, beak open" style="width: 170px; height: auto; display: block"><path d="M58,90 V108 M72,90 V108" style="fill: none; stroke: var(--gull-line, #14263B); stroke-width: 6.5; stroke-linecap: butt"></path><path d="M58,106 L46,113 H63 Z M72,106 L60,113 H77 Z" style="fill: var(--sun); stroke: var(--gull-line, #14263B); stroke-width: 1.5; stroke-linejoin: round"></path><path d="M58,90 V109 M72,90 V109" style="fill: none; stroke: var(--sun); stroke-width: 4.5; stroke-linecap: butt"></path><path d="M100,72 L121,75 L104,87 Z" style="fill: var(--gull-line, #14263B); stroke: var(--gull-line, #14263B); stroke-width: 2; stroke-linejoin: round"></path>
+<path d="M24,44 C24,34 32,30 40,30 C50,30 55,38 55,46 C62,47 70,48 76,50 C94,55 105,66 111,76 C99,92 71,98 53,95 C39,92 31,86 30,74 C29,66 30,60 32,56 C27,54 24,50 24,44 Z" style="fill: #FFFFFF; stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M52,66 C66,58 86,64 100,78 C84,86 62,84 52,66 Z" style="fill: var(--gull-wing, #9DB8E8); stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path>
+<path d="M100,78 C96,74 91,71 86,69 L88,82 Z" style="fill: var(--gull-line, #14263B)"></path>
+<path d="M64,70 q7,5 14,3" style="fill: none; stroke: var(--gull-line, #14263B); stroke-width: 1.5; stroke-linecap: round"></path>
+<path d="M26,40 L10,38 L27,45.5 Z" style="fill: var(--sun); stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path><path d="M27,47 L13,55 L28,51.5 Z" style="fill: var(--sun); stroke: var(--gull-line, #14263B); stroke-width: 2.5; stroke-linejoin: round"></path><path d="M4,34 L-2,31 M2,46 H-5 M5,58 L-1,61" style="fill: none; stroke: var(--gull-line, #14263B); stroke-width: 2; stroke-linecap: round"></path><circle cx="37" cy="41" r="3" style="fill: var(--gull-line, #14263B)"></circle><circle cx="38" cy="39.9" r="1.1" style="fill: #FFFFFF"></circle><circle cx="35" cy="50" r="3.2" style="fill: #FF7A5C; opacity: 0.5"></circle></svg></div><strong>Calling</strong><span class="sm" style="max-width: 15em">Beak open. For corrections and for errors that need attention.</span></div>
+</div></div>
+<p class="sm" style="margin: 0; max-width: 60em">Rules: one mascot per illustration. In copy, a name always comes with what it is: Delta the cat, Breaker the gull. Breaker keeps the same colours in both themes: pure white, a dark line, a pale blue wing. Delta is ink-dark on paper; on the dark theme it lightens to slate so it stays visible against the night background, and its eyes stay yellow. They do not wear clothes, speak or show text. All motion stops when reduced motion is on.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":1880}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

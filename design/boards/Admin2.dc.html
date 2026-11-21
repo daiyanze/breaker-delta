@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Desk · Breaker Delta</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&amp;family=Instrument+Sans:wght@400..700&amp;display=swap">
+<style>
+body{margin:0}
+.tp{--paper:#F2EFE4;--ink:#14263B;--ink2:#4A5868;--hair:#C9C6B8;--red:#C8351D;--blue:#1B55C0;--sky:#9DB8E8;--tint:#DCE6F5;--sun:#F4C535;--solid:#14263B;--onsun:#14263B;background:var(--paper);color:var(--ink);font-family:'Instrument Sans',system-ui,sans-serif;font-size:17px;line-height:1.55;font-variant-numeric:tabular-nums;overflow-x:hidden}
+.tp.dk{--paper:#0E1B2A;--ink:#EFE9D8;--ink2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--solid:#060E18}
+.lang{position:relative}
+.lang summary{list-style:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid var(--ink);cursor:pointer;font-weight:600;box-sizing:border-box}
+.lang summary::-webkit-details-marker{display:none}
+.lang .menu{position:absolute;right:0;top:calc(100% + 6px);z-index:5;background:var(--paper);border:1px solid var(--ink);min-width:170px;display:flex;flex-direction:column}
+.tp .lang .menu a{display:flex;align-items:center;min-height:44px;padding:0 16px;color:var(--ink);text-decoration:none}
+.tp .lang .menu a:hover{background:var(--tint)}
+.tp .lang .menu a[aria-current]{font-weight:700;box-shadow:inset 4px 0 0 var(--red)}
+.tp a{color:var(--blue);text-underline-offset:4px}
+.tp a:hover{color:var(--red)}
+.tp a.plain{color:var(--ink);text-decoration:none}
+.tp a.plain:hover{color:var(--blue)}
+.tp :focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.tp button,.tp input{font:inherit;color:inherit}
+.fr{font-family:'Fraunces',Georgia,serif}
+.wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+.nav{display:flex;flex-wrap:wrap}
+.tp .nav a{display:flex;align-items:center;min-height:48px;padding:0 16px;color:var(--ink);text-decoration:none;font-weight:500}
+.tp .nav a:hover{color:var(--blue)}
+.tp .nav a[aria-current]{font-weight:700;box-shadow:inset 0 -4px 0 var(--red)}
+.tp .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border:2px solid var(--ink);border-radius:0;background:transparent;color:var(--ink);font-size:17px;font-weight:600;text-decoration:none;cursor:pointer;box-sizing:border-box}
+.tp .btn:hover{background:var(--ink);color:var(--paper)}
+.sec{margin:0;font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:400;font-size:38px;line-height:1.08;letter-spacing:-0.02em}
+.sm{font-size:15px;color:var(--ink2)}
+.pip,.ring{width:11px;height:11px;border-radius:50%;box-sizing:border-box;flex:none;display:inline-block}
+.pip{background:var(--ink)}
+.ring{border:2px solid var(--ink)}
+.idx{display:flex;align-items:baseline;gap:10px;min-height:44px;padding:4px 0}
+.idx i{flex:1 1 20px;border-bottom:2px dotted var(--hair);transform:translateY(-4px)}
+.band{display:flex;gap:32px 72px;flex-wrap:wrap;align-items:flex-start;padding:72px 0;border-top:1px solid var(--ink)}
+.rail{flex:1 1 280px;max-width:340px;min-width:0;display:flex;flex-direction:column;gap:14px;position:sticky;top:24px}
+.list{flex:999 1 560px;min-width:0}
+.tp a.item{display:flex;gap:6px 28px;align-items:baseline;flex-wrap:wrap;padding:20px 0;border-bottom:1px solid var(--hair)}
+.tp a.item:first-child{padding-top:4px}
+.item .meta{flex:0 0 84px;font-weight:700}
+.item .hd{flex:1 1 320px;min-width:0;font-family:'Fraunces',Georgia,serif;font-size:26px;line-height:1.2;font-weight:600;text-wrap:pretty}
+.item .num{flex:0 0 160px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}
+.field{min-height:48px;padding:0 16px;border:2px solid var(--ink);background:var(--paper);box-sizing:border-box;flex:1 1 240px;font-size:17px}
+.tp a.hl{color:inherit;text-decoration:none}
+.tp a.hl:hover{color:inherit;text-decoration:underline;text-decoration-color:var(--red);text-decoration-thickness:.06em;text-underline-offset:.14em}
+.awning{height:22px;border:1.5px solid var(--ink);border-bottom:0;background:repeating-linear-gradient(90deg,var(--red) 0 24px,var(--paper) 24px 48px)}
+.scallop{height:13px;background:radial-gradient(circle at 12px 0,var(--red) 11.5px,transparent 12px) 0 0/48px 13px repeat-x,radial-gradient(circle at 36px 0,var(--hair) 11.5px,transparent 12px) 0 0/48px 13px repeat-x}
+.tp .ed{position:relative;flex:0 0 auto;width:78px;height:100px;padding:9px 9px 8px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;cursor:pointer;box-shadow:3px 3px 0 var(--hair);transition:transform .18s}
+.tp .ed:hover{transform:translateY(-5px);z-index:2}
+.tp .ed[aria-pressed="true"]{background:var(--sun);color:var(--onsun);border-color:var(--onsun);transform:translateY(-9px) rotate(-3deg);box-shadow:4px 6px 0 var(--ink);z-index:3}
+.ed b{display:block;height:5px;background:currentColor}
+.notice{flex:1 1 230px;min-width:0;border:1px solid var(--ink);outline:1px solid var(--ink);outline-offset:3px;padding:20px;display:flex;flex-direction:column;gap:10px;margin:4px}
+.ad{break-inside:avoid;margin:0 0 16px;padding:14px 16px;border:1px solid var(--ink);display:flex;flex-direction:column;gap:4px}
+.stub{flex:1 1 230px;min-width:0;border:2px dashed var(--ink);padding:20px;display:flex;flex-direction:column;gap:12px}
+.stamp{align-self:flex-start;border:3px solid var(--red);color:var(--red);font-weight:700;padding:2px 12px;transform:rotate(-5deg);border-radius:6px;transition:transform .2s}
+.stub:hover .stamp{transform:rotate(3deg) scale(1.06)}
+@keyframes stack{0%{opacity:0;transform:translateY(-40px)}7%{opacity:1;transform:translateY(0)}84%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(0)}}
+.slab{transform-box:fill-box;animation:stack 7s ease-out infinite both}
+@keyframes tail{0%,62%,100%{transform:rotate(0)}72%{transform:rotate(-13deg)}84%{transform:rotate(7deg)}}
+.tail{transform-box:view-box;transform-origin:118px 56px;animation:tail 7s ease-in-out infinite}
+@keyframes blink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(0.08)}}
+.eye{transform-box:fill-box;transform-origin:center;animation:blink 4.6s ease-in-out infinite}
+.cat{transition:transform .9s cubic-bezier(.5,0,.75,.35)}
+@keyframes rise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes sail{from{transform:translateX(-60px)}to{transform:translateX(1340px)}}
+@keyframes spin{to{transform:rotate(352deg)}}
+.crest{transform-box:fill-box;transform-origin:50% 100%;animation:rise 1.2s cubic-bezier(.2,.8,.2,1) both}
+.draw{stroke-dasharray:1;animation:draw 1.8s ease-out both}
+.sail{animation:sail 87.5s linear infinite}
+@keyframes rideY{0%,100%{transform:translateY(-3.5px)}50%{transform:translateY(3.5px)}}
+@keyframes rideR{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.rideY{animation:rideY 2.5s ease-in-out -1.875s infinite}
+.rideR{transform-box:fill-box;transform-origin:50% 100%;animation:rideR 2.5s ease-in-out infinite}
+.w4{animation:drift 30s linear infinite}
+@keyframes drift{to{transform:translateX(-240px)}}
+@keyframes sweep{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(6deg)}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(6px) rotate(2deg)}}
+.w1{animation:drift 22s linear infinite}
+.w2{animation:drift 13s linear infinite reverse}
+.w3{animation:drift 9s linear infinite}
+.beam{transform-box:view-box;transform-origin:1132px 92px;animation:sweep 7s ease-in-out infinite}
+.boat{transform-box:fill-box;transform-origin:center;animation:bob 4s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.w1,.w2,.w3,.w4,.beam,.boat,.sail,.crest,.draw,.slab,.rideY,.rideR,.tail,.eye{animation:none}.cat{transition:none}}
+</style>
+<style>
+.drop::first-letter{font-family:'Fraunces',Georgia,serif;font-weight:900;font-size:4.3em;line-height:0.78;float:left;padding:8px 12px 0 0;color:var(--red)}
+.clip{break-inside:avoid;margin:0 0 22px;padding:18px 20px;border:1px solid var(--ink);background:var(--paper);box-shadow:5px 5px 0 var(--hair);display:flex;flex-direction:column;gap:8px}
+.tp a.clip{color:var(--ink);text-decoration:none}
+.tp a.clip:hover{box-shadow:5px 5px 0 var(--red)}
+.clip:nth-child(odd){transform:rotate(-0.5deg)}
+.clip:nth-child(even){transform:rotate(0.6deg)}
+.seg{display:flex}
+.tp .seg button{min-height:44px;padding:0 16px;border:1px solid var(--ink);background:none;margin-left:-1px;cursor:pointer;font-weight:600}
+.tp .seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.led{flex:1 1 260px;min-width:0;padding:22px 24px;display:flex;flex-direction:column;gap:10px}
+.led li{padding:8px 0;border-top:1px solid var(--hair)}
+summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--blue)}
+</style>
+<style>
+.kd{display:inline-flex;align-items:center;align-self:flex-start;border:2px solid var(--ink);font-weight:700;font-size:15px;padding:1px 10px;white-space:nowrap}
+.kd.new{background:var(--red);border-color:var(--red);color:var(--paper)}
+.kd.sum{border-color:var(--ink2);color:var(--ink2)}
+.kd.fix{border-color:var(--red);color:var(--red)}
+.kd.flat{border-style:dashed;border-color:var(--ink2);color:var(--ink2)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.tp .chips a{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid var(--ink);color:var(--ink);text-decoration:none;font-weight:600;font-size:15px}
+.tp .chips a[aria-current]{background:var(--ink);color:var(--paper)}
+.crow{display:flex;gap:10px 28px;flex-wrap:wrap;align-items:flex-start;padding:20px 0;border-bottom:1px solid var(--hair)}
+.crow:first-child{padding-top:4px}
+.bar{height:12px;background:var(--hair)}
+.bar b{display:block;height:12px;background:var(--blue)}
+</style>
+<style>
+.fld{display:flex;gap:8px 32px;flex-wrap:wrap;align-items:center;padding:18px 0;border-bottom:1px solid var(--hair)}
+.fld>label,.fld>.lb{flex:0 0 240px;font-weight:700}
+.fld .ctl{flex:1 1 300px;min-width:0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.in{min-height:48px;padding:0 14px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);font:inherit;box-sizing:border-box;width:110px}
+select.in{width:auto}
+textarea.in{width:100%;max-width:620px;min-height:110px;padding:12px 14px}
+.tabs{display:flex;gap:0;flex-wrap:wrap;border-bottom:4px solid var(--ink)}
+.tp .tabs button{min-height:52px;padding:0 20px;border:0;background:none;cursor:pointer;font-weight:600;color:var(--ink2)}
+.tp .tabs button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.prov{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--ink)}
+.ck{display:inline-flex;gap:8px;align-items:center;min-height:44px}
+.ck input{width:20px;height:20px;accent-color:var(--ink)}
+.run{display:flex;gap:10px 24px;flex-wrap:wrap;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--hair)}
+.prov>*{min-height:44px;box-sizing:border-box}
+.prov .kd{align-self:center;display:inline-flex;align-items:center}
+.tp .prov .btn{min-height:44px;border-width:1px;font-size:15px}
+.bar2{background:var(--solid);color:#F2EFE4}
+.bar2 a,.bar2 summary{color:#F2EFE4}
+.bar2 .lang summary{border-color:#F2EFE4}
+</style>
+</helmet>
+<div class="{{ rootClass }}" lang="{{ lang }}" style="min-height: 2600px">
+
+<header class="bar2"><div class="wrap" style="min-height: 68px; display: flex; align-items: center; gap: 6px 24px; flex-wrap: wrap">
+<span class="fr" style="font-size: 30px; font-weight: 900; letter-spacing: -0.04em">Breaker Delta</span>
+<span class="fr" style="font-size: 22px; font-style: italic; margin-right: auto">{{ s.sub }}</span>
+<span style="font-size: 15px">{{ s.signed }}, {{ accessName }}</span>
+<details class="lang"><summary aria-label="{{ s.langLabel }}"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7" style="fill: none; stroke: currentColor; stroke-width: 1.8"></circle><path d="M2 9 H16 M9 2 C5.5 5.5 5.5 12.5 9 16 C12.5 12.5 12.5 5.5 9 2" style="fill: none; stroke: currentColor; stroke-width: 1.8"></path></svg>{{ langName }}</summary><div class="menu"><sc-for list="{{ langs }}" as="l" hint-placeholder-count="3"><button type="button" aria-pressed="{{ l.on }}" onClick="{{ l.pick }}" style="display: flex; align-items: center; min-height: 44px; padding: 0 16px; border: 0; background: none; color: var(--ink); cursor: pointer; text-align: left; font-weight: {{ l.fw }}">{{ l.label }}</button></sc-for></div></details>
+<a href="#" style="min-height: 44px; display: flex; align-items: center">{{ s.out }}</a>
+<a href="Front2.dc.html" style="min-height: 44px; display: flex; align-items: center">{{ s.back }}</a>
+</div></header>
+
+<main class="wrap" style="padding-top: 28px; padding-bottom: 72px; display: flex; flex-direction: column; gap: 28px">
+<div class="tabs" role="tablist" aria-label="Desk">
+<sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="5"><button type="button" role="tab" aria-selected="{{ tb.on }}" onClick="{{ tb.pick }}">{{ tb.label }}</button></sc-for>
+</div>
+
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ true }}">
+<section aria-label="Settings" style="display: flex; flex-direction: column; gap: 28px; max-width: 980px">
+<div style="display: flex; gap: 8px 24px; align-items: baseline; flex-wrap: wrap"><h1 class="sec" style="margin-right: auto">{{ s.setT }}</h1><span class="sm">{{ s.setN }}</span></div>
+<div style="border-top: 1px solid var(--ink)">
+<div class="fld"><label for="ac">{{ s.acL }}</label><div class="ctl"><select id="ac" class="in" value="{{ access }}" onChange="{{ setAccess }}"><option value="ac1">{{ s.ac1 }}</option><option value="ac2">{{ s.ac2 }}</option><option value="ac3">{{ s.ac3 }}</option><option value="ac4">{{ s.ac4 }}</option></select></div><span class="sm" style="flex-basis: 100%">{{ s.acH }}</span></div>
+<div class="fld"><label for="iv">{{ s.ivL }}</label><div class="ctl"><select id="iv" class="in"><option>{{ s.iv1 }}</option><option selected>{{ s.iv2 }}</option><option>{{ s.iv3 }}</option></select></div></div>
+<div class="fld"><label for="th">{{ s.thL }}</label><div class="ctl"><input id="th" class="in" type="number" value="2"><span>{{ s.thU }}</span></div></div>
+<div class="fld"><label for="hl">{{ s.hlL }}</label><div class="ctl"><input id="hl" class="in" type="number" value="48"><span>{{ s.hlU }}</span></div><span class="sm" style="flex-basis: 100%">{{ s.hlH }}</span></div>
+<div class="fld"><label for="cd">{{ s.cdL }}</label><div class="ctl"><input id="cd" class="in" type="number" value="7"><span>{{ s.cdU }}</span></div></div>
+<div class="fld"><label for="rs">{{ s.rsL }}</label><div class="ctl"><input id="rs" class="in" type="number" value="50"><span>{{ s.rsU }}</span></div><span class="sm" style="flex-basis: 100%">{{ s.rsH }}</span></div>
+<div class="fld"><label for="rw">{{ s.rwL }}</label><div class="ctl"><span>{{ s.rwA }}</span><input id="rw" class="in" type="number" value="5"><span>{{ s.rwU }}</span></div></div>
+<div class="fld"><label for="bg">{{ s.bgL }}</label><div class="ctl"><input id="bg" class="in" type="number" value="10"></div><span class="sm" style="flex-basis: 100%">{{ s.bgH }}</span></div>
+<div class="fld"><span class="lb" id="lg">{{ s.lgL }}</span><div class="ctl" role="group" aria-labelledby="lg"><label class="ck"><input type="checkbox" checked disabled>{{ s.lgE }}</label><label class="ck"><input type="checkbox" checked>中文</label><label class="ck"><input type="checkbox" checked>日本語</label></div></div>
+<div class="fld"><label for="rv">{{ s.rvL }}</label><div class="ctl"><input id="rv" class="in" type="number" value="14"><span>{{ s.rvU }}</span></div><span class="sm" style="flex-basis: 100%">{{ s.rvH }}</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<h2 class="fr" style="margin: 0; font-size: 26px; font-weight: 800">{{ s.pvT }}</h2>
+<p style="margin: 0; color: var(--ink2)">{{ s.pvN }}</p>
+<sc-for list="{{ provs }}" as="p" hint-placeholder-count="3">
+<div class="prov"><span class="fr" style="flex: 0 0 28px; font-size: 26px; font-weight: 900; display: flex; align-items: center">{{ p.n }}</span><span style="flex: 1 1 240px; min-width: 0; display: flex; gap: 4px 12px; align-items: center; flex-wrap: wrap"><strong>{{ p.name }}</strong><span class="sm">{{ p.model }}</span></span><span class="kd {{ p.cls }}">{{ p.state }}</span><button type="button" class="btn" aria-label="{{ p.upLabel }}">{{ s.up }}</button><button type="button" class="btn">{{ s.edit }}</button></div>
+</sc-for>
+<button type="button" class="btn" style="align-self: flex-start">{{ s.add }}</button>
+</div>
+<div style="display: flex; gap: 12px; flex-wrap: wrap; border-top: 4px solid var(--ink); padding-top: 22px"><button type="button" class="btn" style="background: var(--ink); color: var(--paper)">{{ s.save }}</button><button type="button" class="btn">{{ s.hist }}</button></div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
+<section aria-label="Verdicts" style="display: flex; flex-direction: column; gap: 24px; max-width: 980px">
+<div style="display: flex; gap: 8px 24px; align-items: baseline; flex-wrap: wrap"><h1 class="sec" style="margin-right: auto">{{ s.rvT }}</h1><span class="sm">{{ s.rvN }}</span></div>
+<article class="stub" style="flex: none; padding: 26px; gap: 16px">
+<div style="display: flex; gap: 8px 20px; align-items: baseline; flex-wrap: wrap"><h2 class="fr" style="margin: 0; font-size: 28px; font-weight: 800; margin-right: auto">{{ s.rvTopic }}</h2><span class="sm">{{ s.rvDue }}</span></div>
+<p class="fr" style="margin: 0; font-size: 26px; line-height: 1.25; font-style: italic">{{ s.rvTest }}</p>
+<div><strong>{{ s.evT }}</strong>
+<ul style="margin: 8px 0 0; padding-left: 22px; display: flex; flex-direction: column; gap: 4px"><li><a href="#">{{ s.ev1 }}</a></li><li><a href="#">{{ s.ev2 }}</a></li><li><a href="#">{{ s.ev3 }}</a></li></ul></div>
+<p style="margin: 0; background: var(--tint); padding: 14px 16px"><strong>{{ s.prT }}</strong> {{ s.prB }}</p>
+<div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center"><button type="button" class="btn" style="background: var(--ink); color: var(--paper)">{{ s.cf }}</button><label for="ov">{{ s.ovL }}</label><select id="ov" class="in"><option>{{ s.vP }}</option><option>{{ s.vM }}</option><option>{{ s.vU }}</option></select></div>
+<label for="why" style="font-weight: 700">{{ s.whyL }}</label>
+<textarea id="why" class="in"></textarea>
+</article>
+</section>
+</sc-if>
+
+<sc-if value="{{ isTopics }}" hint-placeholder-val="{{ false }}">
+<section aria-label="Topics" style="display: flex; flex-direction: column; gap: 22px; max-width: 980px">
+<h1 class="sec">{{ s.tpT }}</h1>
+<div class="fld" style="border-top: 1px solid var(--ink)"><label for="q">{{ s.tpF }}</label><div class="ctl"><input id="q" class="in" type="search" value="founder CEO" style="width: 100%; max-width: 420px"></div></div>
+<div style="border: 1px solid var(--ink); padding: 22px; display: flex; flex-direction: column; gap: 14px">
+<div><strong class="fr" style="font-size: 24px">{{ s.tpName }}</strong><br><span class="sm">{{ s.tpMeta }}</span></div>
+<div style="display: flex; gap: 10px; flex-wrap: wrap"><button type="button" class="btn">{{ s.tp1 }}</button><button type="button" class="btn">{{ s.tp2 }}</button><button type="button" class="btn">{{ s.tp3 }}</button><button type="button" class="btn">{{ s.tp4 }}</button></div>
+<p class="sm" style="margin: 0">{{ s.tpN }}</p>
+</div>
+<div><h2 class="fr" style="margin: 0 0 8px; font-size: 24px; font-weight: 800">{{ s.tpR }}</h2>
+<ul style="margin: 0; padding-left: 22px; color: var(--ink2); display: flex; flex-direction: column; gap: 4px"><li>{{ s.tpR1 }}</li><li>{{ s.tpR2 }}</li></ul></div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isFix }}" hint-placeholder-val="{{ false }}">
+<section aria-label="Corrections" style="display: flex; flex-direction: column; gap: 18px; max-width: 980px">
+<h1 class="sec">{{ s.fxT }}</h1>
+<div style="border-top: 1px solid var(--ink)">
+<div class="fld"><label for="sm">{{ s.fxS }}</label><div class="ctl"><select id="sm" class="in"><option>{{ s.fxSv }}</option></select></div></div>
+<div class="fld"><span class="lb" id="act">{{ s.fxA }}</span><div class="ctl" role="radiogroup" aria-labelledby="act"><label class="ck"><input type="radio" name="a" checked>{{ s.fxA1 }}</label><label class="ck"><input type="radio" name="a">{{ s.fxA2 }}</label></div></div>
+</div>
+<label for="note" style="font-weight: 700">{{ s.fxNL }}</label>
+<textarea id="note" class="in" value="{{ s.fxNv }}"></textarea>
+<p class="sm" style="margin: 0">{{ s.fxN }}</p>
+<div><button type="button" class="btn" style="background: var(--ink); color: var(--paper)">{{ s.fxB }}</button></div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isRuns }}" hint-placeholder-val="{{ false }}">
+<section aria-label="Scans" style="display: flex; flex-direction: column; gap: 14px; max-width: 980px">
+<div style="display: flex; gap: 8px 24px; align-items: baseline; flex-wrap: wrap"><h1 class="sec" style="margin-right: auto">{{ s.rnT }}</h1><button type="button" class="btn">{{ s.rnB }}</button></div>
+<div style="border-top: 1px solid var(--ink)">
+<div class="run"><strong class="fr" style="flex: 0 0 80px; font-size: 26px">14:00</strong><span class="kd " style="flex: 0 0 auto">{{ s.rnD }}</span><span style="flex: 1 1 320px">{{ s.rn1 }}</span></div>
+<div class="run"><strong class="fr" style="flex: 0 0 80px; font-size: 26px">13:00</strong><span class="kd " style="flex: 0 0 auto">{{ s.rnD }}</span><span style="flex: 1 1 320px">{{ s.rn2 }}</span></div>
+<div class="run"><strong class="fr" style="flex: 0 0 80px; font-size: 26px">12:00</strong><span class="kd sum" style="flex: 0 0 auto">{{ s.rnF }}</span><span style="flex: 1 1 320px">{{ s.rn3 }}</span></div>
+<div class="run"><strong class="fr" style="flex: 0 0 80px; font-size: 26px">11:00</strong><span class="kd fix" style="flex: 0 0 auto">{{ s.rnE }}</span><span style="flex: 1 1 320px">{{ s.rn4 }}</span></div>
+</div>
+</section>
+</sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":2600}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'settings', lang: 'en', access: 'ac3' }; }
+  renderVals() {
+    const S = {"en": {"sub": "the desk", "signed": "Signed in as [ACCOUNT]", "back": "Back to the site", "out": "Sign out", "langLabel": "Desk language", "setT": "Settings", "setN": "Saved settings apply from the next scan. Every change is kept in the history.", "acL": "Who can open the desk", "ac1": "Only this machine, no sign-in", "ac2": "A password", "ac3": "Cloudflare Access", "ac4": "A sign-in proxy (OIDC or a trusted header)", "acH": "Pick what fits where this instance runs. Nothing here is fixed: the official instance happens to use Cloudflare Access.", "ivL": "Scan every", "iv1": "30 minutes", "iv2": "60 minutes", "iv3": "3 hours", "thL": "A wave needs", "thU": "independent sources", "hlL": "Height halves every", "hlU": "hours", "hlH": "When no new echoes arrive.", "cdL": "Leaves the front page after", "cdU": "quiet days", "rsL": "“Rising fast” means up", "rsU": "% in 24 hours", "rsH": "Adds a line to the Changes page when a wave crosses it.", "rwL": "Rewrite a summary after", "rwA": "a new independent source, or", "rwU": "new echoes", "bgL": "Summaries per scan, at most", "bgH": "The rest wait for the next scan, tallest waves first. This caps model use.", "lgL": "Site languages", "lgE": "English, the reference", "rvL": "Check a wave after", "rvU": "days", "rvH": "Only for waves that form from now on. Tests already locked keep their date.", "pvT": "Who writes the summaries", "pvN": "Tried in this order. If one fails or is rate-limited, the next takes over.", "up": "Move up", "edit": "Edit", "add": "Add a provider", "pvS1": "Working", "pvS3": "Used 3 times this week", "pvM1": "Free tier", "pvM2": "Free models", "pvM3": "Pay as you go, the fallback", "save": "Save settings", "hist": "See the change history", "rvT": "2 verdicts wait for you", "rvN": "Until you confirm, the track record shows “Under review”. After 3 days you get a reminder email.", "rvTopic": "Security agency warns about an open-source AI hacking tool", "rvDue": "A wave since Nov 18, due Dec 2", "rvTest": "Another national security agency issues a similar warning.", "evT": "Outside evidence fetched by code (3)", "ev1": "E1, a second agency’s security advisory, Nov 28", "ev2": "E2, a third agency’s weekly report, Nov 29", "ev3": "E3, the attention curve, Nov 18 to Dec 2", "prT": "The model proposes: hit.", "prB": "E1 and E2 are similar warnings from two security agencies, which meets the test.", "cf": "Confirm hit", "ovL": "or overrule to", "vP": "Partial", "vM": "Miss", "vU": "Undecided", "whyL": "Why you overruled (required when you do)", "tpT": "Fix a topic", "tpF": "Find a topic", "tpName": "Chipmaker board ousts its founder CEO", "tpMeta": "31 echoes, 6 independent sources, slug chipmaker-board-founder-ceo", "tp1": "Merge into another topic", "tp2": "Split echoes out", "tp3": "Rename", "tp4": "Move one echo", "tpN": "Every action is written to the audit log and triggers a recount. The slug never changes. After a merge the old slug redirects.", "tpR": "Recent actions", "tpR1": "Nov 16: split one echo out of this topic into a new topic", "tpR2": "Nov 13: merged “Board moves to oust its founder” into this topic", "fxT": "Correct or retract a summary", "fxS": "Summary", "fxSv": "Six US banks go offline on the same afternoon, version 1", "fxA": "Action", "fxA1": "Correct: add a note under the summary", "fxA2": "Retract: stop showing the summary", "fxNL": "Note, shown publicly on the topic page", "fxNv": "The outage report count now reads “more than 500”. Version 1 said 5,000.", "fxN": "Publishing clears the cache at once and adds a line to the Changes page. Retracting never removes the 14-day test.", "fxB": "Publish the correction", "rnT": "Scans", "rnB": "Run a scan now", "rnD": "Done", "rnF": "Done, fallback used", "rnE": "One source failed", "rn1": "24 groups scanned, 64 new echoes, 1 new wave, 2 summaries written.", "rn2": "24 groups scanned, 21 new echoes, 1 summary written.", "rn3": "Provider 1 was rate-limited, so provider 3 wrote the summaries.", "rn4": "X key accounts did not answer. Recorded as a missed scan for that group.", "t1": "Settings", "t2": "Verdicts (2)", "t3": "Topics", "t4": "Corrections", "t5": "Scans"}, "zh": {"sub": "编辑台", "signed": "已登录：[ACCOUNT]", "back": "回到站点", "out": "退出登录", "langLabel": "编辑台语言", "setT": "设置", "setN": "保存后从下一次扫描起生效，每次修改都留有历史。", "acL": "谁能打开编辑台", "ac1": "仅本机，无需登录", "ac2": "密码", "ac3": "Cloudflare Access", "ac4": "登录代理（OIDC 或受信任的请求头）", "acH": "按这个实例部署的位置来选，没有哪一种是固定的；官方实例恰好用的是 Cloudflare Access。", "ivL": "扫描间隔", "iv1": "30 分钟", "iv2": "60 分钟", "iv3": "3 小时", "thL": "成浪需要", "thU": "个独立来源", "hlL": "浪高减半的时间", "hlU": "小时", "hlH": "在没有新回波的情况下。", "cdL": "退出头版的条件", "cdU": "天没有动静", "rsL": "「快速上升」的标准", "rsU": "%（24 小时内）", "rsH": "达到时在「最新变化」里记一条。", "rwL": "重写摘要的条件", "rwA": "新增独立来源，或新增", "rwU": "条回波", "bgL": "每次扫描最多写", "bgH": "超出的按浪高排队到下一次，用来封顶模型用量。", "lgL": "站点语言", "lgE": "English（权威版本）", "rvL": "复核等待", "rvU": "天", "rvH": "只影响以后成浪的话题；已锁定的标准和到期日不变。", "pvT": "谁来写摘要", "pvN": "按顺序尝试；前一个失败或被限流时，由下一个接手。", "up": "上移", "edit": "编辑", "add": "添加提供方", "pvS1": "可用", "pvS3": "本周用过 3 次", "pvM1": "免费额度", "pvM2": "免费模型", "pvM3": "按量计费，兜底", "save": "保存设置", "hist": "查看修改历史", "rvT": "2 条复核等你确认", "rvN": "确认前战绩页显示「复核中」；超过 3 天未确认会发提醒邮件。", "rvTopic": "安全机构就一款开源 AI 黑客工具发出警告", "rvDue": "11 月 18 日成浪，12 月 2 日到期", "rvTest": "另一国的安全机构发布同类警告。", "evT": "代码抓到的外部证据（3）", "ev1": "E1，第二家机构的安全通告，11 月 28 日", "ev2": "E2，第三家机构的周报，11 月 29 日", "ev3": "E3，热度曲线，11 月 18 日至 12 月 2 日", "prT": "模型提议：命中。", "prB": "E1 与 E2 是两家安全机构发布的同类警告，满足标准。", "cf": "确认命中", "ovL": "或改判为", "vP": "部分命中", "vM": "未命中", "vU": "无法判定", "whyL": "改判理由（改判时必填）", "tpT": "话题纠错", "tpF": "找话题", "tpName": "芯片公司董事会罢免创始人 CEO", "tpMeta": "31 条回波，6 个独立来源，slug：chipmaker-board-founder-ceo", "tp1": "合并到另一个话题", "tp2": "拆出部分回波", "tp3": "改名", "tp4": "改某条回波的归属", "tpN": "每次操作都写入审计记录并触发重算。slug 不变；合并后旧 slug 跳转到新话题。", "tpR": "最近的操作", "tpR1": "11 月 16 日：从本话题拆出一条回波，新建为独立话题", "tpR2": "11 月 13 日：把「董事会拟罢免创始人」合并到本话题", "fxT": "更正或撤回摘要", "fxS": "摘要", "fxSv": "美国六家银行同一个下午服务中断，第 1 版", "fxA": "操作", "fxA1": "更正：在摘要下追加说明", "fxA2": "撤回：不再展示这篇摘要", "fxNL": "说明（会公开显示在话题页）", "fxNv": "故障报告数改为「500 份以上」，第 1 版写的是 5,000 份。", "fxN": "发布后立即清除缓存，并在「最新变化」里记一条。撤回不会删除 14 天复核。", "fxB": "发布更正", "rnT": "扫描", "rnB": "立即扫描", "rnD": "完成", "rnF": "完成，用了兜底", "rnE": "一个来源失败", "rn1": "扫描 24 组，新回波 64 条，新成浪 1 个，写摘要 2 篇。", "rn2": "扫描 24 组，新回波 21 条，写摘要 1 篇。", "rn3": "第 1 个提供方被限流，摘要由第 3 个提供方撰写。", "rn4": "X 关键账号没有响应，已记为该组的一次漏扫。", "t1": "设置", "t2": "复核确认（2）", "t3": "话题", "t4": "更正", "t5": "扫描"}, "ja": {"sub": "デスク", "signed": "ログイン中：[ACCOUNT]", "back": "サイトに戻る", "out": "ログアウト", "langLabel": "デスクの表示言語", "setT": "設定", "setN": "保存した設定は次回のスキャンから有効になります。変更はすべて履歴に残ります。", "acL": "デスクを開ける人", "ac1": "このマシンのみ（ログイン不要）", "ac2": "パスワード", "ac3": "Cloudflare Access", "ac4": "認証プロキシ（OIDC または信頼済みヘッダー）", "acH": "このインスタンスの設置場所に合わせて選びます。固定の方式はなく、公式インスタンスがたまたま Cloudflare Access を使っているだけです。", "ivL": "スキャン間隔", "iv1": "30 分", "iv2": "60 分", "iv3": "3 時間", "thL": "波になる条件", "thU": "件の独立したソース", "hlL": "高さが半分になる時間", "hlU": "時間", "hlH": "新しいエコーが届かない場合。", "cdL": "一面から外れる条件", "cdU": "日間動きなし", "rsL": "「急上昇」の基準", "rsU": "%（24 時間以内）", "rsH": "超えると「変更」ページに 1 行追加されます。", "rwL": "要約を書き直す条件", "rwA": "新しい独立ソース、または", "rwU": "件の新しいエコー", "bgL": "1 回のスキャンで書く要約の上限", "bgH": "残りは次回に回し、高い波から順に処理します。モデルの利用量を抑えるためです。", "lgL": "サイトの言語", "lgE": "English（基準）", "rvL": "検証までの日数", "rvU": "日", "rvH": "今後できる波にのみ適用されます。確定済みのテストの期日は変わりません。", "pvT": "要約を書くモデル", "pvN": "この順に試します。失敗またはレート制限の場合は次に切り替わります。", "up": "上へ", "edit": "編集", "add": "プロバイダーを追加", "pvS1": "稼働中", "pvS3": "今週 3 回使用", "pvM1": "無料枠", "pvM2": "無料モデル", "pvM3": "従量課金（予備）", "save": "設定を保存", "hist": "変更履歴を見る", "rvT": "確認待ちの検証が 2 件あります", "rvN": "確認するまで成績ページには「検証中」と表示されます。3 日を過ぎるとリマインドのメールが届きます。", "rvTopic": "セキュリティ機関がオープンソースの AI ハッキングツールに警告", "rvDue": "11 月 18 日から波、期日は 12 月 2 日", "rvTest": "別の国のセキュリティ機関が同様の警告を出す。", "evT": "コードが取得した外部の証拠（3）", "ev1": "E1：2 つ目の機関のセキュリティ勧告、11 月 28 日", "ev2": "E2：3 つ目の機関の週報、11 月 29 日", "ev3": "E3：注目度の推移、11 月 18 日〜12 月 2 日", "prT": "モデルの提案：的中。", "prB": "E1 と E2 は 2 つのセキュリティ機関による同様の警告で、テストを満たします。", "cf": "的中で確定", "ovL": "または次に変更", "vP": "部分的中", "vM": "外れ", "vU": "判定不能", "whyL": "変更の理由（変更する場合は必須）", "tpT": "トピックを修正", "tpF": "トピックを探す", "tpName": "半導体メーカーの取締役会が創業者 CEO を解任", "tpMeta": "エコー 31 件、独立ソース 6 件、slug：chipmaker-board-founder-ceo", "tp1": "別のトピックに統合", "tp2": "エコーを切り出す", "tp3": "名前を変更", "tp4": "エコーを 1 件移動", "tpN": "操作はすべて監査ログに記録され、再集計が行われます。slug は変わりません。統合後、古い slug は転送されます。", "tpR": "最近の操作", "tpR1": "11 月 16 日：このトピックからエコー 1 件を切り出し、新しいトピックを作成", "tpR2": "11 月 13 日：「取締役会が創業者の解任へ」をこのトピックに統合", "fxT": "要約の訂正・取り下げ", "fxS": "要約", "fxSv": "米国の 6 銀行が同じ午後にオフライン、第 1 版", "fxA": "操作", "fxA1": "訂正：要約の下に注記を追加", "fxA2": "取り下げ：要約を非表示にする", "fxNL": "注記（トピックページで公開されます）", "fxNv": "障害報告の件数を「500 件以上」に訂正。第 1 版では 5,000 件としていました。", "fxN": "公開するとすぐにキャッシュを消去し、「変更」ページに 1 行追加します。取り下げても 14 日後の検証は消えません。", "fxB": "訂正を公開", "rnT": "スキャン", "rnB": "今すぐスキャン", "rnD": "完了", "rnF": "完了（予備を使用）", "rnE": "ソース 1 件が失敗", "rn1": "24 グループをスキャン、新しいエコー 64 件、新しい波 1 件、要約 2 本。", "rn2": "24 グループをスキャン、新しいエコー 21 件、要約 1 本。", "rn3": "プロバイダー 1 がレート制限を受けたため、プロバイダー 3 が要約を書きました。", "rn4": "X の主要アカウントが応答しませんでした。そのグループのスキャン漏れとして記録しました。", "t1": "設定", "t2": "検証（2）", "t3": "トピック", "t4": "訂正", "t5": "スキャン"}};
+    const st = this.state, t = st.tab, s = S[st.lang];
+    const defs = [['settings', s.t1], ['review', s.t2], ['topics', s.t3], ['fix', s.t4], ['runs', s.t5]];
+    const PV = [['Hosted API A', s.pvM1, s.pvS1, ''], ['Router B', s.pvM2, s.pvS1, ''], ['Hosted API C', s.pvM3, s.pvS3, 'sum']];
+    const LN = { en: 'English', zh: '中文', ja: '日本語' };
+    return {
+      s: s, lang: st.lang, langName: LN[st.lang],
+      rootClass: (this.props.dark ?? false) ? 'tp dk' : 'tp',
+      langs: ['en', 'zh', 'ja'].map((l) => ({ label: LN[l], on: st.lang === l, fw: st.lang === l ? 700 : 400, pick: () => this.setState({ lang: l }) })),
+      access: st.access, accessName: s[st.access], setAccess: (e) => this.setState({ access: e.target.value }),
+      tabs: defs.map((d) => ({ label: d[1], on: t === d[0], pick: () => this.setState({ tab: d[0] }) })),
+      isSettings: t === 'settings', isReview: t === 'review', isTopics: t === 'topics', isFix: t === 'fix', isRuns: t === 'runs',
+      provs: PV.map((p, i) => ({ n: i + 1, name: p[0], model: p[1], state: p[2], cls: p[3], upLabel: s.up + ': ' + p[0] }))
+    };
+  }
+}
+</script>
+</body>
+</html>
