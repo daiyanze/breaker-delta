@@ -2,7 +2,7 @@
  * Dependency-direction check. Fails CI when a package imports something its
  * role forbids. Rules mirror CLAUDE.md "Architecture map".
  */
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 
 interface Rule {
@@ -114,7 +114,10 @@ function runtimeImports(file: string): string[] {
   for (const match of readFileSync(file, "utf8").matchAll(IMPORT)) {
     const spec = match[1] ?? match[2];
     if (!spec?.startsWith(".") || /^(import|export)\s+type\s/.test(match[0])) continue;
-    out.push(resolve(dirname(file), spec));
+    const target = resolve(dirname(file), spec);
+    // Bundler resolution also accepts "./index", "." and "./dir".
+    const candidates = [target, `${target}.ts`, join(target, "index.ts")];
+    out.push(candidates.find((c) => /\.tsx?$/.test(c) && existsSync(c)) ?? target);
   }
   return out;
 }

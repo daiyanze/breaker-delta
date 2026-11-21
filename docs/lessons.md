@@ -54,13 +54,14 @@ Each rule applies only within its scope.
 - **Scope:** Markdown docs, especially `CLAUDE.md` and ADRs.
 - **Evidence:** fixed in #175.
 
-## L1 Never import your own package entry
+## L1 A module and its package entry never import each other
 
 - **Date:** 2026-11-21. **Status:** active.
 - **What happened:** In #167, `packages/contracts/src/read.ts` imported from
   `index.ts` while `index.ts` re-exported `read.ts`. The ES module cycle
   would have read `LanguageSchema` before it was defined.
-- **Rule:** A module never imports its own package's `index.ts`. Shared
-  definitions live in their own module that both sides import.
+- **Rule:** A module that the package entry reaches at run time never
+  imports the entry back. Shared definitions live in their own module that
+  both sides import. Tests and `import type` may import the entry.
 - **Scope:** `packages/*/src` and `apps/*/src`.
 - **Check:** `selfImports` in `scripts/check-deps.ts` enforces it.

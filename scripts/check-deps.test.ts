@@ -19,15 +19,21 @@ describe("check-deps", () => {
   });
 
   test("a module and its package entry may not import each other (lesson L1)", () => {
-    file("packages/x/src/index.ts", 'export * from "./a.ts";\nexport * from "./deep/c.ts";');
     file("packages/x/src/a.ts", 'import { b } from "./index.ts";');
     file("packages/x/src/deep/c.ts", 'import { b } from "../index.ts";');
+    // Extensionless forms resolve the same under bundler resolution.
+    const entry = ["./a.ts", "./deep/c.ts", "./d", "./e.ts"].map((m) => `export * from "${m}";`);
+    file("packages/x/src/index.ts", entry.join("\n"));
+    file("packages/x/src/d.ts", 'import { b } from "./index";');
+    file("packages/x/src/e.ts", 'import { b } from ".";');
     // Not cycles: a test the entry never imports, and a type-only import.
     file("packages/x/src/a.test.ts", 'import { b } from "./index.ts";');
     file("packages/x/src/types.ts", 'import type { B } from "./index.ts";');
     const found = selfImports(root).join("\n");
     expect(found).toContain("x/src/a.ts and its package entry import each other");
     expect(found).toContain("x/src/deep/c.ts and its package entry import each other");
+    expect(found).toContain("x/src/d.ts and its package entry import each other");
+    expect(found).toContain("x/src/e.ts and its package entry import each other");
     expect(found).not.toContain("a.test.ts");
     expect(found).not.toContain("types.ts");
   });
