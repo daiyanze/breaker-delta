@@ -27,8 +27,8 @@ import {
 } from "@bd/contracts";
 import { FIXTURE_SET_NAMES, type FixtureSetName, RAW_SETS } from "./sets.ts";
 
-export { FIXTURE_SET_NAMES, RAW_SETS };
 export type { FixtureSetName };
+export { FIXTURE_SET_NAMES, RAW_SETS };
 
 /** The set used when none is named: a busy day in three languages. */
 export const DEFAULT_FIXTURE_SET: FixtureSetName = "busy";
