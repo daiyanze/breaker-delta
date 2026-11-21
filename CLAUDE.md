@@ -7,7 +7,9 @@ true. If code and this file disagree, fix one of them in the same PR.
 
 Breaker Delta collects echoes from many sources, groups them into topics, and
 flags a topic as a wave when enough independent sources agree. It runs
-continuously (default hourly). There are no editions and no tiers.
+continuously (default hourly). The data model has no editions and no tiers.
+The UI calls one run an "edition"; that is a display name for a run's time
+slot read back from `wave_points`, not a stored concept (ADR 0015).
 
 | Concept | Meaning | Decided by |
 | --- | --- | --- |
@@ -15,7 +17,7 @@ continuously (default hourly). There are no editions and no tiers.
 | Topic | A set of echoes about the same thing | model proposes, code validates |
 | Wave | A topic whose echoes come from >= threshold independent sources | code |
 | Wave height | Score from echo count, sources, heat, freshness; decays | code |
-| Change | Event record: wave formed, rising, summary updated, corrected... | code |
+| Change | Event record, seven types: wave formed, rising, summary updated, corrected, withdrawn, verdict, went flat (ADR 0014) | code |
 
 ## Commands
 
@@ -36,10 +38,16 @@ bun run local        # run locally, no cloud account
 - `packages/db` - schema + migrations. Same schema for D1 and local SQLite.
 - `packages/judge` - provider chain over OpenAI-compatible HTTP. No tools.
 - `apps/pipeline` - the only writer. Ticker -> RunWorkflow -> steps.
-- `apps/web` - read-only site and API. Never writes, never sees subscribers.
+- `apps/web` - read-only site and API. Never writes, never binds the private
+  database. Share cards and the desk's mail and subscriber actions are done by
+  `apps/pipeline` over the service binding (ADR 0009, 0010).
 - `apps/local` - launcher and model bridge for local mode.
 
 Dependency direction is enforced by `scripts/check-deps.ts`.
+
+UI components are built from the Tide Paper design system. No third-party
+component library. There is no separate landing page: `/` is the front page
+(ADR 0015).
 
 ## Invariants (do not change without the owner's explicit approval)
 
@@ -55,11 +63,14 @@ Dependency direction is enforced by `scripts/check-deps.ts`.
    versions, corrections and withdrawals are new rows.
 5. **Review criteria are immutable.** A prediction is registered once, in the
    same transaction that records the wave forming, with a hash of its text.
+   A confirmed verdict is never edited in place; a revision is a new record
+   (ADR 0013).
 6. **Fetched content is data, not instructions.** It only enters tool-less
    model calls. It must never reach a session that can write code.
 7. **Single writer.** Only `apps/pipeline` writes the content database.
-8. **No cloud-only service on the required path.** Email, access protection
-   and hosted models are optional so local mode keeps working.
+8. **No cloud-only service on the required path.** Email, desk sign-in and
+   hosted models are configured, never hard-wired to one cloud service, so
+   local mode keeps working (ADR 0011, 0012).
 9. **Behavior comes from settings, not constants.** Thresholds, intervals and
    budgets live in the `settings` table with defaults in `@bd/contracts`.
 

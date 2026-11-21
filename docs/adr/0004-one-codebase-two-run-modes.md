@@ -17,7 +17,8 @@ to maintain and test.
 ## Constraint this adds
 
 No cloud-only service on the required path. Email, access protection and
-hosted models are optional features.
+hosted models are optional features. How the desk is protected is decided in
+0011; how mail is delivered in 0012.
 
 ## Fallback
 
