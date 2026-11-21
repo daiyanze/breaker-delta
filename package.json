@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "check": "bun run typecheck && bun run lint && bun run test && bun run check:deps",
-    "typecheck": "bun --filter '*' typecheck",
+    "typecheck": "bun --filter '*' typecheck && tsc --noEmit -p scripts",
     "lint": "biome check .",
     "format": "biome check --write .",
     "test": "bun test",
@@ -18,11 +18,11 @@
     "build:local": "bun build apps/local/start.ts --compile --outfile dist/breaker-delta"
   },
   "devDependencies": {
-    "@biomejs/biome": "latest",
-    "@cloudflare/workers-types": "latest",
-    "@types/bun": "latest",
-    "miniflare": "latest",
-    "typescript": "latest",
-    "wrangler": "latest"
+    "@biomejs/biome": "2.6.8",
+    "@cloudflare/workers-types": "^5.20261118.1",
+    "@types/bun": "^1.4.4",
+    "miniflare": "5.20261117.0-beta",
+    "typescript": "7.0.2",
+    "wrangler": "^4.164.0"
   }
 }
