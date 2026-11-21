@@ -1,6 +1,6 @@
 # 0004 One codebase, two run modes
 
-Date: 2026-11-18. Status: accepted, pending spike 1 in `docs/spikes/m0.md`.
+Date: 2026-11-18. Status: superseded by 0018 on 2026-11-21.
 
 ## Decision
 
@@ -24,3 +24,10 @@ hosted models are optional features. How the desk is protected is decided in
 
 If spike 1 fails, extract runtime interfaces and add a native Bun
 implementation. That costs a second implementation and more time.
+
+## Spike 1 result (2026-11-21)
+
+The Workers runtime does run locally through wrangler, with no account and no
+network, on Linux, macOS and Windows (`docs/spikes/m0.md`). The approach is
+still dropped: it makes Cloudflare's toolchain a requirement of local mode.
+0018 replaces it with a native Bun runtime and a Cloudflare adapter.

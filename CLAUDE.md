@@ -40,7 +40,9 @@ bun run local        # run locally, no cloud account
 - `packages/fixtures` - fixture data and query layer behind the read
   contracts, plus the contract checks every query layer passes (ADR 0017).
 - `packages/judge` - provider chain over OpenAI-compatible HTTP. No tools.
-- `apps/pipeline` - the only writer. Ticker -> RunWorkflow -> steps.
+- `apps/pipeline` - the only writer. Ticker -> step runner -> steps. Runs on
+  Bun; Cloudflare is an adapter (ADR 0018). M0 still uses `RunWorkflow` until
+  the step runner lands.
 - `apps/web` - read-only site and API. Never writes, never binds the private
   database. Share cards and the desk's mail and subscriber actions are done by
   `apps/pipeline` over the service binding (ADR 0009, 0010).
