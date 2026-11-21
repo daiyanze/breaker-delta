@@ -4,6 +4,9 @@ name: claude-implement
 # Claude implements an issue and opens a PR only when the OWNER asks, by
 # adding the `claude` label or by commenting `@claude` on an issue.
 # Text from anyone else never starts this job.
+#
+# OFF by default (ADR 0016: development runs on a local agent). To turn it on,
+# add a model secret and set the repository variable CLAUDE_IMPLEMENT to `on`.
 
 on:
   issues:
@@ -23,6 +26,7 @@ concurrency:
 jobs:
   implement:
     if: >-
+      vars.CLAUDE_IMPLEMENT == 'on' &&
       github.actor == 'daiyanze' &&
       github.event.sender.login == 'daiyanze' &&
       github.event.issue.pull_request == null &&

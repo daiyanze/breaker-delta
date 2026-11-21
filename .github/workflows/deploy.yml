@@ -1,15 +1,16 @@
 name: deploy
 
-# Deploys run only after merge to main, in the protected `production`
+# Deploys run only after merge to develop (the default branch), in the protected `production`
 # environment (set required reviewers on it in repository settings).
 # Claude jobs never have access to this environment's secrets.
 #
-# DISABLED until M1: remove the `if: false` lines once the D1 database and
-# R2 bucket exist and wrangler.jsonc has the real database_id.
+# DISABLED until the Cloudflare resources exist (M0-09): remove the `if: false`
+# line once the D1 database and R2 bucket exist, wrangler.jsonc has the real
+# database_id, and the `production` environment holds the two secrets below.
 
 on:
   push:
-    branches: [main]
+    branches: [develop]
 
 permissions:
   contents: read
