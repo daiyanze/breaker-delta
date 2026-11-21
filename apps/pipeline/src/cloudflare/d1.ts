@@ -7,6 +7,9 @@ export function d1Database(d1: D1Database): Database {
     async all<T>(sql: string, ...params: SqlValue[]) {
       return (await statement(sql, params).all<T>()).results;
     },
+    async values(sql: string, ...params: SqlValue[]) {
+      return statement(sql, params).raw<SqlValue[]>();
+    },
     async first<T>(sql: string, ...params: SqlValue[]) {
       return (await statement(sql, params).first<T>()) ?? null;
     },

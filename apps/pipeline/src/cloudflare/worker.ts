@@ -4,6 +4,7 @@
  * `RunWorkflow` is interim and goes when the step runner lands (#171).
  */
 import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep } from "cloudflare:workers";
+import { drizzleOver } from "@bd/db";
 import type { RunExecutor } from "@bd/ports";
 import { createPipeline, type Pipeline, pipelineConfig } from "../core/app.ts";
 import { closeRun, openRun } from "../core/runs.ts";
@@ -25,7 +26,7 @@ interface RunParams {
 export class RunWorkflow extends WorkflowEntrypoint<Env, RunParams> {
   override async run(event: WorkflowEvent<RunParams>, step: WorkflowStep) {
     const { slot } = event.payload;
-    const db = d1Database(this.env.DB);
+    const db = drizzleOver(d1Database(this.env.DB));
     await step.do("open", () => openRun(db, slot, Date.now()));
     // M1: scan -> ingest -> assign -> compute -> select -> enrich -> summarize
     //     -> validate -> commit -> publish, on the step runner (#171).

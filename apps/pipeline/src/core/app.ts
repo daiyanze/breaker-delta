@@ -9,6 +9,7 @@
  * here is a compile error. `scripts/check-deps.ts` rejects the imports.
  */
 import { slotId } from "@bd/core";
+import { drizzleOver } from "@bd/db";
 import type { Clock, Database, RunExecutor } from "@bd/ports";
 import { probeAll } from "../sources/probe.ts";
 import { PROBE_TARGETS } from "../sources/probe-targets.ts";
@@ -52,11 +53,12 @@ export interface Pipeline {
 }
 
 export function createPipeline(ports: PipelinePorts, config: PipelineConfig): Pipeline {
+  const db = drizzleOver(ports.db);
   const notFound = () => new Response("not found", { status: 404 });
 
   async function tick(): Promise<TickResult> {
     const slot = slotId(ports.clock.now(), config.runIntervalMinutes);
-    if (await findRun(ports.db, slot)) return { slot, started: false, reason: "slot already ran" };
+    if (await findRun(db, slot)) return { slot, started: false, reason: "slot already ran" };
     try {
       // The executor rejects a slot that has already started, so two ticks
       // racing past the check above still start one run.
@@ -75,7 +77,7 @@ export function createPipeline(ports: PipelinePorts, config: PipelineConfig): Pi
   async function handle(request: Request): Promise<Response> {
     const { pathname } = new URL(request.url);
     if (pathname === "/health") {
-      return Response.json({ ok: true, lastRun: await lastRun(ports.db) });
+      return Response.json({ ok: true, lastRun: await lastRun(db) });
     }
     if (pathname === "/__probe" || pathname === "/__tick") {
       if (!authorized(request)) return notFound();

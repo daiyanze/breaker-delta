@@ -12,9 +12,12 @@
  * | Clock       | Date.now           | Date.now              |
  * | RunExecutor | step runner (#171) | step runner (#171)    |
  *
- * There is no Schedule port: the core exports `tick()` and each adapter
- * decides when to call it (an in-process timer locally, a cron trigger on
- * Cloudflare). The core never asks to be woken up.
+ * Scheduling is the adapter's job, not a port: the core exports `tick()`
+ * and each adapter decides when to call it (an in-process timer locally, a
+ * cron trigger on Cloudflare). The core never asks to be woken up.
+ *
+ * The core reads and writes through `drizzleOver(db)` from `@bd/db`, which
+ * puts the drizzle schema and query builder on top of this small port.
  *
  * Types only. No runtime code, no imports.
  */
@@ -37,6 +40,12 @@ export interface Statement {
 export interface Database {
   /** Every row the statement returns, in order. */
   all<T = Row>(sql: string, ...params: SqlValue[]): Promise<T[]>;
+  /**
+   * Every row as an array of column values, in select order. Query builders
+   * use this (drizzle's sqlite-proxy driver, see `@bd/db`), because column
+   * names can repeat across joined tables while positions cannot.
+   */
+  values(sql: string, ...params: SqlValue[]): Promise<SqlValue[][]>;
   /** The first row, or null when there is none. */
   first<T = Row>(sql: string, ...params: SqlValue[]): Promise<T | null>;
   /** A statement that returns no rows. `changes` is the number of rows written. */

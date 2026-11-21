@@ -37,6 +37,16 @@ describe("check-deps", () => {
     expect(found).toContain('cloudflare/e.ts imports "bun:sqlite"');
   });
 
+  test("cores may use drizzle's proxy driver but not a native one", () => {
+    file("apps/pipeline/src/core/g.ts", 'import { drizzle } from "drizzle-orm/d1";');
+    file("packages/db/src/h.ts", 'import { drizzle } from "drizzle-orm/bun-sqlite";');
+    file("packages/db/src/ok.ts", 'import { drizzle } from "drizzle-orm/sqlite-proxy";');
+    const found = violations(root, RULES).join("\n");
+    expect(found).toContain('core/g.ts imports "drizzle-orm/d1"');
+    expect(found).toContain('db/src/h.ts imports "drizzle-orm/bun-sqlite"');
+    expect(found).not.toContain("db/src/ok.ts");
+  });
+
   test("ports have no imports at all", () => {
     file("packages/ports/src/f.ts", 'import { z } from "zod";');
     expect(violations(root, RULES).join("\n")).toContain('ports/src/f.ts imports "zod"');

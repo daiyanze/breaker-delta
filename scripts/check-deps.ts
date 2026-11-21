@@ -13,6 +13,8 @@ interface Rule {
 }
 
 const PORTS = /^@bd\/ports(\/conformance)?$/;
+/** Drizzle core and its proxy driver only: native drivers would bind one runtime. */
+const DRIZZLE = /^drizzle-orm(\/sqlite-core|\/sqlite-proxy)?$/;
 
 export const RULES: Rule[] = [
   { dir: "packages/contracts/src", allow: [/^zod$/], why: "contracts hold schemas only" },
@@ -34,13 +36,13 @@ export const RULES: Rule[] = [
   },
   {
     dir: "packages/db/src",
-    allow: [/^@bd\/contracts$/, /^drizzle-orm(\/.*)?$/, /^bun:test$/],
-    why: "db holds schema and queries",
+    allow: [/^@bd\/contracts$/, PORTS, DRIZZLE, /^bun:test$/],
+    why: "db holds schema and queries, on the Database port",
   },
   // ADR 0018: app cores run on any runtime, so no `cloudflare:*` and no Bun APIs.
   {
     dir: "apps/pipeline/src/core",
-    allow: [/^@bd\/(contracts|core|db|judge)$/, PORTS, /^bun:test$/],
+    allow: [/^@bd\/(contracts|core|db|judge)$/, PORTS, DRIZZLE, /^bun:test$/],
     why: "the pipeline core depends on ports only (ADR 0018)",
   },
   {
@@ -50,7 +52,7 @@ export const RULES: Rule[] = [
   },
   {
     dir: "apps/pipeline/src/cloudflare",
-    allow: [/^@bd\/(contracts|core|db|judge)$/, PORTS, /^cloudflare:/, /^bun:test$/],
+    allow: [/^@bd\/(contracts|core|db|judge)$/, PORTS, DRIZZLE, /^cloudflare:/, /^bun:test$/],
     why: "the Cloudflare adapter maps bindings onto ports; no Bun APIs (ADR 0018)",
   },
   {

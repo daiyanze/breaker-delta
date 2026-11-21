@@ -8,6 +8,9 @@ export function sqliteDatabase(sqlite: SQLite): Database {
     async all<T>(sql: string, ...params: SqlValue[]) {
       return sqlite.prepare(sql).all(...bind(params)) as T[];
     },
+    async values(sql: string, ...params: SqlValue[]) {
+      return sqlite.prepare(sql).values(...bind(params)) as SqlValue[][];
+    },
     async first<T>(sql: string, ...params: SqlValue[]) {
       return (sqlite.prepare(sql).get(...bind(params)) as T | null) ?? null;
     },

@@ -3,6 +3,7 @@ import { Database as SQLite } from "bun:sqlite";
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { drizzleOver } from "@bd/db";
 import { createPipeline, type PipelinePorts, pipelineConfig } from "../src/core/app.ts";
 import { closeRun, openRun } from "../src/core/runs.ts";
 import { sqliteDatabase } from "../src/local/database.ts";
@@ -15,6 +16,7 @@ function setup(overrides: Partial<PipelinePorts> = {}) {
   const sqlite = new SQLite(":memory:");
   sqlite.exec(readFileSync(MIGRATION, "utf8"));
   const db = sqliteDatabase(sqlite);
+  const orm = drizzleOver(db);
   const started: string[] = [];
   const ports: PipelinePorts = {
     db,
@@ -23,8 +25,8 @@ function setup(overrides: Partial<PipelinePorts> = {}) {
       async start(slot) {
         if (started.includes(slot)) throw new Error(`instance ${slot} already exists`);
         started.push(slot);
-        await openRun(db, slot, NOW);
-        await closeRun(db, slot, NOW + 1000);
+        await openRun(orm, slot, NOW);
+        await closeRun(orm, slot, NOW + 1000);
       },
     },
     ...overrides,

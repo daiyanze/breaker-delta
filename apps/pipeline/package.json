@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@bd/core": "workspace:*",
-    "@bd/ports": "workspace:*"
+    "@bd/db": "workspace:*",
+    "@bd/ports": "workspace:*",
+    "drizzle-orm": "latest"
   }
 }

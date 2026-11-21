@@ -52,6 +52,26 @@ export function databaseChecks(open: () => Promise<Database>): PortCheck[] {
       },
     },
     {
+      name: "values returns rows as arrays in select order",
+      async run() {
+        const db = await open();
+        await db.run(table);
+        await db.run("INSERT INTO t (id, name, n) VALUES (1, 'a', 10), (2, 'b', NULL)");
+        const rows = await db.values("SELECT name, id, n FROM t WHERE id >= ?1 ORDER BY id", 1);
+        expectEqual(
+          rows,
+          [
+            ["a", 1, 10],
+            ["b", 2, null],
+          ],
+          "rows",
+        );
+        // The same name twice stays two columns.
+        expectEqual(await db.values("SELECT id, id AS id FROM t WHERE id = 1"), [[1, 1]], "dup");
+        expectEqual(await db.values("SELECT id FROM t WHERE id = 42"), [], "no rows");
+      },
+    },
+    {
       name: "first returns one row, or null",
       async run() {
         const db = await open();
