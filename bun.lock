@@ -20,6 +20,7 @@
       "name": "@bd/pipeline",
       "version": "0.0.0",
       "dependencies": {
+        "@bd/contracts": "workspace:*",
         "@bd/core": "workspace:*",
         "@bd/db": "workspace:*",
         "@bd/ports": "workspace:*",

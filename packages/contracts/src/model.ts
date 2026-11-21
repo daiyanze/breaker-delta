@@ -28,6 +28,10 @@ export const SettingsSchema = z.object({
   assignProviders: z.array(ProviderSchema).default([]),
   summarizeProviders: z.array(ProviderSchema).default([]),
   feedLimit: z.number().int().positive().default(100),
+  /** Attempts per pipeline step before the run is marked failed. */
+  stepMaxAttempts: z.number().int().min(1).max(10).default(3),
+  /** How long a runner holds a run; it renews after each step. Longer than the slowest step. */
+  runLeaseMinutes: z.number().int().min(1).default(30),
 });
 export type Settings = z.infer<typeof SettingsSchema>;
 

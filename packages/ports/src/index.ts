@@ -5,12 +5,14 @@
  * on standard Web APIs (fetch, Request, Response, URL) only. Each runtime
  * provides an adapter:
  *
- * | Port        | Local (default)    | Cloudflare            |
- * | ----------- | ------------------ | --------------------- |
- * | Database    | bun:sqlite file    | D1                    |
- * | Blobs       | a directory        | R2                    |
- * | Clock       | Date.now           | Date.now              |
- * | RunExecutor | step runner (#171) | step runner (#171)    |
+ * | Port     | Local (default) | Cloudflare |
+ * | -------- | --------------- | ---------- |
+ * | Database | bun:sqlite file | D1         |
+ * | Blobs    | a directory     | R2         |
+ * | Clock    | Date.now        | Date.now   |
+ *
+ * Running a slot is not a port either: the core's step runner does it the
+ * same way on every runtime.
  *
  * Scheduling is the adapter's job, not a port: the core exports `tick()`
  * and each adapter decides when to call it (an in-process timer locally, a
@@ -71,14 +73,4 @@ export interface Blobs {
 export interface Clock {
   /** Epoch milliseconds. */
   now(): number;
-}
-
-/**
- * Starts the run for one slot. It must reject when that slot has already
- * started, so two ticks can never start the same slot twice.
- * Until the step runner lands (#171), the Cloudflare adapter starts a
- * Workflow instance whose id is the slot.
- */
-export interface RunExecutor {
-  start(slot: string): Promise<void>;
 }

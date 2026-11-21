@@ -27,7 +27,9 @@
         "model": "qwen3:8b"
       }
     ],
-    "feedLimit": 100
+    "feedLimit": 100,
+    "stepMaxAttempts": 3,
+    "runLeaseMinutes": 30
   },
   "updatedAt": "2026-11-15T10:00:00+09:00",
   "history": [
