@@ -8,7 +8,8 @@ const MIGRATIONS = join(import.meta.dir, "../../../packages/db/migrations");
 
 export function migratedDatabase() {
   const sqlite = new SQLite(":memory:");
-  for (const name of readdirSync(MIGRATIONS).filter((n) => n.endsWith(".sql")).sort()) {
+  const files = readdirSync(MIGRATIONS).filter((n) => n.endsWith(".sql"));
+  for (const name of files.sort()) {
     sqlite.exec(readFileSync(join(MIGRATIONS, name), "utf8"));
   }
   return { sqlite, db: sqliteDatabase(sqlite) };

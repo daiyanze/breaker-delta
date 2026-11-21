@@ -39,9 +39,12 @@ Each rule applies only within its scope.
 - **Rule:** Say in the PR which checks could not run locally, and do not
   report the work as done until CI has passed. Known Biome behaviour: type
   exports sort before value exports; an array of two or more multi-key
-  objects is printed one element per line.
+  objects is printed one element per line; names sort letter by letter
+  ignoring case, but at the same letter uppercase comes first (`runSteps`
+  before `runs`); a chain of three or more calls breaks one call per line
+  when an argument is not simple (`now() + x`), even if it would fit.
 - **Scope:** any session without a working `bun install`.
-- **Evidence:** CI runs on #167 and #175.
+- **Evidence:** CI runs on #167, #175 and #177.
 
 ## L2 Re-read the whole section after inserting into a list
 

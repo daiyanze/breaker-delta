@@ -14,7 +14,7 @@
  *
  * Steps pass ids and counts, never fetched text (invariant 6).
  */
-import { type Db, runs, runSteps } from "@bd/db";
+import { type Db, runSteps, runs } from "@bd/db";
 import { and, eq, isNull, lt, or } from "drizzle-orm";
 
 export interface StepContext {
@@ -142,7 +142,10 @@ export async function runSlot(
     }
     outputs.set(step.name, output ?? null);
     // Renew the lease so a long run is not taken over between steps.
-    await db.update(runs).set({ leaseUntil: now() + options.leaseMs }).where(eq(runs.slot, slot));
+    await db
+      .update(runs)
+      .set({ leaseUntil: now() + options.leaseMs })
+      .where(eq(runs.slot, slot));
   }
 
   await finish(db, slot, "done", now());

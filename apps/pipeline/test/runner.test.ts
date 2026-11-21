@@ -1,6 +1,6 @@
 /** The step runner (#171) on an in-memory SQLite database. */
 import { describe, expect, test } from "bun:test";
-import { drizzleOver, runs, runSteps } from "@bd/db";
+import { drizzleOver, runSteps, runs } from "@bd/db";
 import { eq } from "drizzle-orm";
 import { runSlot, type Step } from "../src/core/runner.ts";
 import { migratedDatabase, NOW, SLOT } from "./helpers.ts";
