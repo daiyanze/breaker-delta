@@ -89,7 +89,7 @@ A board is an HTML file written for a design canvas. Read it as source: the mark
 | 51 | [`SummaryStates2.dc.html`](boards/SummaryStates2.dc.html) | Topic page: unverified, source not read, withdrawn, no summary (reference sheet) | 1600×1180 |  |
 | 52 | [`ComposerFields2.dc.html`](boards/ComposerFields2.dc.html) | The desk: fields for the correction, announcement and letter templates (reference sheet) | 1600×1240 |  |
 
-Boards 51 and 52 were added on 2026-11-21 and have not been reviewed by the owner yet.
+Boards 51 and 52 were added on 2026-11-21 and approved by the owner the same day. The Withdrawn and Verdict in tags on boards 11 and 12 were added with them.
 
 ## Keeping this in step
 
