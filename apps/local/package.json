@@ -6,5 +6,9 @@
   "scripts": {
     "start": "bun start.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@bd/pipeline": "workspace:*",
+    "@bd/web": "workspace:*"
   }
 }

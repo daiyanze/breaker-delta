@@ -14,5 +14,8 @@
     "@bd/db": "workspace:*",
     "@bd/ports": "workspace:*",
     "drizzle-orm": "latest"
+  },
+  "exports": {
+    "./local": "./src/local/index.ts"
   }
 }

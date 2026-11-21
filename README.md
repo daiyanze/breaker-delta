@@ -23,7 +23,7 @@ deployment adapter. See `docs/adr/0018-local-first-runtime.md`.
 bun install
 bun run check      # typecheck + lint + tests + dependency-direction check
 bun run probe      # M0 spike: which sources are reachable from this network
-bun run local      # M0: run the pipeline on this machine (wrangler until ADR 0018 lands)
+bun run local      # run the pipeline and the site on this machine, no Cloudflare tooling
 ```
 
 ## Layout

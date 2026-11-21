@@ -61,6 +61,16 @@ export const RULES: Rule[] = [
     why: "the local adapter runs on Bun, never on Cloudflare APIs (ADR 0018)",
   },
   {
+    dir: "apps/web/src/local",
+    allow: [/^@bd\/(contracts|fixtures)$/, PORTS, /^bun:/, /^node:/],
+    why: "the local site adapter runs on Bun, never on Cloudflare APIs (ADR 0018)",
+  },
+  {
+    dir: "apps/local",
+    allow: [/^@bd\/(pipeline|web)\/local$/, /^bun:/, /^node:/],
+    why: "local mode starts the local adapters only: no wrangler, no Cloudflare (ADR 0018)",
+  },
+  {
     dir: "apps/web/src/core",
     allow: [/^@bd\/contracts$/, PORTS, /^bun:test$/],
     why: "the site core reads through the read contracts only (ADR 0018)",
@@ -78,6 +88,7 @@ const IMPORT =
 function files(dir: string): string[] {
   let out: string[] = [];
   for (const name of readdirSync(dir)) {
+    if (name === "node_modules") continue;
     const path = join(dir, name);
     if (statSync(path).isDirectory()) out = out.concat(files(path));
     else if (/\.(ts|tsx)$/.test(name)) out.push(path);
