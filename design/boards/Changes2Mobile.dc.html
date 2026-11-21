@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Changes, mobile · Breaker Delta</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&amp;family=Instrument+Sans:wght@400..700&amp;display=swap">
+<style>
+body{margin:0}
+.tp{--paper:#F2EFE4;--ink:#14263B;--ink2:#4A5868;--hair:#C9C6B8;--red:#C8351D;--blue:#1B55C0;--sky:#9DB8E8;--tint:#DCE6F5;--sun:#F4C535;--solid:#14263B;--onsun:#14263B;background:var(--paper);color:var(--ink);font-family:'Instrument Sans',system-ui,sans-serif;font-size:17px;line-height:1.55;font-variant-numeric:tabular-nums;overflow-x:hidden}
+.tp.dk{--paper:#0E1B2A;--ink:#EFE9D8;--ink2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--solid:#060E18}
+.lang{position:relative}
+.lang summary{list-style:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid var(--ink);cursor:pointer;font-weight:600;box-sizing:border-box}
+.lang summary::-webkit-details-marker{display:none}
+.lang .menu{position:absolute;right:0;top:calc(100% + 6px);z-index:5;background:var(--paper);border:1px solid var(--ink);min-width:170px;display:flex;flex-direction:column}
+.tp .lang .menu a{display:flex;align-items:center;min-height:44px;padding:0 16px;color:var(--ink);text-decoration:none}
+.tp .lang .menu a:hover{background:var(--tint)}
+.tp .lang .menu a[aria-current]{font-weight:700;box-shadow:inset 4px 0 0 var(--red)}
+.tp a{color:var(--blue);text-underline-offset:4px}
+.tp a:hover{color:var(--red)}
+.tp a.plain{color:var(--ink);text-decoration:none}
+.tp a.plain:hover{color:var(--blue)}
+.tp :focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.tp button,.tp input{font:inherit;color:inherit}
+.fr{font-family:'Fraunces',Georgia,serif}
+.wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+.nav{display:flex;flex-wrap:wrap}
+.tp .nav a{display:flex;align-items:center;min-height:48px;padding:0 16px;color:var(--ink);text-decoration:none;font-weight:500}
+.tp .nav a:hover{color:var(--blue)}
+.tp .nav a[aria-current]{font-weight:700;box-shadow:inset 0 -4px 0 var(--red)}
+.tp .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border:2px solid var(--ink);border-radius:0;background:transparent;color:var(--ink);font-size:17px;font-weight:600;text-decoration:none;cursor:pointer;box-sizing:border-box}
+.tp .btn:hover{background:var(--ink);color:var(--paper)}
+.sec{margin:0;font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:400;font-size:38px;line-height:1.08;letter-spacing:-0.02em}
+.sm{font-size:15px;color:var(--ink2)}
+.pip,.ring{width:11px;height:11px;border-radius:50%;box-sizing:border-box;flex:none;display:inline-block}
+.pip{background:var(--ink)}
+.ring{border:2px solid var(--ink)}
+.idx{display:flex;align-items:baseline;gap:10px;min-height:44px;padding:4px 0}
+.idx i{flex:1 1 20px;border-bottom:2px dotted var(--hair);transform:translateY(-4px)}
+.band{display:flex;gap:32px 72px;flex-wrap:wrap;align-items:flex-start;padding:72px 0;border-top:1px solid var(--ink)}
+.rail{flex:1 1 280px;max-width:340px;min-width:0;display:flex;flex-direction:column;gap:14px;position:sticky;top:24px}
+.list{flex:999 1 560px;min-width:0}
+.tp a.item{display:flex;gap:6px 28px;align-items:baseline;flex-wrap:wrap;padding:20px 0;border-bottom:1px solid var(--hair)}
+.tp a.item:first-child{padding-top:4px}
+.item .meta{flex:0 0 84px;font-weight:700}
+.item .hd{flex:1 1 320px;min-width:0;font-family:'Fraunces',Georgia,serif;font-size:26px;line-height:1.2;font-weight:600;text-wrap:pretty}
+.item .num{flex:0 0 160px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}
+.field{min-height:48px;padding:0 16px;border:2px solid var(--ink);background:var(--paper);box-sizing:border-box;flex:1 1 240px;font-size:17px}
+.tp a.hl{color:inherit;text-decoration:none}
+.tp a.hl:hover{color:inherit;text-decoration:underline;text-decoration-color:var(--red);text-decoration-thickness:.06em;text-underline-offset:.14em}
+.awning{height:22px;border:1.5px solid var(--ink);border-bottom:0;background:repeating-linear-gradient(90deg,var(--red) 0 24px,var(--paper) 24px 48px)}
+.scallop{height:13px;background:radial-gradient(circle at 12px 0,var(--red) 11.5px,transparent 12px) 0 0/48px 13px repeat-x,radial-gradient(circle at 36px 0,var(--hair) 11.5px,transparent 12px) 0 0/48px 13px repeat-x}
+.tp .ed{position:relative;flex:0 0 auto;width:78px;height:100px;padding:9px 9px 8px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;cursor:pointer;box-shadow:3px 3px 0 var(--hair);transition:transform .18s}
+.tp .ed:hover{transform:translateY(-5px);z-index:2}
+.tp .ed[aria-pressed="true"]{background:var(--sun);color:var(--onsun);border-color:var(--onsun);transform:translateY(-9px) rotate(-3deg);box-shadow:4px 6px 0 var(--ink);z-index:3}
+.ed b{display:block;height:5px;background:currentColor}
+.notice{flex:1 1 230px;min-width:0;border:1px solid var(--ink);outline:1px solid var(--ink);outline-offset:3px;padding:20px;display:flex;flex-direction:column;gap:10px;margin:4px}
+.ad{break-inside:avoid;margin:0 0 16px;padding:14px 16px;border:1px solid var(--ink);display:flex;flex-direction:column;gap:4px}
+.stub{flex:1 1 230px;min-width:0;border:2px dashed var(--ink);padding:20px;display:flex;flex-direction:column;gap:12px}
+.stamp{align-self:flex-start;border:3px solid var(--red);color:var(--red);font-weight:700;padding:2px 12px;transform:rotate(-5deg);border-radius:6px;transition:transform .2s}
+.stub:hover .stamp{transform:rotate(3deg) scale(1.06)}
+@keyframes stack{0%{opacity:0;transform:translateY(-40px)}7%{opacity:1;transform:translateY(0)}84%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(0)}}
+.slab{transform-box:fill-box;animation:stack 7s ease-out infinite both}
+@keyframes tail{0%,62%,100%{transform:rotate(0)}72%{transform:rotate(-13deg)}84%{transform:rotate(7deg)}}
+.tail{transform-box:view-box;transform-origin:118px 56px;animation:tail 7s ease-in-out infinite}
+@keyframes blink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(0.08)}}
+.eye{transform-box:fill-box;transform-origin:center;animation:blink 4.6s ease-in-out infinite}
+.cat{transition:transform .9s cubic-bezier(.5,0,.75,.35)}
+@keyframes rise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes sail{from{transform:translateX(-60px)}to{transform:translateX(1340px)}}
+@keyframes spin{to{transform:rotate(352deg)}}
+.crest{transform-box:fill-box;transform-origin:50% 100%;animation:rise 1.2s cubic-bezier(.2,.8,.2,1) both}
+.draw{stroke-dasharray:1;animation:draw 1.8s ease-out both}
+.sail{animation:sail 87.5s linear infinite}
+@keyframes rideY{0%,100%{transform:translateY(-3.5px)}50%{transform:translateY(3.5px)}}
+@keyframes rideR{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.rideY{animation:rideY 2.5s ease-in-out -1.875s infinite}
+.rideR{transform-box:fill-box;transform-origin:50% 100%;animation:rideR 2.5s ease-in-out infinite}
+.w4{animation:drift 30s linear infinite}
+@keyframes drift{to{transform:translateX(-240px)}}
+@keyframes sweep{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(6deg)}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(6px) rotate(2deg)}}
+.w1{animation:drift 22s linear infinite}
+.w2{animation:drift 13s linear infinite reverse}
+.w3{animation:drift 9s linear infinite}
+.beam{transform-box:view-box;transform-origin:1132px 92px;animation:sweep 7s ease-in-out infinite}
+.boat{transform-box:fill-box;transform-origin:center;animation:bob 4s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.w1,.w2,.w3,.w4,.beam,.boat,.sail,.crest,.draw,.slab,.rideY,.rideR,.tail,.eye{animation:none}.cat{transition:none}}
+</style>
+<style>
+.drop::first-letter{font-family:'Fraunces',Georgia,serif;font-weight:900;font-size:4.3em;line-height:0.78;float:left;padding:8px 12px 0 0;color:var(--red)}
+.clip{break-inside:avoid;margin:0 0 22px;padding:18px 20px;border:1px solid var(--ink);background:var(--paper);box-shadow:5px 5px 0 var(--hair);display:flex;flex-direction:column;gap:8px}
+.tp a.clip{color:var(--ink);text-decoration:none}
+.tp a.clip:hover{box-shadow:5px 5px 0 var(--red)}
+.clip:nth-child(odd){transform:rotate(-0.5deg)}
+.clip:nth-child(even){transform:rotate(0.6deg)}
+.seg{display:flex}
+.tp .seg button{min-height:44px;padding:0 16px;border:1px solid var(--ink);background:none;margin-left:-1px;cursor:pointer;font-weight:600}
+.tp .seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.led{flex:1 1 260px;min-width:0;padding:22px 24px;display:flex;flex-direction:column;gap:10px}
+.led li{padding:8px 0;border-top:1px solid var(--hair)}
+summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--blue)}
+</style>
+<style>
+.wrap{padding:0 20px}
+.band{flex-direction:column;flex-wrap:nowrap;gap:22px;padding:48px 0}
+.rail{flex:none;max-width:none;position:static;width:100%}
+.list{flex:none;width:100%}
+.sec{font-size:32px}
+.tp .ed{width:62px;height:88px;padding:7px 7px 6px;gap:5px}
+.tp .ghost{position:relative;flex:0 0 auto;width:62px;height:88px;padding:7px 6px 6px;box-sizing:border-box;border:1.5px dashed var(--ink2);color:var(--ink2);display:flex;flex-direction:column;gap:4px}
+.notice{flex:1 1 150px;padding:14px;margin:4px}
+.stub{flex:1 1 100%}
+@keyframes sail{from{transform:translateX(-60px)}to{transform:translateX(420px)}}
+.sail{animation-duration:30s}
+</style>
+<style>
+.kd{display:inline-flex;align-items:center;align-self:flex-start;border:2px solid var(--ink);font-weight:700;font-size:15px;padding:1px 10px;white-space:nowrap}
+.kd.new{background:var(--red);border-color:var(--red);color:var(--paper)}
+.kd.sum{border-color:var(--ink2);color:var(--ink2)}
+.kd.fix{border-color:var(--red);color:var(--red)}
+.kd.gone{border-style:double;border-width:4px;border-color:var(--red);color:var(--red);padding:0 9px}
+.kd.ruled{background:var(--ink);color:var(--paper)}
+.kd.flat{border-style:dashed;border-color:var(--ink2);color:var(--ink2)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.tp .chips a{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid var(--ink);color:var(--ink);text-decoration:none;font-weight:600;font-size:15px}
+.tp .chips a[aria-current]{background:var(--ink);color:var(--paper)}
+.crow{display:flex;gap:10px 28px;flex-wrap:wrap;align-items:flex-start;padding:20px 0;border-bottom:1px solid var(--hair)}
+.crow:first-child{padding-top:4px}
+.bar{height:12px;background:var(--hair)}
+.bar b{display:block;height:12px;background:var(--blue)}
+</style>
+</helmet>
+<div class="{{ rootClass }}" style="width: 390px; min-height: 3900px; box-sizing: border-box">
+
+<div class="wrap" style="display: flex; align-items: center; gap: 8px; min-height: 68px; font-size: 15px">
+<div style="margin-right: auto; display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="flex: none; width: 44px; border: 1.5px solid var(--ink); display: flex; flex-direction: column; text-align: center; transform: rotate(-4deg); background: var(--paper); box-shadow: 3px 3px 0 var(--hair)"><span style="background: var(--red); color: var(--paper); font-size: 13px; font-weight: 700; line-height: 1.5">Nov</span><span class="fr" style="font-size: 22px; font-weight: 900; line-height: 1.15">19</span></span>
+<span style="background: var(--sun); color: var(--onsun); padding: 5px 10px; transform: rotate(-2deg); display: flex; flex-direction: column; line-height: 1.2; box-shadow: 3px 3px 0 var(--hair)"><strong class="fr" style="font-size: 17px; font-weight: 900; white-space: nowrap">16 waves up</strong><span style="font-size: 13px; font-weight: 600; white-space: nowrap">5 new today</span></span>
+</div>
+<details class="lang"><summary aria-label="Language: English" style="padding: 0; width: 44px; justify-content: center"><svg width="20" height="20" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7" style="fill: none; stroke: currentColor; stroke-width: 1.8"></circle><path d="M2 9 H16 M9 2 C5.5 5.5 5.5 12.5 9 16 C12.5 12.5 12.5 5.5 9 2" style="fill: none; stroke: currentColor; stroke-width: 1.8"></path></svg></summary><div class="menu"><a href="#" hreflang="en" aria-current="true">English</a><a href="#" hreflang="zh" lang="zh">中文</a><a href="#" hreflang="ja" lang="ja">日本語</a></div></details>
+<button type="button" class="btn" aria-label="{{ themeLabel }}" onClick="{{ toggleTheme }}" style="min-height: 44px; width: 44px; padding: 0; border-width: 1px"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" style="fill: none; stroke: currentColor; stroke-width: 2"></circle><path d="M10 2.5 A7.5 7.5 0 0 1 10 17.5 Z" style="fill: currentColor"></path></svg></button>
+<button type="button" class="btn" aria-label="Search" style="min-height: 44px; width: 44px; padding: 0; border-width: 1px"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="8" cy="8" r="5.5" style="fill: none; stroke: currentColor; stroke-width: 2"></circle><path d="M12.5 12.5 L16 16" style="stroke: currentColor; stroke-width: 2; stroke-linecap: round"></path></svg></button>
+</div>
+
+<header class="wrap" style="padding-top: 6px">
+<div style="display: flex; align-items: center; gap: 12px; padding-bottom: 2px">
+<a class="plain fr" href="FrontMobile.dc.html" style="font-size: 38px; font-weight: 900; line-height: 1; letter-spacing: -0.045em; margin-right: auto; min-height: 44px; display: flex; align-items: center; gap: 8px"><svg viewBox="0 0 512 512" aria-hidden="true" style="width: 34px; height: 34px; display: block; flex: none"><defs><clipPath id="mk"><circle cx="256" cy="256" r="236"></circle></clipPath></defs><g clip-path="url(#mk)"><rect x="0" y="0" width="512" height="512" style="fill: var(--paper)"></rect><path d="M256,124 L-20,62 L-20,194 Z M256,124 L532,62 L532,194 Z" style="fill: none; stroke: var(--ink); stroke-width: 8; stroke-linejoin: round"></path><polygon points="178,376 334,376 368,436 144,436" style="fill: var(--ink)"></polygon><polygon points="190,380 214,168 298,168 322,380" style="fill: var(--paper)"></polygon><polygon points="207.9,222 304.1,222 315.9,326 196.1,326" style="fill: var(--ink)"></polygon><polygon points="190,380 214,168 298,168 322,380" style="fill: none; stroke: var(--ink); stroke-width: 8; stroke-linejoin: round"></polygon><rect x="222" y="104" width="68" height="46" style="fill: var(--paper); stroke: var(--ink); stroke-width: 10"></rect><rect x="196" y="156" width="120" height="14" style="fill: var(--ink)"></rect><polygon points="202,106 256,60 310,106" style="fill: var(--ink)"></polygon><path d="M256,62 V36" style="stroke: var(--ink); stroke-width: 9; stroke-linecap: round"></path><path d="M-20,372 C10,356 40,338 70,336 C110,334 150,356 190,384 C215,400 240,408 270,408 C330,408 380,396 430,376 C470,360 500,352 532,350 L532,532 L-20,532 Z" style="fill: var(--paper)"></path><path d="M-20,372 C10,356 40,338 70,336 C110,334 150,356 190,384 C215,400 240,408 270,408 C330,408 380,396 430,376 C470,360 500,352 532,350" style="fill: none; stroke: var(--ink); stroke-width: 8; stroke-linecap: round"></path><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372 L532,532 L-20,532 Z" style="fill: var(--ink)"></path><path d="M-20,478 C50,468 110,488 190,494 C290,502 400,500 532,456 L532,532 L-20,532 Z" style="fill: var(--ink)"></path><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372" style="fill: none; stroke: var(--paper); stroke-width: 16; stroke-linecap: round; stroke-linejoin: round"></path></g><circle cx="256" cy="256" r="240" style="fill: none; stroke: var(--ink); stroke-width: 12"></circle></svg>Breaker Delta</a>
+<details class="lang"><summary aria-label="Sections" style="padding: 0 12px">Sections<svg width="12" height="8" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1 L6 6 L11 1" style="fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"></path></svg></summary><div class="menu"><a href="FrontMobile.dc.html">Front page</a><a href="#" aria-current="page">Changes</a><a href="#">Echoes</a><a href="#">Track record</a><a href="#">Sources</a><a href="#">About</a></div></details>
+</div>
+<svg viewBox="0 0 390 44" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="width: 100%; height: 44px; display: block">
+<g class="sail"><g class="rideY"><g class="rideR"><g transform="translate(0 30) scale(0.42)"><path d="M0,0 L0,-58" style="stroke: var(--ink); stroke-width: 4"></path><polygon points="5,-54 5,-8 40,-8" style="fill: var(--red)"></polygon><polygon points="-5,-44 -5,-8 -28,-8" style="fill: var(--paper); stroke: var(--ink); stroke-width: 4; stroke-linejoin: round"></polygon><path d="M-38,-2 L38,-2 L26,14 L-26,14 Z" style="fill: var(--ink)"></path></g></g></g></g>
+<g class="w4"><path d="{{ ruleWave }}" style="fill: none; stroke: var(--ink); stroke-width: 3.5; stroke-linecap: round"></path></g>
+</svg>
+</header>
+
+<main class="wrap">
+<section style="padding: 28px 0 28px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; gap: 16px 64px; flex-wrap: wrap; align-items: flex-end">
+<h1 class="fr" style="flex: 1 1 480px; margin: 0; font-size: 52px; line-height: 0.92; font-weight: 900; letter-spacing: -0.035em">What changed?</h1>
+<p style="flex: 1 1 380px; margin: 0; font-size: 19px; line-height: 1.5; color: var(--ink2); max-width: 30em">Every hour the stand gets a new edition. This is the list of what is different from the one before: waves that formed, rose, went flat, every summary we rewrote, corrected or withdrew, and every call that was judged.</p>
+</div>
+<nav class="chips" aria-label="Filter"><a href="#" aria-current="true">Everything</a><a href="#">New waves</a><a href="#">Rising</a><a href="#">Summaries</a><a href="#">Corrections</a><a href="#">Withdrawn</a><a href="#">Verdicts</a><a href="#">Went flat</a></nav>
+</section>
+<section class="band" aria-label="Changes at 14:00" style="border-top: 4px solid var(--ink)">
+<div class="rail" style="gap: 2px"><h2 class="fr" style="margin: 0; font-size: 44px; font-weight: 900; line-height: 0.95; letter-spacing: -0.03em">14:00</h2><span class="sm">4 changes in this edition</span></div>
+<div class="list" style="display: flex; flex-direction: column">
+<a class="plain crow" href="Topic2Mobile.dc.html"><span style="flex: 0 0 100%; display: flex; padding-top: 4px"><span class="kd new">New wave</span></span><span style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span class="fr" style="font-size: 21px; line-height: 1.2; font-weight: 600; text-wrap: pretty">Open-weights model ships at a quarter of flagship pricing</span><span class="sm">A third independent source picked it up.</span></span><span class="fr" style="flex: 0 0 60px; text-align: right; font-size: 28px; font-weight: 900; line-height: 1.1; color: var(--red)">126</span></a>
+<a class="plain crow" href="Topic2Mobile.dc.html"><span style="flex: 0 0 100%; display: flex; padding-top: 4px"><span class="kd rise">Rising fast</span></span><span style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span class="fr" style="font-size: 21px; line-height: 1.2; font-weight: 600; text-wrap: pretty">Chipmaker board rules out bringing back its founder CEO</span><span class="sm">Up from 120 to 196 in 24 hours.</span></span><span class="fr" style="flex: 0 0 60px; text-align: right; font-size: 28px; font-weight: 900; line-height: 1.1">196</span></a>
+<a class="plain crow" href="Topic2Mobile.dc.html"><span style="flex: 0 0 100%; display: flex; padding-top: 4px"><span class="kd sum">Summary updated</span></span><span style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span class="fr" style="font-size: 21px; line-height: 1.2; font-weight: 600; text-wrap: pretty">Chipmaker board rules out bringing back its founder CEO</span><span class="sm">Version 3, after a sixth independent source.</span></span><span class="fr" style="flex: 0 0 60px; text-align: right; font-size: 28px; font-weight: 900; line-height: 1.1">196</span></a>
+<a class="plain crow" href="Topic2Mobile.dc.html"><span style="flex: 0 0 100%; display: flex; padding-top: 4px"><span class="kd flat">Went flat</span></span><span style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span class="fr" style="font-size: 21px; line-height: 1.2; font-weight: 600; text-wrap: pretty">Smart glasses teardown</span><span class="sm">Left the front page after 7 quiet days. Its page stays.</span></span><span class="fr" style="flex: 0 0 60px; text-align: right; font-size: 28px; font-weight: 900; line-height: 1.1"></span></a>
+</div>
+</section>
+<section class="band" aria-label="Changes at 13:00">
+<div class="rail" style="gap: 2px"><h2 class="fr" style="margin: 0; font-size: 44px; font-weight: 900; line-height: 0.95; letter-spacing: -0.03em">13:00</h2><span class="sm">1 change in this edition</span></div>
+<div class="list" style="display: flex; flex-direction: column">
+<a class="plain crow" href="Topic2Mobile.dc.html"><span style="flex: 0 0 100%; display: flex; padding-top: 4px"><span class="kd sum">Summary updated</span></span><span style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span class="fr" style="font-size: 21px; line-height: 1.2; font-weight: 600; text-wrap: pretty">State attorney general sues an AI lab over 80 rogue-agent incidents</span><span class="sm">Version 2, one more independent source.</span></span><span class="fr" style="flex: 0 0 60px; text-align: right; font-size: 28px; font-weight: 900; line-height: 1.1">178</span></a>
+</div>
+</section>
+<section class="band" aria-label="Changes at 12:00">
+<div class="rail" style="gap: 2px"><h2 class="fr" style="margin: 0; font-size: 44px; font-weight: 900; line-height: 0.95; letter-spacing: -0.03em">12:00</h2><span class="sm">1 change in this edition</span></div>
+<div class="list" style="display: flex; flex-direction: column">
+<a class="plain crow" href="Topic2Mobile.dc.html"><span style="flex: 0 0 100%; display: flex; padding-top: 4px"><span class="kd fix">Correction</span></span><span style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span class="fr" style="font-size: 21px; line-height: 1.2; font-weight: 600; text-wrap: pretty">Six US banks go offline on the same afternoon</span><span class="sm">The outage report count now reads “more than 500”.</span></span><span class="fr" style="flex: 0 0 60px; text-align: right; font-size: 28px; font-weight: 900; line-height: 1.1">160</span></a>
+<a class="plain crow" href="Topic2Mobile.dc.html"><span style="flex: 0 0 100%; display: flex; padding-top: 4px"><span class="kd gone">Withdrawn</span></span><span style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span class="fr" style="font-size: 21px; line-height: 1.2; font-weight: 600; text-wrap: pretty">Retailer recalls a browser extension after a data leak</span><span class="sm">We withdrew the summary: it named the wrong company.</span></span><span class="fr" style="flex: 0 0 60px; text-align: right; font-size: 28px; font-weight: 900; line-height: 1.1">160</span></a>
+<a class="plain crow" href="Topic2Mobile.dc.html"><span style="flex: 0 0 100%; display: flex; padding-top: 4px"><span class="kd ruled">Verdict in</span></span><span style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span class="fr" style="font-size: 21px; line-height: 1.2; font-weight: 600; text-wrap: pretty">State sues an AI lab over training data</span><span class="sm">Our call was a hit. Ruled by the desk on Nov 20.</span></span><span class="fr" style="flex: 0 0 60px; text-align: right; font-size: 28px; font-weight: 900; line-height: 1.1">160</span></a>
+</div>
+</section>
+<section class="band" aria-label="Changes at 11:00">
+<div class="rail" style="gap: 2px"><h2 class="fr" style="margin: 0; font-size: 44px; font-weight: 900; line-height: 0.95; letter-spacing: -0.03em">11:00</h2><span class="sm">1 change in this edition</span></div>
+<div class="list" style="display: flex; flex-direction: column">
+<a class="plain crow" href="Topic2Mobile.dc.html"><span style="flex: 0 0 100%; display: flex; padding-top: 4px"><span class="kd new">New wave</span></span><span style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span class="fr" style="font-size: 21px; line-height: 1.2; font-weight: 600; text-wrap: pretty">Black Friday decoy discounts: 29% of 351 deals saved nothing</span><span class="sm">Two independent sources.</span></span><span class="fr" style="flex: 0 0 60px; text-align: right; font-size: 28px; font-weight: 900; line-height: 1.1; color: var(--red)">96</span></a>
+</div>
+</section>
+<div style="padding: 28px 0 48px; display: flex; gap: 12px 24px; flex-wrap: wrap; align-items: center"><button type="button" class="btn">Show earlier editions</button><a href="#" style="display: inline-flex; align-items: center; min-height: 44px">Choose what shows on this page</a></div>
+</main>
+
+<footer>
+<div class="wrap" style="border-top: 4px solid var(--ink); padding-top: 32px; display: flex; flex-direction: column; gap: 24px">
+<form style="display: flex; gap: 10px; flex-wrap: wrap" onsubmit="return false">
+<label for="em" class="fr" style="flex-basis: 100%; font-size: 30px; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em">One email a day, with the new waves.</label>
+<input id="em" class="field" type="email" autocomplete="email" placeholder="you@example.com" style="flex: 1 1 180px; min-width: 0">
+<button type="submit" class="btn" style="background: var(--ink); color: var(--paper)">Subscribe</button>
+</form>
+<nav class="nav" aria-label="Footer" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr))"><a href="#" style="padding: 0">How it is scored</a><a href="#" style="padding: 0">Run your own</a><a href="#" style="padding: 0">Feed, API, data</a><a href="#" style="padding: 0">GitHub</a></nav>
+</div>
+<svg viewBox="700 -130 740 510" role="img" aria-label="A lighthouse on a rock sweeps its beam over rolling waves and a small sailboat" style="width: 100%; height: auto; display: block">
+<g class="beam"><polygon points="1132,92 300,6 300,168" style="fill: var(--sun); opacity: 0.55"></polygon><polygon points="1132,92 1440,64 1440,128" style="fill: var(--sun); opacity: 0.55"></polygon></g>
+<path d="M560,74 q10,-11 20,0 q10,-11 20,0 M640,112 q8,-9 16,0 q8,-9 16,0 M880,54 q9,-10 18,0 q9,-10 18,0" style="fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-linecap: round"></path>
+<path d="M1000,310 C1034,252 1086,236 1132,236 C1182,236 1236,256 1268,310 Z" style="fill: var(--solid)"></path>
+<polygon points="1108,236 1118,110 1146,110 1156,236" style="fill: var(--paper); stroke: var(--ink); stroke-width: 3; stroke-linejoin: round"></polygon>
+<polygon points="1114.8,150 1149.2,150 1151.2,176 1112.8,176" style="fill: var(--red)"></polygon>
+<polygon points="1110.7,202 1153.3,202 1155.4,228 1108.6,228" style="fill: var(--red)"></polygon>
+<rect x="1108" y="104" width="48" height="8" style="fill: var(--solid); stroke: var(--ink); stroke-width: 1.5"></rect>
+<rect x="1121" y="80" width="22" height="24" style="fill: var(--sun); stroke: var(--ink); stroke-width: 3"></rect>
+<polygon points="1114,80 1132,58 1150,80" style="fill: var(--solid); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round"></polygon>
+<g class="w1"><path d="{{ waveBack }}" style="fill: var(--sky)"></path></g>
+<g transform="translate(430 250)"><g class="boat"><path d="M0,0 L0,-58" style="stroke: var(--ink); stroke-width: 3"></path><polygon points="5,-54 5,-8 40,-8" style="fill: var(--red)"></polygon><polygon points="-5,-44 -5,-8 -28,-8" style="fill: var(--paper); stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round"></polygon><path d="M-38,-2 L38,-2 L26,14 L-26,14 Z" style="fill: var(--solid); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round"></path></g></g>
+<g transform="translate(-90 0)"><g class="w2"><path d="{{ waveMid }}" style="fill: var(--blue)"></path></g></g>
+<g class="w3"><path d="{{ waveFront }}" style="fill: var(--solid)"></path><path d="{{ hatchB }}" style="fill: none; stroke: var(--sky); stroke-width: 1.5; opacity: 0.4"></path></g>
+</svg>
+<div style="background: var(--solid); color: #F2EFE4"><div class="wrap" style="padding-top: 6px; padding-bottom: 22px; display: flex; flex-direction: column; gap: 4px; font-size: 15px"><span>Breaker Delta is open source.</span><span>All data on this page is sample data.</span></div></div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":390,"height":3900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { dark: null, lang: 'en' };
+  }
+  renderVals() {
+    const dark = this.state.dark === null ? (this.props.dark ?? false) : this.state.dark;
+    const sine = (x0, y, amp, half, n) => { let d = 'M' + x0 + ',' + y; for (let k = 0; k < n; k++) d += ' q' + (half / 2) + ',' + (-amp) + ' ' + half + ',0 t' + half + ',0'; return d; };
+    const wave = (y, amp, close) => { const d = sine(-480, y, amp, 120, 12); return close ? d + ' V380 H-480 Z' : d; };
+    const slabs = Array.from({ length: 12 }, (_, k) => {
+      const w = Math.round(100 - k * 5.6), cx = 54 + k * 1.6;
+      return { x: Math.round((cx - w / 2) * 10) / 10, y: 212 - (k + 1) * 14 + 1, w: w, fill: k === 11 ? 'var(--red)' : (k % 2 ? 'var(--sky)' : 'var(--blue)'), delay: (k * 0.14).toFixed(2) + 's' };
+    });
+    const top = slabs[11];
+    const L = this.state.lang;
+    return {
+      rootClass: dark ? 'tp dk' : 'tp',
+      themeLabel: dark ? 'Switch to light mode' : 'Switch to dark mode',
+      toggleTheme: () => this.setState({ dark: !dark }),
+      slabs: slabs, curl: 'M' + (top.x + top.w - 4) + ',' + (top.y + 5) + ' c14,-2 16,-18 3,-20 c-9,-1 -11,9 -3,10', curlDelay: '1.78s',
+      langs: [['en', 'English'], ['zh', '中文'], ['ja', '日本語']].map((g) => ({ label: g[1], on: L === g[0], pick: () => this.setState({ lang: g[0] }) })),
+      isEn: L === 'en', notEn: L !== 'en',
+      ticks: Array.from({ length: 14 }, (_, k) => ({ x: 4 + k * 22, fill: k < 7 ? 'var(--ink)' : 'transparent' })),
+      ruleWave: sine(-240, 34, 8, 30, 36),
+      waveBack: wave(262, 14, true), waveMid: wave(288, 18, true), waveFront: wave(320, 16, true), hatchB: wave(352, 7, false)
+    };
+  }
+}
+</script>
+</body>
+</html>

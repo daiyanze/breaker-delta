@@ -1,0 +1,36 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&amp;family=Instrument+Sans:wght@400..700&amp;display=swap">
+<style>
+body{margin:0;background:var(--paper)}
+.cover{position:relative;width:960px;height:288px;overflow:hidden;background:var(--paper)}
+.ink{fill:var(--ink)}.blue{fill:var(--blue)}.sky{fill:var(--sky)}.red{fill:var(--red)}.sun{fill:var(--sun)}
+.name{position:absolute;left:32px;bottom:60px;margin:0;font-family:var(--font-display);font-weight:900;font-size:104px;line-height:.95;letter-spacing:-.045em;color:var(--ink)}
+.tag{position:absolute;left:34px;bottom:28px;margin:0;font-family:var(--font-body);font-size:14px;color:var(--ink-2);max-width:440px}
+</style>
+</head>
+<body>
+<div class="cover">
+<!--
+blocks: sun 144x96, red 48x240, sky 408x48, blue 408x48, ink 408x48 (space-7 = 48px and its multiples)
+arrangement: three sea bands stacked flush and bleeding off the right and bottom edges, one tall red slab to their left, a sun block bleeding off the top right
+pattern: the wave row. "Echoes stack up to form a wave": half-rounds rising from each band, 16 discs in block colours
+steps and radii: pitch and band height 48px (space-7), disc radius 24px (space-5, half the short side), square corners (radius-none)
+-->
+<svg width="960" height="288" viewBox="0 0 960 288" aria-hidden="true">
+<rect class="sun" x="816" y="0" width="144" height="96"/>
+<rect class="red" x="504" y="48" width="48" height="240"/>
+<rect class="sky" x="552" y="144" width="408" height="48"/>
+<circle class="blue" cx="576" cy="192" r="24"/><circle class="blue" cx="624" cy="192" r="24"/><circle class="blue" cx="672" cy="192" r="24"/><circle class="blue" cx="720" cy="192" r="24"/><circle class="blue" cx="768" cy="192" r="24"/><circle class="blue" cx="816" cy="192" r="24"/><circle class="blue" cx="864" cy="192" r="24"/><circle class="blue" cx="912" cy="192" r="24"/>
+<rect class="blue" x="552" y="192" width="408" height="48"/>
+<circle class="ink" cx="600" cy="240" r="24"/><circle class="ink" cx="648" cy="240" r="24"/><circle class="ink" cx="696" cy="240" r="24"/><circle class="ink" cx="744" cy="240" r="24"/><circle class="ink" cx="792" cy="240" r="24"/><circle class="ink" cx="840" cy="240" r="24"/><circle class="ink" cx="888" cy="240" r="24"/><circle class="ink" cx="936" cy="240" r="24"/>
+<rect class="ink" x="552" y="240" width="408" height="48"/>
+</svg>
+<p class="name">Breaker<br>Delta</p>
+<p class="tag">News measured as waves.</p>
+</div>
+</body>
+</html>
