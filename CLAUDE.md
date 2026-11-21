@@ -42,10 +42,11 @@ bun run local        # run locally, no cloud account
   contracts, plus the contract checks every query layer passes (ADR 0017).
 - `packages/judge` - provider chain over OpenAI-compatible HTTP. No tools.
 - `packages/ports` - interfaces the app cores need from a runtime (database,
-  blobs, clock, run executor), plus conformance checks every adapter passes.
-  Types only, no imports (ADR 0018).
-- `apps/pipeline` - the only writer. Ticker -> step runner -> steps. M0 still
-  uses `RunWorkflow` until the step runner lands (#171).
+  blobs, clock), plus conformance checks every adapter passes. Types only, no
+  imports (ADR 0018).
+- `apps/pipeline` - the only writer. Ticker -> step runner -> steps. The step
+  runner (`src/core/runner.ts`) records each step in `run_steps`, so a run
+  resumes where it stopped; no Cloudflare Workflows.
 - `apps/web` - read-only site and API. Never writes, never binds the private
   database. Share cards and the desk's mail and subscriber actions are done by
   `apps/pipeline` over the service binding (ADR 0009, 0010).

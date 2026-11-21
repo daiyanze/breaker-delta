@@ -18,7 +18,6 @@
     }
   ],
   "r2_buckets": [{ "binding": "BLOBS", "bucket_name": "bd-blobs" }],
-  "workflows": [{ "name": "bd-run", "binding": "RUN_WORKFLOW", "class_name": "RunWorkflow" }],
 
   // M1 moves this into the settings table.
   "vars": { "RUN_INTERVAL_MINUTES": "60" }

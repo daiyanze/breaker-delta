@@ -1,19 +1,10 @@
 /** drizzleOver (from @bd/db) on the bun:sqlite Database adapter. */
-import { Database as SQLite } from "bun:sqlite";
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { drizzleOver, runs } from "@bd/db";
 import { eq } from "drizzle-orm";
-import { sqliteDatabase } from "../src/local/database.ts";
+import { migratedDatabase } from "./helpers.ts";
 
-const MIGRATION = join(import.meta.dir, "../../../packages/db/migrations/0000_init.sql");
-
-function open() {
-  const sqlite = new SQLite(":memory:");
-  sqlite.exec(readFileSync(MIGRATION, "utf8"));
-  return drizzleOver(sqliteDatabase(sqlite));
-}
+const open = () => drizzleOver(migratedDatabase().db);
 
 describe("drizzle over the Database port", () => {
   test("insert, select one, select all", async () => {
@@ -21,7 +12,13 @@ describe("drizzle over the Database port", () => {
     await db.insert(runs).values({ slot: "20261119T0500", status: "done", startedAt: 1 });
     await db.insert(runs).values({ slot: "20261119T0600", status: "running", startedAt: 2 });
     const one = await db.select().from(runs).where(eq(runs.slot, "20261119T0500")).get();
-    expect(one).toEqual({ slot: "20261119T0500", status: "done", startedAt: 1, finishedAt: null });
+    expect(one).toEqual({
+      slot: "20261119T0500",
+      status: "done",
+      startedAt: 1,
+      finishedAt: null,
+      leaseUntil: null,
+    });
     const all = await db.select({ slot: runs.slot }).from(runs).orderBy(runs.startedAt);
     expect(all).toEqual([{ slot: "20261119T0500" }, { slot: "20261119T0600" }]);
   });

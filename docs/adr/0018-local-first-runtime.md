@@ -14,7 +14,7 @@ not the runtime local mode imitates.
   | Database | `bun:sqlite` file | D1 |
   | Blobs | a directory | R2 |
   | Clock | `Date.now` | `Date.now` |
-  | Run execution | step runner | the same step runner, called from the cron handler |
+  | Run execution (core, not a port) | step runner | the same step runner, called from the cron handler |
   | Mail, models | configured transports (0005, 0012) | same |
 
 - Scheduling is not a port. The core exports `tick()`, and each adapter
