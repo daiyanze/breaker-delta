@@ -1,0 +1,39 @@
+{
+  "hackernews": {
+    "group": {
+      "id": "hackernews",
+      "name": "Hacker News front page and Show HN",
+      "description": [
+        {
+          "lang": "en",
+          "text": "Front page and Show HN, counted as one"
+        },
+        {
+          "lang": "zh",
+          "text": "首页与 Show HN，算作一个来源"
+        },
+        {
+          "lang": "ja",
+          "text": "トップページと Show HN、一つの情報源として数える"
+        }
+      ],
+      "role": "first_hand",
+      "category": "forum",
+      "members": 2,
+      "echoesToday": 0,
+      "echoes14d": 0,
+      "status": {
+        "state": "not_scanned",
+        "since": "2026-11-19T13:40:00+09:00",
+        "lastScanAt": null
+      }
+    },
+    "memberNames": [
+      "Front page",
+      "Show HN"
+    ],
+    "scans": [],
+    "recentEchoes": [],
+    "waves": []
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "transport": {
+    "name": null,
+    "configured": false
+  },
+  "next": null,
+  "recentSends": [],
+  "subscribers": {
+    "confirmed": 0,
+    "pending": 0,
+    "unsubscribed30d": 0,
+    "stopped": 0
+  }
+}

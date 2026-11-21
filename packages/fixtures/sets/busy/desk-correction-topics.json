@@ -1,0 +1,381 @@
+{
+  "items": [
+    {
+      "topicId": "t-chipmaker-board-founder-ceo",
+      "slug": "chipmaker-board-founder-ceo",
+      "headlines": [
+        {
+          "lang": "en",
+          "text": "Chipmaker board rules out bringing back its founder CEO"
+        },
+        {
+          "lang": "zh",
+          "text": "芯片厂董事会排除创始人回归 CEO 的可能"
+        },
+        {
+          "lang": "ja",
+          "text": "半導体大手の取締役会、創業者の CEO 復帰を否定"
+        }
+      ],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "Chipmaker board rules out bringing back its founder CEO"
+      },
+      "summaryStatus": "published",
+      "summaryVersion": 3,
+      "publishedAt": "2026-11-19T14:08:00+09:00",
+      "corrections": 1,
+      "recentEchoes": [
+        {
+          "id": "e41041",
+          "groupId": "devto",
+          "groupName": "DEV.to top posts",
+          "url": "https://devto.example/item/41041",
+          "title": {
+            "lang": "en",
+            "text": "Board will not bring the founder back"
+          },
+          "firstSeenAt": "2026-11-19T13:40:00+09:00",
+          "wave": {
+            "slug": "chipmaker-board-founder-ceo",
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Founder CEO ousted"
+              },
+              {
+                "lang": "zh",
+                "text": "创始人 CEO 出局"
+              },
+              {
+                "lang": "ja",
+                "text": "創業者 CEO 解任"
+              }
+            ],
+            "height": 196
+          }
+        },
+        {
+          "id": "e41042",
+          "groupId": "devto",
+          "groupName": "DEV.to top posts",
+          "url": "https://devto.example/item/41042",
+          "title": {
+            "lang": "en",
+            "text": "Board will not bring the founder back"
+          },
+          "firstSeenAt": "2026-11-19T13:54:00+09:00",
+          "wave": {
+            "slug": "chipmaker-board-founder-ceo",
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Founder CEO ousted"
+              },
+              {
+                "lang": "zh",
+                "text": "创始人 CEO 出局"
+              },
+              {
+                "lang": "ja",
+                "text": "創業者 CEO 解任"
+              }
+            ],
+            "height": 196
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "t-ai-lab-sued-over-agents",
+      "slug": "ai-lab-sued-over-agents",
+      "headlines": [
+        {
+          "lang": "en",
+          "text": "State attorney general sues an AI lab over 80 rogue-agent incidents"
+        },
+        {
+          "lang": "zh",
+          "text": "州检察长就 80 起失控智能体事件起诉一家 AI 实验室"
+        },
+        {
+          "lang": "ja",
+          "text": "州司法長官、暴走エージェント 80 件で AI 研究所を提訴"
+        }
+      ],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "State attorney general sues an AI lab over 80 rogue-agent incidents"
+      },
+      "summaryStatus": "published",
+      "summaryVersion": 2,
+      "publishedAt": "2026-11-19T13:06:00+09:00",
+      "corrections": 0,
+      "recentEchoes": [
+        {
+          "id": "e41055",
+          "groupId": "bluesky",
+          "groupName": "Bluesky key accounts",
+          "url": "https://bluesky.example/item/41055",
+          "title": {
+            "lang": "en",
+            "text": "The complaint is 140 pages long"
+          },
+          "firstSeenAt": "2026-11-19T12:40:00+09:00",
+          "wave": {
+            "slug": "ai-lab-sued-over-agents",
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "AI lab sued over agents"
+              },
+              {
+                "lang": "zh",
+                "text": "AI 实验室因智能体被诉"
+              },
+              {
+                "lang": "ja",
+                "text": "AI 研究所がエージェントで提訴"
+              }
+            ],
+            "height": 181
+          }
+        },
+        {
+          "id": "e41056",
+          "groupId": "bluesky",
+          "groupName": "Bluesky key accounts",
+          "url": "https://bluesky.example/item/41056",
+          "title": {
+            "lang": "en",
+            "text": "The complaint is 140 pages long"
+          },
+          "firstSeenAt": "2026-11-19T13:17:00+09:00",
+          "wave": {
+            "slug": "ai-lab-sued-over-agents",
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "AI lab sued over agents"
+              },
+              {
+                "lang": "zh",
+                "text": "AI 实验室因智能体被诉"
+              },
+              {
+                "lang": "ja",
+                "text": "AI 研究所がエージェントで提訴"
+              }
+            ],
+            "height": 181
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "t-six-banks-offline",
+      "slug": "six-banks-offline",
+      "headlines": [
+        {
+          "lang": "en",
+          "text": "Six US banks go offline on the same afternoon"
+        },
+        {
+          "lang": "zh",
+          "text": "美国六家银行同一个下午相继宕机"
+        },
+        {
+          "lang": "ja",
+          "text": "米銀 6 行、同じ午後に相次いで停止"
+        }
+      ],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "Six US banks go offline on the same afternoon"
+      },
+      "summaryStatus": "published",
+      "summaryVersion": 1,
+      "publishedAt": "2026-11-19T10:06:00+09:00",
+      "corrections": 1,
+      "recentEchoes": [
+        {
+          "id": "e41067",
+          "groupId": "hackernews",
+          "groupName": "Hacker News front page and Show HN",
+          "url": "https://hackernews.example/item/41067",
+          "title": {
+            "lang": "en",
+            "text": "Six banks offline the same afternoon"
+          },
+          "firstSeenAt": "2026-11-19T11:07:00+09:00",
+          "wave": {
+            "slug": "six-banks-offline",
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Six banks offline"
+              },
+              {
+                "lang": "zh",
+                "text": "六家银行宕机"
+              },
+              {
+                "lang": "ja",
+                "text": "6 銀行が停止"
+              }
+            ],
+            "height": 171
+          }
+        },
+        {
+          "id": "e41068",
+          "groupId": "lobsters",
+          "groupName": "Lobsters hottest",
+          "url": "https://lobsters.example/item/41068",
+          "title": {
+            "lang": "en",
+            "text": "What a shared vendor outage looks like"
+          },
+          "firstSeenAt": "2026-11-19T11:15:00+09:00",
+          "wave": {
+            "slug": "six-banks-offline",
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Six banks offline"
+              },
+              {
+                "lang": "zh",
+                "text": "六家银行宕机"
+              },
+              {
+                "lang": "ja",
+                "text": "6 銀行が停止"
+              }
+            ],
+            "height": 171
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "t-retailer-extension-recall",
+      "slug": "retailer-extension-recall",
+      "headlines": [
+        {
+          "lang": "en",
+          "text": "Retailer recalls a browser extension after a data leak"
+        }
+      ],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "Retailer recalls a browser extension after a data leak"
+      },
+      "summaryStatus": "withdrawn",
+      "summaryVersion": null,
+      "publishedAt": null,
+      "corrections": 0,
+      "recentEchoes": [
+        {
+          "id": "e41078",
+          "groupId": "hackernews",
+          "groupName": "Hacker News front page and Show HN",
+          "url": "https://hackernews.example/item/41078",
+          "title": {
+            "lang": "en",
+            "text": "Retailer's extension sent browsing history to a third party"
+          },
+          "firstSeenAt": "2026-11-17T17:00:00+09:00",
+          "wave": {
+            "slug": "retailer-extension-recall",
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Retailer extension recall"
+              }
+            ],
+            "height": 57
+          }
+        },
+        {
+          "id": "e41079",
+          "groupId": "hackernews",
+          "groupName": "Hacker News front page and Show HN",
+          "url": "https://hackernews.example/item/41079",
+          "title": {
+            "lang": "en",
+            "text": "Retailer's extension sent browsing history to a third party"
+          },
+          "firstSeenAt": "2026-11-17T17:37:00+09:00",
+          "wave": {
+            "slug": "retailer-extension-recall",
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Retailer extension recall"
+              }
+            ],
+            "height": 57
+          }
+        }
+      ]
+    },
+    {
+      "topicId": "t-open-weights-quarter-price",
+      "slug": "open-weights-quarter-price",
+      "headlines": [],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "Open-weights model released with pricing at 25% of flagship"
+      },
+      "summaryStatus": "none",
+      "summaryVersion": null,
+      "publishedAt": null,
+      "corrections": 0,
+      "recentEchoes": [
+        {
+          "id": "e41074",
+          "groupId": "bluesky",
+          "groupName": "Bluesky key accounts",
+          "url": "https://bluesky.example/item/41074",
+          "title": {
+            "lang": "en",
+            "text": "Pricing page for the open-weights model goes live"
+          },
+          "firstSeenAt": "2026-11-19T13:50:00+09:00",
+          "wave": {
+            "slug": "open-weights-quarter-price",
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Open-weights model"
+              }
+            ],
+            "height": 126
+          }
+        },
+        {
+          "id": "e41075",
+          "groupId": "bluesky",
+          "groupName": "Bluesky key accounts",
+          "url": "https://bluesky.example/item/41075",
+          "title": {
+            "lang": "en",
+            "text": "Pricing page for the open-weights model goes live"
+          },
+          "firstSeenAt": "2026-11-19T13:54:00+09:00",
+          "wave": {
+            "slug": "open-weights-quarter-price",
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Open-weights model"
+              }
+            ],
+            "height": 126
+          }
+        }
+      ]
+    }
+  ]
+}

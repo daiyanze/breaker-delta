@@ -1,0 +1,120 @@
+{
+  "items": [
+    {
+      "id": "k203",
+      "kind": "withdrawal",
+      "at": "2026-11-19T12:20:00+09:00",
+      "slug": "retailer-extension-recall",
+      "headlines": [
+        {
+          "lang": "en",
+          "text": "Retailer recalls a browser extension after a data leak"
+        }
+      ],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "Retailer recalls a browser extension after a data leak"
+      },
+      "version": 1,
+      "texts": [
+        {
+          "lang": "en",
+          "text": "It named the wrong company."
+        }
+      ]
+    },
+    {
+      "id": "k202",
+      "kind": "correction",
+      "at": "2026-11-19T12:10:00+09:00",
+      "slug": "six-banks-offline",
+      "headlines": [
+        {
+          "lang": "en",
+          "text": "Six US banks go offline on the same afternoon"
+        },
+        {
+          "lang": "zh",
+          "text": "美国六家银行同一个下午相继宕机"
+        },
+        {
+          "lang": "ja",
+          "text": "米銀 6 行、同じ午後に相次いで停止"
+        }
+      ],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "Six US banks go offline on the same afternoon"
+      },
+      "version": 1,
+      "texts": [
+        {
+          "lang": "en",
+          "text": "The outage report count now reads “more than 500”."
+        }
+      ]
+    },
+    {
+      "id": "k201",
+      "kind": "correction",
+      "at": "2026-11-18T09:30:00+09:00",
+      "slug": "chipmaker-board-founder-ceo",
+      "headlines": [
+        {
+          "lang": "en",
+          "text": "Chipmaker board rules out bringing back its founder CEO"
+        },
+        {
+          "lang": "zh",
+          "text": "芯片厂董事会排除创始人回归 CEO 的可能"
+        },
+        {
+          "lang": "ja",
+          "text": "半導体大手の取締役会、創業者の CEO 復帰を否定"
+        }
+      ],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "Chipmaker board rules out bringing back its founder CEO"
+      },
+      "version": 2,
+      "texts": [
+        {
+          "lang": "en",
+          "text": "Version 2 gave the petition count as “250,000”. It should be “more than 180,000”."
+        }
+      ]
+    },
+    {
+      "id": "k200",
+      "kind": "merge",
+      "at": "2026-11-14T10:00:00+09:00",
+      "slug": "chipmaker-board-founder-ceo",
+      "headlines": [
+        {
+          "lang": "en",
+          "text": "Chipmaker board rules out bringing back its founder CEO"
+        },
+        {
+          "lang": "zh",
+          "text": "芯片厂董事会排除创始人回归 CEO 的可能"
+        },
+        {
+          "lang": "ja",
+          "text": "半導体大手の取締役会、創業者の CEO 復帰を否定"
+        }
+      ],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "Chipmaker board rules out bringing back its founder CEO"
+      },
+      "version": null,
+      "texts": [
+        {
+          "lang": "en",
+          "text": "Merged “Chipmaker founder ousted” into this topic."
+        }
+      ]
+    }
+  ]
+}

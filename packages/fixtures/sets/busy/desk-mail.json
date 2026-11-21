@@ -1,0 +1,61 @@
+{
+  "transport": {
+    "name": "Cloudflare Email Sending",
+    "configured": true
+  },
+  "next": {
+    "kind": "morning",
+    "at": "2026-11-20T08:00:00+09:00",
+    "recipients": 1284,
+    "waves": 16,
+    "held": false
+  },
+  "recentSends": [
+    {
+      "id": "m88",
+      "kind": "notice",
+      "subject": "Friday’s morning edition went out twice",
+      "at": "2026-11-19T10:12:00+09:00",
+      "recipients": 1281,
+      "delivered": 1276,
+      "bounced": 3,
+      "unsubscribed": 2
+    },
+    {
+      "id": "m87",
+      "kind": "morning",
+      "subject": null,
+      "at": "2026-11-19T08:00:00+09:00",
+      "recipients": 1281,
+      "delivered": 1279,
+      "bounced": 2,
+      "unsubscribed": 3
+    },
+    {
+      "id": "m86",
+      "kind": "morning",
+      "subject": null,
+      "at": "2026-11-18T08:00:00+09:00",
+      "recipients": 1277,
+      "delivered": 1267,
+      "bounced": 10,
+      "unsubscribed": 0
+    },
+    {
+      "id": "m85",
+      "kind": "weekly",
+      "subject": null,
+      "at": "2026-11-16T08:00:00+09:00",
+      "recipients": 409,
+      "delivered": 408,
+      "bounced": 0,
+      "unsubscribed": 1
+    }
+  ],
+  "subscribers": {
+    "confirmed": 1284,
+    "pending": 37,
+    "unsubscribed30d": 9,
+    "stopped": 3
+  }
+}

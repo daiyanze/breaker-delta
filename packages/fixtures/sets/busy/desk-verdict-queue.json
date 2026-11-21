@@ -1,0 +1,79 @@
+{
+  "items": [
+    {
+      "slug": "chip-export-rule-draft",
+      "headlines": [
+        {
+          "lang": "en",
+          "text": "Draft rule tightens chip exports for a second time"
+        }
+      ],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "Draft rule tightens chip exports for a second time"
+      },
+      "prediction": {
+        "id": "p005",
+        "criterion": {
+          "lang": "en",
+          "text": "The final rule is published, or the comment period is extended, within 14 days."
+        },
+        "hash": "726c0efb62615c315148805393442030d0070bc07e1a712568e07e9033242f2c",
+        "registeredAt": "2026-11-01T08:00:00+09:00",
+        "dueAt": "2026-11-15T08:00:00+09:00",
+        "verdicts": [
+          {
+            "id": "v-chip-export--1",
+            "outcome": "hit",
+            "status": "proposed",
+            "decidedAt": "2026-11-15T08:30:00+09:00",
+            "reason": [
+              {
+                "lang": "en",
+                "text": "The model proposes hit: the comment period was extended on Nov 12."
+              }
+            ],
+            "revises": null
+          }
+        ]
+      },
+      "proposed": {
+        "outcome": "hit",
+        "reason": [
+          {
+            "lang": "en",
+            "text": "The comment period was extended on Nov 12, which the test names as one way to pass."
+          }
+        ],
+        "evidenceIds": [
+          "x501",
+          "x502"
+        ]
+      },
+      "evidence": [
+        {
+          "id": "x501",
+          "kind": "news",
+          "url": "https://wire-service.example/2026/11/12/export-rule-comment-period",
+          "title": {
+            "lang": "en",
+            "text": "Comment period on chip export rule extended by 30 days"
+          },
+          "publisher": "Wire service",
+          "publishedAt": "2026-11-12T06:00:00+09:00"
+        },
+        {
+          "id": "x502",
+          "kind": "pageviews",
+          "url": "https://wikimedia.example/pageviews/Export_controls",
+          "title": {
+            "lang": "en",
+            "text": "Export controls: daily pageviews"
+          },
+          "publisher": "Wikipedia pageviews",
+          "publishedAt": null
+        }
+      ]
+    }
+  ]
+}

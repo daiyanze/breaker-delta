@@ -1,0 +1,56 @@
+{
+  "current": {
+    "runIntervalMinutes": 30,
+    "waveThreshold": 2,
+    "halfLifeHours": 48,
+    "calmAfterDays": 7,
+    "risingPercent24h": 50,
+    "rewriteAfterNewEchoes": 5,
+    "summariesPerRun": 10,
+    "reviewWindowDays": 14,
+    "languages": [
+      "en"
+    ],
+    "keywordsInclude": [],
+    "keywordsExclude": [],
+    "assignProviders": [
+      {
+        "name": "free-primary",
+        "baseUrl": "http://127.0.0.1:11434/v1",
+        "model": "qwen3:8b"
+      }
+    ],
+    "summarizeProviders": [
+      {
+        "name": "free-primary",
+        "baseUrl": "http://127.0.0.1:11434/v1",
+        "model": "qwen3:8b"
+      }
+    ],
+    "feedLimit": 100
+  },
+  "updatedAt": "2026-11-15T10:00:00+09:00",
+  "history": [
+    {
+      "changedAt": "2026-11-15T10:00:00+09:00",
+      "changes": [
+        {
+          "key": "runIntervalMinutes",
+          "from": 60,
+          "to": 30
+        },
+        {
+          "key": "languages",
+          "from": [
+            "en",
+            "zh",
+            "ja"
+          ],
+          "to": [
+            "en"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "current": {
+    "runIntervalMinutes": 60,
+    "waveThreshold": 2,
+    "halfLifeHours": 48,
+    "calmAfterDays": 7,
+    "risingPercent24h": 50,
+    "rewriteAfterNewEchoes": 5,
+    "summariesPerRun": 10,
+    "reviewWindowDays": 14,
+    "languages": [
+      "en",
+      "zh",
+      "ja"
+    ],
+    "keywordsInclude": [],
+    "keywordsExclude": [],
+    "assignProviders": [
+      {
+        "name": "free-primary",
+        "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
+        "apiKeyRef": "GEMINI_API_KEY",
+        "model": "gemini-flash-latest"
+      }
+    ],
+    "summarizeProviders": [
+      {
+        "name": "free-primary",
+        "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
+        "apiKeyRef": "GEMINI_API_KEY",
+        "model": "gemini-flash-latest"
+      },
+      {
+        "name": "paid-fallback",
+        "baseUrl": "https://openrouter.ai/api/v1",
+        "apiKeyRef": "OPENROUTER_API_KEY",
+        "model": "deepseek/deepseek-chat"
+      }
+    ],
+    "feedLimit": 100
+  },
+  "updatedAt": "2026-11-18T21:15:00+09:00",
+  "history": [
+    {
+      "changedAt": "2026-11-18T21:15:00+09:00",
+      "changes": [
+        {
+          "key": "summariesPerRun",
+          "from": 8,
+          "to": 10
+        }
+      ]
+    },
+    {
+      "changedAt": "2026-11-10T09:00:00+09:00",
+      "changes": [
+        {
+          "key": "languages",
+          "from": [
+            "en",
+            "zh"
+          ],
+          "to": [
+            "en",
+            "zh",
+            "ja"
+          ]
+        },
+        {
+          "key": "waveThreshold",
+          "from": 3,
+          "to": 2
+        }
+      ]
+    }
+  ]
+}

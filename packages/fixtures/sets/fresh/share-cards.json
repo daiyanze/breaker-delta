@@ -1,0 +1,80 @@
+{
+  "site:front:en": {
+    "card": "front",
+    "lang": "en",
+    "edition": null,
+    "waveCount": 0,
+    "formedToday": 0,
+    "top": []
+  },
+  "site:track_record:en": {
+    "card": "track_record",
+    "lang": "en",
+    "score": {
+      "rate": null,
+      "confirmed": 0,
+      "hit": 0,
+      "partial": 0,
+      "miss": 0,
+      "undetermined": 0
+    },
+    "marks": [],
+    "firstDueAt": null
+  },
+  "site:about:en": {
+    "card": "about",
+    "lang": "en"
+  },
+  "site:front:zh": {
+    "card": "front",
+    "lang": "zh",
+    "edition": null,
+    "waveCount": 0,
+    "formedToday": 0,
+    "top": []
+  },
+  "site:track_record:zh": {
+    "card": "track_record",
+    "lang": "zh",
+    "score": {
+      "rate": null,
+      "confirmed": 0,
+      "hit": 0,
+      "partial": 0,
+      "miss": 0,
+      "undetermined": 0
+    },
+    "marks": [],
+    "firstDueAt": null
+  },
+  "site:about:zh": {
+    "card": "about",
+    "lang": "zh"
+  },
+  "site:front:ja": {
+    "card": "front",
+    "lang": "ja",
+    "edition": null,
+    "waveCount": 0,
+    "formedToday": 0,
+    "top": []
+  },
+  "site:track_record:ja": {
+    "card": "track_record",
+    "lang": "ja",
+    "score": {
+      "rate": null,
+      "confirmed": 0,
+      "hit": 0,
+      "partial": 0,
+      "miss": 0,
+      "undetermined": 0
+    },
+    "marks": [],
+    "firstDueAt": null
+  },
+  "site:about:ja": {
+    "card": "about",
+    "lang": "ja"
+  }
+}

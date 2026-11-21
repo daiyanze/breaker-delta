@@ -28,9 +28,10 @@ bun run local      # M0 spike: run the pipeline Worker on this machine
 ## Layout
 
 ```
-packages/contracts  Zod contracts (echo, assign, summarize, verdict, settings)
+packages/contracts  Zod contracts (model calls, settings, read models for site and desk)
 packages/core       Pure rules: independent sources, wave, wave height. No IO.
 packages/db         Schema and migrations (D1 on Cloudflare, SQLite locally)
+packages/fixtures   Fixture data and query layer behind the read contracts
 packages/judge      Model provider chain (OpenAI-compatible HTTP)
 apps/pipeline       Worker: ticker, workflows, source adapters, admin actions
 apps/web            Worker: site and read-only API (stub until M3)

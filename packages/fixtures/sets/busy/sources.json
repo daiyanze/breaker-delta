@@ -1,0 +1,230 @@
+{
+  "lastSlot": "20261119T0500",
+  "reporting": 6,
+  "groups": [
+    {
+      "id": "hackernews",
+      "name": "Hacker News front page and Show HN",
+      "description": [
+        {
+          "lang": "en",
+          "text": "Front page and Show HN, counted as one"
+        },
+        {
+          "lang": "zh",
+          "text": "首页与 Show HN，算作一个来源"
+        },
+        {
+          "lang": "ja",
+          "text": "トップページと Show HN、一つの情報源として数える"
+        }
+      ],
+      "role": "first_hand",
+      "category": "forum",
+      "members": 2,
+      "echoesToday": 38,
+      "echoes14d": 456,
+      "status": {
+        "state": "reporting",
+        "since": "2026-11-17T09:00:00+09:00",
+        "lastScanAt": "2026-11-19T14:00:00+09:00"
+      }
+    },
+    {
+      "id": "github",
+      "name": "GitHub breakout repositories",
+      "description": [
+        {
+          "lang": "en",
+          "text": "Repositories gaining stars fast"
+        },
+        {
+          "lang": "zh",
+          "text": "星标快速上涨的仓库"
+        },
+        {
+          "lang": "ja",
+          "text": "スターが急増しているリポジトリ"
+        }
+      ],
+      "role": "first_hand",
+      "category": "code_host",
+      "members": 1,
+      "echoesToday": 21,
+      "echoes14d": 252,
+      "status": {
+        "state": "reporting",
+        "since": "2026-11-17T09:00:00+09:00",
+        "lastScanAt": "2026-11-19T14:00:00+09:00"
+      }
+    },
+    {
+      "id": "official_blogs",
+      "name": "Official blogs",
+      "description": [
+        {
+          "lang": "en",
+          "text": "17 feeds from labs and engineering teams, counted as one"
+        },
+        {
+          "lang": "zh",
+          "text": "17 个实验室与工程团队的订阅源，算作一个来源"
+        },
+        {
+          "lang": "ja",
+          "text": "研究所と開発チームの 17 フィード、一つの情報源として数える"
+        }
+      ],
+      "role": "first_hand",
+      "category": "lab_blog",
+      "members": 17,
+      "echoesToday": 9,
+      "echoes14d": 108,
+      "status": {
+        "state": "reporting",
+        "since": "2026-11-17T09:00:00+09:00",
+        "lastScanAt": "2026-11-19T14:00:00+09:00"
+      }
+    },
+    {
+      "id": "bluesky",
+      "name": "Bluesky key accounts",
+      "description": [
+        {
+          "lang": "en",
+          "text": "40 accounts"
+        },
+        {
+          "lang": "zh",
+          "text": "40 个账号"
+        },
+        {
+          "lang": "ja",
+          "text": "40 アカウント"
+        }
+      ],
+      "role": "first_hand",
+      "category": "key_accounts",
+      "members": 40,
+      "echoesToday": 17,
+      "echoes14d": 204,
+      "status": {
+        "state": "late",
+        "since": "2026-11-19T14:00:00+09:00",
+        "lastScanAt": "2026-11-19T13:00:00+09:00"
+      }
+    },
+    {
+      "id": "tech_media",
+      "name": "Tech media and independent authors",
+      "description": [
+        {
+          "lang": "en",
+          "text": "15 outlets, counted as one"
+        },
+        {
+          "lang": "zh",
+          "text": "15 家媒体，算作一个来源"
+        },
+        {
+          "lang": "ja",
+          "text": "15 媒体、一つの情報源として数える"
+        }
+      ],
+      "role": "relaying",
+      "category": "press",
+      "members": 15,
+      "echoesToday": 52,
+      "echoes14d": 624,
+      "status": {
+        "state": "reporting",
+        "since": "2026-11-17T09:00:00+09:00",
+        "lastScanAt": "2026-11-19T14:00:00+09:00"
+      }
+    },
+    {
+      "id": "google_news",
+      "name": "Google News, tech and AI topics",
+      "description": [
+        {
+          "lang": "en",
+          "text": "Topic feeds"
+        },
+        {
+          "lang": "zh",
+          "text": "主题订阅"
+        },
+        {
+          "lang": "ja",
+          "text": "トピックフィード"
+        }
+      ],
+      "role": "relaying",
+      "category": "search",
+      "members": 1,
+      "echoesToday": 23,
+      "echoes14d": 276,
+      "status": {
+        "state": "failing",
+        "since": "2026-11-19T11:00:00+09:00",
+        "lastScanAt": "2026-11-19T10:00:00+09:00"
+      }
+    },
+    {
+      "id": "lobsters",
+      "name": "Lobsters hottest",
+      "description": [
+        {
+          "lang": "en",
+          "text": "Hottest stories"
+        },
+        {
+          "lang": "zh",
+          "text": "最热门的帖子"
+        },
+        {
+          "lang": "ja",
+          "text": "人気の投稿"
+        }
+      ],
+      "role": "relaying",
+      "category": "forum",
+      "members": 1,
+      "echoesToday": 44,
+      "echoes14d": 528,
+      "status": {
+        "state": "reporting",
+        "since": "2026-11-17T09:00:00+09:00",
+        "lastScanAt": "2026-11-19T14:00:00+09:00"
+      }
+    },
+    {
+      "id": "devto",
+      "name": "DEV.to top posts",
+      "description": [
+        {
+          "lang": "en",
+          "text": "Top posts of the day"
+        },
+        {
+          "lang": "zh",
+          "text": "当日热门文章"
+        },
+        {
+          "lang": "ja",
+          "text": "その日の人気記事"
+        }
+      ],
+      "role": "relaying",
+      "category": "forum",
+      "members": 1,
+      "echoesToday": 10,
+      "echoes14d": 120,
+      "status": {
+        "state": "reporting",
+        "since": "2026-11-17T09:00:00+09:00",
+        "lastScanAt": "2026-11-19T14:00:00+09:00"
+      }
+    }
+  ]
+}

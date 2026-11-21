@@ -1,0 +1,287 @@
+{
+  "topic:chipmaker-board-founder-ceo:en": {
+    "card": "topic",
+    "lang": "en",
+    "edition": {
+      "slot": "20261119T0500",
+      "label": "14:00",
+      "day": "2026-11-19"
+    },
+    "slug": "chipmaker-board-founder-ceo",
+    "rank": 1,
+    "state": "up",
+    "headline": {
+      "lang": "en",
+      "text": "Chipmaker board rules out bringing back its founder CEO"
+    },
+    "height": 196,
+    "sourceCount": 6,
+    "echoCount": 31
+  },
+  "topic:open-weights-quarter-price:en": {
+    "card": "topic",
+    "lang": "en",
+    "edition": {
+      "slot": "20261119T0500",
+      "label": "14:00",
+      "day": "2026-11-19"
+    },
+    "slug": "open-weights-quarter-price",
+    "rank": 7,
+    "state": "up",
+    "headline": {
+      "lang": "en",
+      "text": "Open-weights model released with pricing at 25% of flagship"
+    },
+    "height": 126,
+    "sourceCount": 3,
+    "echoCount": 7
+  },
+  "site:front:en": {
+    "card": "front",
+    "lang": "en",
+    "edition": {
+      "slot": "20261119T0500",
+      "label": "14:00",
+      "day": "2026-11-19"
+    },
+    "waveCount": 16,
+    "formedToday": 5,
+    "top": [
+      {
+        "headline": {
+          "lang": "en",
+          "text": "Chipmaker board rules out bringing back its founder CEO"
+        },
+        "height": 196
+      },
+      {
+        "headline": {
+          "lang": "en",
+          "text": "State attorney general sues an AI lab over 80 rogue-agent incidents"
+        },
+        "height": 181
+      },
+      {
+        "headline": {
+          "lang": "en",
+          "text": "Six US banks go offline on the same afternoon"
+        },
+        "height": 171
+      }
+    ]
+  },
+  "site:track_record:en": {
+    "card": "track_record",
+    "lang": "en",
+    "score": {
+      "rate": 0.5,
+      "confirmed": 4,
+      "hit": 1,
+      "partial": 2,
+      "miss": 1,
+      "undetermined": 0
+    },
+    "marks": [
+      "partial",
+      "miss",
+      "partial",
+      "hit"
+    ],
+    "firstDueAt": null
+  },
+  "site:about:en": {
+    "card": "about",
+    "lang": "en"
+  },
+  "topic:chipmaker-board-founder-ceo:zh": {
+    "card": "topic",
+    "lang": "zh",
+    "edition": {
+      "slot": "20261119T0500",
+      "label": "14:00",
+      "day": "2026-11-19"
+    },
+    "slug": "chipmaker-board-founder-ceo",
+    "rank": 1,
+    "state": "up",
+    "headline": {
+      "lang": "zh",
+      "text": "芯片厂董事会排除创始人回归 CEO 的可能"
+    },
+    "height": 196,
+    "sourceCount": 6,
+    "echoCount": 31
+  },
+  "topic:open-weights-quarter-price:zh": {
+    "card": "topic",
+    "lang": "zh",
+    "edition": {
+      "slot": "20261119T0500",
+      "label": "14:00",
+      "day": "2026-11-19"
+    },
+    "slug": "open-weights-quarter-price",
+    "rank": 7,
+    "state": "up",
+    "headline": {
+      "lang": "en",
+      "text": "Open-weights model released with pricing at 25% of flagship"
+    },
+    "height": 126,
+    "sourceCount": 3,
+    "echoCount": 7
+  },
+  "site:front:zh": {
+    "card": "front",
+    "lang": "zh",
+    "edition": {
+      "slot": "20261119T0500",
+      "label": "14:00",
+      "day": "2026-11-19"
+    },
+    "waveCount": 16,
+    "formedToday": 5,
+    "top": [
+      {
+        "headline": {
+          "lang": "zh",
+          "text": "芯片厂董事会排除创始人回归 CEO 的可能"
+        },
+        "height": 196
+      },
+      {
+        "headline": {
+          "lang": "zh",
+          "text": "州检察长就 80 起失控智能体事件起诉一家 AI 实验室"
+        },
+        "height": 181
+      },
+      {
+        "headline": {
+          "lang": "zh",
+          "text": "美国六家银行同一个下午相继宕机"
+        },
+        "height": 171
+      }
+    ]
+  },
+  "site:track_record:zh": {
+    "card": "track_record",
+    "lang": "zh",
+    "score": {
+      "rate": 0.5,
+      "confirmed": 4,
+      "hit": 1,
+      "partial": 2,
+      "miss": 1,
+      "undetermined": 0
+    },
+    "marks": [
+      "partial",
+      "miss",
+      "partial",
+      "hit"
+    ],
+    "firstDueAt": null
+  },
+  "site:about:zh": {
+    "card": "about",
+    "lang": "zh"
+  },
+  "topic:chipmaker-board-founder-ceo:ja": {
+    "card": "topic",
+    "lang": "ja",
+    "edition": {
+      "slot": "20261119T0500",
+      "label": "14:00",
+      "day": "2026-11-19"
+    },
+    "slug": "chipmaker-board-founder-ceo",
+    "rank": 1,
+    "state": "up",
+    "headline": {
+      "lang": "ja",
+      "text": "半導体大手の取締役会、創業者の CEO 復帰を否定"
+    },
+    "height": 196,
+    "sourceCount": 6,
+    "echoCount": 31
+  },
+  "topic:open-weights-quarter-price:ja": {
+    "card": "topic",
+    "lang": "ja",
+    "edition": {
+      "slot": "20261119T0500",
+      "label": "14:00",
+      "day": "2026-11-19"
+    },
+    "slug": "open-weights-quarter-price",
+    "rank": 7,
+    "state": "up",
+    "headline": {
+      "lang": "en",
+      "text": "Open-weights model released with pricing at 25% of flagship"
+    },
+    "height": 126,
+    "sourceCount": 3,
+    "echoCount": 7
+  },
+  "site:front:ja": {
+    "card": "front",
+    "lang": "ja",
+    "edition": {
+      "slot": "20261119T0500",
+      "label": "14:00",
+      "day": "2026-11-19"
+    },
+    "waveCount": 16,
+    "formedToday": 5,
+    "top": [
+      {
+        "headline": {
+          "lang": "ja",
+          "text": "半導体大手の取締役会、創業者の CEO 復帰を否定"
+        },
+        "height": 196
+      },
+      {
+        "headline": {
+          "lang": "ja",
+          "text": "州司法長官、暴走エージェント 80 件で AI 研究所を提訴"
+        },
+        "height": 181
+      },
+      {
+        "headline": {
+          "lang": "ja",
+          "text": "米銀 6 行、同じ午後に相次いで停止"
+        },
+        "height": 171
+      }
+    ]
+  },
+  "site:track_record:ja": {
+    "card": "track_record",
+    "lang": "ja",
+    "score": {
+      "rate": 0.5,
+      "confirmed": 4,
+      "hit": 1,
+      "partial": 2,
+      "miss": 1,
+      "undetermined": 0
+    },
+    "marks": [
+      "partial",
+      "miss",
+      "partial",
+      "hit"
+    ],
+    "firstDueAt": null
+  },
+  "site:about:ja": {
+    "card": "about",
+    "lang": "ja"
+  }
+}

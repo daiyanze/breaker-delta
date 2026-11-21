@@ -1,0 +1,86 @@
+{
+  "lastSlot": "20261119T0500",
+  "reporting": 4,
+  "groups": [
+    {
+      "id": "official_blogs",
+      "name": "Official blogs",
+      "description": [
+        {
+          "lang": "en",
+          "text": "17 feeds from labs and engineering teams, counted as one"
+        }
+      ],
+      "role": "first_hand",
+      "category": "lab_blog",
+      "members": 17,
+      "echoesToday": 5,
+      "echoes14d": 20,
+      "status": {
+        "state": "reporting",
+        "since": "2026-11-15T10:00:00+09:00",
+        "lastScanAt": "2026-11-19T14:00:00+09:00"
+      }
+    },
+    {
+      "id": "github",
+      "name": "GitHub breakout repositories",
+      "description": [
+        {
+          "lang": "en",
+          "text": "Repositories gaining stars fast"
+        }
+      ],
+      "role": "first_hand",
+      "category": "code_host",
+      "members": 1,
+      "echoesToday": 4,
+      "echoes14d": 16,
+      "status": {
+        "state": "reporting",
+        "since": "2026-11-15T10:00:00+09:00",
+        "lastScanAt": "2026-11-19T14:00:00+09:00"
+      }
+    },
+    {
+      "id": "hackernews",
+      "name": "Hacker News front page and Show HN",
+      "description": [
+        {
+          "lang": "en",
+          "text": "Front page and Show HN, counted as one"
+        }
+      ],
+      "role": "first_hand",
+      "category": "forum",
+      "members": 2,
+      "echoesToday": 6,
+      "echoes14d": 24,
+      "status": {
+        "state": "reporting",
+        "since": "2026-11-15T10:00:00+09:00",
+        "lastScanAt": "2026-11-19T14:00:00+09:00"
+      }
+    },
+    {
+      "id": "tech_media",
+      "name": "Tech media and independent authors",
+      "description": [
+        {
+          "lang": "en",
+          "text": "15 outlets, counted as one"
+        }
+      ],
+      "role": "relaying",
+      "category": "press",
+      "members": 15,
+      "echoesToday": 1,
+      "echoes14d": 4,
+      "status": {
+        "state": "reporting",
+        "since": "2026-11-15T10:00:00+09:00",
+        "lastScanAt": "2026-11-19T14:00:00+09:00"
+      }
+    }
+  ]
+}

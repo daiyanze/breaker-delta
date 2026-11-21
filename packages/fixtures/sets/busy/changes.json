@@ -1,0 +1,477 @@
+{
+  "runs": [
+    {
+      "slot": "20261119T0500",
+      "startsAt": "2026-11-19T14:00:00+09:00",
+      "label": "14:00",
+      "changes": [
+        {
+          "id": "c1009",
+          "type": "wave_formed",
+          "at": "2026-11-19T14:02:00+09:00",
+          "topic": {
+            "slug": "open-weights-quarter-price",
+            "headlines": [],
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Open-weights model"
+              }
+            ],
+            "sourceHeadline": {
+              "lang": "en",
+              "text": "Open-weights model released with pricing at 25% of flagship"
+            },
+            "state": "up",
+            "height": 126,
+            "change24h": null
+          },
+          "detail": [
+            {
+              "lang": "en",
+              "text": "A third independent source picked it up."
+            },
+            {
+              "lang": "zh",
+              "text": "第三个独立来源跟进了。"
+            },
+            {
+              "lang": "ja",
+              "text": "3 つ目の独立した情報源が取り上げた。"
+            }
+          ]
+        },
+        {
+          "id": "c1008",
+          "type": "wave_rising",
+          "at": "2026-11-19T14:02:00+09:00",
+          "topic": {
+            "slug": "chipmaker-board-founder-ceo",
+            "headlines": [
+              {
+                "lang": "en",
+                "text": "Chipmaker board rules out bringing back its founder CEO"
+              },
+              {
+                "lang": "zh",
+                "text": "芯片厂董事会排除创始人回归 CEO 的可能"
+              },
+              {
+                "lang": "ja",
+                "text": "半導体大手の取締役会、創業者の CEO 復帰を否定"
+              }
+            ],
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Founder CEO ousted"
+              },
+              {
+                "lang": "zh",
+                "text": "创始人 CEO 出局"
+              },
+              {
+                "lang": "ja",
+                "text": "創業者 CEO 解任"
+              }
+            ],
+            "sourceHeadline": {
+              "lang": "en",
+              "text": "Chipmaker board rules out bringing back its founder CEO"
+            },
+            "state": "up",
+            "height": 196,
+            "change24h": 63
+          },
+          "detail": [
+            {
+              "lang": "en",
+              "text": "Up from 120 to 196 in 24 hours."
+            },
+            {
+              "lang": "zh",
+              "text": "24 小时内从 120 升到 196。"
+            },
+            {
+              "lang": "ja",
+              "text": "24 時間で 120 から 196 に上昇。"
+            }
+          ]
+        },
+        {
+          "id": "c1007",
+          "type": "summary_updated",
+          "at": "2026-11-19T14:08:00+09:00",
+          "topic": {
+            "slug": "chipmaker-board-founder-ceo",
+            "headlines": [
+              {
+                "lang": "en",
+                "text": "Chipmaker board rules out bringing back its founder CEO"
+              },
+              {
+                "lang": "zh",
+                "text": "芯片厂董事会排除创始人回归 CEO 的可能"
+              },
+              {
+                "lang": "ja",
+                "text": "半導体大手の取締役会、創業者の CEO 復帰を否定"
+              }
+            ],
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Founder CEO ousted"
+              },
+              {
+                "lang": "zh",
+                "text": "创始人 CEO 出局"
+              },
+              {
+                "lang": "ja",
+                "text": "創業者 CEO 解任"
+              }
+            ],
+            "sourceHeadline": {
+              "lang": "en",
+              "text": "Chipmaker board rules out bringing back its founder CEO"
+            },
+            "state": "up",
+            "height": 196,
+            "change24h": 63
+          },
+          "detail": [
+            {
+              "lang": "en",
+              "text": "Version 3, after a sixth independent source."
+            },
+            {
+              "lang": "zh",
+              "text": "第 3 版，第六个独立来源到达后重写。"
+            },
+            {
+              "lang": "ja",
+              "text": "第 3 版。6 つ目の独立した情報源の後に更新。"
+            }
+          ]
+        },
+        {
+          "id": "c1006",
+          "type": "went_flat",
+          "at": "2026-11-19T14:02:00+09:00",
+          "topic": {
+            "slug": "smart-glasses-teardown",
+            "headlines": [
+              {
+                "lang": "en",
+                "text": "Smart glasses teardown finds a second camera"
+              }
+            ],
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Smart glasses teardown"
+              }
+            ],
+            "sourceHeadline": {
+              "lang": "en",
+              "text": "Smart glasses teardown finds a second camera"
+            },
+            "state": "flat",
+            "height": 31,
+            "change24h": -4
+          },
+          "detail": [
+            {
+              "lang": "en",
+              "text": "Left the front page after 7 quiet days. Its page stays."
+            },
+            {
+              "lang": "zh",
+              "text": "平静 7 天后离开头版，页面保留。"
+            },
+            {
+              "lang": "ja",
+              "text": "7 日間動きがなく一面を離れた。ページは残る。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot": "20261119T0400",
+      "startsAt": "2026-11-19T13:00:00+09:00",
+      "label": "13:00",
+      "changes": [
+        {
+          "id": "c1005",
+          "type": "summary_updated",
+          "at": "2026-11-19T13:06:00+09:00",
+          "topic": {
+            "slug": "ai-lab-sued-over-agents",
+            "headlines": [
+              {
+                "lang": "en",
+                "text": "State attorney general sues an AI lab over 80 rogue-agent incidents"
+              },
+              {
+                "lang": "zh",
+                "text": "州检察长就 80 起失控智能体事件起诉一家 AI 实验室"
+              },
+              {
+                "lang": "ja",
+                "text": "州司法長官、暴走エージェント 80 件で AI 研究所を提訴"
+              }
+            ],
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "AI lab sued over agents"
+              },
+              {
+                "lang": "zh",
+                "text": "AI 实验室因智能体被诉"
+              },
+              {
+                "lang": "ja",
+                "text": "AI 研究所がエージェントで提訴"
+              }
+            ],
+            "sourceHeadline": {
+              "lang": "en",
+              "text": "State attorney general sues an AI lab over 80 rogue-agent incidents"
+            },
+            "state": "up",
+            "height": 181,
+            "change24h": null
+          },
+          "detail": [
+            {
+              "lang": "en",
+              "text": "Version 2, one more independent source."
+            },
+            {
+              "lang": "zh",
+              "text": "第 2 版，多了一个独立来源。"
+            },
+            {
+              "lang": "ja",
+              "text": "第 2 版。独立した情報源が 1 つ増えた。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot": "20261119T0300",
+      "startsAt": "2026-11-19T12:00:00+09:00",
+      "label": "12:00",
+      "changes": [
+        {
+          "id": "c1004",
+          "type": "corrected",
+          "at": "2026-11-19T12:10:00+09:00",
+          "topic": {
+            "slug": "six-banks-offline",
+            "headlines": [
+              {
+                "lang": "en",
+                "text": "Six US banks go offline on the same afternoon"
+              },
+              {
+                "lang": "zh",
+                "text": "美国六家银行同一个下午相继宕机"
+              },
+              {
+                "lang": "ja",
+                "text": "米銀 6 行、同じ午後に相次いで停止"
+              }
+            ],
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Six banks offline"
+              },
+              {
+                "lang": "zh",
+                "text": "六家银行宕机"
+              },
+              {
+                "lang": "ja",
+                "text": "6 銀行が停止"
+              }
+            ],
+            "sourceHeadline": {
+              "lang": "en",
+              "text": "Six US banks go offline on the same afternoon"
+            },
+            "state": "up",
+            "height": 171,
+            "change24h": null
+          },
+          "detail": [
+            {
+              "lang": "en",
+              "text": "The outage report count now reads “more than 500”."
+            },
+            {
+              "lang": "zh",
+              "text": "故障报告数改为“超过 500”。"
+            },
+            {
+              "lang": "ja",
+              "text": "障害報告の件数を「500 件以上」に訂正。"
+            }
+          ]
+        },
+        {
+          "id": "c1003",
+          "type": "withdrawn",
+          "at": "2026-11-19T12:20:00+09:00",
+          "topic": {
+            "slug": "retailer-extension-recall",
+            "headlines": [
+              {
+                "lang": "en",
+                "text": "Retailer recalls a browser extension after a data leak"
+              }
+            ],
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Retailer extension recall"
+              }
+            ],
+            "sourceHeadline": {
+              "lang": "en",
+              "text": "Retailer recalls a browser extension after a data leak"
+            },
+            "state": "up",
+            "height": 57,
+            "change24h": 0
+          },
+          "detail": [
+            {
+              "lang": "en",
+              "text": "We withdrew the summary: it named the wrong company."
+            },
+            {
+              "lang": "zh",
+              "text": "我们撤回了摘要：写错了公司名。"
+            },
+            {
+              "lang": "ja",
+              "text": "要約を取り下げた。会社名を誤っていた。"
+            }
+          ]
+        },
+        {
+          "id": "c1002",
+          "type": "verdict",
+          "at": "2026-11-19T12:05:00+09:00",
+          "topic": {
+            "slug": "state-sues-ai-lab-training-data",
+            "headlines": [
+              {
+                "lang": "en",
+                "text": "State sues an AI lab over training data"
+              }
+            ],
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "State sues over training data"
+              }
+            ],
+            "sourceHeadline": {
+              "lang": "en",
+              "text": "State sues an AI lab over training data"
+            },
+            "state": "flat",
+            "height": 12,
+            "change24h": -30
+          },
+          "detail": [
+            {
+              "lang": "en",
+              "text": "Our call was a hit. Ruled by the desk on Nov 19."
+            },
+            {
+              "lang": "zh",
+              "text": "我们的判断命中。编辑台于 11 月 19 日裁定。"
+            },
+            {
+              "lang": "ja",
+              "text": "予測は的中。11 月 19 日にデスクが判定。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot": "20261119T0200",
+      "startsAt": "2026-11-19T11:00:00+09:00",
+      "label": "11:00",
+      "changes": [
+        {
+          "id": "c1001",
+          "type": "wave_formed",
+          "at": "2026-11-19T11:02:00+09:00",
+          "topic": {
+            "slug": "decoy-discounts",
+            "headlines": [
+              {
+                "lang": "en",
+                "text": "Black Friday decoy discounts: 29% of 351 deals saved nothing"
+              },
+              {
+                "lang": "zh",
+                "text": "黑五假折扣：351 个优惠中 29% 并不省钱"
+              },
+              {
+                "lang": "ja",
+                "text": "ブラックフライデーの見せかけ割引、351 件中 29% は安くならず"
+              }
+            ],
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Decoy discounts"
+              },
+              {
+                "lang": "zh",
+                "text": "假折扣"
+              },
+              {
+                "lang": "ja",
+                "text": "見せかけ割引"
+              }
+            ],
+            "sourceHeadline": {
+              "lang": "en",
+              "text": "Black Friday decoy discounts: 29% of 351 deals saved nothing"
+            },
+            "state": "up",
+            "height": 131,
+            "change24h": null
+          },
+          "detail": [
+            {
+              "lang": "en",
+              "text": "Two independent sources."
+            },
+            {
+              "lang": "zh",
+              "text": "两个独立来源。"
+            },
+            {
+              "lang": "ja",
+              "text": "2 つの独立した情報源。"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "nextBefore": "20261119T0200"
+}

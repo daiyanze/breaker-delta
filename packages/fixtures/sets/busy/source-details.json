@@ -1,0 +1,711 @@
+{
+  "official_blogs": {
+    "group": {
+      "id": "official_blogs",
+      "name": "Official blogs",
+      "description": [
+        {
+          "lang": "en",
+          "text": "17 feeds from labs and engineering teams, counted as one"
+        },
+        {
+          "lang": "zh",
+          "text": "17 个实验室与工程团队的订阅源，算作一个来源"
+        },
+        {
+          "lang": "ja",
+          "text": "研究所と開発チームの 17 フィード、一つの情報源として数える"
+        }
+      ],
+      "role": "first_hand",
+      "category": "lab_blog",
+      "members": 17,
+      "echoesToday": 9,
+      "echoes14d": 108,
+      "status": {
+        "state": "reporting",
+        "since": "2026-11-17T09:00:00+09:00",
+        "lastScanAt": "2026-11-19T14:00:00+09:00"
+      }
+    },
+    "memberNames": [
+      "OpenAI news",
+      "Google DeepMind blog",
+      "Google Research blog",
+      "Hugging Face blog",
+      "Mistral AI news",
+      "NVIDIA blog",
+      "AWS machine learning blog",
+      "GitHub blog, AI and ML",
+      "Microsoft Research",
+      "BAIR blog",
+      "LangChain blog",
+      "The Keyword",
+      "Ollama blog",
+      "Databricks blog",
+      "Cloudflare blog",
+      "GitHub changelog",
+      "Mozilla blog"
+    ],
+    "scans": [
+      {
+        "slot": "20261117T0600",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T0700",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T0800",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T0900",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1000",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1100",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1200",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1300",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1400",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1500",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1600",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1700",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1800",
+        "result": "late"
+      },
+      {
+        "slot": "20261117T1900",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T2000",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T2100",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T2200",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T2300",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0000",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0100",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0200",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0300",
+        "result": "missed"
+      },
+      {
+        "slot": "20261118T0400",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0500",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0600",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0700",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0800",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0900",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1000",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1100",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1200",
+        "result": "late"
+      },
+      {
+        "slot": "20261118T1300",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1400",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1500",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1600",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1700",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1800",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1900",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T2000",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T2100",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T2200",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T2300",
+        "result": "reported"
+      },
+      {
+        "slot": "20261119T0000",
+        "result": "reported"
+      },
+      {
+        "slot": "20261119T0100",
+        "result": "reported"
+      },
+      {
+        "slot": "20261119T0200",
+        "result": "reported"
+      },
+      {
+        "slot": "20261119T0300",
+        "result": "reported"
+      },
+      {
+        "slot": "20261119T0400",
+        "result": "reported"
+      },
+      {
+        "slot": "20261119T0500",
+        "result": "reported"
+      }
+    ],
+    "recentEchoes": [
+      {
+        "id": "e41098",
+        "groupId": "official_blogs",
+        "groupName": "Official blogs",
+        "url": "https://official-blogs.example/item/41098",
+        "title": {
+          "lang": "en",
+          "text": "Notes on giving agents a memory that survives restarts"
+        },
+        "firstSeenAt": "2026-11-19T13:20:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41099",
+        "groupId": "official_blogs",
+        "groupName": "Official blogs",
+        "url": "https://official-blogs.example/item/41099",
+        "title": {
+          "lang": "en",
+          "text": "A new interpretability result on small models"
+        },
+        "firstSeenAt": "2026-11-19T12:55:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41100",
+        "groupId": "official_blogs",
+        "groupName": "Official blogs",
+        "url": "https://official-blogs.example/item/41100",
+        "title": {
+          "lang": "en",
+          "text": "Pricing and limits for the open-weights model"
+        },
+        "firstSeenAt": "2026-11-19T11:02:00+09:00",
+        "wave": {
+          "slug": "open-weights-quarter-price",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Open-weights model"
+            }
+          ],
+          "height": 126
+        }
+      },
+      {
+        "id": "e41101",
+        "groupId": "official_blogs",
+        "groupName": "Official blogs",
+        "url": "https://official-blogs.example/item/41101",
+        "title": {
+          "lang": "en",
+          "text": "What we learned from a year of agent evaluations"
+        },
+        "firstSeenAt": "2026-11-19T09:40:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41102",
+        "groupId": "official_blogs",
+        "groupName": "Official blogs",
+        "url": "https://official-blogs.example/item/41102",
+        "title": {
+          "lang": "en",
+          "text": "A postmortem of last week's inference outage"
+        },
+        "firstSeenAt": "2026-11-19T08:15:00+09:00",
+        "wave": {
+          "slug": "cloud-outage-postmortem",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Cloud outage postmortem"
+            }
+          ],
+          "height": 68
+        }
+      }
+    ],
+    "waves": [
+      {
+        "slug": "open-weights-quarter-price",
+        "headlines": [],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Open-weights model"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Open-weights model released with pricing at 25% of flagship"
+        },
+        "state": "up",
+        "height": 126,
+        "change24h": null,
+        "position": 1,
+        "joinedAt": "2026-11-19T11:02:00+09:00"
+      },
+      {
+        "slug": "super-agent-flash-model",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Lab releases a super-agent and a faster flash model"
+          },
+          {
+            "lang": "zh",
+            "text": "实验室发布超级智能体和更快的 flash 模型"
+          },
+          {
+            "lang": "ja",
+            "text": "研究所がスーパーエージェントと高速 flash モデルを公開"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Super-agent release"
+          },
+          {
+            "lang": "zh",
+            "text": "超级智能体发布"
+          },
+          {
+            "lang": "ja",
+            "text": "スーパーエージェント公開"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Lab releases a super-agent and a faster flash model"
+        },
+        "state": "up",
+        "height": 80,
+        "change24h": -21,
+        "position": 1,
+        "joinedAt": "2026-11-12T16:00:00+09:00"
+      },
+      {
+        "slug": "cloud-outage-postmortem",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Postmortem of last week's inference outage"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Cloud outage postmortem"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Postmortem of last week's inference outage"
+        },
+        "state": "up",
+        "height": 68,
+        "change24h": 0,
+        "position": 2,
+        "joinedAt": "2026-11-17T13:00:00+09:00"
+      }
+    ]
+  },
+  "google_news": {
+    "group": {
+      "id": "google_news",
+      "name": "Google News, tech and AI topics",
+      "description": [
+        {
+          "lang": "en",
+          "text": "Topic feeds"
+        },
+        {
+          "lang": "zh",
+          "text": "主题订阅"
+        },
+        {
+          "lang": "ja",
+          "text": "トピックフィード"
+        }
+      ],
+      "role": "relaying",
+      "category": "search",
+      "members": 1,
+      "echoesToday": 23,
+      "echoes14d": 276,
+      "status": {
+        "state": "failing",
+        "since": "2026-11-19T11:00:00+09:00",
+        "lastScanAt": "2026-11-19T10:00:00+09:00"
+      }
+    },
+    "memberNames": [
+      "Technology",
+      "Artificial intelligence"
+    ],
+    "scans": [
+      {
+        "slot": "20261117T0600",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T0700",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T0800",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T0900",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1000",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1100",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1200",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1300",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1400",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1500",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1600",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1700",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1800",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T1900",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T2000",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T2100",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T2200",
+        "result": "reported"
+      },
+      {
+        "slot": "20261117T2300",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0000",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0100",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0200",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0300",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0400",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0500",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0600",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0700",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0800",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T0900",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1000",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1100",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1200",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1300",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1400",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1500",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1600",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1700",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1800",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T1900",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T2000",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T2100",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T2200",
+        "result": "reported"
+      },
+      {
+        "slot": "20261118T2300",
+        "result": "reported"
+      },
+      {
+        "slot": "20261119T0000",
+        "result": "reported"
+      },
+      {
+        "slot": "20261119T0100",
+        "result": "reported"
+      },
+      {
+        "slot": "20261119T0200",
+        "result": "missed"
+      },
+      {
+        "slot": "20261119T0300",
+        "result": "missed"
+      },
+      {
+        "slot": "20261119T0400",
+        "result": "missed"
+      },
+      {
+        "slot": "20261119T0500",
+        "result": "missed"
+      }
+    ],
+    "recentEchoes": [
+      {
+        "id": "e41096",
+        "groupId": "google_news",
+        "groupName": "Google News, tech and AI topics",
+        "url": "https://google-news.example/item/41096",
+        "title": {
+          "lang": "en",
+          "text": "Attorney general's complaint lists 80 incidents"
+        },
+        "firstSeenAt": "2026-11-19T12:58:00+09:00",
+        "wave": {
+          "slug": "ai-lab-sued-over-agents",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "AI lab sued over agents"
+            },
+            {
+              "lang": "zh",
+              "text": "AI 实验室因智能体被诉"
+            },
+            {
+              "lang": "ja",
+              "text": "AI 研究所がエージェントで提訴"
+            }
+          ],
+          "height": 181
+        }
+      }
+    ],
+    "waves": [
+      {
+        "slug": "ai-lab-sued-over-agents",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "State attorney general sues an AI lab over 80 rogue-agent incidents"
+          },
+          {
+            "lang": "zh",
+            "text": "州检察长就 80 起失控智能体事件起诉一家 AI 实验室"
+          },
+          {
+            "lang": "ja",
+            "text": "州司法長官、暴走エージェント 80 件で AI 研究所を提訴"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "AI lab sued over agents"
+          },
+          {
+            "lang": "zh",
+            "text": "AI 实验室因智能体被诉"
+          },
+          {
+            "lang": "ja",
+            "text": "AI 研究所がエージェントで提訴"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "State attorney general sues an AI lab over 80 rogue-agent incidents"
+        },
+        "state": "up",
+        "height": 181,
+        "change24h": null,
+        "position": 1,
+        "joinedAt": "2026-11-19T09:00:00+09:00"
+      }
+    ]
+  }
+}

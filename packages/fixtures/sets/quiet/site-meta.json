@@ -1,0 +1,21 @@
+{
+  "siteName": "Breaker Delta",
+  "languages": [
+    "en"
+  ],
+  "defaultLanguage": "en",
+  "timeZone": "Asia/Tokyo",
+  "lastRunAt": "2026-11-19T14:02:00+09:00",
+  "lastSlot": "20261119T0500",
+  "nextRunAt": "2026-11-19T14:30:00+09:00",
+  "runIntervalMinutes": 30,
+  "summariesEnabled": true,
+  "mail": {
+    "enabled": false
+  },
+  "analytics": {
+    "googleAnalytics": false,
+    "umami": true,
+    "plausible": false
+  }
+}

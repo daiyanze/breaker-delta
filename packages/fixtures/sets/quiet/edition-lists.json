@@ -1,0 +1,570 @@
+{
+  "2026-11-19": {
+    "day": "2026-11-19",
+    "days": [
+      {
+        "day": "2026-11-19",
+        "exists": true
+      },
+      {
+        "day": "2026-11-18",
+        "exists": true
+      },
+      {
+        "day": "2026-11-17",
+        "exists": true
+      },
+      {
+        "day": "2026-11-16",
+        "exists": true
+      },
+      {
+        "day": "2026-11-15",
+        "exists": false
+      },
+      {
+        "day": "2026-11-14",
+        "exists": false
+      },
+      {
+        "day": "2026-11-13",
+        "exists": false
+      }
+    ],
+    "slots": [
+      {
+        "slot": "20261118T1500",
+        "startsAt": "2026-11-19T00:00:00+09:00",
+        "label": "00:00",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 121,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T1530",
+        "startsAt": "2026-11-19T00:30:00+09:00",
+        "label": "00:30",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 121,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T1600",
+        "startsAt": "2026-11-19T01:00:00+09:00",
+        "label": "01:00",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 118,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T1630",
+        "startsAt": "2026-11-19T01:30:00+09:00",
+        "label": "01:30",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 118,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T1700",
+        "startsAt": "2026-11-19T02:00:00+09:00",
+        "label": "02:00",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 115,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T1730",
+        "startsAt": "2026-11-19T02:30:00+09:00",
+        "label": "02:30",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 115,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T1800",
+        "startsAt": "2026-11-19T03:00:00+09:00",
+        "label": "03:00",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 112,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T1830",
+        "startsAt": "2026-11-19T03:30:00+09:00",
+        "label": "03:30",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 112,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T1900",
+        "startsAt": "2026-11-19T04:00:00+09:00",
+        "label": "04:00",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 109,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T1930",
+        "startsAt": "2026-11-19T04:30:00+09:00",
+        "label": "04:30",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 109,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T2000",
+        "startsAt": "2026-11-19T05:00:00+09:00",
+        "label": "05:00",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 106,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T2030",
+        "startsAt": "2026-11-19T05:30:00+09:00",
+        "label": "05:30",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 106,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T2100",
+        "startsAt": "2026-11-19T06:00:00+09:00",
+        "label": "06:00",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 103,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T2130",
+        "startsAt": "2026-11-19T06:30:00+09:00",
+        "label": "06:30",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 103,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T2200",
+        "startsAt": "2026-11-19T07:00:00+09:00",
+        "label": "07:00",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 100,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T2230",
+        "startsAt": "2026-11-19T07:30:00+09:00",
+        "label": "07:30",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 100,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T2300",
+        "startsAt": "2026-11-19T08:00:00+09:00",
+        "label": "08:00",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 97,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261118T2330",
+        "startsAt": "2026-11-19T08:30:00+09:00",
+        "label": "08:30",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 97,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261119T0000",
+        "startsAt": "2026-11-19T09:00:00+09:00",
+        "label": "09:00",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 94,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261119T0030",
+        "startsAt": "2026-11-19T09:30:00+09:00",
+        "label": "09:30",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 94,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261119T0100",
+        "startsAt": "2026-11-19T10:00:00+09:00",
+        "label": "10:00",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 91,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261119T0130",
+        "startsAt": "2026-11-19T10:30:00+09:00",
+        "label": "10:30",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 91,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261119T0200",
+        "startsAt": "2026-11-19T11:00:00+09:00",
+        "label": "11:00",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 88,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261119T0230",
+        "startsAt": "2026-11-19T11:30:00+09:00",
+        "label": "11:30",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 88,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261119T0300",
+        "startsAt": "2026-11-19T12:00:00+09:00",
+        "label": "12:00",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 85,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261119T0330",
+        "startsAt": "2026-11-19T12:30:00+09:00",
+        "label": "12:30",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 85,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261119T0400",
+        "startsAt": "2026-11-19T13:00:00+09:00",
+        "label": "13:00",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 82,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261119T0430",
+        "startsAt": "2026-11-19T13:30:00+09:00",
+        "label": "13:30",
+        "status": "printed",
+        "waveCount": 1,
+        "top": [
+          {
+            "height": 82,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261119T0500",
+        "startsAt": "2026-11-19T14:00:00+09:00",
+        "label": "14:00",
+        "status": "printed",
+        "waveCount": 2,
+        "top": [
+          {
+            "height": 126,
+            "formedToday": true
+          },
+          {
+            "height": 80,
+            "formedToday": false
+          }
+        ]
+      },
+      {
+        "slot": "20261119T0530",
+        "startsAt": "2026-11-19T14:30:00+09:00",
+        "label": "14:30",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T0600",
+        "startsAt": "2026-11-19T15:00:00+09:00",
+        "label": "15:00",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T0630",
+        "startsAt": "2026-11-19T15:30:00+09:00",
+        "label": "15:30",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T0700",
+        "startsAt": "2026-11-19T16:00:00+09:00",
+        "label": "16:00",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T0730",
+        "startsAt": "2026-11-19T16:30:00+09:00",
+        "label": "16:30",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T0800",
+        "startsAt": "2026-11-19T17:00:00+09:00",
+        "label": "17:00",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T0830",
+        "startsAt": "2026-11-19T17:30:00+09:00",
+        "label": "17:30",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T0900",
+        "startsAt": "2026-11-19T18:00:00+09:00",
+        "label": "18:00",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T0930",
+        "startsAt": "2026-11-19T18:30:00+09:00",
+        "label": "18:30",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T1000",
+        "startsAt": "2026-11-19T19:00:00+09:00",
+        "label": "19:00",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T1030",
+        "startsAt": "2026-11-19T19:30:00+09:00",
+        "label": "19:30",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T1100",
+        "startsAt": "2026-11-19T20:00:00+09:00",
+        "label": "20:00",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T1130",
+        "startsAt": "2026-11-19T20:30:00+09:00",
+        "label": "20:30",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T1200",
+        "startsAt": "2026-11-19T21:00:00+09:00",
+        "label": "21:00",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T1230",
+        "startsAt": "2026-11-19T21:30:00+09:00",
+        "label": "21:30",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T1300",
+        "startsAt": "2026-11-19T22:00:00+09:00",
+        "label": "22:00",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T1330",
+        "startsAt": "2026-11-19T22:30:00+09:00",
+        "label": "22:30",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T1400",
+        "startsAt": "2026-11-19T23:00:00+09:00",
+        "label": "23:00",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      },
+      {
+        "slot": "20261119T1430",
+        "startsAt": "2026-11-19T23:30:00+09:00",
+        "label": "23:30",
+        "status": "upcoming",
+        "waveCount": 0,
+        "top": []
+      }
+    ]
+  }
+}
