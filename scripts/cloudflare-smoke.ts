@@ -140,3 +140,7 @@ try {
 const summary = failures.length === 0 ? "all checks passed" : `${failures.length} failed`;
 console.log(`[cloudflare] ${summary}`);
 process.exit(failures.length === 0 ? 0 : 1);
+
+// Deliberate type error to prove the new check catches it (lesson L7); removed in the next commit.
+const proof: number = "not a number";
+console.log(proof);
