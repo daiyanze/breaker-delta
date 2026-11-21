@@ -25,13 +25,18 @@ export const RULES: Rule[] = [
     why: "judge talks HTTP only; no database, no tools",
   },
   {
+    dir: "packages/fixtures/src",
+    allow: [/^@bd\/contracts$/, /^bun:test$/],
+    why: "fixtures are data behind the read contracts: no database, no IO",
+  },
+  {
     dir: "packages/db/src",
     allow: [/^@bd\/contracts$/, /^drizzle-orm(\/.*)?$/, /^bun:test$/],
     why: "db holds schema and queries",
   },
   {
     dir: "apps/web/src",
-    allow: [/^@bd\/contracts$/, /^@bd\/db$/, /^cloudflare:/, /^bun:test$/],
+    allow: [/^@bd\/contracts$/, /^@bd\/db$/, /^@bd\/fixtures$/, /^cloudflare:/, /^bun:test$/],
     why: "web is read-only: no judge, no pipeline code",
   },
 ];

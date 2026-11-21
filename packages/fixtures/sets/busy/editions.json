@@ -1,0 +1,2359 @@
+{
+  "20261119T0200": {
+    "slot": "20261119T0200",
+    "startsAt": "2026-11-19T11:00:00+09:00",
+    "label": "11:00",
+    "seaState": "choppy",
+    "waveCount": 15,
+    "formedToday": 4,
+    "ranking": [
+      {
+        "slug": "chipmaker-board-founder-ceo",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Chipmaker board rules out bringing back its founder CEO"
+          },
+          {
+            "lang": "zh",
+            "text": "芯片厂董事会排除创始人回归 CEO 的可能"
+          },
+          {
+            "lang": "ja",
+            "text": "半導体大手の取締役会、創業者の CEO 復帰を否定"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Founder CEO ousted"
+          },
+          {
+            "lang": "zh",
+            "text": "创始人 CEO 出局"
+          },
+          {
+            "lang": "ja",
+            "text": "創業者 CEO 解任"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Chipmaker board rules out bringing back its founder CEO"
+        },
+        "rank": 1,
+        "height": 175,
+        "change24h": 46,
+        "sourceCount": 6,
+        "echoCount": 31,
+        "state": "up",
+        "formedAt": "2026-11-12T18:00:00+09:00",
+        "trend": [
+          188,
+          186,
+          184,
+          182,
+          180,
+          178,
+          176,
+          175
+        ]
+      },
+      {
+        "slug": "ai-lab-sued-over-agents",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "State attorney general sues an AI lab over 80 rogue-agent incidents"
+          },
+          {
+            "lang": "zh",
+            "text": "州检察长就 80 起失控智能体事件起诉一家 AI 实验室"
+          },
+          {
+            "lang": "ja",
+            "text": "州司法長官、暴走エージェント 80 件で AI 研究所を提訴"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "AI lab sued over agents"
+          },
+          {
+            "lang": "zh",
+            "text": "AI 实验室因智能体被诉"
+          },
+          {
+            "lang": "ja",
+            "text": "AI 研究所がエージェントで提訴"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "State attorney general sues an AI lab over 80 rogue-agent incidents"
+        },
+        "rank": 2,
+        "height": 165,
+        "change24h": null,
+        "sourceCount": 4,
+        "echoCount": 14,
+        "state": "up",
+        "formedAt": "2026-11-19T09:00:00+09:00",
+        "trend": [
+          120,
+          150,
+          165
+        ]
+      },
+      {
+        "slug": "frontier-model-backlash",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "New frontier model keeps drawing benchmarks and backlash"
+          },
+          {
+            "lang": "zh",
+            "text": "新旗舰模型的跑分与争议持续发酵"
+          },
+          {
+            "lang": "ja",
+            "text": "新フロンティアモデル、ベンチマークと反発が続く"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Frontier model backlash"
+          },
+          {
+            "lang": "zh",
+            "text": "旗舰模型争议"
+          },
+          {
+            "lang": "ja",
+            "text": "フロンティアモデルへの反発"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "New frontier model keeps drawing benchmarks and backlash"
+        },
+        "rank": 3,
+        "height": 154,
+        "change24h": -12,
+        "sourceCount": 5,
+        "echoCount": 22,
+        "state": "up",
+        "formedAt": "2026-11-13T09:00:00+09:00",
+        "trend": [
+          182,
+          178,
+          174,
+          170,
+          166,
+          162,
+          158,
+          154
+        ]
+      },
+      {
+        "slug": "six-banks-offline",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Six US banks go offline on the same afternoon"
+          },
+          {
+            "lang": "zh",
+            "text": "美国六家银行同一个下午相继宕机"
+          },
+          {
+            "lang": "ja",
+            "text": "米銀 6 行、同じ午後に相次いで停止"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Six banks offline"
+          },
+          {
+            "lang": "zh",
+            "text": "六家银行宕机"
+          },
+          {
+            "lang": "ja",
+            "text": "6 銀行が停止"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Six US banks go offline on the same afternoon"
+        },
+        "rank": 4,
+        "height": 140,
+        "change24h": null,
+        "sourceCount": 5,
+        "echoCount": 12,
+        "state": "up",
+        "formedAt": "2026-11-19T10:00:00+09:00",
+        "trend": [
+          110,
+          140
+        ]
+      },
+      {
+        "slug": "ai-hacking-tool-warning",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Security agency warns about an open-source AI hacking tool"
+          },
+          {
+            "lang": "zh",
+            "text": "安全机构就一款开源 AI 黑客工具发出警告"
+          },
+          {
+            "lang": "ja",
+            "text": "セキュリティ機関、オープンソースの AI ハッキングツールに警告"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "AI hacking tool warning"
+          },
+          {
+            "lang": "zh",
+            "text": "AI 黑客工具警告"
+          },
+          {
+            "lang": "ja",
+            "text": "AI ハッキングツール警告"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Security agency warns about an open-source AI hacking tool"
+        },
+        "rank": 5,
+        "height": 140,
+        "change24h": null,
+        "sourceCount": 4,
+        "echoCount": 9,
+        "state": "up",
+        "formedAt": "2026-11-19T08:00:00+09:00",
+        "trend": [
+          90,
+          118,
+          130,
+          140
+        ]
+      },
+      {
+        "slug": "assistant-wallet",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Chat assistant gets a wallet and starts paying for you"
+          },
+          {
+            "lang": "zh",
+            "text": "聊天助手有了钱包，开始替你付款"
+          },
+          {
+            "lang": "ja",
+            "text": "チャットアシスタントが財布を持ち、代わりに支払いを開始"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Assistant wallet"
+          },
+          {
+            "lang": "zh",
+            "text": "助手钱包"
+          },
+          {
+            "lang": "ja",
+            "text": "アシスタントの財布"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Chat assistant gets a wallet and starts paying for you"
+        },
+        "rank": 6,
+        "height": 134,
+        "change24h": -16,
+        "sourceCount": 5,
+        "echoCount": 18,
+        "state": "up",
+        "formedAt": "2026-11-14T11:00:00+09:00",
+        "trend": [
+          162,
+          158,
+          154,
+          150,
+          146,
+          142,
+          138,
+          134
+        ]
+      },
+      {
+        "slug": "airline-bans-booking-agents",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Airline bans AI agents from booking flights"
+          },
+          {
+            "lang": "zh",
+            "text": "航空公司禁止 AI 智能体订票"
+          },
+          {
+            "lang": "ja",
+            "text": "航空会社、AI エージェントによる予約を禁止"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Agent booking ban"
+          },
+          {
+            "lang": "zh",
+            "text": "禁止智能体订票"
+          },
+          {
+            "lang": "ja",
+            "text": "エージェント予約禁止"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Airline bans AI agents from booking flights"
+        },
+        "rank": 7,
+        "height": 108,
+        "change24h": -14,
+        "sourceCount": 5,
+        "echoCount": 11,
+        "state": "up",
+        "formedAt": "2026-11-12T15:00:00+09:00",
+        "trend": [
+          129,
+          126,
+          123,
+          120,
+          117,
+          114,
+          111,
+          108
+        ]
+      },
+      {
+        "slug": "decoy-discounts",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Black Friday decoy discounts: 29% of 351 deals saved nothing"
+          },
+          {
+            "lang": "zh",
+            "text": "黑五假折扣：351 个优惠中 29% 并不省钱"
+          },
+          {
+            "lang": "ja",
+            "text": "ブラックフライデーの見せかけ割引、351 件中 29% は安くならず"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Decoy discounts"
+          },
+          {
+            "lang": "zh",
+            "text": "假折扣"
+          },
+          {
+            "lang": "ja",
+            "text": "見せかけ割引"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Black Friday decoy discounts: 29% of 351 deals saved nothing"
+        },
+        "rank": 8,
+        "height": 96,
+        "change24h": null,
+        "sourceCount": 2,
+        "echoCount": 6,
+        "state": "up",
+        "formedAt": "2026-11-19T11:00:00+09:00",
+        "trend": [
+          96
+        ]
+      },
+      {
+        "slug": "super-agent-flash-model",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Lab releases a super-agent and a faster flash model"
+          },
+          {
+            "lang": "zh",
+            "text": "实验室发布超级智能体和更快的 flash 模型"
+          },
+          {
+            "lang": "ja",
+            "text": "研究所がスーパーエージェントと高速 flash モデルを公開"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Super-agent release"
+          },
+          {
+            "lang": "zh",
+            "text": "超级智能体发布"
+          },
+          {
+            "lang": "ja",
+            "text": "スーパーエージェント公開"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Lab releases a super-agent and a faster flash model"
+        },
+        "rank": 9,
+        "height": 88,
+        "change24h": -13,
+        "sourceCount": 3,
+        "echoCount": 8,
+        "state": "up",
+        "formedAt": "2026-11-12T18:00:00+09:00",
+        "trend": [
+          109,
+          106,
+          103,
+          100,
+          97,
+          94,
+          91,
+          88
+        ]
+      },
+      {
+        "slug": "browser-agent-permissions",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Browser vendor adds a permissions prompt for agents"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Browser agent permissions"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Browser vendor adds a permissions prompt for agents"
+        },
+        "rank": 10,
+        "height": 74,
+        "change24h": 0,
+        "sourceCount": 2,
+        "echoCount": 4,
+        "state": "up",
+        "formedAt": "2026-11-17T10:00:00+09:00",
+        "trend": [
+          74,
+          74,
+          74,
+          74,
+          74,
+          74,
+          74,
+          74
+        ]
+      },
+      {
+        "slug": "cloud-outage-postmortem",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Postmortem of last week's inference outage"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Cloud outage postmortem"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Postmortem of last week's inference outage"
+        },
+        "rank": 11,
+        "height": 68,
+        "change24h": 0,
+        "sourceCount": 2,
+        "echoCount": 4,
+        "state": "up",
+        "formedAt": "2026-11-17T13:00:00+09:00",
+        "trend": [
+          68,
+          68,
+          68,
+          68,
+          68,
+          68,
+          68,
+          68
+        ]
+      },
+      {
+        "slug": "robotaxi-permit-expands",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Robotaxi permit expands to two more cities"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Robotaxi permit expands"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Robotaxi permit expands to two more cities"
+        },
+        "rank": 12,
+        "height": 63,
+        "change24h": 0,
+        "sourceCount": 2,
+        "echoCount": 4,
+        "state": "up",
+        "formedAt": "2026-11-16T09:00:00+09:00",
+        "trend": [
+          63,
+          63,
+          63,
+          63,
+          63,
+          63,
+          63,
+          63
+        ]
+      },
+      {
+        "slug": "retailer-extension-recall",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Retailer recalls a browser extension after a data leak"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Retailer extension recall"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Retailer recalls a browser extension after a data leak"
+        },
+        "rank": 13,
+        "height": 57,
+        "change24h": 0,
+        "sourceCount": 2,
+        "echoCount": 4,
+        "state": "up",
+        "formedAt": "2026-11-17T16:00:00+09:00",
+        "trend": [
+          57,
+          57,
+          57,
+          57,
+          57,
+          57,
+          57,
+          57
+        ]
+      },
+      {
+        "slug": "context-registry-opens",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "A public registry for agent tool servers opens"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Context registry opens"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "A public registry for agent tool servers opens"
+        },
+        "rank": 14,
+        "height": 49,
+        "change24h": 0,
+        "sourceCount": 2,
+        "echoCount": 4,
+        "state": "up",
+        "formedAt": "2026-11-18T09:00:00+09:00",
+        "trend": [
+          49,
+          49,
+          49,
+          49,
+          49,
+          49,
+          49,
+          49
+        ]
+      },
+      {
+        "slug": "quantum-error-rate-claim",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Quantum startup claims a record low error rate"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Quantum error-rate claim"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Quantum startup claims a record low error rate"
+        },
+        "rank": 15,
+        "height": 44,
+        "change24h": 0,
+        "sourceCount": 2,
+        "echoCount": 4,
+        "state": "up",
+        "formedAt": "2026-11-16T15:00:00+09:00",
+        "trend": [
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44
+        ]
+      }
+    ],
+    "tideTable": [
+      {
+        "slug": "ai-hacking-tool-warning",
+        "formedAt": "2026-11-19T08:00:00+09:00",
+        "height": 140
+      },
+      {
+        "slug": "ai-lab-sued-over-agents",
+        "formedAt": "2026-11-19T09:00:00+09:00",
+        "height": 165
+      },
+      {
+        "slug": "six-banks-offline",
+        "formedAt": "2026-11-19T10:00:00+09:00",
+        "height": 140
+      },
+      {
+        "slug": "decoy-discounts",
+        "formedAt": "2026-11-19T11:00:00+09:00",
+        "height": 96
+      }
+    ],
+    "ebb": {
+      "notices": [
+        {
+          "slug": "frontier-model-backlash",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "New frontier model keeps drawing benchmarks and backlash"
+            },
+            {
+              "lang": "zh",
+              "text": "新旗舰模型的跑分与争议持续发酵"
+            },
+            {
+              "lang": "ja",
+              "text": "新フロンティアモデル、ベンチマークと反発が続く"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Frontier model backlash"
+            },
+            {
+              "lang": "zh",
+              "text": "旗舰模型争议"
+            },
+            {
+              "lang": "ja",
+              "text": "フロンティアモデルへの反発"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "New frontier model keeps drawing benchmarks and backlash"
+          },
+          "formedAt": "2026-11-13T09:00:00+09:00",
+          "peak": {
+            "height": 188,
+            "at": "2026-11-15T10:00:00+09:00"
+          },
+          "echoCount": 22,
+          "height": 154,
+          "change24h": -12
+        },
+        {
+          "slug": "assistant-wallet",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "Chat assistant gets a wallet and starts paying for you"
+            },
+            {
+              "lang": "zh",
+              "text": "聊天助手有了钱包，开始替你付款"
+            },
+            {
+              "lang": "ja",
+              "text": "チャットアシスタントが財布を持ち、代わりに支払いを開始"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Assistant wallet"
+            },
+            {
+              "lang": "zh",
+              "text": "助手钱包"
+            },
+            {
+              "lang": "ja",
+              "text": "アシスタントの財布"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "Chat assistant gets a wallet and starts paying for you"
+          },
+          "formedAt": "2026-11-14T11:00:00+09:00",
+          "peak": {
+            "height": 172,
+            "at": "2026-11-15T20:00:00+09:00"
+          },
+          "echoCount": 18,
+          "height": 134,
+          "change24h": -16
+        },
+        {
+          "slug": "airline-bans-booking-agents",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "Airline bans AI agents from booking flights"
+            },
+            {
+              "lang": "zh",
+              "text": "航空公司禁止 AI 智能体订票"
+            },
+            {
+              "lang": "ja",
+              "text": "航空会社、AI エージェントによる予約を禁止"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Agent booking ban"
+            },
+            {
+              "lang": "zh",
+              "text": "禁止智能体订票"
+            },
+            {
+              "lang": "ja",
+              "text": "エージェント予約禁止"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "Airline bans AI agents from booking flights"
+          },
+          "formedAt": "2026-11-12T15:00:00+09:00",
+          "peak": {
+            "height": 140,
+            "at": "2026-11-13T08:00:00+09:00"
+          },
+          "echoCount": 11,
+          "height": 108,
+          "change24h": -14
+        },
+        {
+          "slug": "super-agent-flash-model",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "Lab releases a super-agent and a faster flash model"
+            },
+            {
+              "lang": "zh",
+              "text": "实验室发布超级智能体和更快的 flash 模型"
+            },
+            {
+              "lang": "ja",
+              "text": "研究所がスーパーエージェントと高速 flash モデルを公開"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Super-agent release"
+            },
+            {
+              "lang": "zh",
+              "text": "超级智能体发布"
+            },
+            {
+              "lang": "ja",
+              "text": "スーパーエージェント公開"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "Lab releases a super-agent and a faster flash model"
+          },
+          "formedAt": "2026-11-12T18:00:00+09:00",
+          "peak": {
+            "height": 118,
+            "at": "2026-11-13T06:00:00+09:00"
+          },
+          "echoCount": 8,
+          "height": 88,
+          "change24h": -13
+        }
+      ],
+      "wentFlat24h": 0
+    },
+    "verdicts": {
+      "due": [
+        {
+          "predictionId": "p009",
+          "slug": "chipmaker-board-founder-ceo",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "Chipmaker board rules out bringing back its founder CEO"
+            },
+            {
+              "lang": "zh",
+              "text": "芯片厂董事会排除创始人回归 CEO 的可能"
+            },
+            {
+              "lang": "ja",
+              "text": "半導体大手の取締役会、創業者の CEO 復帰を否定"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Founder CEO ousted"
+            },
+            {
+              "lang": "zh",
+              "text": "创始人 CEO 出局"
+            },
+            {
+              "lang": "ja",
+              "text": "創業者 CEO 解任"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "Chipmaker board rules out bringing back its founder CEO"
+          },
+          "criterion": {
+            "lang": "en",
+            "text": "By Nov 26, mainstream outlets confirm that the board has named a new or interim chief executive, or that the founder is back."
+          },
+          "registeredAt": "2026-11-12T18:00:00+09:00",
+          "dueAt": "2026-11-26T18:00:00+09:00"
+        },
+        {
+          "predictionId": "p008",
+          "slug": "airline-bans-booking-agents",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "Airline bans AI agents from booking flights"
+            },
+            {
+              "lang": "zh",
+              "text": "航空公司禁止 AI 智能体订票"
+            },
+            {
+              "lang": "ja",
+              "text": "航空会社、AI エージェントによる予約を禁止"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Agent booking ban"
+            },
+            {
+              "lang": "zh",
+              "text": "禁止智能体订票"
+            },
+            {
+              "lang": "ja",
+              "text": "エージェント予約禁止"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "Airline bans AI agents from booking flights"
+          },
+          "criterion": {
+            "lang": "en",
+            "text": "Another US airline or booking platform announces the same rule."
+          },
+          "registeredAt": "2026-11-12T15:00:00+09:00",
+          "dueAt": "2026-11-26T15:00:00+09:00"
+        },
+        {
+          "predictionId": "p010",
+          "slug": "super-agent-flash-model",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "Lab releases a super-agent and a faster flash model"
+            },
+            {
+              "lang": "zh",
+              "text": "实验室发布超级智能体和更快的 flash 模型"
+            },
+            {
+              "lang": "ja",
+              "text": "研究所がスーパーエージェントと高速 flash モデルを公開"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Super-agent release"
+            },
+            {
+              "lang": "zh",
+              "text": "超级智能体发布"
+            },
+            {
+              "lang": "ja",
+              "text": "スーパーエージェント公開"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "Lab releases a super-agent and a faster flash model"
+          },
+          "criterion": {
+            "lang": "en",
+            "text": "At least two independent evaluations of the flash model appear."
+          },
+          "registeredAt": "2026-11-12T18:00:00+09:00",
+          "dueAt": "2026-11-26T18:00:00+09:00"
+        }
+      ],
+      "recent": [
+        {
+          "predictionId": "p001",
+          "slug": "state-sues-ai-lab-training-data",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "State sues an AI lab over training data"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "State sues over training data"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "State sues an AI lab over training data"
+          },
+          "criterion": {
+            "lang": "en",
+            "text": "Within 14 days, the lab files a response in court or a second state joins the case."
+          },
+          "outcome": "hit",
+          "confirmedAt": "2026-11-19T12:05:00+09:00",
+          "revised": false
+        },
+        {
+          "predictionId": "p004",
+          "slug": "browser-ships-local-model",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "Browser ships a local model for page summaries"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Browser local model"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "Browser ships a local model for page summaries"
+          },
+          "criterion": {
+            "lang": "en",
+            "text": "A second browser vendor announces an on-device model within 14 days."
+          },
+          "outcome": "partial",
+          "confirmedAt": "2026-11-18T17:00:00+09:00",
+          "revised": true
+        }
+      ]
+    },
+    "classifieds": {
+      "total": 118,
+      "items": [
+        {
+          "id": "e41007",
+          "groupId": "github",
+          "groupName": "GitHub breakout repositories",
+          "url": "https://github.example/item/41007",
+          "title": {
+            "lang": "en",
+            "text": "A spreadsheet engine written in 900 lines"
+          },
+          "firstSeenAt": "2026-11-19T10:52:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41008",
+          "groupId": "official_blogs",
+          "groupName": "Official blogs",
+          "url": "https://official-blogs.example/item/41008",
+          "title": {
+            "lang": "en",
+            "text": "What we learned from a year of agent evaluations"
+          },
+          "firstSeenAt": "2026-11-19T10:15:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41009",
+          "groupId": "hackernews",
+          "groupName": "Hacker News front page and Show HN",
+          "url": "https://hackernews.example/item/41009",
+          "title": {
+            "lang": "en",
+            "text": "Ask HN: who still self-hosts their email?"
+          },
+          "firstSeenAt": "2026-11-19T09:38:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41010",
+          "groupId": "tech_media",
+          "groupName": "Tech media and independent authors",
+          "url": "https://tech-media.example/item/41010",
+          "title": {
+            "lang": "en",
+            "text": "Chip export rules, explained in five charts"
+          },
+          "firstSeenAt": "2026-11-19T08:00:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41011",
+          "groupId": "devto",
+          "groupName": "DEV.to top posts",
+          "url": "https://devto.example/item/41011",
+          "title": {
+            "lang": "en",
+            "text": "A keyboard firmware that learns your typos"
+          },
+          "firstSeenAt": "2026-11-19T07:44:00+09:00",
+          "wave": null
+        }
+      ]
+    }
+  },
+  "20261119T0500": {
+    "slot": "20261119T0500",
+    "startsAt": "2026-11-19T14:00:00+09:00",
+    "label": "14:00",
+    "seaState": "choppy",
+    "waveCount": 16,
+    "formedToday": 5,
+    "ranking": [
+      {
+        "slug": "chipmaker-board-founder-ceo",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Chipmaker board rules out bringing back its founder CEO"
+          },
+          {
+            "lang": "zh",
+            "text": "芯片厂董事会排除创始人回归 CEO 的可能"
+          },
+          {
+            "lang": "ja",
+            "text": "半導体大手の取締役会、創業者の CEO 復帰を否定"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Founder CEO ousted"
+          },
+          {
+            "lang": "zh",
+            "text": "创始人 CEO 出局"
+          },
+          {
+            "lang": "ja",
+            "text": "創業者 CEO 解任"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Chipmaker board rules out bringing back its founder CEO"
+        },
+        "rank": 1,
+        "height": 196,
+        "change24h": 63,
+        "sourceCount": 6,
+        "echoCount": 31,
+        "state": "up",
+        "formedAt": "2026-11-12T18:00:00+09:00",
+        "trend": [
+          182,
+          180,
+          178,
+          176,
+          175,
+          190,
+          194,
+          196
+        ]
+      },
+      {
+        "slug": "ai-lab-sued-over-agents",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "State attorney general sues an AI lab over 80 rogue-agent incidents"
+          },
+          {
+            "lang": "zh",
+            "text": "州检察长就 80 起失控智能体事件起诉一家 AI 实验室"
+          },
+          {
+            "lang": "ja",
+            "text": "州司法長官、暴走エージェント 80 件で AI 研究所を提訴"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "AI lab sued over agents"
+          },
+          {
+            "lang": "zh",
+            "text": "AI 实验室因智能体被诉"
+          },
+          {
+            "lang": "ja",
+            "text": "AI 研究所がエージェントで提訴"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "State attorney general sues an AI lab over 80 rogue-agent incidents"
+        },
+        "rank": 2,
+        "height": 181,
+        "change24h": null,
+        "sourceCount": 4,
+        "echoCount": 14,
+        "state": "up",
+        "formedAt": "2026-11-19T09:00:00+09:00",
+        "trend": [
+          120,
+          150,
+          165,
+          172,
+          178,
+          181
+        ]
+      },
+      {
+        "slug": "six-banks-offline",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Six US banks go offline on the same afternoon"
+          },
+          {
+            "lang": "zh",
+            "text": "美国六家银行同一个下午相继宕机"
+          },
+          {
+            "lang": "ja",
+            "text": "米銀 6 行、同じ午後に相次いで停止"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Six banks offline"
+          },
+          {
+            "lang": "zh",
+            "text": "六家银行宕机"
+          },
+          {
+            "lang": "ja",
+            "text": "6 銀行が停止"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Six US banks go offline on the same afternoon"
+        },
+        "rank": 3,
+        "height": 171,
+        "change24h": null,
+        "sourceCount": 5,
+        "echoCount": 12,
+        "state": "up",
+        "formedAt": "2026-11-19T10:00:00+09:00",
+        "trend": [
+          110,
+          140,
+          160,
+          168,
+          171
+        ]
+      },
+      {
+        "slug": "ai-hacking-tool-warning",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Security agency warns about an open-source AI hacking tool"
+          },
+          {
+            "lang": "zh",
+            "text": "安全机构就一款开源 AI 黑客工具发出警告"
+          },
+          {
+            "lang": "ja",
+            "text": "セキュリティ機関、オープンソースの AI ハッキングツールに警告"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "AI hacking tool warning"
+          },
+          {
+            "lang": "zh",
+            "text": "AI 黑客工具警告"
+          },
+          {
+            "lang": "ja",
+            "text": "AI ハッキングツール警告"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Security agency warns about an open-source AI hacking tool"
+        },
+        "rank": 4,
+        "height": 151,
+        "change24h": null,
+        "sourceCount": 4,
+        "echoCount": 9,
+        "state": "up",
+        "formedAt": "2026-11-19T08:00:00+09:00",
+        "trend": [
+          90,
+          118,
+          130,
+          140,
+          145,
+          149,
+          151
+        ]
+      },
+      {
+        "slug": "frontier-model-backlash",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "New frontier model keeps drawing benchmarks and backlash"
+          },
+          {
+            "lang": "zh",
+            "text": "新旗舰模型的跑分与争议持续发酵"
+          },
+          {
+            "lang": "ja",
+            "text": "新フロンティアモデル、ベンチマークと反発が続く"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Frontier model backlash"
+          },
+          {
+            "lang": "zh",
+            "text": "旗舰模型争议"
+          },
+          {
+            "lang": "ja",
+            "text": "フロンティアモデルへの反発"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "New frontier model keeps drawing benchmarks and backlash"
+        },
+        "rank": 5,
+        "height": 144,
+        "change24h": -18,
+        "sourceCount": 5,
+        "echoCount": 22,
+        "state": "up",
+        "formedAt": "2026-11-13T09:00:00+09:00",
+        "trend": [
+          170,
+          166,
+          162,
+          158,
+          154,
+          150,
+          147,
+          144
+        ]
+      },
+      {
+        "slug": "decoy-discounts",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Black Friday decoy discounts: 29% of 351 deals saved nothing"
+          },
+          {
+            "lang": "zh",
+            "text": "黑五假折扣：351 个优惠中 29% 并不省钱"
+          },
+          {
+            "lang": "ja",
+            "text": "ブラックフライデーの見せかけ割引、351 件中 29% は安くならず"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Decoy discounts"
+          },
+          {
+            "lang": "zh",
+            "text": "假折扣"
+          },
+          {
+            "lang": "ja",
+            "text": "見せかけ割引"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Black Friday decoy discounts: 29% of 351 deals saved nothing"
+        },
+        "rank": 6,
+        "height": 131,
+        "change24h": null,
+        "sourceCount": 2,
+        "echoCount": 6,
+        "state": "up",
+        "formedAt": "2026-11-19T11:00:00+09:00",
+        "trend": [
+          96,
+          118,
+          126,
+          131
+        ]
+      },
+      {
+        "slug": "open-weights-quarter-price",
+        "headlines": [],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Open-weights model"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Open-weights model released with pricing at 25% of flagship"
+        },
+        "rank": 7,
+        "height": 126,
+        "change24h": null,
+        "sourceCount": 3,
+        "echoCount": 7,
+        "state": "up",
+        "formedAt": "2026-11-19T14:00:00+09:00",
+        "trend": [
+          126
+        ]
+      },
+      {
+        "slug": "assistant-wallet",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Chat assistant gets a wallet and starts paying for you"
+          },
+          {
+            "lang": "zh",
+            "text": "聊天助手有了钱包，开始替你付款"
+          },
+          {
+            "lang": "ja",
+            "text": "チャットアシスタントが財布を持ち、代わりに支払いを開始"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Assistant wallet"
+          },
+          {
+            "lang": "zh",
+            "text": "助手钱包"
+          },
+          {
+            "lang": "ja",
+            "text": "アシスタントの財布"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Chat assistant gets a wallet and starts paying for you"
+        },
+        "rank": 8,
+        "height": 124,
+        "change24h": -22,
+        "sourceCount": 5,
+        "echoCount": 18,
+        "state": "up",
+        "formedAt": "2026-11-14T11:00:00+09:00",
+        "trend": [
+          150,
+          146,
+          142,
+          138,
+          134,
+          130,
+          127,
+          124
+        ]
+      },
+      {
+        "slug": "airline-bans-booking-agents",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Airline bans AI agents from booking flights"
+          },
+          {
+            "lang": "zh",
+            "text": "航空公司禁止 AI 智能体订票"
+          },
+          {
+            "lang": "ja",
+            "text": "航空会社、AI エージェントによる予約を禁止"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Agent booking ban"
+          },
+          {
+            "lang": "zh",
+            "text": "禁止智能体订票"
+          },
+          {
+            "lang": "ja",
+            "text": "エージェント予約禁止"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Airline bans AI agents from booking flights"
+        },
+        "rank": 9,
+        "height": 99,
+        "change24h": -21,
+        "sourceCount": 5,
+        "echoCount": 11,
+        "state": "up",
+        "formedAt": "2026-11-12T15:00:00+09:00",
+        "trend": [
+          120,
+          117,
+          114,
+          111,
+          108,
+          105,
+          102,
+          99
+        ]
+      },
+      {
+        "slug": "super-agent-flash-model",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Lab releases a super-agent and a faster flash model"
+          },
+          {
+            "lang": "zh",
+            "text": "实验室发布超级智能体和更快的 flash 模型"
+          },
+          {
+            "lang": "ja",
+            "text": "研究所がスーパーエージェントと高速 flash モデルを公開"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Super-agent release"
+          },
+          {
+            "lang": "zh",
+            "text": "超级智能体发布"
+          },
+          {
+            "lang": "ja",
+            "text": "スーパーエージェント公開"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Lab releases a super-agent and a faster flash model"
+        },
+        "rank": 10,
+        "height": 80,
+        "change24h": -21,
+        "sourceCount": 3,
+        "echoCount": 8,
+        "state": "up",
+        "formedAt": "2026-11-12T18:00:00+09:00",
+        "trend": [
+          100,
+          97,
+          94,
+          91,
+          88,
+          85,
+          82,
+          80
+        ]
+      },
+      {
+        "slug": "browser-agent-permissions",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Browser vendor adds a permissions prompt for agents"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Browser agent permissions"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Browser vendor adds a permissions prompt for agents"
+        },
+        "rank": 11,
+        "height": 74,
+        "change24h": 0,
+        "sourceCount": 2,
+        "echoCount": 4,
+        "state": "up",
+        "formedAt": "2026-11-17T10:00:00+09:00",
+        "trend": [
+          74,
+          74,
+          74,
+          74,
+          74,
+          74,
+          74,
+          74
+        ]
+      },
+      {
+        "slug": "cloud-outage-postmortem",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Postmortem of last week's inference outage"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Cloud outage postmortem"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Postmortem of last week's inference outage"
+        },
+        "rank": 12,
+        "height": 68,
+        "change24h": 0,
+        "sourceCount": 2,
+        "echoCount": 4,
+        "state": "up",
+        "formedAt": "2026-11-17T13:00:00+09:00",
+        "trend": [
+          68,
+          68,
+          68,
+          68,
+          68,
+          68,
+          68,
+          68
+        ]
+      },
+      {
+        "slug": "robotaxi-permit-expands",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Robotaxi permit expands to two more cities"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Robotaxi permit expands"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Robotaxi permit expands to two more cities"
+        },
+        "rank": 13,
+        "height": 63,
+        "change24h": 0,
+        "sourceCount": 2,
+        "echoCount": 4,
+        "state": "up",
+        "formedAt": "2026-11-16T09:00:00+09:00",
+        "trend": [
+          63,
+          63,
+          63,
+          63,
+          63,
+          63,
+          63,
+          63
+        ]
+      },
+      {
+        "slug": "retailer-extension-recall",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Retailer recalls a browser extension after a data leak"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Retailer extension recall"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Retailer recalls a browser extension after a data leak"
+        },
+        "rank": 14,
+        "height": 57,
+        "change24h": 0,
+        "sourceCount": 2,
+        "echoCount": 4,
+        "state": "up",
+        "formedAt": "2026-11-17T16:00:00+09:00",
+        "trend": [
+          57,
+          57,
+          57,
+          57,
+          57,
+          57,
+          57,
+          57
+        ]
+      },
+      {
+        "slug": "context-registry-opens",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "A public registry for agent tool servers opens"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Context registry opens"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "A public registry for agent tool servers opens"
+        },
+        "rank": 15,
+        "height": 49,
+        "change24h": 0,
+        "sourceCount": 2,
+        "echoCount": 4,
+        "state": "up",
+        "formedAt": "2026-11-18T09:00:00+09:00",
+        "trend": [
+          49,
+          49,
+          49,
+          49,
+          49,
+          49,
+          49,
+          49
+        ]
+      },
+      {
+        "slug": "quantum-error-rate-claim",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Quantum startup claims a record low error rate"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Quantum error-rate claim"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Quantum startup claims a record low error rate"
+        },
+        "rank": 16,
+        "height": 44,
+        "change24h": 0,
+        "sourceCount": 2,
+        "echoCount": 4,
+        "state": "up",
+        "formedAt": "2026-11-16T15:00:00+09:00",
+        "trend": [
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44
+        ]
+      }
+    ],
+    "tideTable": [
+      {
+        "slug": "ai-hacking-tool-warning",
+        "formedAt": "2026-11-19T08:00:00+09:00",
+        "height": 151
+      },
+      {
+        "slug": "ai-lab-sued-over-agents",
+        "formedAt": "2026-11-19T09:00:00+09:00",
+        "height": 181
+      },
+      {
+        "slug": "six-banks-offline",
+        "formedAt": "2026-11-19T10:00:00+09:00",
+        "height": 171
+      },
+      {
+        "slug": "decoy-discounts",
+        "formedAt": "2026-11-19T11:00:00+09:00",
+        "height": 131
+      },
+      {
+        "slug": "open-weights-quarter-price",
+        "formedAt": "2026-11-19T14:00:00+09:00",
+        "height": 126
+      }
+    ],
+    "ebb": {
+      "notices": [
+        {
+          "slug": "frontier-model-backlash",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "New frontier model keeps drawing benchmarks and backlash"
+            },
+            {
+              "lang": "zh",
+              "text": "新旗舰模型的跑分与争议持续发酵"
+            },
+            {
+              "lang": "ja",
+              "text": "新フロンティアモデル、ベンチマークと反発が続く"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Frontier model backlash"
+            },
+            {
+              "lang": "zh",
+              "text": "旗舰模型争议"
+            },
+            {
+              "lang": "ja",
+              "text": "フロンティアモデルへの反発"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "New frontier model keeps drawing benchmarks and backlash"
+          },
+          "formedAt": "2026-11-13T09:00:00+09:00",
+          "peak": {
+            "height": 188,
+            "at": "2026-11-15T10:00:00+09:00"
+          },
+          "echoCount": 22,
+          "height": 144,
+          "change24h": -18
+        },
+        {
+          "slug": "assistant-wallet",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "Chat assistant gets a wallet and starts paying for you"
+            },
+            {
+              "lang": "zh",
+              "text": "聊天助手有了钱包，开始替你付款"
+            },
+            {
+              "lang": "ja",
+              "text": "チャットアシスタントが財布を持ち、代わりに支払いを開始"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Assistant wallet"
+            },
+            {
+              "lang": "zh",
+              "text": "助手钱包"
+            },
+            {
+              "lang": "ja",
+              "text": "アシスタントの財布"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "Chat assistant gets a wallet and starts paying for you"
+          },
+          "formedAt": "2026-11-14T11:00:00+09:00",
+          "peak": {
+            "height": 172,
+            "at": "2026-11-15T20:00:00+09:00"
+          },
+          "echoCount": 18,
+          "height": 124,
+          "change24h": -22
+        },
+        {
+          "slug": "airline-bans-booking-agents",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "Airline bans AI agents from booking flights"
+            },
+            {
+              "lang": "zh",
+              "text": "航空公司禁止 AI 智能体订票"
+            },
+            {
+              "lang": "ja",
+              "text": "航空会社、AI エージェントによる予約を禁止"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Agent booking ban"
+            },
+            {
+              "lang": "zh",
+              "text": "禁止智能体订票"
+            },
+            {
+              "lang": "ja",
+              "text": "エージェント予約禁止"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "Airline bans AI agents from booking flights"
+          },
+          "formedAt": "2026-11-12T15:00:00+09:00",
+          "peak": {
+            "height": 140,
+            "at": "2026-11-13T08:00:00+09:00"
+          },
+          "echoCount": 11,
+          "height": 99,
+          "change24h": -21
+        },
+        {
+          "slug": "super-agent-flash-model",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "Lab releases a super-agent and a faster flash model"
+            },
+            {
+              "lang": "zh",
+              "text": "实验室发布超级智能体和更快的 flash 模型"
+            },
+            {
+              "lang": "ja",
+              "text": "研究所がスーパーエージェントと高速 flash モデルを公開"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Super-agent release"
+            },
+            {
+              "lang": "zh",
+              "text": "超级智能体发布"
+            },
+            {
+              "lang": "ja",
+              "text": "スーパーエージェント公開"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "Lab releases a super-agent and a faster flash model"
+          },
+          "formedAt": "2026-11-12T18:00:00+09:00",
+          "peak": {
+            "height": 118,
+            "at": "2026-11-13T06:00:00+09:00"
+          },
+          "echoCount": 8,
+          "height": 80,
+          "change24h": -21
+        }
+      ],
+      "wentFlat24h": 1
+    },
+    "verdicts": {
+      "due": [
+        {
+          "predictionId": "p009",
+          "slug": "chipmaker-board-founder-ceo",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "Chipmaker board rules out bringing back its founder CEO"
+            },
+            {
+              "lang": "zh",
+              "text": "芯片厂董事会排除创始人回归 CEO 的可能"
+            },
+            {
+              "lang": "ja",
+              "text": "半導体大手の取締役会、創業者の CEO 復帰を否定"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Founder CEO ousted"
+            },
+            {
+              "lang": "zh",
+              "text": "创始人 CEO 出局"
+            },
+            {
+              "lang": "ja",
+              "text": "創業者 CEO 解任"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "Chipmaker board rules out bringing back its founder CEO"
+          },
+          "criterion": {
+            "lang": "en",
+            "text": "By Nov 26, mainstream outlets confirm that the board has named a new or interim chief executive, or that the founder is back."
+          },
+          "registeredAt": "2026-11-12T18:00:00+09:00",
+          "dueAt": "2026-11-26T18:00:00+09:00"
+        },
+        {
+          "predictionId": "p008",
+          "slug": "airline-bans-booking-agents",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "Airline bans AI agents from booking flights"
+            },
+            {
+              "lang": "zh",
+              "text": "航空公司禁止 AI 智能体订票"
+            },
+            {
+              "lang": "ja",
+              "text": "航空会社、AI エージェントによる予約を禁止"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Agent booking ban"
+            },
+            {
+              "lang": "zh",
+              "text": "禁止智能体订票"
+            },
+            {
+              "lang": "ja",
+              "text": "エージェント予約禁止"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "Airline bans AI agents from booking flights"
+          },
+          "criterion": {
+            "lang": "en",
+            "text": "Another US airline or booking platform announces the same rule."
+          },
+          "registeredAt": "2026-11-12T15:00:00+09:00",
+          "dueAt": "2026-11-26T15:00:00+09:00"
+        },
+        {
+          "predictionId": "p010",
+          "slug": "super-agent-flash-model",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "Lab releases a super-agent and a faster flash model"
+            },
+            {
+              "lang": "zh",
+              "text": "实验室发布超级智能体和更快的 flash 模型"
+            },
+            {
+              "lang": "ja",
+              "text": "研究所がスーパーエージェントと高速 flash モデルを公開"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Super-agent release"
+            },
+            {
+              "lang": "zh",
+              "text": "超级智能体发布"
+            },
+            {
+              "lang": "ja",
+              "text": "スーパーエージェント公開"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "Lab releases a super-agent and a faster flash model"
+          },
+          "criterion": {
+            "lang": "en",
+            "text": "At least two independent evaluations of the flash model appear."
+          },
+          "registeredAt": "2026-11-12T18:00:00+09:00",
+          "dueAt": "2026-11-26T18:00:00+09:00"
+        }
+      ],
+      "recent": [
+        {
+          "predictionId": "p001",
+          "slug": "state-sues-ai-lab-training-data",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "State sues an AI lab over training data"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "State sues over training data"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "State sues an AI lab over training data"
+          },
+          "criterion": {
+            "lang": "en",
+            "text": "Within 14 days, the lab files a response in court or a second state joins the case."
+          },
+          "outcome": "hit",
+          "confirmedAt": "2026-11-19T12:05:00+09:00",
+          "revised": false
+        },
+        {
+          "predictionId": "p004",
+          "slug": "browser-ships-local-model",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "Browser ships a local model for page summaries"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Browser local model"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "Browser ships a local model for page summaries"
+          },
+          "criterion": {
+            "lang": "en",
+            "text": "A second browser vendor announces an on-device model within 14 days."
+          },
+          "outcome": "partial",
+          "confirmedAt": "2026-11-18T17:00:00+09:00",
+          "revised": true
+        }
+      ]
+    },
+    "classifieds": {
+      "total": 171,
+      "items": [
+        {
+          "id": "e41001",
+          "groupId": "hackernews",
+          "groupName": "Hacker News front page and Show HN",
+          "url": "https://hackernews.example/item/41001",
+          "title": {
+            "lang": "en",
+            "text": "Show HN: a terminal that explains its own error messages"
+          },
+          "firstSeenAt": "2026-11-19T13:42:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41002",
+          "groupId": "github",
+          "groupName": "GitHub breakout repositories",
+          "url": "https://github.example/item/41002",
+          "title": {
+            "lang": "en",
+            "text": "A vector database in a single file passes 4,000 stars in a day"
+          },
+          "firstSeenAt": "2026-11-19T13:10:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41003",
+          "groupId": "official_blogs",
+          "groupName": "Official blogs",
+          "url": "https://official-blogs.example/item/41003",
+          "title": {
+            "lang": "en",
+            "text": "Notes on giving agents a memory that survives restarts"
+          },
+          "firstSeenAt": "2026-11-19T12:55:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41004",
+          "groupId": "lobsters",
+          "groupName": "Lobsters hottest",
+          "url": "https://lobsters.example/item/41004",
+          "title": {
+            "lang": "en",
+            "text": "A 4-bit model that runs on a three-year-old phone"
+          },
+          "firstSeenAt": "2026-11-19T12:31:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41005",
+          "groupId": "tech_media",
+          "groupName": "Tech media and independent authors",
+          "url": "https://tech-media.example/item/41005",
+          "title": {
+            "lang": "en",
+            "text": "The quiet return of RSS, by the numbers"
+          },
+          "firstSeenAt": "2026-11-19T11:48:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41006",
+          "groupId": "bluesky",
+          "groupName": "Bluesky key accounts",
+          "url": "https://bluesky.example/item/41006",
+          "title": {
+            "lang": "en",
+            "text": "A browser vendor hints at built-in agent permissions"
+          },
+          "firstSeenAt": "2026-11-19T11:20:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41007",
+          "groupId": "github",
+          "groupName": "GitHub breakout repositories",
+          "url": "https://github.example/item/41007",
+          "title": {
+            "lang": "en",
+            "text": "A spreadsheet engine written in 900 lines"
+          },
+          "firstSeenAt": "2026-11-19T10:52:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41008",
+          "groupId": "official_blogs",
+          "groupName": "Official blogs",
+          "url": "https://official-blogs.example/item/41008",
+          "title": {
+            "lang": "en",
+            "text": "What we learned from a year of agent evaluations"
+          },
+          "firstSeenAt": "2026-11-19T10:15:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41009",
+          "groupId": "hackernews",
+          "groupName": "Hacker News front page and Show HN",
+          "url": "https://hackernews.example/item/41009",
+          "title": {
+            "lang": "en",
+            "text": "Ask HN: who still self-hosts their email?"
+          },
+          "firstSeenAt": "2026-11-19T09:38:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41010",
+          "groupId": "tech_media",
+          "groupName": "Tech media and independent authors",
+          "url": "https://tech-media.example/item/41010",
+          "title": {
+            "lang": "en",
+            "text": "Chip export rules, explained in five charts"
+          },
+          "firstSeenAt": "2026-11-19T08:00:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41011",
+          "groupId": "devto",
+          "groupName": "DEV.to top posts",
+          "url": "https://devto.example/item/41011",
+          "title": {
+            "lang": "en",
+            "text": "A keyboard firmware that learns your typos"
+          },
+          "firstSeenAt": "2026-11-19T07:44:00+09:00",
+          "wave": null
+        }
+      ]
+    }
+  }
+}

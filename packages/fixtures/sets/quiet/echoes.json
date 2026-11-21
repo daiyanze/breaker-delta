@@ -1,0 +1,233 @@
+{
+  "day": "2026-11-19",
+  "total": 16,
+  "single": {
+    "total": 9,
+    "items": [
+      {
+        "id": "e41001",
+        "groupId": "hackernews",
+        "groupName": "Hacker News front page and Show HN",
+        "url": "https://hackernews.example/item/41001",
+        "title": {
+          "lang": "en",
+          "text": "Show HN: a terminal that explains its own error messages"
+        },
+        "firstSeenAt": "2026-11-19T13:42:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41002",
+        "groupId": "github",
+        "groupName": "GitHub breakout repositories",
+        "url": "https://github.example/item/41002",
+        "title": {
+          "lang": "en",
+          "text": "A vector database in a single file passes 4,000 stars in a day"
+        },
+        "firstSeenAt": "2026-11-19T13:10:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41003",
+        "groupId": "official_blogs",
+        "groupName": "Official blogs",
+        "url": "https://official-blogs.example/item/41003",
+        "title": {
+          "lang": "en",
+          "text": "Notes on giving agents a memory that survives restarts"
+        },
+        "firstSeenAt": "2026-11-19T12:55:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41004",
+        "groupId": "lobsters",
+        "groupName": "Lobsters hottest",
+        "url": "https://lobsters.example/item/41004",
+        "title": {
+          "lang": "en",
+          "text": "A 4-bit model that runs on a three-year-old phone"
+        },
+        "firstSeenAt": "2026-11-19T12:31:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41005",
+        "groupId": "tech_media",
+        "groupName": "Tech media and independent authors",
+        "url": "https://tech-media.example/item/41005",
+        "title": {
+          "lang": "en",
+          "text": "The quiet return of RSS, by the numbers"
+        },
+        "firstSeenAt": "2026-11-19T11:48:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41006",
+        "groupId": "bluesky",
+        "groupName": "Bluesky key accounts",
+        "url": "https://bluesky.example/item/41006",
+        "title": {
+          "lang": "en",
+          "text": "A browser vendor hints at built-in agent permissions"
+        },
+        "firstSeenAt": "2026-11-19T11:20:00+09:00",
+        "wave": null
+      }
+    ]
+  },
+  "inWave": {
+    "total": 7,
+    "items": [
+      {
+        "id": "e41109",
+        "groupId": "hackernews",
+        "groupName": "Hacker News front page and Show HN",
+        "url": "https://hackernews.example/item/41109",
+        "title": {
+          "lang": "en",
+          "text": "Open-weights model: first impressions"
+        },
+        "firstSeenAt": "2026-11-19T14:20:00+09:00",
+        "wave": {
+          "slug": "open-weights-quarter-price",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Open-weights model"
+            }
+          ],
+          "height": 126
+        }
+      },
+      {
+        "id": "e41108",
+        "groupId": "hackernews",
+        "groupName": "Hacker News front page and Show HN",
+        "url": "https://hackernews.example/item/41108",
+        "title": {
+          "lang": "en",
+          "text": "Open-weights model released with pricing at 25% of flagship"
+        },
+        "firstSeenAt": "2026-11-19T14:00:00+09:00",
+        "wave": {
+          "slug": "open-weights-quarter-price",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Open-weights model"
+            }
+          ],
+          "height": 126
+        }
+      },
+      {
+        "id": "e41107",
+        "groupId": "github",
+        "groupName": "GitHub breakout repositories",
+        "url": "https://github.example/item/41107",
+        "title": {
+          "lang": "en",
+          "text": "Open-weights model: first impressions"
+        },
+        "firstSeenAt": "2026-11-19T13:20:00+09:00",
+        "wave": {
+          "slug": "open-weights-quarter-price",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Open-weights model"
+            }
+          ],
+          "height": 126
+        }
+      },
+      {
+        "id": "e41106",
+        "groupId": "github",
+        "groupName": "GitHub breakout repositories",
+        "url": "https://github.example/item/41106",
+        "title": {
+          "lang": "en",
+          "text": "Open-weights model released with pricing at 25% of flagship"
+        },
+        "firstSeenAt": "2026-11-19T13:00:00+09:00",
+        "wave": {
+          "slug": "open-weights-quarter-price",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Open-weights model"
+            }
+          ],
+          "height": 126
+        }
+      },
+      {
+        "id": "e41105",
+        "groupId": "official_blogs",
+        "groupName": "Official blogs",
+        "url": "https://official-blogs.example/item/41105",
+        "title": {
+          "lang": "en",
+          "text": "Open-weights model: first impressions"
+        },
+        "firstSeenAt": "2026-11-19T11:40:00+09:00",
+        "wave": {
+          "slug": "open-weights-quarter-price",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Open-weights model"
+            }
+          ],
+          "height": 126
+        }
+      },
+      {
+        "id": "e41104",
+        "groupId": "official_blogs",
+        "groupName": "Official blogs",
+        "url": "https://official-blogs.example/item/41104",
+        "title": {
+          "lang": "en",
+          "text": "Open-weights model: first impressions"
+        },
+        "firstSeenAt": "2026-11-19T11:20:00+09:00",
+        "wave": {
+          "slug": "open-weights-quarter-price",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Open-weights model"
+            }
+          ],
+          "height": 126
+        }
+      },
+      {
+        "id": "e41103",
+        "groupId": "official_blogs",
+        "groupName": "Official blogs",
+        "url": "https://official-blogs.example/item/41103",
+        "title": {
+          "lang": "en",
+          "text": "Open-weights model released with pricing at 25% of flagship"
+        },
+        "firstSeenAt": "2026-11-19T11:00:00+09:00",
+        "wave": {
+          "slug": "open-weights-quarter-price",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Open-weights model"
+            }
+          ],
+          "height": 126
+        }
+      }
+    ]
+  }
+}

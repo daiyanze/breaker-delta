@@ -1,0 +1,254 @@
+{
+  "day": "2026-11-19",
+  "total": 214,
+  "single": {
+    "total": 171,
+    "items": [
+      {
+        "id": "e41001",
+        "groupId": "hackernews",
+        "groupName": "Hacker News front page and Show HN",
+        "url": "https://hackernews.example/item/41001",
+        "title": {
+          "lang": "en",
+          "text": "Show HN: a terminal that explains its own error messages"
+        },
+        "firstSeenAt": "2026-11-19T13:42:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41002",
+        "groupId": "github",
+        "groupName": "GitHub breakout repositories",
+        "url": "https://github.example/item/41002",
+        "title": {
+          "lang": "en",
+          "text": "A vector database in a single file passes 4,000 stars in a day"
+        },
+        "firstSeenAt": "2026-11-19T13:10:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41003",
+        "groupId": "official_blogs",
+        "groupName": "Official blogs",
+        "url": "https://official-blogs.example/item/41003",
+        "title": {
+          "lang": "en",
+          "text": "Notes on giving agents a memory that survives restarts"
+        },
+        "firstSeenAt": "2026-11-19T12:55:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41004",
+        "groupId": "lobsters",
+        "groupName": "Lobsters hottest",
+        "url": "https://lobsters.example/item/41004",
+        "title": {
+          "lang": "en",
+          "text": "A 4-bit model that runs on a three-year-old phone"
+        },
+        "firstSeenAt": "2026-11-19T12:31:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41005",
+        "groupId": "tech_media",
+        "groupName": "Tech media and independent authors",
+        "url": "https://tech-media.example/item/41005",
+        "title": {
+          "lang": "en",
+          "text": "The quiet return of RSS, by the numbers"
+        },
+        "firstSeenAt": "2026-11-19T11:48:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41006",
+        "groupId": "bluesky",
+        "groupName": "Bluesky key accounts",
+        "url": "https://bluesky.example/item/41006",
+        "title": {
+          "lang": "en",
+          "text": "A browser vendor hints at built-in agent permissions"
+        },
+        "firstSeenAt": "2026-11-19T11:20:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41007",
+        "groupId": "github",
+        "groupName": "GitHub breakout repositories",
+        "url": "https://github.example/item/41007",
+        "title": {
+          "lang": "en",
+          "text": "A spreadsheet engine written in 900 lines"
+        },
+        "firstSeenAt": "2026-11-19T10:52:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41008",
+        "groupId": "official_blogs",
+        "groupName": "Official blogs",
+        "url": "https://official-blogs.example/item/41008",
+        "title": {
+          "lang": "en",
+          "text": "What we learned from a year of agent evaluations"
+        },
+        "firstSeenAt": "2026-11-19T10:15:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41009",
+        "groupId": "hackernews",
+        "groupName": "Hacker News front page and Show HN",
+        "url": "https://hackernews.example/item/41009",
+        "title": {
+          "lang": "en",
+          "text": "Ask HN: who still self-hosts their email?"
+        },
+        "firstSeenAt": "2026-11-19T09:38:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41010",
+        "groupId": "tech_media",
+        "groupName": "Tech media and independent authors",
+        "url": "https://tech-media.example/item/41010",
+        "title": {
+          "lang": "en",
+          "text": "Chip export rules, explained in five charts"
+        },
+        "firstSeenAt": "2026-11-19T08:00:00+09:00",
+        "wave": null
+      },
+      {
+        "id": "e41011",
+        "groupId": "devto",
+        "groupName": "DEV.to top posts",
+        "url": "https://devto.example/item/41011",
+        "title": {
+          "lang": "en",
+          "text": "A keyboard firmware that learns your typos"
+        },
+        "firstSeenAt": "2026-11-19T07:44:00+09:00",
+        "wave": null
+      }
+    ]
+  },
+  "inWave": {
+    "total": 43,
+    "items": [
+      {
+        "id": "e41094",
+        "groupId": "hackernews",
+        "groupName": "Hacker News front page and Show HN",
+        "url": "https://hackernews.example/item/41094",
+        "title": {
+          "lang": "en",
+          "text": "Board will not bring the founder back"
+        },
+        "firstSeenAt": "2026-11-19T13:40:00+09:00",
+        "wave": {
+          "slug": "chipmaker-board-founder-ceo",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Founder CEO ousted"
+            },
+            {
+              "lang": "zh",
+              "text": "创始人 CEO 出局"
+            },
+            {
+              "lang": "ja",
+              "text": "創業者 CEO 解任"
+            }
+          ],
+          "height": 196
+        }
+      },
+      {
+        "id": "e41095",
+        "groupId": "tech_media",
+        "groupName": "Tech media and independent authors",
+        "url": "https://tech-media.example/item/41095",
+        "title": {
+          "lang": "en",
+          "text": "Regulators ask six banks for outage timelines"
+        },
+        "firstSeenAt": "2026-11-19T13:22:00+09:00",
+        "wave": {
+          "slug": "six-banks-offline",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Six banks offline"
+            },
+            {
+              "lang": "zh",
+              "text": "六家银行宕机"
+            },
+            {
+              "lang": "ja",
+              "text": "6 銀行が停止"
+            }
+          ],
+          "height": 171
+        }
+      },
+      {
+        "id": "e41096",
+        "groupId": "google_news",
+        "groupName": "Google News, tech and AI topics",
+        "url": "https://google-news.example/item/41096",
+        "title": {
+          "lang": "en",
+          "text": "Attorney general's complaint lists 80 incidents"
+        },
+        "firstSeenAt": "2026-11-19T12:58:00+09:00",
+        "wave": {
+          "slug": "ai-lab-sued-over-agents",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "AI lab sued over agents"
+            },
+            {
+              "lang": "zh",
+              "text": "AI 实验室因智能体被诉"
+            },
+            {
+              "lang": "ja",
+              "text": "AI 研究所がエージェントで提訴"
+            }
+          ],
+          "height": 181
+        }
+      },
+      {
+        "id": "e41097",
+        "groupId": "bluesky",
+        "groupName": "Bluesky key accounts",
+        "url": "https://bluesky.example/item/41097",
+        "title": {
+          "lang": "en",
+          "text": "Pricing page for the open-weights model goes live"
+        },
+        "firstSeenAt": "2026-11-19T12:10:00+09:00",
+        "wave": {
+          "slug": "open-weights-quarter-price",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Open-weights model"
+            }
+          ],
+          "height": 126
+        }
+      }
+    ]
+  }
+}

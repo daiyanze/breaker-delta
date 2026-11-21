@@ -1,0 +1,66 @@
+{
+  "topic:open-weights-quarter-price:en": {
+    "card": "topic",
+    "lang": "en",
+    "edition": {
+      "slot": "20261119T0500",
+      "label": "14:00",
+      "day": "2026-11-19"
+    },
+    "slug": "open-weights-quarter-price",
+    "rank": 1,
+    "state": "up",
+    "headline": {
+      "lang": "en",
+      "text": "Open-weights model released with pricing at 25% of flagship"
+    },
+    "height": 126,
+    "sourceCount": 3,
+    "echoCount": 7
+  },
+  "site:front:en": {
+    "card": "front",
+    "lang": "en",
+    "edition": {
+      "slot": "20261119T0500",
+      "label": "14:00",
+      "day": "2026-11-19"
+    },
+    "waveCount": 2,
+    "formedToday": 1,
+    "top": [
+      {
+        "headline": {
+          "lang": "en",
+          "text": "Open-weights model released with pricing at 25% of flagship"
+        },
+        "height": 126
+      },
+      {
+        "headline": {
+          "lang": "en",
+          "text": "Lab releases a super-agent and a faster flash model"
+        },
+        "height": 80
+      }
+    ]
+  },
+  "site:track_record:en": {
+    "card": "track_record",
+    "lang": "en",
+    "score": {
+      "rate": null,
+      "confirmed": 0,
+      "hit": 0,
+      "partial": 0,
+      "miss": 0,
+      "undetermined": 0
+    },
+    "marks": [],
+    "firstDueAt": "2026-11-26T18:00:00+09:00"
+  },
+  "site:about:en": {
+    "card": "about",
+    "lang": "en"
+  }
+}

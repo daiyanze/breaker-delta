@@ -1,0 +1,451 @@
+{
+  "score": {
+    "rate": 0.5,
+    "confirmed": 4,
+    "hit": 1,
+    "partial": 2,
+    "miss": 1,
+    "undetermined": 0
+  },
+  "registered": 23,
+  "marks": [
+    {
+      "predictionId": "p002",
+      "slug": "phone-maker-delays-assistant",
+      "mark": "partial",
+      "revised": false
+    },
+    {
+      "predictionId": "p003",
+      "slug": "gpu-cloud-price-cut",
+      "mark": "miss",
+      "revised": false
+    },
+    {
+      "predictionId": "p005",
+      "slug": "chip-export-rule-draft",
+      "mark": "under_review",
+      "revised": false
+    },
+    {
+      "predictionId": "p004",
+      "slug": "browser-ships-local-model",
+      "mark": "partial",
+      "revised": true
+    },
+    {
+      "predictionId": "p001",
+      "slug": "state-sues-ai-lab-training-data",
+      "mark": "hit",
+      "revised": false
+    },
+    {
+      "predictionId": "p007",
+      "slug": "smart-glasses-teardown",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p006",
+      "slug": "chipmaker-arizona-plant-delay",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p008",
+      "slug": "airline-bans-booking-agents",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p009",
+      "slug": "chipmaker-board-founder-ceo",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p010",
+      "slug": "super-agent-flash-model",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p011",
+      "slug": "frontier-model-backlash",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p012",
+      "slug": "assistant-wallet",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p013",
+      "slug": "robotaxi-permit-expands",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p014",
+      "slug": "quantum-error-rate-claim",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p015",
+      "slug": "browser-agent-permissions",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p016",
+      "slug": "cloud-outage-postmortem",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p017",
+      "slug": "retailer-extension-recall",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p018",
+      "slug": "context-registry-opens",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p019",
+      "slug": "ai-hacking-tool-warning",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p020",
+      "slug": "ai-lab-sued-over-agents",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p021",
+      "slug": "six-banks-offline",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p022",
+      "slug": "decoy-discounts",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "p023",
+      "slug": "open-weights-quarter-price",
+      "mark": "waiting",
+      "revised": false
+    }
+  ],
+  "ledger": [
+    {
+      "slug": "phone-maker-delays-assistant",
+      "headlines": [
+        {
+          "lang": "en",
+          "text": "Phone maker delays its AI assistant to next spring"
+        }
+      ],
+      "shortTitles": [
+        {
+          "lang": "en",
+          "text": "Assistant delay"
+        }
+      ],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "Phone maker delays its AI assistant to next spring"
+      },
+      "prediction": {
+        "id": "p002",
+        "criterion": {
+          "lang": "en",
+          "text": "The maker confirms a new date, or a second maker announces a similar delay."
+        },
+        "hash": "c3647f709830ff54e0551f0adfce0ad445c02c5719028d715cd6e2716407348f",
+        "registeredAt": "2026-10-28T09:00:00+09:00",
+        "dueAt": "2026-11-11T09:00:00+09:00",
+        "verdicts": [
+          {
+            "id": "v-phone-maker--1",
+            "outcome": "partial",
+            "status": "confirmed",
+            "decidedAt": "2026-11-12T10:00:00+09:00",
+            "reason": [
+              {
+                "lang": "en",
+                "text": "A new season was confirmed, but no date."
+              }
+            ],
+            "revises": null
+          }
+        ]
+      },
+      "formedAt": "2026-10-28T09:00:00+09:00"
+    },
+    {
+      "slug": "gpu-cloud-price-cut",
+      "headlines": [
+        {
+          "lang": "en",
+          "text": "GPU cloud cuts on-demand prices by 40%"
+        }
+      ],
+      "shortTitles": [
+        {
+          "lang": "en",
+          "text": "GPU price cut"
+        }
+      ],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "GPU cloud cuts on-demand prices by 40%"
+      },
+      "prediction": {
+        "id": "p003",
+        "criterion": {
+          "lang": "en",
+          "text": "Two other GPU clouds cut on-demand prices within 14 days."
+        },
+        "hash": "f1e68d5df8a80c5b03ec958dea3eada78fc8bf0ea05f769b670ae13581acbd52",
+        "registeredAt": "2026-10-30T15:00:00+09:00",
+        "dueAt": "2026-11-13T15:00:00+09:00",
+        "verdicts": [
+          {
+            "id": "v-gpu-cloud-pr-1",
+            "outcome": "miss",
+            "status": "confirmed",
+            "decidedAt": "2026-11-14T09:00:00+09:00",
+            "reason": [
+              {
+                "lang": "en",
+                "text": "No other provider changed list prices."
+              }
+            ],
+            "revises": null
+          }
+        ]
+      },
+      "formedAt": "2026-10-30T15:00:00+09:00"
+    },
+    {
+      "slug": "chip-export-rule-draft",
+      "headlines": [
+        {
+          "lang": "en",
+          "text": "Draft rule tightens chip exports for a second time"
+        }
+      ],
+      "shortTitles": [
+        {
+          "lang": "en",
+          "text": "Export rule draft"
+        }
+      ],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "Draft rule tightens chip exports for a second time"
+      },
+      "prediction": {
+        "id": "p005",
+        "criterion": {
+          "lang": "en",
+          "text": "The final rule is published, or the comment period is extended, within 14 days."
+        },
+        "hash": "726c0efb62615c315148805393442030d0070bc07e1a712568e07e9033242f2c",
+        "registeredAt": "2026-11-01T08:00:00+09:00",
+        "dueAt": "2026-11-15T08:00:00+09:00",
+        "verdicts": [
+          {
+            "id": "v-chip-export--1",
+            "outcome": "hit",
+            "status": "proposed",
+            "decidedAt": "2026-11-15T08:30:00+09:00",
+            "reason": [
+              {
+                "lang": "en",
+                "text": "The model proposes hit: the comment period was extended on Nov 12."
+              }
+            ],
+            "revises": null
+          }
+        ]
+      },
+      "formedAt": "2026-11-01T08:00:00+09:00"
+    },
+    {
+      "slug": "browser-ships-local-model",
+      "headlines": [
+        {
+          "lang": "en",
+          "text": "Browser ships a local model for page summaries"
+        }
+      ],
+      "shortTitles": [
+        {
+          "lang": "en",
+          "text": "Browser local model"
+        }
+      ],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "Browser ships a local model for page summaries"
+      },
+      "prediction": {
+        "id": "p004",
+        "criterion": {
+          "lang": "en",
+          "text": "A second browser vendor announces an on-device model within 14 days."
+        },
+        "hash": "82af905280c33c944965ff7e1b92fa3e1f4d35a1d5f3bc9844d576a067e5a60b",
+        "registeredAt": "2026-11-01T12:00:00+09:00",
+        "dueAt": "2026-11-15T12:00:00+09:00",
+        "verdicts": [
+          {
+            "id": "v-browser-ship-1",
+            "outcome": "undetermined",
+            "status": "confirmed",
+            "decidedAt": "2026-11-16T09:00:00+09:00",
+            "reason": [
+              {
+                "lang": "en",
+                "text": "The reports we found did not mention other vendors either way."
+              }
+            ],
+            "revises": null
+          },
+          {
+            "id": "v-browser-ship-2",
+            "outcome": "partial",
+            "status": "confirmed",
+            "decidedAt": "2026-11-18T17:00:00+09:00",
+            "reason": [
+              {
+                "lang": "en",
+                "text": "One vendor announced a beta on Nov 14; it is not generally available."
+              }
+            ],
+            "revises": "v-browser-ship-1"
+          }
+        ]
+      },
+      "formedAt": "2026-11-01T12:00:00+09:00"
+    },
+    {
+      "slug": "state-sues-ai-lab-training-data",
+      "headlines": [
+        {
+          "lang": "en",
+          "text": "State sues an AI lab over training data"
+        }
+      ],
+      "shortTitles": [
+        {
+          "lang": "en",
+          "text": "State sues over training data"
+        }
+      ],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "State sues an AI lab over training data"
+      },
+      "prediction": {
+        "id": "p001",
+        "criterion": {
+          "lang": "en",
+          "text": "Within 14 days, the lab files a response in court or a second state joins the case."
+        },
+        "hash": "c124406dc5d4b6f400ff61cb012e0da105f3c949c26399e24f6135015fa95381",
+        "registeredAt": "2026-11-04T18:00:00+09:00",
+        "dueAt": "2026-11-18T18:00:00+09:00",
+        "verdicts": [
+          {
+            "id": "v-state-sues-a-1",
+            "outcome": "hit",
+            "status": "confirmed",
+            "decidedAt": "2026-11-19T12:05:00+09:00",
+            "reason": [
+              {
+                "lang": "en",
+                "text": "The lab filed a motion to dismiss on Nov 15."
+              }
+            ],
+            "revises": null
+          }
+        ]
+      },
+      "formedAt": "2026-11-04T18:00:00+09:00"
+    }
+  ],
+  "overdue": [
+    {
+      "slug": "chip-export-rule-draft",
+      "headlines": [
+        {
+          "lang": "en",
+          "text": "Draft rule tightens chip exports for a second time"
+        }
+      ],
+      "shortTitles": [
+        {
+          "lang": "en",
+          "text": "Export rule draft"
+        }
+      ],
+      "sourceHeadline": {
+        "lang": "en",
+        "text": "Draft rule tightens chip exports for a second time"
+      },
+      "prediction": {
+        "id": "p005",
+        "criterion": {
+          "lang": "en",
+          "text": "The final rule is published, or the comment period is extended, within 14 days."
+        },
+        "hash": "726c0efb62615c315148805393442030d0070bc07e1a712568e07e9033242f2c",
+        "registeredAt": "2026-11-01T08:00:00+09:00",
+        "dueAt": "2026-11-15T08:00:00+09:00",
+        "verdicts": [
+          {
+            "id": "v-chip-export--1",
+            "outcome": "hit",
+            "status": "proposed",
+            "decidedAt": "2026-11-15T08:30:00+09:00",
+            "reason": [
+              {
+                "lang": "en",
+                "text": "The model proposes hit: the comment period was extended on Nov 12."
+              }
+            ],
+            "revises": null
+          }
+        ]
+      },
+      "formedAt": "2026-11-01T08:00:00+09:00"
+    }
+  ],
+  "byWriter": [
+    {
+      "writer": "free-primary",
+      "summaries": 24,
+      "rate": 0.5
+    },
+    {
+      "writer": "paid-fallback",
+      "summaries": 4,
+      "rate": 0.5
+    }
+  ],
+  "firstDueAt": null
+}

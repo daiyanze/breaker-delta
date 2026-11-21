@@ -1,0 +1,40 @@
+{
+  "runs": [
+    {
+      "slot": "20261119T0500",
+      "startsAt": "2026-11-19T14:00:00+09:00",
+      "label": "14:00",
+      "changes": [
+        {
+          "id": "c11",
+          "type": "wave_formed",
+          "at": "2026-11-19T14:02:00+09:00",
+          "topic": {
+            "slug": "open-weights-quarter-price",
+            "headlines": [],
+            "shortTitles": [
+              {
+                "lang": "en",
+                "text": "Open-weights model"
+              }
+            ],
+            "sourceHeadline": {
+              "lang": "en",
+              "text": "Open-weights model released with pricing at 25% of flagship"
+            },
+            "state": "up",
+            "height": 126,
+            "change24h": null
+          },
+          "detail": [
+            {
+              "lang": "en",
+              "text": "A third independent source picked it up."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "nextBefore": null
+}

@@ -1,0 +1,71 @@
+{
+  "runs": [
+    {
+      "slot": "20261119T0500",
+      "startedAt": "2026-11-19T14:00:00+09:00",
+      "finishedAt": "2026-11-19T14:04:00+09:00",
+      "status": "done",
+      "groupsOk": 7,
+      "groupsFailed": [
+        "google_news"
+      ],
+      "newEchoes": 19,
+      "wavesFormed": 1,
+      "summariesWritten": 1,
+      "error": null
+    },
+    {
+      "slot": "20261119T0400",
+      "startedAt": "2026-11-19T13:00:00+09:00",
+      "finishedAt": "2026-11-19T13:04:00+09:00",
+      "status": "done",
+      "groupsOk": 6,
+      "groupsFailed": [
+        "google_news",
+        "bluesky"
+      ],
+      "newEchoes": 16,
+      "wavesFormed": 0,
+      "summariesWritten": 1,
+      "error": null
+    },
+    {
+      "slot": "20261119T0300",
+      "startedAt": "2026-11-19T12:00:00+09:00",
+      "finishedAt": "2026-11-19T12:04:00+09:00",
+      "status": "done",
+      "groupsOk": 7,
+      "groupsFailed": [
+        "google_news"
+      ],
+      "newEchoes": 22,
+      "wavesFormed": 0,
+      "summariesWritten": 0,
+      "error": null
+    },
+    {
+      "slot": "20261119T0200",
+      "startedAt": "2026-11-19T11:00:00+09:00",
+      "finishedAt": "2026-11-19T11:04:00+09:00",
+      "status": "failed",
+      "groupsOk": 8,
+      "groupsFailed": [],
+      "newEchoes": 14,
+      "wavesFormed": 1,
+      "summariesWritten": 0,
+      "error": "summarize: every provider timed out"
+    },
+    {
+      "slot": "20261119T0100",
+      "startedAt": "2026-11-19T10:00:00+09:00",
+      "finishedAt": "2026-11-19T10:04:00+09:00",
+      "status": "done",
+      "groupsOk": 8,
+      "groupsFailed": [],
+      "newEchoes": 18,
+      "wavesFormed": 1,
+      "summariesWritten": 1,
+      "error": null
+    }
+  ]
+}

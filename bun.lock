@@ -26,6 +26,10 @@
     "apps/web": {
       "name": "@bd/web",
       "version": "0.0.0",
+      "dependencies": {
+        "@bd/contracts": "workspace:*",
+        "@bd/fixtures": "workspace:*",
+      },
     },
     "packages/contracts": {
       "name": "@bd/contracts",
@@ -37,6 +41,13 @@
     "packages/core": {
       "name": "@bd/core",
       "version": "0.0.0",
+    },
+    "packages/fixtures": {
+      "name": "@bd/fixtures",
+      "version": "0.0.0",
+      "dependencies": {
+        "@bd/contracts": "workspace:*",
+      },
     },
     "packages/db": {
       "name": "@bd/db",
@@ -56,6 +67,8 @@
     "@bd/core": ["@bd/core@workspace:packages/core"],
 
     "@bd/db": ["@bd/db@workspace:packages/db"],
+
+    "@bd/fixtures": ["@bd/fixtures@workspace:packages/fixtures"],
 
     "@bd/judge": ["@bd/judge@workspace:packages/judge"],
 

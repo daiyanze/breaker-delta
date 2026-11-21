@@ -1,0 +1,192 @@
+{
+  "20261119T0500": {
+    "slot": "20261119T0500",
+    "startsAt": "2026-11-19T14:00:00+09:00",
+    "label": "14:00",
+    "seaState": "calm",
+    "waveCount": 2,
+    "formedToday": 1,
+    "ranking": [
+      {
+        "slug": "open-weights-quarter-price",
+        "headlines": [],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Open-weights model"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Open-weights model released with pricing at 25% of flagship"
+        },
+        "rank": 1,
+        "height": 126,
+        "change24h": null,
+        "sourceCount": 3,
+        "echoCount": 7,
+        "state": "up",
+        "formedAt": "2026-11-19T14:00:00+09:00",
+        "trend": [
+          126
+        ]
+      },
+      {
+        "slug": "super-agent-flash-model",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Lab releases a super-agent and a faster flash model"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Super-agent release"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Lab releases a super-agent and a faster flash model"
+        },
+        "rank": 2,
+        "height": 80,
+        "change24h": -21,
+        "sourceCount": 3,
+        "echoCount": 8,
+        "state": "up",
+        "formedAt": "2026-11-12T18:00:00+09:00",
+        "trend": [
+          100,
+          97,
+          94,
+          91,
+          88,
+          85,
+          82,
+          80
+        ]
+      }
+    ],
+    "tideTable": [
+      {
+        "slug": "open-weights-quarter-price",
+        "formedAt": "2026-11-19T14:00:00+09:00",
+        "height": 126
+      }
+    ],
+    "ebb": {
+      "notices": [
+        {
+          "slug": "super-agent-flash-model",
+          "headlines": [
+            {
+              "lang": "en",
+              "text": "Lab releases a super-agent and a faster flash model"
+            }
+          ],
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Super-agent release"
+            }
+          ],
+          "sourceHeadline": {
+            "lang": "en",
+            "text": "Lab releases a super-agent and a faster flash model"
+          },
+          "formedAt": "2026-11-12T18:00:00+09:00",
+          "peak": {
+            "height": 118,
+            "at": "2026-11-13T06:00:00+09:00"
+          },
+          "echoCount": 8,
+          "height": 80,
+          "change24h": -21
+        }
+      ],
+      "wentFlat24h": 0
+    },
+    "verdicts": {
+      "due": [],
+      "recent": []
+    },
+    "classifieds": {
+      "total": 9,
+      "items": [
+        {
+          "id": "e41001",
+          "groupId": "hackernews",
+          "groupName": "Hacker News front page and Show HN",
+          "url": "https://hackernews.example/item/41001",
+          "title": {
+            "lang": "en",
+            "text": "Show HN: a terminal that explains its own error messages"
+          },
+          "firstSeenAt": "2026-11-19T13:42:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41002",
+          "groupId": "github",
+          "groupName": "GitHub breakout repositories",
+          "url": "https://github.example/item/41002",
+          "title": {
+            "lang": "en",
+            "text": "A vector database in a single file passes 4,000 stars in a day"
+          },
+          "firstSeenAt": "2026-11-19T13:10:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41003",
+          "groupId": "official_blogs",
+          "groupName": "Official blogs",
+          "url": "https://official-blogs.example/item/41003",
+          "title": {
+            "lang": "en",
+            "text": "Notes on giving agents a memory that survives restarts"
+          },
+          "firstSeenAt": "2026-11-19T12:55:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41004",
+          "groupId": "lobsters",
+          "groupName": "Lobsters hottest",
+          "url": "https://lobsters.example/item/41004",
+          "title": {
+            "lang": "en",
+            "text": "A 4-bit model that runs on a three-year-old phone"
+          },
+          "firstSeenAt": "2026-11-19T12:31:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41005",
+          "groupId": "tech_media",
+          "groupName": "Tech media and independent authors",
+          "url": "https://tech-media.example/item/41005",
+          "title": {
+            "lang": "en",
+            "text": "The quiet return of RSS, by the numbers"
+          },
+          "firstSeenAt": "2026-11-19T11:48:00+09:00",
+          "wave": null
+        },
+        {
+          "id": "e41006",
+          "groupId": "bluesky",
+          "groupName": "Bluesky key accounts",
+          "url": "https://bluesky.example/item/41006",
+          "title": {
+            "lang": "en",
+            "text": "A browser vendor hints at built-in agent permissions"
+          },
+          "firstSeenAt": "2026-11-19T11:20:00+09:00",
+          "wave": null
+        }
+      ]
+    }
+  }
+}

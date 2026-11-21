@@ -1,0 +1,52 @@
+{
+  "runs": [
+    {
+      "slot": "20261119T0500",
+      "startedAt": "2026-11-19T14:00:00+09:00",
+      "finishedAt": "2026-11-19T14:02:00+09:00",
+      "status": "done",
+      "groupsOk": 4,
+      "groupsFailed": [],
+      "newEchoes": 5,
+      "wavesFormed": 1,
+      "summariesWritten": 0,
+      "error": null
+    },
+    {
+      "slot": "20261119T0430",
+      "startedAt": "2026-11-19T13:30:00+09:00",
+      "finishedAt": "2026-11-19T13:32:00+09:00",
+      "status": "done",
+      "groupsOk": 4,
+      "groupsFailed": [],
+      "newEchoes": 3,
+      "wavesFormed": 0,
+      "summariesWritten": 0,
+      "error": null
+    },
+    {
+      "slot": "20261119T0400",
+      "startedAt": "2026-11-19T13:00:00+09:00",
+      "finishedAt": "2026-11-19T13:02:00+09:00",
+      "status": "done",
+      "groupsOk": 4,
+      "groupsFailed": [],
+      "newEchoes": 4,
+      "wavesFormed": 0,
+      "summariesWritten": 0,
+      "error": null
+    },
+    {
+      "slot": "20261119T0330",
+      "startedAt": "2026-11-19T12:30:00+09:00",
+      "finishedAt": "2026-11-19T12:32:00+09:00",
+      "status": "done",
+      "groupsOk": 4,
+      "groupsFailed": [],
+      "newEchoes": 2,
+      "wavesFormed": 0,
+      "summariesWritten": 0,
+      "error": null
+    }
+  ]
+}

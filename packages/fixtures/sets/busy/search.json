@@ -1,0 +1,257 @@
+{
+  "chipmaker": {
+    "query": "chipmaker",
+    "counts": {
+      "waves": 2,
+      "echoes": 31,
+      "sources": 1
+    },
+    "waves": [
+      {
+        "slug": "chipmaker-board-founder-ceo",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Chipmaker board rules out bringing back its founder CEO"
+          },
+          {
+            "lang": "zh",
+            "text": "芯片厂董事会排除创始人回归 CEO 的可能"
+          },
+          {
+            "lang": "ja",
+            "text": "半導体大手の取締役会、創業者の CEO 復帰を否定"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Founder CEO ousted"
+          },
+          {
+            "lang": "zh",
+            "text": "创始人 CEO 出局"
+          },
+          {
+            "lang": "ja",
+            "text": "創業者 CEO 解任"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Chipmaker board rules out bringing back its founder CEO"
+        },
+        "state": "up",
+        "height": 196,
+        "change24h": 63,
+        "formedAt": "2026-11-12T18:00:00+09:00",
+        "peakHeight": 205,
+        "wentFlatAt": null,
+        "dueAt": "2026-11-26T18:00:00+09:00",
+        "sourceCount": 6,
+        "echoCount": 31,
+        "matches": [
+          {
+            "field": "headline",
+            "lang": "en",
+            "start": 0,
+            "end": 9
+          },
+          {
+            "field": "summary",
+            "lang": "en",
+            "start": 21,
+            "end": 30
+          }
+        ]
+      },
+      {
+        "slug": "chipmaker-arizona-plant-delay",
+        "headlines": [
+          {
+            "lang": "en",
+            "text": "Chipmaker delays its Arizona plant by a year"
+          }
+        ],
+        "shortTitles": [
+          {
+            "lang": "en",
+            "text": "Arizona plant delay"
+          }
+        ],
+        "sourceHeadline": {
+          "lang": "en",
+          "text": "Chipmaker delays its Arizona plant by a year"
+        },
+        "state": "flat",
+        "height": 6,
+        "change24h": -14,
+        "formedAt": "2026-11-06T09:00:00+09:00",
+        "peakHeight": 142,
+        "wentFlatAt": "2026-11-12T09:00:00+09:00",
+        "dueAt": "2026-11-20T09:00:00+09:00",
+        "sourceCount": 3,
+        "echoCount": 9,
+        "matches": [
+          {
+            "field": "headline",
+            "lang": "en",
+            "start": 0,
+            "end": 9
+          }
+        ]
+      }
+    ],
+    "echoes": [
+      {
+        "id": "e41032",
+        "groupId": "tech_media",
+        "groupName": "Tech media and independent authors",
+        "url": "https://tech-media.example/item/41032",
+        "title": {
+          "lang": "en",
+          "text": "Chipmaker shares slide after board statement"
+        },
+        "firstSeenAt": "2026-11-12T22:35:00+09:00",
+        "wave": {
+          "slug": "chipmaker-board-founder-ceo",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Founder CEO ousted"
+            },
+            {
+              "lang": "zh",
+              "text": "创始人 CEO 出局"
+            },
+            {
+              "lang": "ja",
+              "text": "創業者 CEO 解任"
+            }
+          ],
+          "height": 196
+        },
+        "matches": [
+          {
+            "field": "title",
+            "lang": "en",
+            "start": 0,
+            "end": 9
+          }
+        ]
+      },
+      {
+        "id": "e41030",
+        "groupId": "tech_media",
+        "groupName": "Tech media and independent authors",
+        "url": "https://tech-media.example/item/41030",
+        "title": {
+          "lang": "en",
+          "text": "Chipmaker shares slide after board statement"
+        },
+        "firstSeenAt": "2026-11-12T21:21:00+09:00",
+        "wave": {
+          "slug": "chipmaker-board-founder-ceo",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Founder CEO ousted"
+            },
+            {
+              "lang": "zh",
+              "text": "创始人 CEO 出局"
+            },
+            {
+              "lang": "ja",
+              "text": "創業者 CEO 解任"
+            }
+          ],
+          "height": 196
+        },
+        "matches": [
+          {
+            "field": "title",
+            "lang": "en",
+            "start": 0,
+            "end": 9
+          }
+        ]
+      },
+      {
+        "id": "e41019",
+        "groupId": "hackernews",
+        "groupName": "Hacker News front page and Show HN",
+        "url": "https://hackernews.example/item/41019",
+        "title": {
+          "lang": "en",
+          "text": "Founder ousted as chipmaker CEO"
+        },
+        "firstSeenAt": "2026-11-12T20:59:00+09:00",
+        "wave": {
+          "slug": "chipmaker-board-founder-ceo",
+          "shortTitles": [
+            {
+              "lang": "en",
+              "text": "Founder CEO ousted"
+            },
+            {
+              "lang": "zh",
+              "text": "创始人 CEO 出局"
+            },
+            {
+              "lang": "ja",
+              "text": "創業者 CEO 解任"
+            }
+          ],
+          "height": 196
+        },
+        "matches": [
+          {
+            "field": "title",
+            "lang": "en",
+            "start": 18,
+            "end": 27
+          }
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "tech_media",
+        "name": "Tech media and independent authors",
+        "description": [
+          {
+            "lang": "en",
+            "text": "15 outlets, counted as one. Covers chipmakers, devices and cloud."
+          },
+          {
+            "lang": "zh",
+            "text": "15 家媒体，算作一个来源"
+          },
+          {
+            "lang": "ja",
+            "text": "15 媒体、一つの情報源として数える"
+          }
+        ],
+        "role": "relaying",
+        "category": "press",
+        "members": 15,
+        "echoesToday": 52,
+        "echoes14d": 624,
+        "status": {
+          "state": "reporting",
+          "since": "2026-11-17T09:00:00+09:00",
+          "lastScanAt": "2026-11-19T14:00:00+09:00"
+        },
+        "matches": [
+          {
+            "field": "description",
+            "lang": "en",
+            "start": 35,
+            "end": 44
+          }
+        ]
+      }
+    ]
+  }
+}

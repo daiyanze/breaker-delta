@@ -33,9 +33,12 @@ bun run local        # run locally, no cloud account
 ## Architecture map
 
 - `packages/contracts` - Zod schemas. Types are inferred from them. No logic.
+  `read.ts` and `desk.ts` are the shapes the site and the desk read.
 - `packages/core` - pure functions. No IO, no clock (time is a parameter), no
   imports except `@bd/contracts`.
 - `packages/db` - schema + migrations. Same schema for D1 and local SQLite.
+- `packages/fixtures` - fixture data and query layer behind the read
+  contracts, plus the contract checks every query layer passes (ADR 0017).
 - `packages/judge` - provider chain over OpenAI-compatible HTTP. No tools.
 - `apps/pipeline` - the only writer. Ticker -> RunWorkflow -> steps.
 - `apps/web` - read-only site and API. Never writes, never binds the private

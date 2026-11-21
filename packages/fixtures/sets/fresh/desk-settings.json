@@ -1,0 +1,24 @@
+{
+  "current": {
+    "runIntervalMinutes": 60,
+    "waveThreshold": 2,
+    "halfLifeHours": 48,
+    "calmAfterDays": 7,
+    "risingPercent24h": 50,
+    "rewriteAfterNewEchoes": 5,
+    "summariesPerRun": 10,
+    "reviewWindowDays": 14,
+    "languages": [
+      "en",
+      "zh",
+      "ja"
+    ],
+    "keywordsInclude": [],
+    "keywordsExclude": [],
+    "assignProviders": [],
+    "summarizeProviders": [],
+    "feedLimit": 100
+  },
+  "updatedAt": null,
+  "history": []
+}

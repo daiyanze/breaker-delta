@@ -1,0 +1,16 @@
+{
+  "score": {
+    "rate": null,
+    "confirmed": 0,
+    "hit": 0,
+    "partial": 0,
+    "miss": 0,
+    "undetermined": 0
+  },
+  "registered": 0,
+  "marks": [],
+  "ledger": [],
+  "overdue": [],
+  "byWriter": [],
+  "firstDueAt": null
+}

@@ -1,0 +1,35 @@
+{
+  "score": {
+    "rate": null,
+    "confirmed": 0,
+    "hit": 0,
+    "partial": 0,
+    "miss": 0,
+    "undetermined": 0
+  },
+  "registered": 2,
+  "marks": [
+    {
+      "predictionId": "q001",
+      "slug": "super-agent-flash-model",
+      "mark": "waiting",
+      "revised": false
+    },
+    {
+      "predictionId": "q002",
+      "slug": "open-weights-quarter-price",
+      "mark": "waiting",
+      "revised": false
+    }
+  ],
+  "ledger": [],
+  "overdue": [],
+  "byWriter": [
+    {
+      "writer": "free-primary",
+      "summaries": 1,
+      "rate": null
+    }
+  ],
+  "firstDueAt": "2026-11-26T18:00:00+09:00"
+}
