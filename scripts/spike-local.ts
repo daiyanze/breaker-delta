@@ -122,6 +122,10 @@ try {
   const up = await waitFor(180, health);
   const how = executable ? "the executable, outside the repo, no bun on PATH" : "bun run local";
   record("starts with one command, no login", up !== null, up ? `${how} is up` : "no answer");
+  if (executable) {
+    const bun = Bun.which("bun", { PATH: pathWithoutBun });
+    record("the executable runs with no bun on PATH", bun === null, bun ?? "bun not found");
+  }
   record("/health answers", up?.ok === true, JSON.stringify(up));
   const site = await fetch(`http://127.0.0.1:${webPort}/health`).catch(() => null);
   record("the site answers", site?.ok === true, site ? `status ${site.status}` : "no answer");
