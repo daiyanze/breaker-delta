@@ -23,7 +23,7 @@ describe("probe", () => {
     expect(r).toMatchObject({ ok: false, status: null, error: "connection reset" });
   });
 
-  test("starter targets have unique group ids and https urls", () => {
+  test("launch targets have unique group ids and https urls", () => {
     const ids = PROBE_TARGETS.map((t) => t.groupId);
     expect(new Set(ids).size).toBe(ids.length);
     for (const t of PROBE_TARGETS) expect(new URL(t.url).protocol).toBe("https:");
