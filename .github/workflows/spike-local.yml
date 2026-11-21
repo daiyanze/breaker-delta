@@ -1,0 +1,54 @@
+name: spike-local
+
+# Spike 1 (docs/spikes/m0.md): does `bun run local` work on each OS with no
+# Cloudflare account? Linux runs it with no network at all. Kept as a smoke
+# test for local mode: it runs when the launcher, the pipeline or the schema
+# changes.
+
+on:
+  pull_request:
+    paths:
+      - apps/local/**
+      - apps/pipeline/**
+      - packages/db/migrations/**
+      - scripts/spike-local.ts
+      - .github/workflows/spike-local.yml
+      - bun.lock
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: spike-local-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  local:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: bun install --frozen-lockfile
+
+      - name: Spike, offline (Linux)
+        if: runner.os == 'Linux'
+        # A fresh network namespace has only a loopback interface: nothing
+        # can reach Cloudflare or anything else.
+        run: |
+          sudo unshare --net -- env "PATH=$PATH:/usr/sbin:/sbin" "HOME=$HOME" "RUN_AS=$USER" sh -c '
+            ip link set lo up
+            exec sudo -u "$RUN_AS" env "PATH=$PATH" "HOME=$HOME" bun scripts/spike-local.ts
+          '
+
+      - name: Spike (macOS, Windows)
+        if: runner.os != 'Linux'
+        run: bun scripts/spike-local.ts
