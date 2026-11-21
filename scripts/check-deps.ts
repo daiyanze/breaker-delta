@@ -2,8 +2,8 @@
  * Dependency-direction check. Fails CI when a package imports something its
  * role forbids. Rules mirror CLAUDE.md "Architecture map".
  */
-import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { dirname, join, relative, resolve } from "node:path";
 
 interface Rule {
   dir: string;
@@ -108,8 +108,66 @@ export function violations(root: string, rules: Rule[] = RULES): string[] {
   return found;
 }
 
+/** Relative imports that exist at run time (`import type` is erased). */
+function runtimeImports(file: string): string[] {
+  const out: string[] = [];
+  for (const match of readFileSync(file, "utf8").matchAll(IMPORT)) {
+    const spec = match[1] ?? match[2];
+    if (!spec?.startsWith(".") || /^(import|export)\s+type\s/.test(match[0])) continue;
+    const target = resolve(dirname(file), spec);
+    // Bundler resolution also accepts "./index", "." and "./dir".
+    const candidates = [target, `${target}.ts`, join(target, "index.ts")];
+    out.push(candidates.find((c) => /\.tsx?$/.test(c) && existsSync(c)) ?? target);
+  }
+  return out;
+}
+
+/**
+ * Lesson L1 (docs/lessons.md): a module must not import its own package's
+ * `index.ts` when that entry, directly or through re-exports, imports the
+ * module back. That is an ES module cycle, and one side reads the other's
+ * exports before they are defined.
+ */
+export function selfImports(root: string): string[] {
+  const found: string[] = [];
+  for (const group of ["packages", "apps"]) {
+    let names: string[];
+    try {
+      names = readdirSync(join(root, group));
+    } catch {
+      continue;
+    }
+    for (const name of names) {
+      const entry = join(root, group, name, "src", "index.ts");
+      let list: string[];
+      try {
+        list = files(dirname(entry));
+      } catch {
+        continue;
+      }
+      // Everything the entry reaches at run time.
+      const reached = new Set<string>();
+      const queue = [entry];
+      while (queue.length > 0) {
+        const next = queue.pop() as string;
+        if (reached.has(next) || !list.includes(next)) continue;
+        reached.add(next);
+        queue.push(...runtimeImports(next));
+      }
+      for (const file of list) {
+        if (file === entry || !reached.has(file)) continue;
+        if (runtimeImports(file).includes(entry)) {
+          found.push(`${relative(root, file)} and its package entry import each other (lesson L1)`);
+        }
+      }
+    }
+  }
+  return found;
+}
+
 if (import.meta.main) {
-  const found = violations(join(import.meta.dir, ".."));
+  const root = join(import.meta.dir, "..");
+  const found = [...violations(root), ...selfImports(root)];
   if (found.length > 0) {
     console.error(`Dependency-direction violations:\n${found.map((v) => `  - ${v}`).join("\n")}`);
     process.exit(1);

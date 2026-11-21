@@ -101,15 +101,20 @@ component library. There is no separate landing page: `/` is the front page
 
 ## How to work here
 
-Development runs on a local agent on the owner's machine (ADR 0016):
+Development runs on a local agent on the owner's machine (ADR 0016). The
+working method is `docs/development.md`; read it and `docs/lessons.md`
+before starting a task.
 
 1. Pick an issue. Branch from `develop`. Never push to `develop` directly.
 2. Implement, then run `bun run check` locally.
 3. Push the branch and open a PR. CI runs `check`.
-4. A separate session reviews the PR with `.claude/commands/review.md`. The
-   session that wrote a PR does not review it.
+4. A separate review agent, with no context from the writing session,
+   reviews the PR with `.claude/commands/review.md`. The session that wrote a
+   PR does not review it.
 5. The owner merges. A merge to `develop` deploys both Workers to Cloudflare
    once deploys are switched on.
+6. A mistake caught by the owner, CI or review becomes a lesson in
+   `docs/lessons.md`, or a check.
 
 Keep the coding session away from fetched content: do not paste scan output,
 raw responses or `.bd-data/` into a session that can write code (invariant 6).

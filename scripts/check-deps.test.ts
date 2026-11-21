@@ -2,7 +2,7 @@ import { afterAll, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { RULES, violations } from "./check-deps.ts";
+import { RULES, selfImports, violations } from "./check-deps.ts";
 
 const root = mkdtempSync(join(tmpdir(), "bd-deps-"));
 afterAll(() => rmSync(root, { recursive: true, force: true }));
@@ -14,7 +14,28 @@ function file(path: string, source: string) {
 
 describe("check-deps", () => {
   test("the repository passes", () => {
-    expect(violations(join(import.meta.dir, ".."))).toEqual([]);
+    const repo = join(import.meta.dir, "..");
+    expect([...violations(repo), ...selfImports(repo)]).toEqual([]);
+  });
+
+  test("a module and its package entry may not import each other (lesson L1)", () => {
+    file("packages/x/src/a.ts", 'import { b } from "./index.ts";');
+    file("packages/x/src/deep/c.ts", 'import { b } from "../index.ts";');
+    // Extensionless forms resolve the same under bundler resolution.
+    const entry = ["./a.ts", "./deep/c.ts", "./d", "./e.ts"].map((m) => `export * from "${m}";`);
+    file("packages/x/src/index.ts", entry.join("\n"));
+    file("packages/x/src/d.ts", 'import { b } from "./index";');
+    file("packages/x/src/e.ts", 'import { b } from ".";');
+    // Not cycles: a test the entry never imports, and a type-only import.
+    file("packages/x/src/a.test.ts", 'import { b } from "./index.ts";');
+    file("packages/x/src/types.ts", 'import type { B } from "./index.ts";');
+    const found = selfImports(root).join("\n");
+    expect(found).toContain("x/src/a.ts and its package entry import each other");
+    expect(found).toContain("x/src/deep/c.ts and its package entry import each other");
+    expect(found).toContain("x/src/d.ts and its package entry import each other");
+    expect(found).toContain("x/src/e.ts and its package entry import each other");
+    expect(found).not.toContain("a.test.ts");
+    expect(found).not.toContain("types.ts");
   });
 
   test("an app core may not import Cloudflare or Bun APIs (ADR 0018)", () => {
