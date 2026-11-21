@@ -40,12 +40,23 @@ bun run local        # run locally, no cloud account
 - `packages/fixtures` - fixture data and query layer behind the read
   contracts, plus the contract checks every query layer passes (ADR 0017).
 - `packages/judge` - provider chain over OpenAI-compatible HTTP. No tools.
-- `apps/pipeline` - the only writer. Ticker -> step runner -> steps. Runs on
-  Bun; Cloudflare is an adapter (ADR 0018). M0 still uses `RunWorkflow` until
-  the step runner lands.
+- `packages/ports` - interfaces the app cores need from a runtime (database,
+  blobs, clock, run executor), plus conformance checks every adapter passes.
+  Types only, no imports (ADR 0018).
+- `apps/pipeline` - the only writer. Ticker -> step runner -> steps. M0 still
+  uses `RunWorkflow` until the step runner lands (#171).
 - `apps/web` - read-only site and API. Never writes, never binds the private
   database. Share cards and the desk's mail and subscriber actions are done by
   `apps/pipeline` over the service binding (ADR 0009, 0010).
+
+Both apps are split the same way (ADR 0018):
+
+- `src/core` - the app core: ports and standard Web APIs only. Its
+  `tsconfig.json` has no Bun or Cloudflare types, so using either is a
+  compile error.
+- `src/local` - the Bun adapter (`bun:sqlite`, files, timer).
+- `src/cloudflare` - the Cloudflare adapter (D1, R2, cron). The only place
+  that imports `cloudflare:*`.
 - `apps/local` - launcher and model bridge for local mode.
 
 Dependency direction is enforced by `scripts/check-deps.ts`.

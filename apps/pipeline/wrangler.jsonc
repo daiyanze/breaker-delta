@@ -1,7 +1,7 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "bd-pipeline",
-  "main": "src/index.ts",
+  "main": "src/cloudflare/worker.ts",
   "compatibility_date": "2026-11-01",
   "observability": { "enabled": true },
 

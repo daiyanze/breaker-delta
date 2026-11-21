@@ -21,6 +21,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@bd/core": "workspace:*",
+        "@bd/ports": "workspace:*",
       },
     },
     "apps/web": {
@@ -60,6 +61,10 @@
       "name": "@bd/judge",
       "version": "0.0.0",
     },
+    "packages/ports": {
+      "name": "@bd/ports",
+      "version": "0.0.0",
+    },
   },
   "packages": {
     "@bd/contracts": ["@bd/contracts@workspace:packages/contracts"],
@@ -75,6 +80,8 @@
     "@bd/local": ["@bd/local@workspace:apps/local"],
 
     "@bd/pipeline": ["@bd/pipeline@workspace:apps/pipeline"],
+
+    "@bd/ports": ["@bd/ports@workspace:packages/ports"],
 
     "@bd/web": ["@bd/web@workspace:apps/web"],
 
