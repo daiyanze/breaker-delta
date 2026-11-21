@@ -53,3 +53,28 @@ jobs:
       - name: Spike (macOS, Windows)
         if: runner.os != 'Linux'
         run: bun scripts/spike-local.ts
+
+      # The same criteria, against the single-file executable a user would
+      # download: run from a fresh folder, with no bun on PATH.
+      - name: Build the executable
+        run: bun run build:local
+
+      - name: Spike, executable, offline (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo unshare --net -- env "PATH=$PATH:/usr/sbin:/sbin" "HOME=$HOME" "RUN_AS=$USER" sh -c '
+            ip link set lo up
+            exec sudo -u "$RUN_AS" env "PATH=$PATH" "HOME=$HOME" BD_EXECUTABLE=dist/breaker-delta bun scripts/spike-local.ts
+          '
+
+      - name: Spike, executable (macOS, Windows)
+        if: runner.os != 'Linux'
+        shell: bash
+        run: BD_EXECUTABLE="dist/breaker-delta$([ "$RUNNER_OS" = Windows ] && echo .exe)" bun scripts/spike-local.ts
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: breaker-delta-${{ runner.os }}-${{ runner.arch }}
+          path: dist/breaker-delta*
+          if-no-files-found: error
+          retention-days: 14
