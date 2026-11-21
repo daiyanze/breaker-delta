@@ -43,4 +43,3 @@ jobs:
           (cd apps/web && bun x wrangler deploy --dry-run --outdir ../../.wrangler-dist/web)
       - name: Run the built pipeline in the Workers runtime
         run: bun scripts/cloudflare-smoke.ts .wrangler-dist/pipeline
-

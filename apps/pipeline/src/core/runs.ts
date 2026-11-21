@@ -1,6 +1,6 @@
 /** The `runs` table, through drizzle over the Database port. */
 import { type Db, runs } from "@bd/db";
-import { desc, eq } from "drizzle-orm";
+import { desc } from "drizzle-orm";
 
 /** The JSON shape `/health` has always returned, so columns keep their SQL names. */
 const columns = {
