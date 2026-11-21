@@ -4,12 +4,15 @@
  * (with no network), macOS and Windows.
  *
  * Usage: bun scripts/spike-local.ts
+ * With BD_EXECUTABLE=<path>, it runs the built executable instead of
+ * `apps/local/start.ts`: from a fresh folder outside the repository, with
+ * no `bun` on PATH, as a user who downloaded one file would.
  * Prints one line per criterion and exits non-zero if any fails.
  */
 import { Database as SQLite } from "bun:sqlite";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { delimiter, join, resolve } from "node:path";
 
 const root = join(import.meta.dir, "..");
 const port = Number(process.env.BD_PORT ?? 8799);
@@ -31,11 +34,23 @@ function record(name: string, ok: boolean, note: string) {
   console.log(`[spike] ${ok ? "PASS" : "FAIL"} ${name}: ${note}`);
 }
 
+const executable = process.env.BD_EXECUTABLE ? resolve(process.env.BD_EXECUTABLE) : null;
+const workDir = mkdtempSync(join(tmpdir(), "bd-user-"));
+/** PATH without any folder that holds Bun, so the executable cannot lean on it. */
+const pathWithoutBun = (process.env.PATH ?? "")
+  .split(delimiter)
+  .filter((p) => !/bun/i.test(p))
+  .join(delimiter);
+
 function startLauncher() {
-  return Bun.spawn([process.execPath, join(root, "apps", "local", "start.ts")], {
-    cwd: root,
+  const command = executable
+    ? [executable]
+    : [process.execPath, join(root, "apps", "local", "start.ts")];
+  return Bun.spawn(command, {
+    cwd: executable ? workDir : root,
     env: {
       ...process.env,
+      ...(executable ? { PATH: pathWithoutBun } : {}),
       BD_PORT: String(port),
       BD_WEB_PORT: String(webPort),
       BD_DATA_DIR: dataDir,
@@ -105,7 +120,12 @@ async function runsInDatabase(): Promise<StoredRun[]> {
 let launcher = startLauncher();
 try {
   const up = await waitFor(180, health);
-  record("starts with one command, no login", up !== null, up ? "launcher is up" : "no answer");
+  const how = executable ? "the executable, outside the repo, no bun on PATH" : "bun run local";
+  record("starts with one command, no login", up !== null, up ? `${how} is up` : "no answer");
+  if (executable) {
+    const bun = Bun.which("bun", { PATH: pathWithoutBun });
+    record("the executable runs with no bun on PATH", bun === null, bun ?? "bun not found");
+  }
   record("/health answers", up?.ok === true, JSON.stringify(up));
   const site = await fetch(`http://127.0.0.1:${webPort}/health`).catch(() => null);
   record("the site answers", site?.ok === true, site ? `status ${site.status}` : "no answer");

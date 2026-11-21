@@ -1,9 +1,10 @@
 name: spike-local
 
-# Spike 1 (docs/spikes/m0.md): does `bun run local` work on each OS with no
-# Cloudflare account? Linux runs it with no network at all. Kept as a smoke
-# test for local mode; it moves to the native executable from ADR 0018 once
-# that exists.
+# Spike 1 (docs/spikes/m0.md): does local mode work on each OS with no
+# Cloudflare account? In the `local` job Linux runs with no network at all.
+# Kept as a smoke test for local mode, run twice per OS: with `bun run local`, and with the
+# single-file executable (ADR 0018, #7). A second job downloads that
+# executable on a fresh runner and runs it as a user would.
 
 on:
   pull_request:
@@ -60,3 +61,69 @@ jobs:
       - name: Spike (macOS, Windows)
         if: runner.os != 'Linux'
         run: bun scripts/spike-local.ts
+
+      # The same criteria, against the single-file executable a user would
+      # download: run from a fresh folder, with no bun on PATH.
+      - name: Build the executable
+        run: bun run build:local
+
+      - name: Spike, executable, offline (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo unshare --net -- env "PATH=$PATH:/usr/sbin:/sbin" "HOME=$HOME" "RUN_AS=$USER" sh -c '
+            ip link set lo up
+            exec sudo -u "$RUN_AS" env "PATH=$PATH" "HOME=$HOME" BD_EXECUTABLE=dist/breaker-delta bun scripts/spike-local.ts
+          '
+
+      - name: Spike, executable (macOS, Windows)
+        if: runner.os != 'Linux'
+        shell: bash
+        run: BD_EXECUTABLE="dist/breaker-delta$([ "$RUNNER_OS" = Windows ] && echo .exe)" bun scripts/spike-local.ts
+
+      # upload-artifact zips files and drops the executable bit; a tarball
+      # keeps it, so a download runs without chmod.
+      - name: Pack the executable
+        shell: bash
+        run: tar -czf breaker-delta.tar.gz -C dist "breaker-delta$([ "$RUNNER_OS" = Windows ] && echo .exe)"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: breaker-delta-${{ runner.os }}-${{ runner.arch }}
+          path: breaker-delta.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+
+  # A user's view: a fresh runner downloads the tarball, unpacks it (no
+  # chmod) and runs it. The repository is checked out only for the spike
+  # script, which runs the executable from a temporary folder.
+  downloaded:
+    needs: local
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - id: name
+        shell: bash
+        run: echo "artifact=breaker-delta-$RUNNER_OS-$RUNNER_ARCH" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.name.outputs.artifact }}
+          path: ${{ runner.temp }}/download
+      - name: Unpack and run the spike against it
+        shell: bash
+        run: |
+          cd "$RUNNER_TEMP/download"
+          tar -xzf breaker-delta.tar.gz
+          # Not `$([ ... ] && echo .exe)` in an assignment: under `bash -e`
+          # its false test would end the step.
+          ext=""
+          if [ "$RUNNER_OS" = Windows ]; then ext=.exe; fi
+          exe="$PWD/breaker-delta$ext"
+          test -x "$exe"
+          cd "$GITHUB_WORKSPACE"
+          BD_EXECUTABLE="$exe" bun scripts/spike-local.ts

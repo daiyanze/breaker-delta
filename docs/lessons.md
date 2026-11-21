@@ -4,6 +4,32 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L10 In a `bash -e` step, a false test in a command substitution ends the step
+
+- **Date:** 2026-11-21. **Status:** active.
+- **What happened:** In #182, `exe="...$([ "$RUNNER_OS" = Windows ] && echo .exe)"`
+  ended the GitHub Actions step on Linux and macOS with exit 1 and no
+  output. An assignment's status is its last command substitution's, and
+  Actions runs bash with `-e`. The same expression used as a command's
+  argument or as an env prefix did not fail, which hid it.
+- **Rule:** In workflow `run:` blocks, branch with `if ...; then ...; fi`,
+  never with `cond && echo` inside an assignment.
+- **Scope:** `.github/workflows/*.yml` and shell scripts run with `-e`.
+- **Evidence:** fixed in #182.
+
+## L9 Test the thing a user gets, not the thing CI built
+
+- **Date:** 2026-11-21. **Status:** active.
+- **What happened:** #182 ran the spike against the executable on the
+  runner that built it, then uploaded it. `upload-artifact` zips files and
+  drops the executable bit, so the download would not have run on Linux or
+  macOS without `chmod`. The review caught it from the action's docs.
+- **Rule:** When a criterion is about what a user receives (a download, a
+  package, a deployed page), check the delivered form on a fresh machine,
+  not the build output in place.
+- **Scope:** Release artifacts, packages, deploys.
+- **Check:** the `downloaded` job in `spike-local.yml`.
+
 ## L8 Read the installed version's API before writing against a library
 
 - **Date:** 2026-11-21. **Status:** active.

@@ -2,7 +2,7 @@ import { afterAll, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { RULES, selfImports, violations } from "./check-deps.ts";
+import { RULES, selfImports, unpinned, violations } from "./check-deps.ts";
 
 const root = mkdtempSync(join(tmpdir(), "bd-deps-"));
 afterAll(() => rmSync(root, { recursive: true, force: true }));
@@ -15,7 +15,28 @@ function file(path: string, source: string) {
 describe("check-deps", () => {
   test("the repository passes", () => {
     const repo = join(import.meta.dir, "..");
-    expect([...violations(repo), ...selfImports(repo)]).toEqual([]);
+    expect([...violations(repo), ...selfImports(repo), ...unpinned(repo)]).toEqual([]);
+  });
+
+  test("every dependency names a version range (#3)", () => {
+    const deps = { a: "latest", b: "*", c: "", d: "^1.2.3", e: "workspace:*" };
+    file("apps/y/package.json", JSON.stringify({ devDependencies: deps }));
+    const found = unpinned(root).join("\n");
+    expect(found).toContain('apps/y/package.json: a is "latest"');
+    expect(found).toContain('apps/y/package.json: b is "*"');
+    expect(found).toContain('apps/y/package.json: c is ""');
+    expect(found).not.toContain(": d is");
+    expect(found).not.toContain(": e is");
+  });
+
+  test("the root manifest and every dependency field are covered (#3)", () => {
+    file("package.json", JSON.stringify({ dependencies: { r: "latest" } }));
+    const fields = { peerDependencies: { p: "*" }, optionalDependencies: { o: "latest" } };
+    file("packages/z/package.json", JSON.stringify(fields));
+    const found = unpinned(root).join("\n");
+    expect(found).toContain('package.json: r is "latest"');
+    expect(found).toContain('packages/z/package.json: p is "*"');
+    expect(found).toContain('packages/z/package.json: o is "latest"');
   });
 
   test("a module and its package entry may not import each other (lesson L1)", () => {
