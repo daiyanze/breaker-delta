@@ -43,7 +43,9 @@ const pathWithoutBun = (process.env.PATH ?? "")
   .join(delimiter);
 
 function startLauncher() {
-  const command = executable ? [executable] : [process.execPath, join(root, "apps", "local", "start.ts")];
+  const command = executable
+    ? [executable]
+    : [process.execPath, join(root, "apps", "local", "start.ts")];
   return Bun.spawn(command, {
     cwd: executable ? workDir : root,
     env: {
