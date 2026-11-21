@@ -77,3 +77,25 @@ not a port: both runtimes call the same code, so the `RunExecutor` port that
 #175 added for the interim Workflow is removed. The ports are Database,
 Blobs and Clock.
 
+
+## Amendment (2026-11-21, #13)
+
+Nothing needs Node. In CI, `check`, `cloudflare` and `spike-local` (Linux
+and macOS) delete the runner's preinstalled Node, assert that `node` is
+gone, and pass:
+- `bun install`, the whole of `bun run check`, and the local spike;
+- `bun x --bun wrangler deploy --dry-run` for both Workers, then the
+  Miniflare smoke run.
+
+`--bun` makes wrangler run on Bun rather than the `node` named in its
+shebang. Without Node on the machine, Bun would stand in for it anyway, but
+the flag keeps a runner's or developer's Node out of the way.
+
+There is no Workers test pool to check: the adapter's tests run in workerd
+through Miniflare (`scripts/cloudflare-smoke.ts`).
+
+Not yet proven:
+- `deploy.yml`, `preview.yml` and `claude-implement.yml` keep
+  `setup-node` until they first run with real credentials (#10, #11, #12).
+- Windows `spike-local` still has the runner's Node. Its code path is the
+  same one Linux and macOS prove without Node.
