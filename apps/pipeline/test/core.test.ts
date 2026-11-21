@@ -1,38 +1,13 @@
-/** The app core, run on the bun:sqlite Database adapter with an inline executor. */
-import { Database as SQLite } from "bun:sqlite";
+/** The app core, run on the bun:sqlite Database adapter. */
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-import { drizzleOver } from "@bd/db";
 import { createPipeline, type PipelinePorts, pipelineConfig } from "../src/core/app.ts";
-import { closeRun, openRun } from "../src/core/runs.ts";
-import { sqliteDatabase } from "../src/local/database.ts";
+import { migratedDatabase, NOW, SLOT } from "./helpers.ts";
 
-const MIGRATION = join(import.meta.dir, "../../../packages/db/migrations/0000_init.sql");
-const NOW = Date.UTC(2026, 10, 19, 5, 7); // 14:07 JST, inside slot 20261119T0500
-
-/** A pipeline on an in-memory database, with an executor that runs the slot inline. */
 function setup(overrides: Partial<PipelinePorts> = {}) {
-  const sqlite = new SQLite(":memory:");
-  sqlite.exec(readFileSync(MIGRATION, "utf8"));
-  const db = sqliteDatabase(sqlite);
-  const orm = drizzleOver(db);
-  const started: string[] = [];
-  const ports: PipelinePorts = {
-    db,
-    clock: { now: () => NOW },
-    runs: {
-      async start(slot) {
-        if (started.includes(slot)) throw new Error(`instance ${slot} already exists`);
-        started.push(slot);
-        await openRun(orm, slot, NOW);
-        await closeRun(orm, slot, NOW + 1000);
-      },
-    },
-    ...overrides,
-  };
+  const { db } = migratedDatabase();
+  const ports: PipelinePorts = { db, clock: { now: () => NOW }, ...overrides };
   const config = pipelineConfig({ RUN_INTERVAL_MINUTES: "60", PROBE_TOKEN: "secret" });
-  return { pipeline: createPipeline(ports, config), started };
+  return { pipeline: createPipeline(ports, config) };
 }
 
 const get = (path: string, token?: string) =>
@@ -41,40 +16,34 @@ const get = (path: string, token?: string) =>
   });
 
 describe("pipeline config", () => {
-  test("defaults to 60 minutes and no probe token", () => {
-    expect(pipelineConfig({})).toEqual({ runIntervalMinutes: 60, probeToken: null });
+  test("defaults: 60 minutes, no probe token, step settings from @bd/contracts", () => {
+    expect(pipelineConfig({})).toEqual({
+      runIntervalMinutes: 60,
+      probeToken: null,
+      stepMaxAttempts: 3,
+      runLeaseMinutes: 30,
+    });
   });
 
   test("reads the interval and the token", () => {
     const config = pipelineConfig({ RUN_INTERVAL_MINUTES: "30", PROBE_TOKEN: "t" });
-    expect(config).toEqual({ runIntervalMinutes: 30, probeToken: "t" });
+    expect(config).toMatchObject({ runIntervalMinutes: 30, probeToken: "t" });
   });
 });
 
 describe("tick", () => {
-  test("starts the current slot once", async () => {
-    const { pipeline, started } = setup();
-    expect(await pipeline.tick()).toEqual({ slot: "20261119T0500", started: true });
+  test("runs the current slot once", async () => {
+    const { pipeline } = setup();
     expect(await pipeline.tick()).toEqual({
-      slot: "20261119T0500",
+      slot: SLOT,
+      started: true,
+      status: "done",
+      resumed: false,
+    });
+    expect(await pipeline.tick()).toEqual({
+      slot: SLOT,
       started: false,
       reason: "slot already ran",
-    });
-    expect(started).toEqual(["20261119T0500"]);
-  });
-
-  test("reports an executor that refuses the slot, without throwing", async () => {
-    const { pipeline } = setup({
-      runs: {
-        async start() {
-          throw new Error("instance already exists");
-        },
-      },
-    });
-    expect(await pipeline.tick()).toEqual({
-      slot: "20261119T0500",
-      started: false,
-      reason: "instance already exists",
     });
   });
 });
@@ -88,7 +57,7 @@ describe("fetch", () => {
     const body = (await (await pipeline.fetch(get("/health"))).json()) as {
       lastRun: { slot: string; status: string };
     };
-    expect(body.lastRun).toMatchObject({ slot: "20261119T0500", status: "done" });
+    expect(body.lastRun).toMatchObject({ slot: SLOT, status: "done" });
   });
 
   test("/__tick and /__probe do not exist without the token", async () => {
@@ -101,7 +70,7 @@ describe("fetch", () => {
   test("/__tick runs a tick with the token", async () => {
     const { pipeline } = setup();
     const res = await pipeline.fetch(get("/__tick", "secret"));
-    expect(await res.json()).toEqual({ slot: "20261119T0500", started: true });
+    expect(await res.json()).toMatchObject({ slot: SLOT, started: true, status: "done" });
   });
 
   test("/__probe uses the injected fetch", async () => {

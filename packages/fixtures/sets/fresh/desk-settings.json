@@ -17,7 +17,9 @@
     "keywordsExclude": [],
     "assignProviders": [],
     "summarizeProviders": [],
-    "feedLimit": 100
+    "feedLimit": 100,
+    "stepMaxAttempts": 3,
+    "runLeaseMinutes": 30
   },
   "updatedAt": null,
   "history": []

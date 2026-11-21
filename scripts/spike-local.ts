@@ -115,7 +115,7 @@ try {
     return h?.lastRun?.status === "done" ? h.lastRun : null;
   });
   record(
-    "the scheduled handler creates a RunWorkflow instance and it completes",
+    "the scheduled handler runs the slot and it completes",
     done !== null,
     done ? `slot ${done.slot} done` : "no completed run within 90s",
   );

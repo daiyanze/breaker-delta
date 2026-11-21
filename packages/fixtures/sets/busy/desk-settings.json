@@ -37,7 +37,9 @@
         "model": "deepseek/deepseek-chat"
       }
     ],
-    "feedLimit": 100
+    "feedLimit": 100,
+    "stepMaxAttempts": 3,
+    "runLeaseMinutes": 30
   },
   "updatedAt": "2026-11-18T21:15:00+09:00",
   "history": [
