@@ -17,11 +17,11 @@
     "local": "bun apps/local/start.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "latest",
-    "@cloudflare/workers-types": "latest",
-    "@types/bun": "latest",
-    "miniflare": "latest",
-    "typescript": "latest",
-    "wrangler": "latest"
+    "@biomejs/biome": "2.6.8",
+    "@cloudflare/workers-types": "^5.20261118.1",
+    "@types/bun": "^1.4.4",
+    "miniflare": "5.20261117.0-beta",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.164.0"
   }
 }
