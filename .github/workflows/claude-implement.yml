@@ -1,0 +1,57 @@
+name: claude-implement
+
+# Guardrails: docs/adr/0007-claude-automation-guardrails.md
+# Claude implements an issue and opens a PR only when the OWNER asks, by
+# adding the `claude` label or by commenting `@claude` on an issue.
+# Text from anyone else never starts this job.
+
+on:
+  issues:
+    types: [labeled]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: claude-implement-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  implement:
+    if: >-
+      github.actor == 'daiyanze' &&
+      github.event.sender.login == 'daiyanze' &&
+      github.event.issue.pull_request == null &&
+      (
+        (github.event_name == 'issues' && github.event.label.name == 'claude') ||
+        (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude'))
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: bun install --frozen-lockfile
+
+      # TODO(M0): replace the ref with a commit SHA of v1.0.94 or later.
+      - uses: anthropics/claude-code-action@REPLACE_WITH_COMMIT_SHA
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            Implement issue #${{ github.event.issue.number }} in ${{ github.repository }}.
+            Read CLAUDE.md first and keep every invariant in it.
+            Work on a new branch named claude/issue-${{ github.event.issue.number }}.
+            Run `bun run check` until it passes. Open a pull request that links the issue.
+            Do not edit protected paths unless the issue asks for it; if it does, say so
+            at the top of the PR description. Never merge.
