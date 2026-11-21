@@ -1,8 +1,8 @@
 name: spike-local
 
 # Spike 1 (docs/spikes/m0.md): does local mode work on each OS with no
-# Cloudflare account? Linux runs it with no network at all. Kept as a smoke
-# test for local mode, run twice per OS: with `bun run local`, and with the
+# Cloudflare account? In the `local` job Linux runs with no network at all.
+# Kept as a smoke test for local mode, run twice per OS: with `bun run local`, and with the
 # single-file executable (ADR 0018, #7). A second job downloads that
 # executable on a fresh runner and runs it as a user would.
 
