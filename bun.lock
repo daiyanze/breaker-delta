@@ -21,6 +21,9 @@
       "version": "0.0.0",
       "dependencies": {
         "@bd/core": "workspace:*",
+        "@bd/db": "workspace:*",
+        "@bd/ports": "workspace:*",
+        "drizzle-orm": "latest",
       },
     },
     "apps/web": {
@@ -53,11 +56,16 @@
       "name": "@bd/db",
       "version": "0.0.0",
       "dependencies": {
+        "@bd/ports": "workspace:*",
         "drizzle-orm": "latest",
       },
     },
     "packages/judge": {
       "name": "@bd/judge",
+      "version": "0.0.0",
+    },
+    "packages/ports": {
+      "name": "@bd/ports",
       "version": "0.0.0",
     },
   },
@@ -75,6 +83,8 @@
     "@bd/local": ["@bd/local@workspace:apps/local"],
 
     "@bd/pipeline": ["@bd/pipeline@workspace:apps/pipeline"],
+
+    "@bd/ports": ["@bd/ports@workspace:packages/ports"],
 
     "@bd/web": ["@bd/web@workspace:apps/web"],
 

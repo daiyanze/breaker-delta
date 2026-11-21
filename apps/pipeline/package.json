@@ -6,9 +6,12 @@
   "scripts": {
     "dev": "wrangler dev --test-scheduled",
     "deploy": "wrangler deploy",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.cloudflare.json && tsc --noEmit -p tsconfig.bun.json"
   },
   "dependencies": {
-    "@bd/core": "workspace:*"
+    "@bd/core": "workspace:*",
+    "@bd/db": "workspace:*",
+    "@bd/ports": "workspace:*",
+    "drizzle-orm": "latest"
   }
 }

@@ -1,21 +1,12 @@
 /**
- * bd-web placeholder. It exists so CI, preview deploys and the two-Worker
- * layout are exercised from day one. M3 replaces it with the vinext site.
- * Rule that stays: this Worker only reads. See CLAUDE.md.
+ * The site's app core (ADR 0018): standard Web APIs and the read contracts
+ * only, so it runs on Bun and on Cloudflare alike. Rule that stays: the site
+ * only reads. See CLAUDE.md.
  *
- * With `READ_SOURCE=fixtures` the front page is rendered from the fixture
- * query layer (`@bd/fixtures`, issue #162), with no database. `?set=` picks a
- * fixture set and `?lang=` a language.
+ * Until the site lands in M3 this is a placeholder, plus a bare front page
+ * rendered from whatever `ReadQueries` the adapter passes in.
  */
 import type { Language, RankRow, ReadQueries } from "@bd/contracts";
-import { createFixtureReadQueries, DEFAULT_FIXTURE_SET, isFixtureSetName } from "@bd/fixtures";
-
-export interface Env {
-  /** "fixtures" reads from `@bd/fixtures`. The database query layer arrives with #57. */
-  READ_SOURCE?: string;
-  /** Fixture set used when `?set=` is not given. */
-  FIXTURE_SET?: string;
-}
 
 const PLACEHOLDER = `<!doctype html>
 <html lang="en">
@@ -92,14 +83,25 @@ ${parts.join("\n")}
 </html>`;
 }
 
-export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url);
-    if (url.pathname === "/health") return Response.json({ ok: true });
-    if (url.pathname !== "/") return new Response("not found", { status: 404 });
-    if (env.READ_SOURCE !== "fixtures") return html(PLACEHOLDER);
-    const name = url.searchParams.get("set") ?? env.FIXTURE_SET ?? DEFAULT_FIXTURE_SET;
-    if (!isFixtureSetName(name)) return new Response("unknown fixture set", { status: 404 });
-    return html(await renderFront(createFixtureReadQueries(name), url.searchParams.get("lang")));
-  },
-} satisfies ExportedHandler<Env>;
+/**
+ * Pick the query layer per request. Null means "no query layer configured":
+ * the placeholder page is served.
+ */
+export type QueryLayer = (request: Request) => ReadQueries | null;
+
+export interface Site {
+  fetch(request: Request): Promise<Response>;
+}
+
+export function createSite(queries: QueryLayer): Site {
+  return {
+    async fetch(request) {
+      const url = new URL(request.url);
+      if (url.pathname === "/health") return Response.json({ ok: true });
+      if (url.pathname !== "/") return new Response("not found", { status: 404 });
+      const q = queries(request);
+      if (q === null) return html(PLACEHOLDER);
+      return html(await renderFront(q, url.searchParams.get("lang")));
+    },
+  };
+}

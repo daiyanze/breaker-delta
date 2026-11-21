@@ -12,8 +12,13 @@ interface Rule {
   why: string;
 }
 
+const PORTS = /^@bd\/ports(\/conformance)?$/;
+/** Drizzle core and its proxy driver only: native drivers would bind one runtime. */
+const DRIZZLE = /^drizzle-orm(\/sqlite-core|\/sqlite-proxy)?$/;
+
 export const RULES: Rule[] = [
   { dir: "packages/contracts/src", allow: [/^zod$/], why: "contracts hold schemas only" },
+  { dir: "packages/ports/src", allow: [], why: "ports are interfaces: no imports" },
   {
     dir: "packages/core/src",
     allow: [/^@bd\/contracts$/, /^bun:test$/],
@@ -31,12 +36,38 @@ export const RULES: Rule[] = [
   },
   {
     dir: "packages/db/src",
-    allow: [/^@bd\/contracts$/, /^drizzle-orm(\/.*)?$/, /^bun:test$/],
-    why: "db holds schema and queries",
+    allow: [/^@bd\/contracts$/, PORTS, DRIZZLE, /^bun:test$/],
+    why: "db holds schema and queries, on the Database port",
+  },
+  // ADR 0018: app cores run on any runtime, so no `cloudflare:*` and no Bun APIs.
+  {
+    dir: "apps/pipeline/src/core",
+    allow: [/^@bd\/(contracts|core|db|judge)$/, PORTS, DRIZZLE, /^bun:test$/],
+    why: "the pipeline core depends on ports only (ADR 0018)",
+  },
+  {
+    dir: "apps/pipeline/src/sources",
+    allow: [/^@bd\/(contracts|core)$/, PORTS, /^bun:test$/],
+    why: "source adapters use standard fetch only (ADR 0018)",
+  },
+  {
+    dir: "apps/pipeline/src/cloudflare",
+    allow: [/^@bd\/(contracts|core|db|judge)$/, PORTS, DRIZZLE, /^cloudflare:/, /^bun:test$/],
+    why: "the Cloudflare adapter maps bindings onto ports; no Bun APIs (ADR 0018)",
+  },
+  {
+    dir: "apps/pipeline/src/local",
+    allow: [/^@bd\/(contracts|core|db)$/, PORTS, /^bun:/, /^node:/],
+    why: "the local adapter runs on Bun, never on Cloudflare APIs (ADR 0018)",
+  },
+  {
+    dir: "apps/web/src/core",
+    allow: [/^@bd\/contracts$/, PORTS, /^bun:test$/],
+    why: "the site core reads through the read contracts only (ADR 0018)",
   },
   {
     dir: "apps/web/src",
-    allow: [/^@bd\/contracts$/, /^@bd\/db$/, /^@bd\/fixtures$/, /^cloudflare:/, /^bun:test$/],
+    allow: [/^@bd\/(contracts|db|fixtures)$/, PORTS, /^cloudflare:/, /^bun:test$/],
     why: "web is read-only: no judge, no pipeline code",
   },
 ];

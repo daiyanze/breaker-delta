@@ -13,12 +13,21 @@ not the runtime local mode imitates.
   | --- | --- | --- |
   | Database | `bun:sqlite` file | D1 |
   | Blobs | a directory | R2 |
-  | Schedule | in-process timer | cron trigger |
+  | Clock | `Date.now` | `Date.now` |
   | Run execution | step runner | the same step runner, called from the cron handler |
   | Mail, models | configured transports (0005, 0012) | same |
 
-- Both databases speak SQLite and share one schema and one set of migrations
-  (drizzle has a driver for each).
+- Scheduling is not a port. The core exports `tick()`, and each adapter
+  decides when to call it: an in-process timer locally, a cron trigger on
+  Cloudflare.
+- Both databases speak SQLite and share one schema and one set of migrations.
+  The Database port is a small SQL interface (`all`, `values`, `first`,
+  `run`, `batch`) that both adapters implement and pass the same
+  conformance checks for. The core writes typed queries with drizzle on top
+  of it, through drizzle's `sqlite-proxy` driver (`drizzleOver` in
+  `@bd/db`). Native drizzle drivers are not used: D1 has no interactive
+  transactions and bun-sqlite has no `batch`, so an atomic write is always a
+  port `batch` of write statements.
 - One run is a plain function over the ports. A step runner records each
   step's result in a `run_steps` table, keyed by slot and step, so a run that
   stops halfway resumes where it stopped. Cloudflare Workflows are not used:

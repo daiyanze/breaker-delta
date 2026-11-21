@@ -34,8 +34,9 @@ packages/core       Pure rules: independent sources, wave, wave height. No IO.
 packages/db         Schema and migrations (D1 on Cloudflare, SQLite locally)
 packages/fixtures   Fixture data and query layer behind the read contracts
 packages/judge      Model provider chain (OpenAI-compatible HTTP)
-apps/pipeline       Worker: ticker, workflows, source adapters, admin actions
-apps/web            Worker: site and read-only API (stub until M3)
+packages/ports      Runtime ports (database, blobs, clock, runs) and adapter checks
+apps/pipeline       Pipeline: app core plus local (Bun) and Cloudflare adapters
+apps/web            Site and read-only API: app core plus adapters (stub until M3)
 apps/local          Local launcher and model bridge
 docs/adr            Architecture decisions, one per file
 evals               Evaluation cases captured from real runs (from M2)

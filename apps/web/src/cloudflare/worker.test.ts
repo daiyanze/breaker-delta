@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import worker from "./index.ts";
+import worker from "./worker.ts";
 
 const get = (path: string, env: Record<string, string> = {}) =>
   worker.fetch(new Request(`https://bd.test${path}`), env);
