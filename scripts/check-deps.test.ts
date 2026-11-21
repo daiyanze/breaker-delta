@@ -29,6 +29,16 @@ describe("check-deps", () => {
     expect(found).not.toContain(": e is");
   });
 
+  test("the root manifest and every dependency field are covered (#3)", () => {
+    file("package.json", JSON.stringify({ dependencies: { r: "latest" } }));
+    const fields = { peerDependencies: { p: "*" }, optionalDependencies: { o: "latest" } };
+    file("packages/z/package.json", JSON.stringify(fields));
+    const found = unpinned(root).join("\n");
+    expect(found).toContain('package.json: r is "latest"');
+    expect(found).toContain('packages/z/package.json: p is "*"');
+    expect(found).toContain('packages/z/package.json: o is "latest"');
+  });
+
   test("a module and its package entry may not import each other (lesson L1)", () => {
     file("packages/x/src/a.ts", 'import { b } from "./index.ts";');
     file("packages/x/src/deep/c.ts", 'import { b } from "../index.ts";');
