@@ -27,7 +27,9 @@ jobs:
 
   # The Cloudflare adapter (ADR 0018, #173): build both Workers without an
   # account, then run the built pipeline in the Workers runtime (miniflare).
-  # Kept out of `check` so local development never needs Cloudflare tooling.
+  # Kept out of `check` so local development never runs Cloudflare tooling.
+  # `check` still reads the type declarations of `miniflare` and
+  # `@cloudflare/workers-types` (root devDependencies) to typecheck scripts/.
   cloudflare:
     runs-on: ubuntu-latest
     steps:
