@@ -40,7 +40,14 @@ export function databaseChecks(open: () => Promise<Database>): PortCheck[] {
         await db.run(table);
         await db.run("INSERT INTO t (id, name, n) VALUES (1, 'a', 10), (2, 'b', 20), (3, 'c', 30)");
         const rows = await db.all("SELECT id, name FROM t WHERE n >= ?1 ORDER BY id DESC", 20);
-        expectEqual(rows, [{ id: 3, name: "c" }, { id: 2, name: "b" }], "rows");
+        expectEqual(
+          rows,
+          [
+            { id: 3, name: "c" },
+            { id: 2, name: "b" },
+          ],
+          "rows",
+        );
         expectEqual(await db.all("SELECT id FROM t WHERE id = ?1", 42), [], "no rows");
       },
     },
