@@ -112,6 +112,11 @@ jobs:
         run: |
           cd "$RUNNER_TEMP/download"
           tar -xzf breaker-delta.tar.gz
-          exe="$PWD/breaker-delta$([ "$RUNNER_OS" = Windows ] && echo .exe)"
+          # Not `$([ ... ] && echo .exe)` in an assignment: under `bash -e`
+          # its false test would end the step.
+          ext=""
+          if [ "$RUNNER_OS" = Windows ]; then ext=.exe; fi
+          exe="$PWD/breaker-delta$ext"
+          test -x "$exe"
           cd "$GITHUB_WORKSPACE"
           BD_EXECUTABLE="$exe" bun scripts/spike-local.ts
