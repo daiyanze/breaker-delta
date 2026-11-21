@@ -179,11 +179,45 @@ export function selfImports(root: string): string[] {
   return found;
 }
 
+const FIELDS = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"];
+
+/**
+ * Issue #3: every dependency names a version range. `latest`, `*` or an
+ * empty spec lets an install pick up a new major release unannounced.
+ */
+export function unpinned(root: string): string[] {
+  const found: string[] = [];
+  const manifests = [join(root, "package.json")];
+  for (const group of ["packages", "apps"]) {
+    if (!existsSync(join(root, group))) continue;
+    for (const name of readdirSync(join(root, group))) {
+      manifests.push(join(root, group, name, "package.json"));
+    }
+  }
+  for (const path of manifests) {
+    let manifest: Record<string, unknown>;
+    try {
+      manifest = JSON.parse(readFileSync(path, "utf8"));
+    } catch {
+      continue;
+    }
+    for (const field of FIELDS) {
+      const deps = (manifest[field] ?? {}) as Record<string, string>;
+      for (const [dep, spec] of Object.entries(deps)) {
+        if (spec === "latest" || spec === "*" || spec.trim() === "") {
+          found.push(`${relative(root, path)}: ${dep} is "${spec}"; name a version range (#3)`);
+        }
+      }
+    }
+  }
+  return found;
+}
+
 if (import.meta.main) {
   const root = join(import.meta.dir, "..");
-  const found = [...violations(root), ...selfImports(root)];
+  const found = [...violations(root), ...selfImports(root), ...unpinned(root)];
   if (found.length > 0) {
-    console.error(`Dependency-direction violations:\n${found.map((v) => `  - ${v}`).join("\n")}`);
+    console.error(`check-deps found:\n${found.map((v) => `  - ${v}`).join("\n")}`);
     process.exit(1);
   }
   console.log("dependency directions ok");

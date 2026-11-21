@@ -11,6 +11,6 @@
   },
   "dependencies": {
     "@bd/ports": "workspace:*",
-    "drizzle-orm": "latest"
+    "drizzle-orm": "^0.45.4"
   }
 }
