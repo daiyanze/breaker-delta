@@ -4,6 +4,20 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L8 Read the installed version's API before writing against a library
+
+- **Date:** 2026-11-21. **Status:** active.
+- **What happened:** #179 wrote the Miniflare calls from memory of v3/v4.
+  The lockfile has Miniflare 5 (beta), whose options moved under
+  `workers[].config`. Two CI rounds failed before the source was read; it
+  offers `convertV4MiniflareOptions` for the flat shape.
+- **Rule:** Before calling a dependency, check the version in `bun.lock` and
+  read that version's types, source or changelog. Memory of an older major
+  version is not documentation.
+- **Scope:** any code against a third-party package, especially pre-1.0,
+  beta or recently bumped ones.
+- **Evidence:** CI runs on #179.
+
 ## L7 Prove a new guard catches a violation where it is meant to
 
 - **Date:** 2026-11-21. **Status:** active.
@@ -69,9 +83,10 @@ Each rule applies only within its scope.
   objects is printed one element per line; names sort letter by letter
   ignoring case, but at the same letter uppercase comes first (`runSteps`
   before `runs`); a chain of three or more calls breaks one call per line
-  when an argument is not simple (`now() + x`), even if it would fit.
+  when an argument is not simple (`now() + x`), even if it would fit; Biome
+  also formats YAML under `.github` (exactly one trailing newline).
 - **Scope:** any session without a working `bun install`.
-- **Evidence:** CI runs on #167, #175 and #177.
+- **Evidence:** CI runs on #167, #175, #177 and #179.
 
 ## L2 Re-read the whole section after inserting into a list
 

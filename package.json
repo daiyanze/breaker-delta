@@ -20,6 +20,7 @@
     "@biomejs/biome": "latest",
     "@cloudflare/workers-types": "latest",
     "@types/bun": "latest",
+    "miniflare": "latest",
     "typescript": "latest",
     "wrangler": "latest"
   }

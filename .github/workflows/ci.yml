@@ -24,3 +24,22 @@ jobs:
           node-version: 22
       - run: bun install --frozen-lockfile
       - run: bun run check
+
+  # The Cloudflare adapter (ADR 0018, #173): build both Workers without an
+  # account, then run the built pipeline in the Workers runtime (miniflare).
+  # Kept out of `check` so local development never needs Cloudflare tooling.
+  cloudflare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: bun install --frozen-lockfile
+      - name: Build both Workers (dry run)
+        run: |
+          (cd apps/pipeline && bun x wrangler deploy --dry-run --outdir ../../.wrangler-dist/pipeline)
+          (cd apps/web && bun x wrangler deploy --dry-run --outdir ../../.wrangler-dist/web)
+      - name: Run the built pipeline in the Workers runtime
+        run: bun scripts/cloudflare-smoke.ts .wrangler-dist/pipeline
