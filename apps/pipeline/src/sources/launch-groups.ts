@@ -65,19 +65,15 @@ export const LAUNCH_GROUPS: readonly LaunchGroup[] = [
   },
   {
     id: "hackernews",
-    name: "Hacker News front page",
+    name: "Hacker News front page and Show HN",
     tier: "first_hand",
-    countsAsOne: false,
+    countsAsOne: true,
     minIntervalMinutes: 0,
     probeUrl: "https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=1",
-  },
-  {
-    id: "show_hn",
-    name: "Show HN",
-    tier: "first_hand",
-    countsAsOne: false,
-    minIntervalMinutes: 0,
-    probeUrl: "https://hn.algolia.com/api/v1/search?tags=show_hn&hitsPerPage=1",
+    members: [
+      "https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=30",
+      "https://hn.algolia.com/api/v1/search?tags=show_hn&hitsPerPage=30",
+    ],
   },
   {
     id: "huggingface",
@@ -102,14 +98,6 @@ export const LAUNCH_GROUPS: readonly LaunchGroup[] = [
     countsAsOne: false,
     minIntervalMinutes: 0,
     probeUrl: "https://openrouter.ai/api/v1/models",
-  },
-  {
-    id: "civitai",
-    name: "Civitai newest models",
-    tier: "first_hand",
-    countsAsOne: false,
-    minIntervalMinutes: 0,
-    probeUrl: "https://civitai.com/api/v1/models?limit=1&sort=Newest&nsfw=false",
   },
   {
     id: "arxiv",
@@ -241,28 +229,6 @@ export const LAUNCH_GROUPS: readonly LaunchGroup[] = [
       "https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/2026/11/19",
   },
   {
-    id: "sitemaps",
-    name: "AI tool directories",
-    tier: "relaying",
-    countsAsOne: true,
-    minIntervalMinutes: 1440,
-    probeUrl: "https://www.futurepedia.io/sitemap_tools.xml",
-    members: [
-      "https://www.futurepedia.io/sitemap_tools.xml",
-      "https://www.toolify.ai/sitemap.xml",
-      "https://dang.ai/sitemap.xml",
-      "https://glama.ai/sitemap.xml",
-      "https://mcp.so/sitemap.xml",
-      "https://lobehub.com/sitemap/mcp.xml",
-      "https://lobehub.com/sitemap/skills.xml",
-      "https://www.aixploria.com/sitemap.xml",
-      "https://opentools.ai/sitemap.xml",
-      "https://www.clipfly.ai/sitemaps/en.xml",
-      "https://aitoptools.com/sitemap.xml",
-      "https://ai-bot.cn/sitemap.xml",
-    ],
-  },
-  {
     id: "app_store",
     name: "App Store charts",
     tier: "relaying",
@@ -270,12 +236,22 @@ export const LAUNCH_GROUPS: readonly LaunchGroup[] = [
     minIntervalMinutes: 1440,
     probeUrl: "https://rss.marketingtools.apple.com/api/v2/us/apps/top-free/10/apps.json",
   },
+  {
+    id: "google_news",
+    name: "Google News, tech and AI topics",
+    tier: "relaying",
+    countsAsOne: false,
+    minIntervalMinutes: 0,
+    probeUrl: "https://news.google.com/rss/search?q=AI&hl=en-US&gl=US&ceid=US:en",
+  },
 ];
 
 /** Groups the previous version read that are not carried over, and why. */
 export const SKIPPED_GROUPS: readonly { id: string; reason: string }[] = [
   { id: "x", reason: "Needs a paid API." },
   { id: "reddit", reason: "Reading without an approved API key is contested." },
-  { id: "google_news", reason: "The RSS terms limit use; contested for a public service." },
-  { id: "google_trends", reason: "No free official API; was verification only." },
+  { id: "google_trends", reason: "No free official API. Verification uses Wikipedia pageviews." },
+  { id: "civitai", reason: "Owner decision: too far from news." },
+  { id: "sitemaps", reason: "Owner decision: too far from news." },
+  { id: "show_hn", reason: "Merged into hackernews so one post cannot count as two sources." },
 ];
