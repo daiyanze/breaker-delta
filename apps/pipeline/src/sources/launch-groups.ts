@@ -237,7 +237,8 @@ export const LAUNCH_GROUPS: readonly LaunchGroup[] = [
     tier: "relaying",
     countsAsOne: false,
     minIntervalMinutes: 1440,
-    probeUrl: "https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/2026/11/19",
+    probeUrl:
+      "https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/2026/11/19",
   },
   {
     id: "sitemaps",
