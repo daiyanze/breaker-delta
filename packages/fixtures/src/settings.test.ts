@@ -15,7 +15,8 @@ describe("settings defaults (#16)", () => {
   });
 
   test("the fresh set, a new install, holds exactly the defaults", () => {
-    expect(fresh.current).toEqual(SettingsSchema.parse({}));
+    // contract.test.ts checks the file parses to itself, so this compares the file.
+    expect(SettingsSchema.parse(fresh.current)).toEqual(SettingsSchema.parse({}));
   });
 
   test("the mail send time is HH:MM on a 24-hour clock", () => {
