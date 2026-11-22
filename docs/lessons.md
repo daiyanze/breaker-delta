@@ -8,9 +8,10 @@ Each rule applies only within its scope.
 
 - **Date:** 2026-11-22. **Status:** active.
 - **What happened:** #188 first told sessions to
-  `export CLOUDFLARE_API_TOKEN="$(security find-generic-password ...)"`. A
-  failed lookup still exits 0 with an empty value, and exported variables do
-  not carry over between an agent's shell calls. Wrangler then uses the
+  `export CLOUDFLARE_API_TOKEN="$(security find-generic-password ...)"`.
+  When the lookup fails, `export` hides its exit status and leaves the value
+  empty, and exported variables do not carry over between an agent's shell
+  calls. Wrangler then uses the
   owner's stored login, which ADR 0019 forbids. The review found this by
   reading wrangler's auth code.
 - **Rule:** Load a credential in the same command that uses it, through one
@@ -18,7 +19,7 @@ Each rule applies only within its scope.
   back to when the credential is missing.
 - **Scope:** any CLI that has a stored login next to a token variable
   (wrangler, gh, cloud CLIs).
-- **Check:** `scripts/cf.sh`.
+- **Check:** `scripts/cf.sh`, tested by `scripts/cf.test.ts` in `check`.
 
 ## L11 Survey the real inputs before writing rules that read them
 

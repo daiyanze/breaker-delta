@@ -32,9 +32,12 @@ names. Nothing on GitHub starts work by itself (ADR 0016).
 
 ADR 0019 sets the rules; this is where the token lives and how it is used.
 
-**Every wrangler call goes through `scripts/cf.sh`**, for example
-`scripts/cf.sh whoami` or `scripts/cf.sh deploy`. The script loads the
-agent's token into that one command. If it finds no token, it stops, so
+**Every wrangler call that reaches Cloudflare goes through
+`scripts/cf.sh`**, for example `scripts/cf.sh whoami`. Commands that need a
+`wrangler.jsonc` run from the app folder: `cd apps/pipeline &&
+../../scripts/cf.sh deploy`, which is what `bun run deploy` does there.
+Local `wrangler dev` needs no token. The script loads the
+agent's token into that one command. If it finds no token, or a malformed one, it stops, so
 wrangler never falls back to the owner's `wrangler login`. Do not export the
 token yourself: variables do not carry over between an agent's shell calls,
 and wrangler uses a stored login when `CLOUDFLARE_API_TOKEN` is empty.
