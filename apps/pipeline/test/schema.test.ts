@@ -62,10 +62,16 @@ function tableChecks(sqlite: SQLite, table: string) {
   const row = sqlite.query("SELECT sql FROM sqlite_master WHERE name = ?1").get(table) as {
     sql: string;
   };
-  return [...row.sql.matchAll(/CONSTRAINT (\w+) CHECK \((.*)\),?$/gm)].map((m) => ({
+  const named = [...row.sql.matchAll(/CONSTRAINT (\w+) CHECK \((.*)\),?$/gm)].map((m) => ({
     name: m[1] as string,
     value: m[2] as string,
   }));
+  // An unnamed or column-level CHECK would escape the comparison: refuse it.
+  const all = row.sql.match(/\bCHECK\b/gi)?.length ?? 0;
+  if (all !== named.length) {
+    throw new Error(`${table}: write each CHECK as its own line, CONSTRAINT <name> CHECK (...)`);
+  }
+  return named;
 }
 
 const dialect = new SQLiteSyncDialect();
@@ -181,6 +187,11 @@ describe("schema and migrations", () => {
     expect(drifted(`CREATE TABLE echoes (${columns}); ${partial}`)).not.toEqual(good);
     const checked = `${columns},\n  CONSTRAINT echoes_lang CHECK (lang <> '')`;
     expect(drifted(`CREATE TABLE echoes (${checked}); ${indexes}`)).not.toEqual(good);
+    const unnamed = columns.replace(
+      "title TEXT NOT NULL",
+      "title TEXT NOT NULL CHECK (title <> '')",
+    );
+    expect(() => drifted(`CREATE TABLE echoes (${unnamed}); ${indexes}`)).toThrow(/CONSTRAINT/);
   });
 
   test("the comparison sees a changed WHERE and a changed CHECK", () => {
