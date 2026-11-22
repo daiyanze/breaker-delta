@@ -4,6 +4,21 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L14 A red job is red even when it is not required
+
+- **Date:** 2026-11-22. **Status:** active.
+- **What happened:** #198 put inline styles in every page's `<head>`. The
+  verify-local selftest in `spike-local.yml` looks for the front page's
+  edition line in what `verify-local get` prints, which was the first 2000
+  characters, now all `<head>`. The `local` job went red on #198 and on
+  every PR after it, but it is not a required check, so #198 merged and the
+  failure surfaced on #200.
+- **Rule:** Before calling a PR done, read every failed job, not only the
+  required ones. A failure that predates the PR is named in its report with
+  the first run that failed.
+- **Scope:** every PR, `/next` and `/run` reports.
+- **Evidence:** fixed in this PR; `verify-local get` now prints from `<body>`.
+
 ## L13 Check a credential's shape, not only its characters
 
 - **Date:** 2026-11-22. **Status:** active.
