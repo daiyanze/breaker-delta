@@ -64,7 +64,8 @@ Both apps are split the same way (ADR 0018):
 Scheduling belongs to the adapters: the core exports `tick()`. The core
 queries the database with drizzle through `drizzleOver(db)` from `@bd/db`.
 
-Dependency direction is enforced by `scripts/check-deps.ts`.
+Dependency direction is enforced by `scripts/check-deps.ts` for package
+imports; see "What enforces each rule" for what it does not cover.
 
 UI components are built from the Tide Paper design system. No third-party
 component library. There is no separate landing page: `/` is the front page
@@ -102,9 +103,9 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 
 | Rule | Enforced by | Kind |
 | --- | --- | --- |
-| Dependency direction (architecture map) | `scripts/check-deps.ts`, for package imports only; relative imports are not checked | check, review |
+| Dependency direction (architecture map) | `scripts/check-deps.ts`, for package imports only; relative imports: review checklist 13 | check, review |
 | App cores use no Bun or Cloudflare API | `src/core` tsconfig without those types; `check-deps` | types |
-| 1. Code decides | model result schemas have no wave, height or rank fields (`packages/contracts/src/model.ts`); core's package imports (`check-deps`); no IO or clock in core: review | types, review |
+| 1. Code decides | model result schemas have no wave, height or rank fields (`packages/contracts/src/model.ts`); core's package imports (`check-deps`); no IO or clock in core: review checklist 13 | types, check, review |
 | 2. Sources are referenced | model schemas cite echo IDs only (`model.ts`); storing and rendering: review checklist 3 | types, review |
 | 3. Independent sources per fetch group | `packages/core` tests | test |
 | 4. Append-only | review checklist 12; no check until M1 writes summaries | review |
@@ -119,7 +120,7 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 
 Rows marked review only are the next to enforce once the code they guard
 exists. Known gaps in the checks: `check-deps` skips relative imports, so
-`../../judge/src` from `apps/web` passes it, and it does not look at
+`../../../packages/judge/src` from a file in `apps/web/src` passes it, and it does not look at
 globals (`fetch`, `Date.now`, `Bun`); `packages/core` typechecks with Bun's
 types.
 

@@ -72,6 +72,10 @@ pass returns candidate issues with file, line and reason.
 12. **Append-only.** Does any path update or delete a published summary,
     correction, withdrawal or verdict row in place, instead of adding a new
     row?
+13. **What check-deps misses.** Does a relative import reach into another
+    package (`../../../packages/...`) past the dependency rules? Does
+    `packages/core` gain IO, a clock (`Date.now`, `new Date()`) or a runtime
+    global (`fetch`, `Bun`)?
 
 ## 5. Validate every candidate
 
