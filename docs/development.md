@@ -30,33 +30,44 @@ names. Nothing on GitHub starts work by itself (ADR 0016).
 
 ## Cloudflare credential
 
-ADR 0019 sets the rules; this is where the token lives. The owner stores it
-once in the system keychain, never in the repository or a chat:
+ADR 0019 sets the rules; this is where the token lives and how it is used.
+
+**Every wrangler call goes through `scripts/cf.sh`**, for example
+`scripts/cf.sh whoami` or `scripts/cf.sh deploy`. The script loads the
+agent's token into that one command. If it finds no token, it stops, so
+wrangler never falls back to the owner's `wrangler login`. Do not export the
+token yourself: variables do not carry over between an agent's shell calls,
+and wrangler uses a stored login when `CLOUDFLARE_API_TOKEN` is empty.
+
+The owner stores the token and the account ID once. On macOS, use the
+keychain:
 
 ```sh
-# macOS. `-w` with no value prompts for it, so it stays out of shell history.
-security add-generic-password -a "$USER" -s breaker-delta-cloudflare-token -w
-security add-generic-password -a "$USER" -s breaker-delta-cloudflare-account -w '<account id>'
+# -U replaces an existing item. -w last, with no value, prompts for the secret.
+security add-generic-password -U -a "$USER" -s breaker-delta-cloudflare-token -w
+security add-generic-password -U -a "$USER" -s breaker-delta-cloudflare-account -w
 ```
 
-A session that needs Cloudflare loads both into its environment and never
-prints them:
+- **Linux, with a running Secret Service** (GNOME Keyring or KWallet):
+  `secret-tool store --label="Breaker Delta Cloudflare token" service breaker-delta-cloudflare-token`.
+  Store `breaker-delta-cloudflare-account` the same way. It prompts for the
+  value.
+- **Elsewhere (Windows with Git Bash, or no keychain):** use
+  `~/.config/breaker-delta/cloudflare.env` with mode 600, holding the lines
+  `CLOUDFLARE_API_TOKEN=...` and `CLOUDFLARE_ACCOUNT_ID=...`. The script
+  reads the file; it does not source it.
 
-```sh
-export CLOUDFLARE_API_TOKEN="$(security find-generic-password -s breaker-delta-cloudflare-token -w)"
-export CLOUDFLARE_ACCOUNT_ID="$(security find-generic-password -s breaker-delta-cloudflare-account -w)"
-bun x --bun wrangler whoami
-```
+The first time, check that `scripts/cf.sh whoami` reports an account API
+token, not an OAuth login.
 
-- On Linux, use `secret-tool store` and `secret-tool lookup`. On Windows, use
-  Credential Manager.
-- Without a keychain, use `~/.config/breaker-delta/cloudflare.env` with mode
-  600, loaded with `set -a; . <file>; set +a`.
+Rules:
+
+- Never read, print or `cat` the env file or a keychain item. Only
+  `scripts/cf.sh` reads them.
 - Do not put the token in Claude Code's `settings.json` `env`. That hands it
-  to every command of every session, including ones that never use
-  Cloudflare.
-- If the token is missing or a load fails, stop and tell the owner. Do not
-  ask for the value in the chat.
+  to every command of every session.
+- If the script says no token was found, stop and tell the owner. Do not ask
+  for the value in the chat.
 
 ## The loop
 
