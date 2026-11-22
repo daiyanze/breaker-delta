@@ -6,8 +6,9 @@
  * counts as one source however many of its members report a story.
  *
  * Only sources that are free and uncontested to read are listed. Left out on
- * purpose, see `SKIPPED_GROUPS`. Reachability is not confirmed yet: spike 2
- * (docs/spikes/m0.md) probes every `probeUrl` from both networks.
+ * purpose, see `SKIPPED_GROUPS`. Spike 2 (docs/spikes/m0.md) probed every
+ * `probeUrl` from a home network and from Workers egress; all groups are kept
+ * for launch, `google_news` despite intermittent 503s from Workers.
  */
 
 export type SourceTier = "first_hand" | "relaying";
