@@ -103,9 +103,11 @@ migrations are applied to the shared preview database with
 The owner sets this up once:
 
 1. **Token.** An account API token only for previews, separate from the
-   deploy job's and the local agent's: Workers Scripts Edit on `bd-pipeline`
-   and `bd-web` (Admin if Workers Scripts Edit cannot create Previews), D1
-   Edit, Account Settings Read. D1 Edit is account-wide, so the token could
+   deploy job's and the local agent's: Workers Admin on `bd-pipeline` and
+   `bd-web`, D1 Edit, Account Settings Read. Edit is not enough: it creates
+   Previews, but the `cleanup` job's `wrangler preview delete` is refused
+   with "No access to the specified resource" (owner raised it to Admin,
+   2026-11-23). D1 Edit is account-wide, so the token could
    reach the production databases; only the workflow's commands use it.
 2. **Environment.** A GitHub environment `preview` holding
    `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. No required reviewers:
