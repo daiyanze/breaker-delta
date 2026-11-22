@@ -19,7 +19,15 @@
  * (invariant 6). The file is saved either way.
  */
 import { Database as SQLite } from "bun:sqlite";
-import { appendFileSync, existsSync, mkdirSync, openSync, readFileSync, rmSync } from "node:fs";
+import {
+  appendFileSync,
+  existsSync,
+  mkdirSync,
+  openSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
@@ -94,6 +102,22 @@ async function reachable(url: string): Promise<boolean> {
   }
 }
 
+/**
+ * The saved pid is ours only while that instance's pipeline still answers:
+ * after a crash or a reboot the pid may belong to another process.
+ */
+async function ours(state: State): Promise<boolean> {
+  return alive(state.pid) && (await reachable(state.pipelineUrl));
+}
+
+/** Fixture sets are the folders under `packages/fixtures/sets`. */
+export function fixtureSets(dir = join(root, "packages", "fixtures", "sets")): string[] {
+  return readdirSync(dir, { withFileTypes: true })
+    .filter((e) => e.isDirectory())
+    .map((e) => e.name)
+    .sort();
+}
+
 function need(): State {
   const state = readState();
   if (state === null) throw new Error("no instance: run `bun scripts/verify-local.ts up` first");
@@ -102,11 +126,20 @@ function need(): State {
 
 async function up(args: string[]) {
   const running = readState();
-  if (running !== null && alive(running.pid)) {
+  if (running !== null && (await ours(running))) {
     throw new Error(`an instance is already running (pid ${running.pid}); run \`down\` first`);
+  }
+  // A state file whose instance is gone is stale: drop it and its data folder,
+  // keep the rest of its run folder.
+  if (running !== null) {
+    rmSync(running.dataDir, { recursive: true, force: true });
+    rmSync(statePath, { force: true });
   }
   const at = args.indexOf("--fixtures");
   const fixtures = at === -1 ? null : (args[at + 1] ?? "busy");
+  if (fixtures !== null && !fixtureSets().includes(fixtures)) {
+    throw new Error(`unknown fixture set "${fixtures}"; sets: ${fixtureSets().join(", ")}`);
+  }
   const runDir = join(verifyDir, new Date().toISOString().replace(/[:.]/g, "-"));
   const dataDir = join(runDir, "data");
   mkdirSync(dataDir, { recursive: true });
@@ -223,7 +256,8 @@ async function down() {
     console.log("nothing running");
     return;
   }
-  if (alive(state.pid)) {
+  const mine = await ours(state);
+  if (mine) {
     if (process.platform === "win32") {
       await Bun.spawn(["taskkill", "/pid", String(state.pid), "/T", "/F"]).exited;
     } else {
@@ -234,8 +268,9 @@ async function down() {
   }
   rmSync(state.dataDir, { recursive: true, force: true });
   rmSync(statePath, { force: true });
-  step(state, "down", "stopped, data removed", state.runDir);
-  console.log(`stopped pid ${state.pid}; evidence kept in ${state.runDir}`);
+  const what = mine ? `stopped pid ${state.pid}` : "instance already gone, nothing stopped";
+  step(state, "down", `${what}, data removed`, state.runDir);
+  console.log(`${what}; evidence kept in ${state.runDir}`);
 }
 
 if (import.meta.main) {
@@ -257,7 +292,11 @@ if (import.meta.main) {
   try {
     await run(args);
   } catch (err) {
-    console.error(`[verify-local] ${err instanceof Error ? err.message : String(err)}`);
+    const message = err instanceof Error ? err.message : String(err);
+    // A failed command is a step too, when there is an instance to log it in.
+    const state = readState();
+    if (state !== null) step(state, [command, ...args].join(" "), `failed: ${message}`, "-");
+    console.error(`[verify-local] ${message}`);
     process.exit(1);
   }
 }

@@ -56,7 +56,7 @@ in `features/`; start from `features/README.md`.
 
 Every `tick`, `get` and `sql` saves its answer in the run folder as a
 numbered file, and every command adds a row to `steps.tsv` (time, command,
-result, file). In a PR, cite the run folder's `steps.tsv` rows and paste the
+result, file), including commands that fail. In a PR, cite the run folder's `steps.tsv` rows and paste the
 lines that show the behavior. Proof standards:
 
 - Use the user's path: the routes and the tick a user or the scheduler
@@ -85,8 +85,9 @@ steps scan real sources:
 bun scripts/verify-local.ts down
 ```
 
-Stops the process `up` started (by its pid, never by name), deletes the data
-folder and the state file. The run folder, its log, `steps.tsv` and every
+Stops the process `up` started (by its pid, never by name, and only while
+that instance's pipeline still answers, so a reused pid is never signalled),
+deletes the data folder and the state file. The run folder, its log, `steps.tsv` and every
 saved answer stay. `.verify/` is git-ignored; delete old run folders by hand
 when you no longer need them.
 

@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { evidenceName, parseStartLine } from "./verify-local.ts";
+import { evidenceName, fixtureSets, parseStartLine } from "./verify-local.ts";
 
 test("reads both URLs from the launcher's start-up line", () => {
   const log =
@@ -20,4 +20,8 @@ test("evidence files sort in the order they were saved and say what they hold", 
   expect(evidenceName(3, "/?set=quiet&lang=ja", "html")).toBe("03-set-quiet-lang-ja.html");
   expect(evidenceName(12, "/", "html")).toBe("12-root.html");
   expect(evidenceName(1, "tick", "json")).toBe("01-tick.json");
+});
+
+test("fixture sets are read from the repository", () => {
+  expect(fixtureSets()).toEqual(["busy", "fresh", "quiet"]);
 });
