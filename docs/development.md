@@ -89,6 +89,35 @@ Rules:
 - If the script says no token was found, stop and tell the owner. Do not ask
   for the value in the chat.
 
+## Previews
+
+Every PR the owner opens gets a preview of both Workers
+(`.github/workflows/preview.yml`, #11). A preview is a `wrangler preview`
+named `pr-<number>`; its URLs are posted as a PR comment. It binds
+`bd-content-preview` and `bd-blobs-preview` only (the `previews` block in
+each `wrangler.jsonc`, checked by `scripts/wrangler-previews.test.ts`), has
+no cron and no secrets, and is deleted when the PR closes. Preview
+migrations are applied to the shared preview database with
+`apps/pipeline/wrangler.preview-db.jsonc`.
+
+The owner sets this up once:
+
+1. **Token.** An account API token only for previews, separate from the
+   deploy job's and the local agent's: Workers Scripts Edit on `bd-pipeline`
+   and `bd-web` (Admin if Workers Scripts Edit cannot create Previews), D1
+   Edit, Account Settings Read. D1 Edit is account-wide, so the token could
+   reach the production databases; only the workflow's commands use it.
+2. **Environment.** A GitHub environment `preview` holding
+   `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. No required reviewers:
+   it runs on every PR. The job runs only for same-repository PRs opened by
+   the owner.
+3. **Access.** In the dashboard, for each of `bd-pipeline` and `bd-web`:
+   Settings, Domains & Routes, enable Cloudflare Access on `workers.dev` and
+   on Preview URLs, and limit the policy to the owner's email. This is the
+   one Cloudflare setting not kept in `wrangler.jsonc` (ADR 0019 amendment).
+   The workflow fails if a preview's `/health` answers 200 without signing
+   in.
+
 ## The loop
 
 1. **Explore.** Read the issue, `AGENTS.md`, the ADRs it touches,
