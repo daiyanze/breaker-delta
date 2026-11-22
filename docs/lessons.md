@@ -4,6 +4,22 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L17 Test a parser with the escapes and neighbours real documents use
+
+- **Date:** 2026-11-23. **Status:** active.
+- **What happened:** #206 read feeds with fast-xml-parser but tested only
+  `&amp;` and `&lt;`. In 5.11.2 numeric character references (`&#8217;`,
+  which WordPress writes for apostrophes) are decoded only with
+  `htmlEntities` on, so titles kept them raw. `removeNSPrefix` also let
+  `<atom:link>` and `<media:title>` replace the RSS elements. The review
+  found both with throwaway inputs.
+- **Rule:** When configuring a parser for a standard format, test each
+  option against the forms real documents use: every escape kind, and
+  elements from other namespaces next to the ones read. It extends L14.
+- **Scope:** `apps/pipeline/src/sources` and any code that reads XML,
+  HTML or feeds.
+- **Evidence:** fixed in #206, tests in `parse.test.ts`.
+
 ## L16 Write down who decided each value
 
 - **Date:** 2026-11-23. **Status:** active.

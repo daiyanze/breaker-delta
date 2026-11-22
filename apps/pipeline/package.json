@@ -13,7 +13,8 @@
     "@bd/core": "workspace:*",
     "@bd/db": "workspace:*",
     "@bd/ports": "workspace:*",
-    "drizzle-orm": "^0.45.4"
+    "drizzle-orm": "^0.45.4",
+    "fast-xml-parser": "5.11.2"
   },
   "exports": {
     "./local": "./src/local/index.ts"

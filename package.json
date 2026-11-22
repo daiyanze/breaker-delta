@@ -14,6 +14,7 @@
     "test": "bun test",
     "check:deps": "bun scripts/check-deps.ts",
     "probe": "bun scripts/probe-sources.ts",
+    "record-fixture": "bun scripts/record-fixture.ts",
     "local": "bun apps/local/start.ts",
     "build:local": "bun build apps/local/start.ts --compile --outfile dist/breaker-delta"
   },
