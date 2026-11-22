@@ -28,9 +28,13 @@ describe("settings defaults (#16)", () => {
     }
   });
 
-  test("the time zone must be one the runtime knows", () => {
-    expect(SettingsSchema.safeParse({ timeZone: "Europe/Paris" }).success).toBe(true);
-    expect(SettingsSchema.safeParse({ timeZone: "Mars/Olympus" }).success).toBe(false);
-    expect(SettingsSchema.safeParse({ timeZone: "" }).success).toBe(false);
+  test("the time zone is an IANA name the runtime knows, spelled exactly", () => {
+    for (const ok of ["Asia/Tokyo", "Europe/Paris", "America/Argentina/Buenos_Aires", "UTC"]) {
+      expect(SettingsSchema.safeParse({ timeZone: ok }).success).toBe(true);
+    }
+    // Some runtimes accept these; refusing them everywhere keeps Bun and V8 alike.
+    for (const bad of ["Mars/Olympus", "", "JST", "+09:00", "asia/tokyo", "Etc/GMT+9x"]) {
+      expect(SettingsSchema.safeParse({ timeZone: bad }).success).toBe(false);
+    }
   });
 });

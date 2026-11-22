@@ -15,9 +15,16 @@ export type Provider = z.infer<typeof ProviderSchema>;
 /** "HH:MM", 24-hour clock. */
 const ClockTimeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 
-/** An IANA time zone name the runtime knows, e.g. "Asia/Tokyo". */
+/**
+ * An IANA time zone name the runtime knows, e.g. "Asia/Tokyo" or "UTC".
+ * Runtimes differ in what else they accept ("JST", "+09:00", "asia/tokyo"),
+ * so the name's shape is checked first: a value saved on one runtime must
+ * load on the other. (Comparing with `resolvedOptions().timeZone` would not
+ * help: V8 rewrites some valid names, Bun does not.)
+ */
 const TimeZoneSchema = z.string().refine(
   (tz) => {
+    if (tz !== "UTC" && !/^[A-Z][A-Za-z_]*(\/[A-Z][A-Za-z0-9_+-]*)+$/.test(tz)) return false;
     try {
       new Intl.DateTimeFormat("en", { timeZone: tz });
       return true;
@@ -25,7 +32,7 @@ const TimeZoneSchema = z.string().refine(
       return false;
     }
   },
-  { message: "not an IANA time zone" },
+  { message: "not an IANA time zone name" },
 );
 
 /**
