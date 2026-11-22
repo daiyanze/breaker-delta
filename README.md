@@ -42,7 +42,7 @@ docs/adr            Architecture decisions, one per file
 evals               Evaluation cases captured from real runs (from M2)
 ```
 
-Read `CLAUDE.md` before changing anything; it lists the invariants.
+Read `AGENTS.md` before changing anything; it lists the invariants.
 
 ## License
 

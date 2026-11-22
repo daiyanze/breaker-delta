@@ -63,3 +63,16 @@ while the workflows are off.
 ADR 0019 lets the local agent operate Cloudflare with its own scoped token.
 It replaces the sentence "Only the deploy job holds Cloudflare credentials;
 the local agent never does." Deploys after #12 stay with the deploy job.
+
+## Amendment (2026-11-22): one set of agent files for every runtime
+
+The local agent may be Claude Code, Pi or Codex, and each looks in its own
+place. So there is one copy of everything:
+
+- The rules are in `AGENTS.md`. `CLAUDE.md` only imports it.
+- The procedures are skills in `.claude/skills/` (`next`, `long-run`,
+  `review`, `verify-local`); `.agents/skills` is a link to that folder. This replaces
+  `.claude/commands/`: where this ADR says `.claude/commands/review.md`,
+  read `.claude/skills/review/SKILL.md`.
+- `.agents` and `AGENTS.md` are protected paths, like `.claude` and
+  `CLAUDE.md`.

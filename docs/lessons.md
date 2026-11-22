@@ -4,7 +4,7 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
-## L14 A red job is red even when it is not required
+## L15 A red job is red even when it is not required
 
 - **Date:** 2026-11-22. **Status:** active.
 - **What happened:** #198 put inline styles in every page's `<head>`. The
@@ -18,6 +18,25 @@ Each rule applies only within its scope.
   the first run that failed.
 - **Scope:** every PR, `/next` and `/run` reports.
 - **Evidence:** fixed in this PR; `verify-local get` now prints from `<body>`.
+
+## L14 Read a standard format with its parser, and check names against the runtime's own
+
+- **Date:** 2026-11-22. **Status:** active.
+- **What happened:** #199 checked skill frontmatter with a regex. The review
+  showed it passed files a YAML parser rejects (`description: Use when: x`,
+  `description: ""`, a list), which Pi then drops. It also showed that a
+  project skill named `run` with `disable-model-invocation` made Claude
+  Code list its own bundled `run` skill to the model instead. Reading a
+  format with hand-written rules repeats L11.
+- **Rule:** When a check reads YAML, JSON or another standard format, use
+  the parser the consumers use, and test it with inputs that parser
+  rejects. Before naming a skill or command, check the name against what
+  each runtime already ships.
+- **Scope:** checks and scripts that read config or frontmatter; names of
+  skills in `.claude/skills/`.
+- **Check:** `scripts/agent-files.ts` parses frontmatter with `Bun.YAML` and
+  refuses the reserved name `run`; `scripts/agent-files.test.ts` covers
+  both.
 
 ## L13 Check a credential's shape, not only its characters
 
@@ -188,7 +207,7 @@ Each rule applies only within its scope.
   the wrong heading.
 - **Rule:** After editing a list or a table in a document, read the whole
   section again before committing.
-- **Scope:** Markdown docs, especially `CLAUDE.md` and ADRs.
+- **Scope:** Markdown docs, especially `AGENTS.md` and ADRs.
 - **Evidence:** fixed in #175.
 
 ## L1 A module and its package entry never import each other

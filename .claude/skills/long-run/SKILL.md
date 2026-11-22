@@ -1,9 +1,15 @@
+---
+name: long-run
+description: Work toward a goal the owner gave, issue after issue, until a stated exit condition holds, keeping a decision log. Only when the owner asks for a long run and names the goal. Never merges.
+disable-model-invocation: true
+---
+
 # Long run
 
 Work toward a goal the owner gave, issue after issue, until an exit
 condition holds. The rules are in `docs/development.md`, "Long runs"; this
-is the procedure. `$ARGUMENTS` is the goal, for example `finish UI M2` or
-`every open M1 issue you can`.
+is the procedure. The goal comes with the request, for example `finish UI
+M2` or `every open M1 issue you can`. No goal given: ask for one.
 
 ## 1. Start or pick up
 
@@ -40,11 +46,12 @@ owner names.
 
 Until the condition holds:
 
-1. Run `/next` steps 1 and 2 restricted to the goal's issues, skipping
+1. Follow steps 1 and 2 of the `next` skill
+   (`.claude/skills/next/SKILL.md`) restricted to the goal's issues, skipping
    issues parked in this run. No candidate left: go to 4.
-2. Do the issue with `/next` step 3, which follows `docs/development.md`
-   (verify on local mode where a user sees the change). Each issue gets its
-   own branch from `develop` and its own PR.
+2. Do the issue with step 3 of the `next` skill, which follows
+   `docs/development.md` (verify on local mode where a user sees the
+   change). Each issue gets its own branch from `develop` and its own PR.
 3. While CI and the review agent run, start the next candidate; come back
    to fix blocking review items, then start a new review agent. After three
    rounds without approval, park the issue for the owner.
