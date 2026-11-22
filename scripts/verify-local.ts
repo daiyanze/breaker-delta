@@ -231,7 +231,18 @@ async function get(args: string[]) {
   const asked = `get ${path}${base === state.pipelineUrl ? " --pipeline" : ""}`;
   step(state, asked, String(res.status), file);
   const show = state.fixtures !== null || base === state.pipelineUrl;
-  console.log(`${res.status} ${type}\nsaved ${file}${show ? `\n\n${body.slice(0, 2000)}` : ""}`);
+  console.log(`${res.status} ${type}\nsaved ${file}${show ? `\n\n${preview(body)}` : ""}`);
+}
+
+/**
+ * What `get` prints of a response: the first 2000 characters of an HTML
+ * page's `<body>`, since `<head>` holds inline styles that would fill the
+ * limit on their own; other bodies from the start. The full response is in
+ * the saved file.
+ */
+export function preview(body: string, limit = 2000): string {
+  const at = body.search(/<body[\s>]/i);
+  return body.slice(at === -1 ? 0 : at, (at === -1 ? 0 : at) + limit);
 }
 
 async function sql(args: string[]) {

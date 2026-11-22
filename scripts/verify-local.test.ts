@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { evidenceName, fixtureSets, parseStartLine } from "./verify-local.ts";
+import { evidenceName, fixtureSets, parseStartLine, preview } from "./verify-local.ts";
 
 test("reads both URLs from the launcher's start-up line", () => {
   const log =
@@ -24,4 +24,11 @@ test("evidence files sort in the order they were saved and say what they hold", 
 
 test("fixture sets are read from the repository", () => {
   expect(fixtureSets()).toEqual(["busy", "fresh", "quiet"]);
+});
+
+test("a page is printed from <body>, however long its <head> is", () => {
+  const page = `<html><head><style>${"x".repeat(5000)}</style></head><body><p>edition</p></body></html>`;
+  expect(preview(page)).toStartWith("<body><p>edition</p>");
+  expect(preview('{"ok":true}')).toBe('{"ok":true}');
+  expect(preview(page, 10)).toBe("<body><p>e");
 });
