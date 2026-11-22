@@ -171,6 +171,54 @@ const BASE_CSS = [
   "img,svg{max-width:100%}",
 ].join("\n");
 
+/**
+ * The two phone values the design system states only in prose, in the
+ * `usage` of the token they replace on phones (`tokens.json`). `layout.test.ts`
+ * checks that each usage still says so.
+ */
+export const PHONE = {
+  /** Page side margin: `space-6` "手机用 20px". */
+  gutter: { value: "20px", token: "space-6" },
+  /** Section name in the rail: `section` "手机 32px". */
+  sectionSize: { value: "32px", token: "section" },
+} as const;
+
+/**
+ * Below this width a band is one column: the rail becomes a heading above
+ * the content. The design system names no breakpoint; this is the agent's
+ * choice (#106): the narrowest width where the rail at its full `rail` width,
+ * the `space-8` gap and a content column of about 480px still fit.
+ */
+export const TWO_COLUMNS_FROM = "960px";
+
+/**
+ * The page width and the band (design system "版式"). Phone values first;
+ * from `TWO_COLUMNS_FROM` the desktop values, the two columns and the
+ * sticky rail. Nothing here is wider than the viewport, so no page scrolls
+ * sideways.
+ */
+const LAYOUT_CSS = [
+  `:root{--page-gutter:${PHONE.gutter.value};--band-space:var(--space-7);` +
+    `--band-name-size:${PHONE.sectionSize.value}}`,
+  `@media (min-width:${TWO_COLUMNS_FROM}){:root{--page-gutter:var(--space-6);` +
+    "--band-space:var(--space-8);--band-name-size:var(--type-section-size)}}",
+  ".page{box-sizing:content-box;max-width:var(--content);margin-inline:auto;" +
+    "padding-inline:var(--page-gutter)}",
+  ".band{display:grid;grid-template-columns:minmax(0,1fr);row-gap:var(--space-5);" +
+    "padding-block:var(--band-space);border-top:var(--rule-thin) solid var(--ink)}",
+  ".band-rail{display:flex;flex-direction:column;gap:var(--space-3);min-width:0}",
+  ".band-name{margin:0;font-family:var(--font-display);font-size:var(--band-name-size);" +
+    "line-height:var(--type-section-line);font-weight:var(--type-section-weight);" +
+    "font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}",
+  ".band-note{margin:0;color:var(--ink-2)}",
+  ".band-body{min-width:0}",
+  // The content's first line lines up with the section name.
+  ".band-body>:first-child{margin-top:0}",
+  `@media (min-width:${TWO_COLUMNS_FROM}){` +
+    ".band{grid-template-columns:minmax(0,var(--rail)) minmax(0,1fr);column-gap:var(--space-8)}" +
+    ".band-rail{position:sticky;top:var(--space-5);align-self:start}}",
+].join("\n");
+
 /** Everything a page's `<head>` needs for the design system: font preloads and the styles. */
 export function headStyles(): string {
   const preloads = FONT_FILES.filter((f) => f.preload).map(
@@ -182,5 +230,6 @@ ${FONT_FACES}
 ${TOKENS_CSS}
 ${TYPE_CLASSES}
 ${BASE_CSS}
+${LAYOUT_CSS}
 </style>`;
 }

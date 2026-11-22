@@ -7,29 +7,25 @@
  * rendered from whatever `ReadQueries` the adapter passes in.
  */
 import type { Language, RankRow, ReadQueries } from "@bd/contracts";
-import { headStyles } from "./style.ts";
+import { type Band, escapeHtml, renderPage } from "./layout.ts";
 
-const PLACEHOLDER = `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex">
-<title>Breaker Delta</title>
-${headStyles()}
-</head>
-<body>
-<h1>Breaker Delta</h1>
-<p>2.0 scaffold. The site arrives in milestone M3.</p>
-</body>
-</html>`;
+const PLACEHOLDER = renderPage({
+  lang: "en",
+  title: "Breaker Delta",
+  heading: "Breaker Delta",
+  bands: [
+    {
+      id: "scaffold",
+      name: "Scaffold",
+      content: "<p>2.0 scaffold. The site arrives in milestone M3.</p>",
+    },
+  ],
+});
 
 const html = (body: string, status = 200) =>
   new Response(body, { status, headers: { "content-type": "text/html; charset=utf-8" } });
 
-function escapeHtml(text: string): string {
-  return text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
-}
+const FIXTURE_NOTE = "<p><small>Fixture data.</small></p>";
 
 /** The model headline in `lang` when there is one, else the source's own headline. */
 function headline(row: Pick<RankRow, "headlines" | "sourceHeadline">, lang: Language) {
@@ -41,49 +37,43 @@ export async function renderFront(q: ReadQueries, requested: string | null): Pro
   const meta = await q.siteMeta();
   const lang = meta.languages.find((l) => l === requested) ?? meta.defaultLanguage;
   const edition = await q.edition();
-  const parts: string[] = [];
+  const bands: Band[] = [];
   if (edition === null) {
-    parts.push("<h2>The sea is flat.</h2>");
-    parts.push(`<p>Nothing has been scanned yet. Next scan: ${escapeHtml(meta.nextRunAt)}.</p>`);
+    bands.push({
+      id: "front",
+      name: "The sea is flat.",
+      content:
+        `<p>Nothing has been scanned yet. Next scan: ${escapeHtml(meta.nextRunAt)}.</p>\n` +
+        FIXTURE_NOTE,
+    });
   } else {
-    parts.push(
+    const ranking: string[] = [];
+    ranking.push(
       `<p>The ${escapeHtml(edition.label)} edition. Sea state: ${edition.seaState}. ` +
         `${edition.waveCount} waves up, ${edition.formedToday} new today.</p>`,
     );
-    parts.push("<ol>");
+    ranking.push("<ol>");
     for (const row of edition.ranking) {
       const h = headline(row, lang);
-      parts.push(
+      ranking.push(
         `<li><a href="/topic/${row.slug}" lang="${escapeHtml(h.lang)}">${escapeHtml(h.text)}</a> ` +
           `<data value="${row.height}">${Math.round(row.height)}</data></li>`,
       );
     }
-    parts.push("</ol>");
-    parts.push("<h2>Classifieds</h2><ul>");
+    ranking.push("</ol>");
+    bands.push({ id: "front", name: "Front page", content: ranking.join("\n") });
+    const classifieds: string[] = ["<ul>"];
     for (const echo of edition.classifieds.items) {
-      parts.push(
+      classifieds.push(
         `<li>${escapeHtml(echo.groupName)}: ` +
           `<a href="${escapeHtml(echo.url)}" lang="${escapeHtml(echo.title.lang)}">` +
           `${escapeHtml(echo.title.text)}</a></li>`,
       );
     }
-    parts.push("</ul>");
+    classifieds.push("</ul>", FIXTURE_NOTE);
+    bands.push({ id: "classifieds", name: "Classifieds", content: classifieds.join("\n") });
   }
-  return `<!doctype html>
-<html lang="${lang}">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex">
-<title>${escapeHtml(meta.siteName)}</title>
-${headStyles()}
-</head>
-<body>
-<h1>${escapeHtml(meta.siteName)}</h1>
-${parts.join("\n")}
-<p><small>Fixture data.</small></p>
-</body>
-</html>`;
+  return renderPage({ lang, title: meta.siteName, heading: meta.siteName, bands });
 }
 
 /**
