@@ -13,12 +13,13 @@ const RESOURCE_KEYS = new Set([
   "bucket_name",
   "id",
   "service",
+  "script_name",
   "namespace",
   "index_name",
   "queue",
 ]);
 /** Of those, the names a human picks, which must say they are for previews. */
-const NAME_KEYS = new Set(["database_name", "bucket_name", "service", "queue"]);
+const NAME_KEYS = new Set(["database_name", "bucket_name", "service", "script_name", "queue"]);
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);

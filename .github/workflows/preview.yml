@@ -16,7 +16,9 @@ name: preview
 #   deploy job's and the local agent's (ADR 0019). Only same-repository PRs
 #   opened by the owner run this job; forks never get the secrets (ADR 0007).
 # - The preview database is shared by every open PR. Migrations only add, so a
-#   PR that adds one leaves the others' previews working.
+#   PR that adds one leaves the others' previews working. D1 records applied
+#   migrations by file name: a migration edited after its first push is not
+#   re-applied, so the preview runs the old schema until the file is renamed.
 
 on:
   pull_request:
@@ -68,7 +70,8 @@ jobs:
             echo "$app=$url" >> "$GITHUB_OUTPUT"
           done
       # Unauthenticated access must be blocked: Access answers with a redirect
-      # to its login page (302) or 403, never the Worker's 200.
+      # to its login page (302), 401 or 403. Anything else, a 200 or an error
+      # page, fails: it does not show Access is on.
       - name: Access blocks unauthenticated requests
         env:
           PIPELINE: ${{ steps.urls.outputs.pipeline }}
@@ -77,7 +80,10 @@ jobs:
           for url in "$PIPELINE/health" "$WEB/health"; do
             code="$(curl -s -o /dev/null -w '%{http_code}' "$url")"
             echo "$url -> $code"
-            if [ "$code" = 200 ]; then echo "preview is not behind Cloudflare Access"; exit 1; fi
+            case "$code" in
+              302 | 401 | 403) ;;
+              *) echo "expected Cloudflare Access (302, 401 or 403)"; exit 1 ;;
+            esac
           done
       - name: Comment the URLs on the PR
         env:
@@ -87,10 +93,18 @@ jobs:
           PIPELINE: ${{ steps.urls.outputs.pipeline }}
           WEB: ${{ steps.urls.outputs.web }}
         run: |
-          printf '%s\n' "Preview for ${SHA::7} (Cloudflare Access sign-in required):" "" \
+          printf '%s\n' "<!-- bd-preview -->" "Preview for ${SHA::7} (Cloudflare Access sign-in required):" "" \
             "- web: $WEB" "- pipeline: $PIPELINE" "" \
             "Bound to bd-content-preview and bd-blobs-preview. No cron." > comment.md
-          gh pr comment "$PR" --body-file comment.md --edit-last --create-if-none
+          # Update this job's own comment (found by its marker), not just the
+          # bot's last one, which may be another workflow's.
+          id="$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
+            --jq '.[] | select(.body | startswith("<!-- bd-preview -->")) | .id' | tail -n 1)"
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F body=@comment.md >/dev/null
+          else
+            gh pr comment "$PR" --body-file comment.md
+          fi
 
   # A closed PR's previews are deleted. The preview database is shared and kept.
   cleanup:

@@ -51,6 +51,12 @@ describe("previews bind preview resources only (#11)", () => {
     ["production bucket", { r2_buckets: [{ binding: "BLOBS", bucket_name: "bd-blobs" }] }],
     ["non-preview name", { d1_databases: [{ binding: "P", database_name: "bd-private" }] }],
     ["service to production", { services: [{ binding: "PIPE", service: "bd-pipeline" }] }],
+    [
+      "binding into production code",
+      {
+        durable_objects: { bindings: [{ name: "D", class_name: "C", script_name: "bd-pipeline" }] },
+      },
+    ],
     ["triggers", { triggers: { crons: ["* * * * *"] } }],
   ];
   for (const [what, previews] of planted) {
