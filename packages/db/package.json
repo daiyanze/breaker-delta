@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@bd/contracts": "workspace:*",
     "@bd/ports": "workspace:*",
     "drizzle-orm": "^0.45.4"
   }
