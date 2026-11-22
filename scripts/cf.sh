@@ -46,11 +46,22 @@ valid() {
   esac
 }
 
+# An account ID is exactly 32 lowercase hex digits. Checking the shape, not
+# only the characters, stops a token stored in the account slot: wrangler
+# puts the account ID in request URLs, and its errors print them (L13).
+account_id() {
+  case "$1" in
+    *[!0-9a-f]*) return 1 ;;
+  esac
+  [ "${#1}" -eq 32 ]
+}
+
 if [ -z "$token" ] || [ -z "$account" ]; then
   fail "no Cloudflare token or account ID found"
 fi
 valid "$token" || fail "the stored Cloudflare token is malformed"
-valid "$account" || fail "the stored Cloudflare account ID is malformed"
+account_id "$account" || fail "the stored Cloudflare account ID is not 32 lowercase hex digits (is a token stored there?)"
+! account_id "$token" || fail "the stored Cloudflare token looks like an account ID (are the two swapped?)"
 
 # A global API key in the environment would compete with the token.
 unset CLOUDFLARE_API_KEY CLOUDFLARE_EMAIL

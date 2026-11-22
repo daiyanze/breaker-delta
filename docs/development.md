@@ -42,8 +42,10 @@ wrangler never falls back to the owner's `wrangler login`. Do not export the
 token yourself: variables do not carry over between an agent's shell calls,
 and wrangler uses a stored login when `CLOUDFLARE_API_TOKEN` is empty.
 
-The owner stores the token and the account ID once. On macOS, use the
-keychain:
+The owner stores the token and the account ID once. The token is the
+account API token (`cfat_...`); the account ID is the 32 lowercase hex
+digits in the dashboard URL. Paste each into its own item: the script
+refuses a value with the other one's shape. On macOS, use the keychain:
 
 ```sh
 # -U replaces an existing item. -w last, with no value, prompts for the secret.
