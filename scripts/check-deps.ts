@@ -47,8 +47,8 @@ export const RULES: Rule[] = [
   },
   {
     dir: "apps/pipeline/src/sources",
-    allow: [/^@bd\/(contracts|core)$/, PORTS, /^bun:test$/],
-    why: "source adapters use standard fetch only (ADR 0018)",
+    allow: [/^@bd\/(contracts|core)$/, PORTS, /^fast-xml-parser$/, /^bun:test$/],
+    why: "source adapters use standard fetch and one XML parser only (ADR 0018)",
   },
   {
     dir: "apps/pipeline/src/cloudflare",
