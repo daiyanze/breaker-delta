@@ -1,5 +1,5 @@
 ---
-name: run
+name: long-run
 description: Work toward a goal the owner gave, issue after issue, until a stated exit condition holds, keeping a decision log. Only when the owner asks for a long run and names the goal. Never merges.
 disable-model-invocation: true
 ---

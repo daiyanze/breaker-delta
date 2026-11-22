@@ -70,8 +70,8 @@ The local agent may be Claude Code, Pi or Codex, and each looks in its own
 place. So there is one copy of everything:
 
 - The rules are in `AGENTS.md`. `CLAUDE.md` only imports it.
-- The procedures are skills in `.claude/skills/` (`next`, `run`, `review`,
-  `verify-local`); `.agents/skills` is a link to that folder. This replaces
+- The procedures are skills in `.claude/skills/` (`next`, `long-run`,
+  `review`, `verify-local`); `.agents/skills` is a link to that folder. This replaces
   `.claude/commands/`: where this ADR says `.claude/commands/review.md`,
   read `.claude/skills/review/SKILL.md`.
 - `.agents` and `AGENTS.md` are protected paths, like `.claude` and

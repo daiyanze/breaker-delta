@@ -31,12 +31,12 @@ Issues labelled `owner:claude-ok` are the agent's to do; `owner:human` and
 one with the `next` skill, or takes the one the owner names. Nothing on
 GitHub starts work by itself (ADR 0016).
 
-The procedures are skills in `.claude/skills/`: `next`, `run`, `review` and
-`verify-local`. Each runtime calls a skill by name:
+The procedures are skills in `.claude/skills/`: `next`, `long-run`, `review`
+and `verify-local`. Each runtime calls a skill by name:
 
 | Runtime | Finds skills in | Call |
 | --- | --- | --- |
-| Claude Code | `.claude/skills/` | `/next`, `/run <goal>` |
+| Claude Code | `.claude/skills/` | `/next`, `/long-run <goal>` |
 | Pi | `.agents/skills` (a link to `.claude/skills`) | `/skill:next` |
 | Codex | `.agents/skills` | `$next`, or pick it from `/skills` |
 
@@ -158,8 +158,8 @@ The loop above is the default. Two kinds of work add steps.
 ## Long runs
 
 When the owner gives a goal rather than an issue ("finish UI M2", "clear
-every open M1 issue you can"), use the `run` skill
-(`.claude/skills/run/SKILL.md`). It loops the `next` skill until a stated
+every open M1 issue you can"), use the `long-run` skill
+(`.claude/skills/long-run/SKILL.md`). It loops the `next` skill until a stated
 exit condition holds, without stopping to ask for "continue". The rules:
 
 - **Exit condition first.** Before the first issue, write it as something a

@@ -122,7 +122,7 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 | Migrations only add | review checklist 2 | review |
 | Protected paths | CODEOWNERS requests the owner's review; the `develop` ruleset requires a PR and `check`, not the owner's approval; the owner merges | owner |
 | Lessons with a check | each lesson's `Check:` line in `docs/lessons.md` | check |
-| Every runtime finds the rules and the skills | `scripts/agent-files.test.ts`: `CLAUDE.md` imports this file, `.agents/skills` resolves to `.claude/skills`, each skill has a name and a description | test |
+| Every runtime finds the rules and the skills | `scripts/agent-files.test.ts`: `CLAUDE.md` only imports this file, no `AGENTS.override.md`, `.agents/skills` resolves to `.claude/skills`, each skill's frontmatter parses as YAML with a name and a description | test |
 
 Rows marked review only are the next to enforce once the code they guard
 exists. Known gaps in the checks: `check-deps` skips relative imports, so
@@ -143,7 +143,7 @@ working method is `docs/development.md`; read it and `docs/lessons.md`
 before starting a task.
 
 1. Pick an issue (the `next` skill finds the next `owner:claude-ok` one;
-   the `run` skill works through a whole goal). Branch from `develop`. Never
+   the `long-run` skill works through a whole goal). Branch from `develop`. Never
    push to `develop` directly.
 2. Implement, then run `bun run check` locally. Drive anything a user sees
    on local mode with the `verify-local` skill.
