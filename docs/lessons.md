@@ -7,8 +7,9 @@ Each rule applies only within its scope.
 ## L18 Check a token against every call the workflow makes, not the first one
 
 - **Date:** 2026-11-23. **Status:** active.
-- **What happened:** #200 (issue #11) set the preview token up with
-  Workers Scripts Edit and checked it by creating a Preview. The `cleanup`
+- **What happened:** after #200 (issue #11), the owner set up the preview
+  token as it documented, with Workers Scripts Edit, and Previews were
+  created with it from #199 on. The `cleanup`
   job, which runs only when a PR closes, deletes the Preview, and Edit
   cannot delete. It failed with "No access to the specified resource" on
   #199 and #201 to #206, and those Previews stayed. The delete loop stops
