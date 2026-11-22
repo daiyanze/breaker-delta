@@ -31,11 +31,27 @@ describe("check-colors", () => {
     expect(found).toContain('apps/web/src/core/d.css:1: "hsla("');
   });
 
+  test("reports CSS lines that start with * and named colours (#198 review)", () => {
+    file(
+      "apps/z/src/a.ts",
+      ["const css = `", "*{color:#C8351D}", "a{background:white}", "`;"].join("\n"),
+    );
+    file(
+      "apps/z/src/b.css",
+      "a{border-color: Black}\nb{color:var(--ink);fill:currentColor;stroke:none}",
+    );
+    const found = hardCodedColors(root, "apps/z/src").join("\n");
+    expect(found).toContain('apps/z/src/a.ts:2: "#C8351D"');
+    expect(found).toContain('apps/z/src/a.ts:3: "background:white"');
+    expect(found).toContain('apps/z/src/b.css:1: "border-color: Black"');
+    expect(found).not.toContain("b.css:2");
+  });
+
   test("ignores character references, anchors, variables and comments", () => {
     file(
       "apps/x/src/a.ts",
       [
-        'const s = `&#160; <a href="#top"> var(--red) &#${code};`; // see #104',
+        `const s = "&#160; <a href='#top'> var(--red) &#" + code + ";"; // see #104`,
         "/** Issue #162. */",
         " * #fff in a comment",
       ].join("\n"),

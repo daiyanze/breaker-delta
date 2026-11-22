@@ -1,8 +1,9 @@
 /**
  * No colour value is hard-coded in the site's code (issue #104): colours come
  * from `design/system/tokens.json` as CSS variables. Reports every hex, rgb(),
- * hsl() or other colour function literal in `apps/web/src`. Comments are
- * skipped, so issue references such as "#104" there are not colours.
+ * hsl() or other colour function literal in `apps/web/src`, and a colour
+ * property set to a keyword such as `red`. Comment lines are skipped, so issue
+ * references such as "#104" there are not colours.
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -10,6 +11,15 @@ import { join, relative } from "node:path";
 // `&#160;` is an HTML character reference, not a colour.
 const COLOR =
   /(?<!&)#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3,4})\b|\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\(/gi;
+
+// A colour property whose value is a word that is not a variable or a
+// colour-free keyword: a named colour such as `red` or `white`.
+const NAMED =
+  /\b(?:color|background(?:-color)?|border(?:-(?:top|right|bottom|left))?(?:-color)?|outline(?:-color)?|fill|stroke|caret-color|accent-color|text-decoration-color|column-rule-color)\s*:\s*(?!(?:var|inherit|initial|unset|revert|currentcolor|transparent|none)\b)([a-z]+)\b(?!\()/gi;
+
+// A comment line: `//`, `/*`, a JSDoc `* ` line or its `*/` end. A `*` followed
+// by anything else (`*{color:...}` in a CSS string) is code.
+const COMMENT = /^\s*(?:\/\/|\/\*|\*(?:\s|\/|$))/;
 
 function files(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -24,9 +34,9 @@ export function hardCodedColors(root: string, dir = "apps/web/src"): string[] {
   for (const file of files(join(root, dir))) {
     const lines = readFileSync(file, "utf8").split("\n");
     lines.forEach((line, i) => {
-      if (/^\s*(\/\/|\/\*|\*)/.test(line)) return;
+      if (COMMENT.test(line)) return;
       const code = line.replace(/\s\/\/.*$/, "");
-      for (const m of code.matchAll(COLOR)) {
+      for (const m of [...code.matchAll(COLOR), ...code.matchAll(NAMED)]) {
         found.push(`${relative(root, file)}:${i + 1}: "${m[0]}" (use a token from tokens.json)`);
       }
     });
