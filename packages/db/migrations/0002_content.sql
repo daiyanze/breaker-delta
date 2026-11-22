@@ -1,7 +1,8 @@
 -- M1-01 (#17): the content tables. Migrations only add.
 -- Times are epoch milliseconds. Ids are text, made by the pipeline.
 -- No foreign keys: D1 enforces them and local SQLite does not by default,
--- and both runtimes must behave the same. docs/schema.md describes each table.
+-- and both runtimes must behave the same. CHECKs hold the enums drizzle
+-- types, so a raw write cannot store a value no reader expects. docs/schema.md describes each table.
 
 -- One item on one source, identified by its normalised URL.
 CREATE TABLE IF NOT EXISTS echoes (
@@ -40,7 +41,8 @@ CREATE TABLE IF NOT EXISTS topics (
   formed_at INTEGER,
   went_flat_at INTEGER,
   merged_into TEXT,
-  merged_at INTEGER
+  merged_at INTEGER,
+  CONSTRAINT topics_state CHECK (state IN ('echo', 'up', 'flat'))
 );
 
 CREATE INDEX IF NOT EXISTS topics_state ON topics (state);
@@ -64,7 +66,8 @@ CREATE TABLE IF NOT EXISTS topic_edits (
   echo_id TEXT,
   detail TEXT,
   editor TEXT NOT NULL,
-  at INTEGER NOT NULL
+  at INTEGER NOT NULL,
+  CONSTRAINT topic_edits_kind CHECK (kind IN ('merge', 'split', 'rename', 'reassign'))
 );
 
 CREATE INDEX IF NOT EXISTS topic_edits_topic ON topic_edits (topic_id, at);
@@ -78,7 +81,8 @@ CREATE TABLE IF NOT EXISTS wave_points (
   rank INTEGER,
   source_count INTEGER NOT NULL,
   echo_count INTEGER NOT NULL,
-  PRIMARY KEY (slot, topic_id)
+  PRIMARY KEY (slot, topic_id),
+  CONSTRAINT wave_points_state CHECK (state IN ('echo', 'up', 'flat'))
 );
 
 CREATE INDEX IF NOT EXISTS wave_points_topic ON wave_points (topic_id, slot);
@@ -96,7 +100,9 @@ CREATE TABLE IF NOT EXISTS summaries (
   source_text_read INTEGER NOT NULL DEFAULT 1,
   risk_flags TEXT NOT NULL DEFAULT '[]',
   slot TEXT NOT NULL,
-  created_at INTEGER NOT NULL
+  created_at INTEGER NOT NULL,
+  CONSTRAINT summaries_reason CHECK (reason IN ('formed', 'new_echoes', 'rewrite')),
+  CONSTRAINT summaries_version CHECK ((status = 'published' AND version IS NOT NULL) OR (status = 'discarded' AND version IS NULL))
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS summaries_version ON summaries (topic_id, version);
@@ -129,7 +135,8 @@ CREATE TABLE IF NOT EXISTS events (
   summary_id TEXT,
   verdict_id TEXT,
   correction_id TEXT,
-  detail TEXT
+  detail TEXT,
+  CONSTRAINT events_type CHECK (type IN ('wave_formed', 'wave_rising', 'summary_updated', 'corrected', 'withdrawn', 'verdict', 'went_flat'))
 );
 
 -- A topic forms once, and a resumed run cannot write the events the
@@ -166,7 +173,9 @@ CREATE TABLE IF NOT EXISTS verdicts (
   revises TEXT,
   writer TEXT,
   editor TEXT,
-  decided_at INTEGER NOT NULL
+  decided_at INTEGER NOT NULL,
+  CONSTRAINT verdicts_outcome CHECK (outcome IN ('hit', 'partial', 'miss', 'undetermined')),
+  CONSTRAINT verdicts_status CHECK (status IN ('proposed', 'confirmed'))
 );
 
 CREATE INDEX IF NOT EXISTS verdicts_prediction ON verdicts (prediction_id, decided_at);
@@ -177,7 +186,8 @@ CREATE TABLE IF NOT EXISTS corrections (
   summary_id TEXT NOT NULL,
   kind TEXT NOT NULL,
   editor TEXT NOT NULL,
-  at INTEGER NOT NULL
+  at INTEGER NOT NULL,
+  CONSTRAINT corrections_kind CHECK (kind IN ('correction', 'withdrawal'))
 );
 
 CREATE INDEX IF NOT EXISTS corrections_summary ON corrections (summary_id);

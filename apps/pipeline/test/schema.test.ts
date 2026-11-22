@@ -1,13 +1,14 @@
 /**
  * The drizzle schema in `@bd/db` and the SQL migrations describe the same
  * database. Queries are typed from the schema and run against tables the
- * migrations made, so a column, a NOT NULL, a default or an index that is in
- * one and not the other is a bug in waiting.
+ * migrations made, so a column, a NOT NULL, a default, an index or a CHECK
+ * that is in one and not the other is a bug in waiting.
  */
 import { Database as SQLite } from "bun:sqlite";
 import { describe, expect, test } from "bun:test";
 import * as schema from "@bd/db";
-import { getTableConfig, SQLiteTable } from "drizzle-orm/sqlite-core";
+import type { SQL } from "drizzle-orm";
+import { getTableConfig, SQLiteSyncDialect, SQLiteTable } from "drizzle-orm/sqlite-core";
 import { migrate } from "../src/local/migrate.ts";
 
 const tables = Object.values(schema as Record<string, unknown>).filter(
@@ -48,6 +49,28 @@ function indexColumns(sqlite: SQLite, index: string): string[] {
   return rows.map((r) => r.name);
 }
 
+/** The SQL text of a partial index's WHERE, as SQLite stored it; null when not partial. */
+function indexWhere(sqlite: SQLite, index: string): string | null {
+  const row = sqlite.query("SELECT sql FROM sqlite_master WHERE name = ?1").get(index) as {
+    sql: string;
+  };
+  return / WHERE (.*)$/s.exec(row.sql)?.[1] ?? null;
+}
+
+/** Named CHECKs in a table's CREATE statement, one per line as the migrations write them. */
+function tableChecks(sqlite: SQLite, table: string) {
+  const row = sqlite.query("SELECT sql FROM sqlite_master WHERE name = ?1").get(table) as {
+    sql: string;
+  };
+  return [...row.sql.matchAll(/CONSTRAINT (\w+) CHECK \((.*)\),?$/gm)].map((m) => ({
+    name: m[1] as string,
+    value: m[2] as string,
+  }));
+}
+
+const dialect = new SQLiteSyncDialect();
+const render = (value: SQL) => dialect.sqlToQuery(value).sql;
+
 type TableConfig = ReturnType<typeof getTableConfig>;
 const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name);
 
@@ -68,7 +91,7 @@ function sides(sqlite: SQLite, config: TableConfig) {
       .map((i) => ({
         name: i.name,
         unique: i.unique === 1,
-        partial: i.partial === 1,
+        where: i.partial === 1 ? indexWhere(sqlite, i.name) : null,
         columns: indexColumns(sqlite, i.name),
       }))
       .sort(byName),
@@ -77,6 +100,7 @@ function sides(sqlite: SQLite, config: TableConfig) {
       .filter((i) => i.origin === "u")
       .map((i) => indexColumns(sqlite, i.name).join(","))
       .sort(),
+    checks: tableChecks(sqlite, config.name).sort(byName),
   };
   const declared = {
     columns: config.columns
@@ -94,7 +118,7 @@ function sides(sqlite: SQLite, config: TableConfig) {
       .map((i) => ({
         name: i.config.name,
         unique: i.config.unique,
-        partial: i.config.where !== undefined,
+        where: i.config.where ? render(i.config.where) : null,
         columns: i.config.columns.map((c) => (c as { name: string }).name),
       }))
       .sort(byName),
@@ -102,6 +126,7 @@ function sides(sqlite: SQLite, config: TableConfig) {
       .filter((c) => c.isUnique)
       .map((c) => c.name)
       .sort(),
+    checks: config.checks.map((c) => ({ name: c.name, value: render(c.value) })).sort(byName),
   };
   return { db, declared };
 }
@@ -154,6 +179,28 @@ describe("schema and migrations", () => {
     expect(drifted(`CREATE TABLE echoes (${columns}); ${noIndex}`)).not.toEqual(good);
     const partial = indexes.replace("(first_seen_at);", "(first_seen_at) WHERE topic_id IS NULL;");
     expect(drifted(`CREATE TABLE echoes (${columns}); ${partial}`)).not.toEqual(good);
+    const checked = `${columns},\n  CONSTRAINT echoes_lang CHECK (lang <> '')`;
+    expect(drifted(`CREATE TABLE echoes (${checked}); ${indexes}`)).not.toEqual(good);
+  });
+
+  test("the comparison sees a changed WHERE and a changed CHECK", () => {
+    const config = getTableConfig(schema.events);
+    const good = sides(migrated(), config).declared;
+    const sqlite = new SQLite(":memory:");
+    // The real table, but one partial index and the type CHECK changed.
+    const real = migrated()
+      .query("SELECT sql FROM sqlite_master WHERE tbl_name = 'events' AND sql IS NOT NULL")
+      .all() as { sql: string }[];
+    for (const { sql } of real) {
+      sqlite.exec(
+        sql
+          .replace("WHERE type = 'summary_updated'", "WHERE type = 'corrected'")
+          .replace("'went_flat'))", "'gone'))"),
+      );
+    }
+    const db = sides(sqlite, config).db;
+    expect(db.indexes).not.toEqual(good.indexes);
+    expect(db.checks).not.toEqual(good.checks);
   });
 });
 
@@ -193,6 +240,39 @@ describe("content tables", () => {
     add.run("s3", null, "discarded");
     add.run("s4", null, "discarded");
     add.run("s5", 2, "published");
+  });
+
+  test("a summary gets one summary_updated event", () => {
+    const sqlite = migrated();
+    const add = sqlite.query(
+      "INSERT INTO events (type, topic_id, slot, at, summary_id) VALUES ('summary_updated', 't1', ?1, 0, ?2)",
+    );
+    add.run("20261119T0500", "s1");
+    expect(() => add.run("20261119T0600", "s1")).toThrow(/UNIQUE/);
+    add.run("20261119T0600", "s2");
+  });
+
+  test("a published summary has a version and a discarded one has none", () => {
+    const sqlite = migrated();
+    const add = sqlite.query(
+      `INSERT INTO summaries (id, topic_id, version, status, reason, writer, slot, created_at)
+       VALUES (?1, 't1', ?2, ?3, 'formed', 'p', '20261119T0500', 0)`,
+    );
+    expect(() => add.run("s1", null, "published")).toThrow(/CHECK/);
+    expect(() => add.run("s2", 1, "discarded")).toThrow(/CHECK/);
+    expect(() => add.run("s3", 1, "draft")).toThrow(/CHECK/);
+  });
+
+  test("enum columns refuse values no reader expects", () => {
+    const sqlite = migrated();
+    const bad = [
+      "INSERT INTO topics (id, slug, name, state, created_at) VALUES ('t', 's', 'n', 'wave', 0)",
+      "INSERT INTO events (type, topic_id, slot, at) VALUES ('wave_fell', 't', 's', 0)",
+      `INSERT INTO verdicts (id, prediction_id, outcome, status, lang, reason, decided_at)
+       VALUES ('v', 'p', 'win', 'proposed', 'en', 'r', 0)`,
+      "INSERT INTO corrections (id, summary_id, kind, editor, at) VALUES ('c', 's', 'edit', 'e', 0)",
+    ];
+    for (const q of bad) expect(() => sqlite.run(q)).toThrow(/CHECK/);
   });
 
   test("one prediction per topic", () => {

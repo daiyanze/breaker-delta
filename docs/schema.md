@@ -15,7 +15,8 @@ earlier and unchanged.
 Conventions: times are epoch milliseconds; ids are text made by the pipeline
 (the two audit tables count up); a slot is the run id from `slotId` in
 `@bd/core`. There are no foreign keys: D1 enforces them and local SQLite does
-not by default, and both runtimes must behave the same. JSON columns hold ids,
+not by default, and both runtimes must behave the same. Enum columns carry
+a named CHECK with the same values drizzle types them with. JSON columns hold ids,
 numbers and short codes, never fetched text.
 
 ## Derived, not stored
@@ -75,7 +76,7 @@ history chart, the newsstand's editions and the 24-hour change read it
 One summary attempt. `status` is `published` or `discarded` (it failed
 validation, #34; the topic page then says `failed_checks`). A published row
 has a `version` unique per topic and is never edited (invariant 4); a
-discarded one has none. `reason` is `formed`, `new_echoes` or `rewrite`,
+discarded one has none (a CHECK holds both). `reason` is `formed`, `new_echoes` or `rewrite`,
 worded per language by the site. `writer` is the provider name from
 settings. `unverified` is the fact gate's label (ADR 0006, #47);
 `source_text_read` is false when enrich could not fetch the sources (#45).
@@ -95,7 +96,9 @@ The change feed, seven types (ADR 0014). Partial unique indexes make the
 pipeline's writes idempotent: a topic has one `wave_formed` event, one
 `wave_rising` or `went_flat` event per run, and one `summary_updated` event
 per summary. `corrected`, `withdrawn` and `verdict` come from the desk and
-may repeat. `summary_id`, `verdict_id` and `correction_id` point at the row
+may repeat. Whether a flat wave can rise and go flat again is open (for
+#29 and #30): the index allows one `went_flat` per run, not one per topic.
+`summary_id`, `verdict_id` and `correction_id` point at the row
 the event is about; `detail` is JSON written by code.
 
 ## predictions

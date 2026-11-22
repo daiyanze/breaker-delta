@@ -8,6 +8,7 @@
 import { ChangeTypeSchema, OutcomeSchema } from "@bd/contracts";
 import { sql } from "drizzle-orm";
 import {
+  check,
   index,
   integer,
   primaryKey,
@@ -20,6 +21,11 @@ import {
 /** A Zod enum's values in the non-empty tuple shape drizzle's `enum` takes. */
 function values<T extends string>(options: readonly T[]): [T, ...T[]] {
   return options as [T, ...T[]];
+}
+
+/** `column IN ('a', 'b')`, for a CHECK that holds an enum drizzle only types. */
+function oneOf(column: string, options: readonly string[]) {
+  return sql.raw(`${column} IN (${options.map((o) => `'${o}'`).join(", ")})`);
 }
 
 /** Single-row table: the validated settings JSON. */
@@ -145,7 +151,7 @@ export const topics = sqliteTable(
     mergedInto: text("merged_into"),
     mergedAt: integer("merged_at"),
   },
-  (t) => [index("topics_state").on(t.state)],
+  (t) => [index("topics_state").on(t.state), check("topics_state", oneOf("state", TOPIC_STATES))],
 );
 
 /** Other names a topic is known by, for the assign shortlist. */
@@ -159,6 +165,8 @@ export const topicAliases = sqliteTable(
   (t) => [primaryKey({ columns: [t.topicId, t.alias] }), index("topic_aliases_alias").on(t.alias)],
 );
 
+const TOPIC_EDIT_KINDS = ["merge", "split", "rename", "reassign"] as const;
+
 /**
  * Audit trail of topic corrections. A merge or a split writes one row per
  * echo it moves, so a clipping can say which topic it came from.
@@ -167,7 +175,7 @@ export const topicEdits = sqliteTable(
   "topic_edits",
   {
     id: integer("id").primaryKey({ autoIncrement: true }),
-    kind: text("kind", { enum: ["merge", "split", "rename", "reassign"] }).notNull(),
+    kind: text("kind", { enum: TOPIC_EDIT_KINDS }).notNull(),
     /** The topic the edit leaves in place: the survivor, the renamed one, the target. */
     topicId: text("topic_id").notNull(),
     /** The other topic: merged away, split off, or the echo's previous one. */
@@ -179,7 +187,10 @@ export const topicEdits = sqliteTable(
     editor: text("editor").notNull(),
     at: integer("at").notNull(),
   },
-  (t) => [index("topic_edits_topic").on(t.topicId, t.at)],
+  (t) => [
+    index("topic_edits_topic").on(t.topicId, t.at),
+    check("topic_edits_kind", oneOf("kind", TOPIC_EDIT_KINDS)),
+  ],
 );
 
 /** A topic's state, height and rank at one run, computed by `@bd/core`. */
@@ -198,8 +209,11 @@ export const wavePoints = sqliteTable(
   (t) => [
     primaryKey({ columns: [t.slot, t.topicId] }),
     index("wave_points_topic").on(t.topicId, t.slot),
+    check("wave_points_state", oneOf("state", TOPIC_STATES)),
   ],
 );
+
+const SUMMARY_REASONS = ["formed", "new_echoes", "rewrite"] as const;
 
 /**
  * One summary attempt. A published version is never edited (invariant 4);
@@ -215,7 +229,7 @@ export const summaries = sqliteTable(
     version: integer("version"),
     status: text("status", { enum: ["published", "discarded"] }).notNull(),
     /** Why it was written; the site words it per language. */
-    reason: text("reason", { enum: ["formed", "new_echoes", "rewrite"] }).notNull(),
+    reason: text("reason", { enum: SUMMARY_REASONS }).notNull(),
     /** The provider name from settings that wrote it. */
     writer: text("writer").notNull(),
     /** The fact gate's label (ADR 0006). */
@@ -227,7 +241,16 @@ export const summaries = sqliteTable(
     slot: text("slot").notNull(),
     createdAt: integer("created_at").notNull(),
   },
-  (t) => [uniqueIndex("summaries_version").on(t.topicId, t.version)],
+  (t) => [
+    uniqueIndex("summaries_version").on(t.topicId, t.version),
+    check("summaries_reason", oneOf("reason", SUMMARY_REASONS)),
+    check(
+      "summaries_version",
+      sql.raw(
+        "(status = 'published' AND version IS NOT NULL) OR (status = 'discarded' AND version IS NULL)",
+      ),
+    ),
+  ],
 );
 
 /** A summary's text in one language. */
@@ -277,6 +300,7 @@ export const events = sqliteTable(
       .where(sql`type IN ('wave_rising', 'went_flat')`),
     uniqueIndex("events_summary_once").on(t.summaryId).where(sql`type = 'summary_updated'`),
     index("events_slot").on(t.slot),
+    check("events_type", oneOf("type", ChangeTypeSchema.options)),
   ],
 );
 
@@ -301,6 +325,8 @@ export const predictions = sqliteTable(
   (t) => [index("predictions_due").on(t.dueAt)],
 );
 
+const VERDICT_STATUSES = ["proposed", "confirmed"] as const;
+
 /** Verdicts are only added; a revision is a new row (ADR 0013). */
 export const verdicts = sqliteTable(
   "verdicts",
@@ -309,7 +335,7 @@ export const verdicts = sqliteTable(
     predictionId: text("prediction_id").notNull(),
     outcome: text("outcome", { enum: values(OutcomeSchema.options) }).notNull(),
     /** proposed: by the model, not confirmed by a person yet. */
-    status: text("status", { enum: ["proposed", "confirmed"] }).notNull(),
+    status: text("status", { enum: VERDICT_STATUSES }).notNull(),
     lang: text("lang").notNull(),
     reason: text("reason").notNull(),
     /** JSON array of outside evidence ids the verdict cites. */
@@ -322,8 +348,14 @@ export const verdicts = sqliteTable(
     editor: text("editor"),
     decidedAt: integer("decided_at").notNull(),
   },
-  (t) => [index("verdicts_prediction").on(t.predictionId, t.decidedAt)],
+  (t) => [
+    index("verdicts_prediction").on(t.predictionId, t.decidedAt),
+    check("verdicts_outcome", oneOf("outcome", OutcomeSchema.options)),
+    check("verdicts_status", oneOf("status", VERDICT_STATUSES)),
+  ],
 );
+
+const CORRECTION_KINDS = ["correction", "withdrawal"] as const;
 
 /** A correction or withdrawal of one summary version (ADR 0006). */
 export const corrections = sqliteTable(
@@ -331,11 +363,14 @@ export const corrections = sqliteTable(
   {
     id: text("id").primaryKey(),
     summaryId: text("summary_id").notNull(),
-    kind: text("kind", { enum: ["correction", "withdrawal"] }).notNull(),
+    kind: text("kind", { enum: CORRECTION_KINDS }).notNull(),
     editor: text("editor").notNull(),
     at: integer("at").notNull(),
   },
-  (t) => [index("corrections_summary").on(t.summaryId)],
+  (t) => [
+    index("corrections_summary").on(t.summaryId),
+    check("corrections_kind", oneOf("kind", CORRECTION_KINDS)),
+  ],
 );
 
 /** A correction's note to readers, in one language. */
