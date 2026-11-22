@@ -4,9 +4,10 @@ name: deploy
 # environment (set required reviewers on it in repository settings).
 # Claude jobs never have access to this environment's secrets.
 #
-# DISABLED until the Cloudflare resources exist (M0-09): remove the `if: false`
-# line once the D1 database and R2 bucket exist, wrangler.jsonc has the real
-# database_id, and the `production` environment holds the two secrets below.
+# The `production` environment must require the owner's review and allow only
+# `develop`. This job applies every pending migration, and a migration cannot
+# be undone: the owner approves the deployment only after reading the
+# migrations in the merged diff.
 
 on:
   push:
@@ -21,7 +22,6 @@ concurrency:
 
 jobs:
   deploy:
-    if: false
     runs-on: ubuntu-latest
     environment: production
     env:
