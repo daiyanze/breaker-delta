@@ -34,6 +34,15 @@ describe("lobsters adapter", () => {
     if (group) expect(lobsters.urls(group)).toEqual(["https://lobste.rs/hottest.json"]);
   });
 
+  test("stories without an absolute http(s) URL are skipped", () => {
+    const body = JSON.stringify([
+      { title: "a", url: "javascript:alert(1)" },
+      { title: "b", url: "", comments_url: "/s/abc" },
+      { title: "c", url: "https://example.com/c" },
+    ]);
+    expect(lobsters.parse(body, "").map((i) => i.url)).toEqual(["https://example.com/c"]);
+  });
+
   test("a body that is not a list of stories is a ParseError", () => {
     expect(() => lobsters.parse("<html>rate limited</html>", "")).toThrow(ParseError);
     expect(() => lobsters.parse('{"error":"x"}', "")).toThrow(ParseError);

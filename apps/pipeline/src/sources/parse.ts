@@ -59,7 +59,7 @@ function list(v: unknown): Node[] {
 }
 
 /** Only absolute http(s) URLs are items: not `javascript:`, bare guids or relative paths. */
-function isWebUrl(s: string): boolean {
+export function isWebUrl(s: string): boolean {
   if (!/^https?:\/\//i.test(s)) return false;
   try {
     new URL(s);

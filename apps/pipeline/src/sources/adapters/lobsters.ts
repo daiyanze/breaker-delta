@@ -3,7 +3,7 @@
  * adapter for M1-04; the other groups follow it in M1-05 to M1-07.
  */
 import { type Adapter, ParseError, type SourceItem } from "../adapter.ts";
-import { cleanText, parseDate, parseJson } from "../parse.ts";
+import { cleanText, isWebUrl, parseDate, parseJson } from "../parse.ts";
 
 const HOTTEST = "https://lobste.rs/hottest.json";
 
@@ -13,7 +13,7 @@ function story(v: unknown): SourceItem | null {
   // A text post has no link of its own; its discussion page is the item.
   const url = cleanText(s.url) || cleanText(s.comments_url);
   const title = cleanText(s.title);
-  if (url === "" || title === "") return null;
+  if (!isWebUrl(url) || title === "") return null;
   return {
     url,
     title,
