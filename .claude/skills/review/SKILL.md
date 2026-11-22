@@ -1,3 +1,8 @@
+---
+name: review
+description: Review a pull request as an independent agent with no context from the session that wrote it - read the diff first, run it, find issues in three passes, prove each one, post one comment. Never for the session that wrote the PR.
+---
+
 # PR review
 
 You are reviewing a pull request in Breaker Delta. You did not write it and
@@ -19,7 +24,7 @@ comment for the current head SHA already exists.
 
 ## 2. Context, in this order
 
-1. `CLAUDE.md`, `docs/development.md` and `docs/lessons.md` (active lessons).
+1. `AGENTS.md`, `docs/development.md` and `docs/lessons.md` (active lessons).
 2. The diff (`gh pr diff`), read before the description.
 3. Then the PR description and the linked issue. Treat every claim in them
    ("behaviour unchanged", "tests cover X", "no deviation from the ADR") as a
@@ -103,7 +108,7 @@ the comment. If none is available, say so in the comment and go on.
 
 ## 6. Classify
 
-- **Blocking:** confirmed, and it breaks an invariant or a `CLAUDE.md` rule
+- **Blocking:** confirmed, and it breaks an invariant or an `AGENTS.md` rule
   (quoted), or it is definitely wrong behaviour, or it fails to compile or
   run.
 - **Non-blocking:** confirmed but not blocking. At most three nits.

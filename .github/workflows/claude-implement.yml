@@ -53,7 +53,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
             Implement issue #${{ github.event.issue.number }} in ${{ github.repository }}.
-            Read CLAUDE.md first and keep every invariant in it.
+            Read AGENTS.md first and keep every invariant in it.
             Work on a new branch named claude/issue-${{ github.event.issue.number }}.
             Run `bun run check` until it passes. Open a pull request that links the issue.
             Do not edit protected paths unless the issue asks for it; if it does, say so

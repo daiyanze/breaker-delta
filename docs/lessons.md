@@ -173,7 +173,7 @@ Each rule applies only within its scope.
   the wrong heading.
 - **Rule:** After editing a list or a table in a document, read the whole
   section again before committing.
-- **Scope:** Markdown docs, especially `CLAUDE.md` and ADRs.
+- **Scope:** Markdown docs, especially `AGENTS.md` and ADRs.
 - **Evidence:** fixed in #175.
 
 ## L1 A module and its package entry never import each other
