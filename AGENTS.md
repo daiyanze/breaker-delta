@@ -109,7 +109,7 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 
 | Rule | Enforced by | Kind |
 | --- | --- | --- |
-| Dependency direction (architecture map) | `scripts/check-deps.ts`: package imports by each rule's `allow`; relative imports into another package fail, and between areas of one package pass only along a rule's `reach` | check |
+| Dependency direction (architecture map) | `scripts/check-deps.ts`: package imports by each rule's `allow`; relative imports into another package fail, and between areas of one package pass only along a rule's `reach`; files no rule covers: review checklist 13 | check, review |
 | App cores use no Bun or Cloudflare API | `src/core` tsconfig without those types; `check-deps` | types |
 | 1. Code decides | model result schemas have no wave, height or rank fields (`packages/contracts/src/model.ts`); core's imports, package and relative (`check-deps`); no IO or clock in core: review checklist 13 | types, check, review |
 | 2. Sources are referenced | model schemas cite echo IDs only (`model.ts`); storing and rendering: review checklist 3 | types, review |
@@ -128,8 +128,11 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 Rows marked review only are the next to enforce once the code they guard
 exists. Known gaps in the checks: `check-deps` checks only files under a
 directory or file one of its rules names, so a source file outside every
-rule is not checked (#210); relative imports of data files (JSON, SQL,
-fonts) pass; it does not look at globals (`fetch`, `Date.now`, `Bun`);
+rule is not checked, and a ruled file can import through one (#210); a
+relative import that does not resolve to a `.ts`/`.tsx` file and has another
+extension counts as data (JSON, SQL, fonts) and passes; it reads import
+statements, `import()` and `require()` with a literal path, not paths built
+at run time; it does not look at globals (`fetch`, `Date.now`, `Bun`);
 `packages/core` typechecks with Bun's types.
 
 ## Protected paths (CODEOWNERS)

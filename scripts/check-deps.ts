@@ -2,7 +2,7 @@
  * Dependency-direction check. Fails CI when a package imports something its
  * role forbids. Rules mirror AGENTS.md "Architecture map".
  */
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 
 interface Rule {
@@ -99,7 +99,16 @@ export const RULES: Rule[] = [
 ];
 
 const IMPORT =
-  /(?:import|export)\s+(?:[^'"]*?\sfrom\s+)?['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)/g;
+  /(?:import|export)\s+(?:[^'"]*?\sfrom\s+)?['"]([^'"]+)['"]|(?:import|require)\(\s*['"]([^'"]+)['"]\s*\)|import\(\s*`([^`$]+)`\s*\)/g;
+
+/** The specifier an IMPORT match captured. */
+const specOf = (m: RegExpMatchArray) => m[1] ?? m[2] ?? m[3];
+
+/**
+ * `import type { X }` and `export type` are erased; `import type from "x"`
+ * binds a default import named `type`, so it stays.
+ */
+const TYPE_ONLY = /^(import|export)\s+type\s+(?!from\s*['"])/;
 
 function files(dir: string): string[] {
   let out: string[] = [];
@@ -122,7 +131,7 @@ export function violations(root: string, rules: Rule[] = RULES): string[] {
     for (const file of list) {
       const source = readFileSync(file, "utf8");
       for (const match of source.matchAll(IMPORT)) {
-        const spec = match[1] ?? match[2];
+        const spec = specOf(match);
         if (!spec || spec.startsWith(".")) continue;
         if (!rule.allow.some((re) => re.test(spec))) {
           found.push(`${relative(root, file)} imports "${spec}" (${rule.why})`);
@@ -137,8 +146,8 @@ export function violations(root: string, rules: Rule[] = RULES): string[] {
 function relativeImports(file: string): { spec: string; target: string }[] {
   const out: { spec: string; target: string }[] = [];
   for (const match of readFileSync(file, "utf8").matchAll(IMPORT)) {
-    const spec = match[1] ?? match[2];
-    if (!spec?.startsWith(".") || /^(import|export)\s+type\s/.test(match[0])) continue;
+    const spec = specOf(match);
+    if (!spec?.startsWith(".") || TYPE_ONLY.test(match[0])) continue;
     const target = resolve(dirname(file), spec);
     // Bundler resolution also accepts "./index", "." and "./dir".
     const candidates = [target, `${target}.ts`, join(target, "index.ts")];
@@ -152,7 +161,10 @@ function runtimeImports(file: string): string[] {
   return relativeImports(file).map((i) => i.target);
 }
 
-/** A specifier with an extension that is not a script's is a data file: JSON, SQL, a font. */
+/**
+ * A specifier with an extension that is not a script's, and that does not
+ * resolve to a `.ts`/`.tsx` file, is a data file: JSON, SQL, a font.
+ */
 const DATA = /\.(?!(?:[cm]?[jt]sx?)$)[A-Za-z0-9]+$/;
 
 /** The most specific rule whose area holds `path` (relative to the root). */
@@ -177,6 +189,7 @@ function packageOf(path: string): string | undefined {
  */
 export function relativeViolations(root: string, rules: Rule[] = RULES): string[] {
   const found: string[] = [];
+  const real = realpathSync(root);
   for (const rule of rules) {
     const dir = join(root, rule.dir);
     if (!existsSync(dir)) continue;
@@ -185,8 +198,11 @@ export function relativeViolations(root: string, rules: Rule[] = RULES): string[
       const from = relative(root, file);
       if (areaOf(from, rules) !== rule) continue; // checked under its most specific rule
       for (const { spec, target } of relativeImports(file)) {
-        if (DATA.test(spec)) continue;
-        const to = relative(root, target);
+        if (DATA.test(spec) && !/\.tsx?$/.test(target)) continue;
+        // Through any symlink, so a link cannot carry an import into another area.
+        const to = existsSync(target)
+          ? relative(real, realpathSync(target))
+          : relative(root, target);
         const pkg = packageOf(to);
         const head = `${from} imports "${spec}"`;
         if (pkg !== packageOf(from)) {
