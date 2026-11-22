@@ -19,7 +19,7 @@ November 2026). Check the provider's console before relying on a number.
 | Mode | assign (frequent, simple) | summarize (rare, demanding; en, zh, ja) |
 | --- | --- | --- |
 | Local mode | local bridge, then the hosted chain if set | local bridge, then the hosted chain if set |
-| Hosted instance | Workers AI, Groq, Gemini Flash-Lite | Gemini Flash, Groq, Workers AI |
+| Hosted instance | Workers AI, Groq, Gemini Flash-Lite | Gemini Flash-Lite, Groq, Workers AI |
 
 **Local mode uses the user's own agent first.** The local bridge (ADR 0005,
 #49) turns a request into one tool-less call to an agent CLI on the user's
@@ -60,10 +60,39 @@ lowered without a release once real usage is known.
 ## Keys
 
 Keys are never stored in settings: a provider names the secret or
-environment variable that holds its key (`apiKeyRef`). The owner obtains
-the Groq and Gemini keys; Workers AI uses the account's token. Each chosen
-endpoint is verified with one minimal request before it goes into a chain
-(#15).
+environment variable that holds its key (`apiKeyRef`).
+
+| Provider | Key | Where it comes from |
+| --- | --- | --- |
+| Workers AI | `CF_AI_TOKEN` | An account-owned Cloudflare token with Workers AI permissions only. It is a separate token from the agent's operations token (ADR 0019) and from CI's deploy token, so each can be revoked on its own. Base URL: `https://api.cloudflare.com/client/v4/accounts/<account id>/ai/v1`. |
+| Groq | `GROQ_API_KEY` | https://console.groq.com/keys |
+| Gemini | `GEMINI_API_KEY` | Google AI Studio, in a Google Cloud project used only for Breaker Delta, so its quota is not shared. |
+
+## Verification (#15)
+
+One minimal chat-completions request per endpoint, sent by the owner from
+the home machine on 2026-11-23 ("Reply with OK", up to 200 tokens):
+
+| Endpoint | Model | Result |
+| --- | --- | --- |
+| Workers AI | `@cf/openai/gpt-oss-120b` | `OK`, finish `stop` |
+| Groq | `openai/gpt-oss-120b` | `OK`, finish `stop`; 90 tokens, about 0.04 s |
+| Gemini | `gemini-flash-lite-latest` | `OK` on the first try |
+| Gemini | `gemini-flash-latest` | `503 UNAVAILABLE` ("high demand"); not retried |
+
+Notes from the run:
+
+- `gpt-oss-120b` is a reasoning model: with `max_tokens: 5` it returned an
+  empty answer and no error, because reasoning used the whole budget. The
+  judge sets no `max_tokens` and already counts an empty answer as a failed
+  attempt (`packages/judge`), so the chain moves on. Any future token cap
+  must leave room for reasoning.
+- Gemini Flash was overloaded at the time and Flash-Lite answered, so the
+  proposed summarize chain starts with Flash-Lite. A free tier can refuse a
+  request at peak times; that is what the chain's fallback is for (ADR 0005).
+- The Gemini OpenAI-compatible endpoint returns errors as a JSON array
+  (`[{"error": ...}]`), not an object. The judge does not read error
+  bodies: a non-2xx status alone fails the attempt.
 
 ## Sources
 
