@@ -4,6 +4,21 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L11 Survey the real inputs before writing rules that read them
+
+- **Date:** 2026-11-22. **Status:** active.
+- **What happened:** #186 wrote `/next`'s "Depends on" rules for `#n` and
+  `M0-03` only. The issues also use bare milestones, milestone ranges and
+  code ranges; read literally, the rules would have started #17 while its
+  dependency `M0` was open. The review caught it by applying the rules to
+  every issue.
+- **Rule:** Before writing a parser, a check or written rules that read
+  existing data (issues, files, settings), list every distinct form in the
+  real data and cover each one. A form that is not covered fails loudly.
+- **Scope:** scripts, checks and agent commands that read repository or
+  GitHub data.
+- **Evidence:** fixed in #186.
+
 ## L10 In a `bash -e` step, a false test in a command substitution ends the step
 
 - **Date:** 2026-11-21. **Status:** active.
