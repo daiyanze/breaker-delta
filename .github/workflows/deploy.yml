@@ -5,8 +5,9 @@ name: deploy
 # Claude jobs never have access to this environment's secrets.
 #
 # The `production` environment must require the owner's review and allow only
-# `develop`. Approving the deployment is approving the migrations it applies:
-# a migration cannot be undone (ADR 0019, "Deploys").
+# `develop`. This job applies every pending migration, and a migration cannot
+# be undone: the owner approves the deployment only after reading the
+# migrations in the merged diff.
 
 on:
   push:
