@@ -29,8 +29,12 @@ const xml = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: "@_",
   textNodeName: "#text",
-  // `dc:date` -> `date`, `rdf:RDF` -> `RDF`, `atom:link` -> `link`.
-  removeNSPrefix: true,
+  // Prefixes are kept, so `<atom:link>` or `<media:title>` never stands in
+  // for the RSS element of the same local name.
+  removeNSPrefix: false,
+  // Numeric character references (`&#8217;`, `&#x2014;`) are decoded only
+  // with this on; WordPress feeds write apostrophes and dashes that way.
+  htmlEntities: true,
   // Keep every value a string: a title "2026" stays a title.
   parseTagValue: false,
   parseAttributeValue: false,
@@ -54,8 +58,19 @@ function list(v: unknown): Node[] {
   return Array.isArray(v) ? v.filter(isNode) : [];
 }
 
+/** Only absolute http(s) URLs are items: not `javascript:`, bare guids or relative paths. */
+function isWebUrl(s: string): boolean {
+  if (!/^https?:\/\//i.test(s)) return false;
+  try {
+    new URL(s);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function item(url: string, title: string, date: unknown): SourceItem | null {
-  if (url === "" || title === "") return null;
+  if (!isWebUrl(url) || title === "") return null;
   return { url, title, publishedAt: parseDate(textOf(date)), heat: null };
 }
 
@@ -64,12 +79,13 @@ function rssItem(n: Node): SourceItem | null {
   const guid = n.guid;
   if (url === "" && isNode(guid) && guid["@_isPermaLink"] !== "false") url = textOf(guid);
   if (url === "" && typeof guid === "string") url = cleanText(guid);
-  return item(url, textOf(n.title), n.pubDate ?? n.date);
+  return item(url, textOf(n.title), n.pubDate ?? n["dc:date"]);
 }
 
 function atomEntry(n: Node): SourceItem | null {
   const links = list(n.link);
-  const link = links.find((l) => (l["@_rel"] ?? "alternate") === "alternate") ?? links[0];
+  // No fallback to another rel: an `enclosure` or `replies` link is not the entry.
+  const link = links.find((l) => (l["@_rel"] ?? "alternate") === "alternate");
   const url = cleanText(link?.["@_href"]);
   return item(url, textOf(n.title), n.published ?? n.updated);
 }
@@ -87,8 +103,8 @@ export function parseFeed(body: string): SourceItem[] {
   if (isNode(doc.rss)) {
     const channel = doc.rss.channel;
     items = list(isNode(channel) ? channel.item : undefined).map(rssItem);
-  } else if (isNode(doc.RDF)) {
-    items = list(doc.RDF.item).map(rssItem);
+  } else if (isNode(doc["rdf:RDF"])) {
+    items = list(doc["rdf:RDF"].item).map(rssItem);
   } else if (isNode(doc.feed)) {
     items = list(doc.feed.entry).map(atomEntry);
   } else if (doc.feed === "") {

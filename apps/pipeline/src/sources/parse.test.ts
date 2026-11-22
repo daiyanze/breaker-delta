@@ -129,6 +129,33 @@ describe("parseFeed", () => {
     expect(feed[0]?.title).toBe('A & B < C "0"');
   });
 
+  test("numeric character references are decoded, and escapes only once", () => {
+    const rss = `<rss><channel><item><title>It&#8217;s &#x2014; ok &amp; &quot;q&quot; &amp;#38;</title>
+      <link>https://example.com/a</link></item></channel></rss>`;
+    expect(parseFeed(rss)[0]?.title).toBe('It\u2019s \u2014 ok & "q" &#38;');
+  });
+
+  test("namespaced elements do not stand in for RSS or Atom ones", () => {
+    const rss = `<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
+      <channel><item><atom:link href="https://example.com/self" rel="self"/><media:title>Media</media:title>
+      <title>Real</title><link>https://example.com/real</link></item></channel></rss>`;
+    expect(parseFeed(rss)).toEqual([
+      { url: "https://example.com/real", title: "Real", publishedAt: null, heat: null },
+    ]);
+    const atom = `<feed xmlns="http://www.w3.org/2005/Atom"><entry><title>Podcast</title>
+      <link rel="enclosure" href="https://example.com/a.mp3"/></entry></feed>`;
+    expect(parseFeed(atom)).toEqual([]);
+  });
+
+  test("items without an absolute http(s) URL are skipped", () => {
+    const links = ["javascript:alert(1)", "/relative/path", "12345", "https://example.com/ok"];
+    const items = links.map((l) => `<item><title>T</title><link>${l}</link></item>`).join("");
+    const guid = `<item><title>G</title><guid>12345</guid></item>`;
+    expect(parseFeed(`<rss><channel>${items}${guid}</channel></rss>`).map((i) => i.url)).toEqual([
+      "https://example.com/ok",
+    ]);
+  });
+
   test("anything else is a ParseError", () => {
     expect(() => parseFeed("<html><body>blocked</body></html>")).toThrow(ParseError);
     expect(() => parseFeed('{"items": []}')).toThrow(ParseError);

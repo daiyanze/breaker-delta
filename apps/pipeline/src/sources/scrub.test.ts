@@ -90,6 +90,11 @@ describe("scrubXml", () => {
     expect(parseFeed(out)).toHaveLength(1);
   });
 
+  test("host names in attributes are scrubbed", () => {
+    const rss = `<rss><channel><item><category domain="secret.example.org">c</category></item></channel></rss>`;
+    expect(scrubXml(rss, 5)).not.toContain("secret");
+  });
+
   test("refuses a body that is not XML", () => {
     expect(() => scrubXml("", 5)).toThrow(ParseError);
   });

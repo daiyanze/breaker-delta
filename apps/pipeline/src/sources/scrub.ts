@@ -15,7 +15,8 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?)?(Z|[+-]\d
 const RFC822_DATE =
   /^([A-Z][a-z]{2}, )?\d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2}(:\d{2})? ([A-Z]{1,4}|[+-]\d{4})$/;
 const NUMBER = /^-?\d+(\.\d+)?$/;
-const TOKEN = /^[A-Za-z][\w./+-]{0,39}$/;
+// No dots: a host name (`domain="news.example.org"`) is not vocabulary.
+const TOKEN = /^[A-Za-z][\w/+-]{0,39}$/;
 
 /** Numbers the placeholders, so each scrubbed string is distinct and stable. */
 class Scrubber {
