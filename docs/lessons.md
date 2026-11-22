@@ -4,6 +4,25 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L13 Check a credential's shape, not only its characters
+
+- **Date:** 2026-11-22. **Status:** active.
+- **What happened:** During #10 an account API token was stored in the
+  keychain item for the account ID. `scripts/cf.sh` only checked that the
+  value used token-safe characters, so it passed it to wrangler, which put
+  it in request URLs and printed them in its error output. The token
+  reached the chat and wrangler's log files and had to be revoked. A later
+  attempt swapped the two values the same way.
+- **Rule:** When a wrapper loads several secrets or identifiers, check each
+  one against its exact format (length, alphabet), and reject a value that
+  has another slot's format. Assume a tool's error output prints any value
+  it puts in a URL.
+- **Scope:** `scripts/cf.sh` and any wrapper that loads credentials for a
+  CLI.
+- **Check:** `scripts/cf.test.ts` refuses a token as the account ID, a
+  wrong-length or upper-case ID, and swapped values, and asserts the
+  refusal does not echo the value.
+
 ## L12 A missing credential must fail, not fall back
 
 - **Date:** 2026-11-22. **Status:** active.

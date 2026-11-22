@@ -3,8 +3,8 @@ import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:f
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-// scripts/cf.sh must never run wrangler without a well-formed token (ADR 0019,
-// L12). A stub `bun` stands in for wrangler and reports what it received.
+// scripts/cf.sh must never run wrangler without a well-formed token and account
+// ID (ADR 0019, L12, L13). A stub `bun` stands in for wrangler and reports what it received.
 const dir = mkdtempSync(join(tmpdir(), "cf-sh-"));
 const bin = join(dir, "bin");
 mkdirSync(bin);
@@ -15,6 +15,8 @@ writeFileSync(
 );
 chmodSync(stub, 0o755);
 afterAll(() => rmSync(dir, { recursive: true, force: true }));
+
+const ACC = "0123456789abcdef0123456789abcdef";
 
 let n = 0;
 function run(file: string | null, env: Record<string, string> = {}) {
@@ -28,18 +30,18 @@ function run(file: string | null, env: Record<string, string> = {}) {
 
 describe("scripts/cf.sh", () => {
   test("runs wrangler with the token and account from the file, printing neither", () => {
-    const r = run("CLOUDFLARE_API_TOKEN=tok_123-x\nCLOUDFLARE_ACCOUNT_ID=abc123\n");
+    const r = run(`CLOUDFLARE_API_TOKEN=tok_123-x\nCLOUDFLARE_ACCOUNT_ID=${ACC}\n`);
     expect(r.code).toBe(0);
-    expect(r.out).toBe("ran x --bun wrangler whoami token=set account=abc123 key=none\n");
+    expect(r.out).toBe(`ran x --bun wrangler whoami token=set account=${ACC} key=none\n`);
     expect(r.out + r.err).not.toContain("tok_123-x");
   });
 
   test("accepts CRLF line endings", () => {
-    expect(run("CLOUDFLARE_API_TOKEN=tok\r\nCLOUDFLARE_ACCOUNT_ID=abc\r\n").code).toBe(0);
+    expect(run(`CLOUDFLARE_API_TOKEN=tok\r\nCLOUDFLARE_ACCOUNT_ID=${ACC}\r\n`).code).toBe(0);
   });
 
   test("drops a global API key from the environment", () => {
-    const r = run("CLOUDFLARE_API_TOKEN=tok\nCLOUDFLARE_ACCOUNT_ID=abc\n", {
+    const r = run(`CLOUDFLARE_API_TOKEN=tok\nCLOUDFLARE_ACCOUNT_ID=${ACC}\n`, {
       CLOUDFLARE_API_KEY: "global",
       CLOUDFLARE_EMAIL: "a@b.c",
     });
@@ -50,15 +52,27 @@ describe("scripts/cf.sh", () => {
     ["no store at all", null],
     ["an already-set token but no store", null, { CLOUDFLARE_API_TOKEN: "stale" }],
     ["a token without an account ID", "CLOUDFLARE_API_TOKEN=tok\n"],
-    ["an empty token", "CLOUDFLARE_API_TOKEN=\nCLOUDFLARE_ACCOUNT_ID=abc\n"],
-    ["a quoted value", 'CLOUDFLARE_API_TOKEN="tok"\nCLOUDFLARE_ACCOUNT_ID=abc\n'],
-    ["trailing spaces", "CLOUDFLARE_API_TOKEN=tok  \nCLOUDFLARE_ACCOUNT_ID=abc\n"],
-    ["an inline comment", "CLOUDFLARE_API_TOKEN=tok # mine\nCLOUDFLARE_ACCOUNT_ID=abc\n"],
+    ["an empty token", `CLOUDFLARE_API_TOKEN=\nCLOUDFLARE_ACCOUNT_ID=${ACC}\n`],
+    ["a quoted value", `CLOUDFLARE_API_TOKEN="tok"\nCLOUDFLARE_ACCOUNT_ID=${ACC}\n`],
+    ["trailing spaces", `CLOUDFLARE_API_TOKEN=tok  \nCLOUDFLARE_ACCOUNT_ID=${ACC}\n`],
+    ["an inline comment", `CLOUDFLARE_API_TOKEN=tok # mine\nCLOUDFLARE_ACCOUNT_ID=${ACC}\n`],
     [
       "a duplicated key",
-      "CLOUDFLARE_API_TOKEN=a\nCLOUDFLARE_API_TOKEN=b\nCLOUDFLARE_ACCOUNT_ID=abc\n",
+      `CLOUDFLARE_API_TOKEN=a\nCLOUDFLARE_API_TOKEN=b\nCLOUDFLARE_ACCOUNT_ID=${ACC}\n`,
     ],
-    ["export prefixes", "export CLOUDFLARE_API_TOKEN=tok\nexport CLOUDFLARE_ACCOUNT_ID=abc\n"],
+    ["export prefixes", `export CLOUDFLARE_API_TOKEN=tok\nexport CLOUDFLARE_ACCOUNT_ID=${ACC}\n`],
+    // L13: a token in the account slot reached wrangler and was printed in a URL.
+    [
+      "a token stored as the account ID",
+      "CLOUDFLARE_API_TOKEN=tok\nCLOUDFLARE_ACCOUNT_ID=cfat_abc123-x\n",
+    ],
+    ["a short account ID", "CLOUDFLARE_API_TOKEN=tok\nCLOUDFLARE_ACCOUNT_ID=abc123\n"],
+    [
+      "an upper-case account ID",
+      `CLOUDFLARE_API_TOKEN=tok\nCLOUDFLARE_ACCOUNT_ID=${ACC.toUpperCase()}\n`,
+    ],
+    ["a 33-digit account ID", `CLOUDFLARE_API_TOKEN=tok\nCLOUDFLARE_ACCOUNT_ID=${ACC}0\n`],
+    ["swapped values", `CLOUDFLARE_API_TOKEN=${ACC}\nCLOUDFLARE_ACCOUNT_ID=${ACC}\n`],
   ];
   for (const [name, file, env] of refused) {
     test(`refuses ${name}, without running wrangler`, () => {
@@ -66,6 +80,11 @@ describe("scripts/cf.sh", () => {
       expect(r.code).toBe(1);
       expect(r.out).toBe("");
       expect(r.err).toContain("not running wrangler");
+      // The refusal never echoes a stored value. Short ones ("tok") are
+      // skipped: they occur in the message's own words.
+      for (const v of file?.match(/=[^\r\n]{6,}/g) ?? []) {
+        expect(r.err).not.toContain(v.slice(1));
+      }
     });
   }
 });
