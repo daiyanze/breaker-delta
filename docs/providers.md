@@ -80,7 +80,7 @@ the home machine on 2026-11-23 ("Reply with OK", up to 200 tokens):
 | Workers AI | `@cf/openai/gpt-oss-120b` | `OK`, finish `stop` |
 | Groq | `openai/gpt-oss-120b` | `OK`, finish `stop`; 90 tokens, about 0.04 s |
 | Gemini | `gemini-flash-lite-latest` | `OK` on the first try |
-| Gemini | `gemini-flash-latest` | `503 UNAVAILABLE` ("high demand"); not retried |
+| Gemini | `gemini-flash-latest` | `503 UNAVAILABLE` ("high demand") on one request; not retried (the retry run was stopped after Flash-Lite answered) |
 
 Notes from the run:
 
@@ -90,7 +90,7 @@ Notes from the run:
   attempt (`packages/judge`), so the chain moves on. Any future token cap
   must leave room for reasoning.
 - Gemini Flash was overloaded at the time and Flash-Lite answered, so the
-  proposed summarize chain starts with Flash-Lite. A free tier can refuse a
+  summarize chain starts with Flash-Lite. A free tier can refuse a
   request at peak times; that is what the chain's fallback is for (ADR 0005).
 - The Gemini OpenAI-compatible endpoint returns errors as a JSON array
   (`[{"error": ...}]`), not an object. The judge does not read error
