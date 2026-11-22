@@ -23,8 +23,8 @@ best practices (explore, plan, code, commit; show evidence, not claims).
 
 ## Picking work
 
-Issues labelled `owner:claude-ok` are the agent's to do;
-`owner:human+claude` needs the owner first. A local session finds the next
+Issues labelled `owner:claude-ok` are the agent's to do; `owner:human` and
+`owner:human+claude` need the owner. A local session finds the next
 one with `/next` (`.claude/commands/next.md`), or takes the one the owner
 names. Nothing on GitHub starts work by itself (ADR 0016).
 
