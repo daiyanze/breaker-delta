@@ -4,8 +4,11 @@
   "main": "src/cloudflare/worker.ts",
   "compatibility_date": "2026-11-01",
   "observability": { "enabled": true },
+  "workers_dev": true,
+  "preview_urls": true,
 
   // The timer only decides whether a run is due. The interval is a setting.
+  // Previews (`wrangler preview`) never get cron triggers.
   "triggers": { "crons": ["*/15 * * * *"] },
 
   "d1_databases": [
@@ -20,7 +23,24 @@
   "r2_buckets": [{ "binding": "BLOBS", "bucket_name": "bd-blobs" }],
 
   // M1 moves this into the settings table.
-  "vars": { "RUN_INTERVAL_MINUTES": "60" }
+  "vars": { "RUN_INTERVAL_MINUTES": "60" },
+
+  // Per-PR previews (#11). Bindings here are not inherited from the top level:
+  // previews bind only the preview database and bucket, never production.
+  // scripts/wrangler-previews.test.ts checks it. No secrets: without
+  // PROBE_TOKEN, /__probe and /__tick do not exist in a preview.
+  "previews": {
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "bd-content-preview",
+        // Created in #10. Migrations: wrangler.preview-db.jsonc.
+        "database_id": "93f7fee4-8087-4b5b-b4d8-4d4c9387af4a"
+      }
+    ],
+    "r2_buckets": [{ "binding": "BLOBS", "bucket_name": "bd-blobs-preview" }],
+    "vars": { "RUN_INTERVAL_MINUTES": "60" }
+  }
 
   // Secrets (wrangler secret put / .dev.vars): PROBE_TOKEN
 }

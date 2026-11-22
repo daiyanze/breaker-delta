@@ -1,0 +1,18 @@
+// Only for applying migrations to the preview database:
+//   wrangler d1 migrations apply bd-content-preview --remote -c wrangler.preview-db.jsonc
+// `d1 migrations` reads the top-level d1_databases, not the `previews` block,
+// so the preview database needs its own entry. Never deploy with this file:
+// it has no `main`, so `wrangler deploy` refuses it.
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "bd-pipeline",
+  "compatibility_date": "2026-11-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "bd-content-preview",
+      "database_id": "93f7fee4-8087-4b5b-b4d8-4d4c9387af4a",
+      "migrations_dir": "../../packages/db/migrations"
+    }
+  ]
+}

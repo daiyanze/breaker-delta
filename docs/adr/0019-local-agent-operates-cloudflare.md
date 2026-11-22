@@ -143,3 +143,16 @@ Every wrangler call goes through `scripts/cf.sh`. The script loads the
 token for that one command, and it stops when no token is found: wrangler
 would otherwise use the owner's stored `wrangler login`. How to store and
 use the token is in `docs/development.md`, "Cloudflare credential".
+
+## Amendment (2026-11-22): previews (#11)
+
+- Previews run in CI with a third token, in the GitHub `preview`
+  environment, separate from the deploy job's token and from the agent's.
+  How it is set up: `docs/development.md`, "Previews".
+- Cloudflare Access on the Workers' `workers.dev` and Preview URLs is turned
+  on by the owner in the dashboard. It is the one exception to
+  "Configuration is code": wrangler has no setting for it. The preview
+  workflow checks that it is on.
+- `bd-content-preview` and `bd-blobs-preview` hold no fetched content until
+  a preview pipeline fetches. Once one does, the data rules above apply to
+  them as to `bd-content` and `bd-blobs`.
