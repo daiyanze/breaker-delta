@@ -3,7 +3,10 @@
   "name": "bd-web",
   "main": "src/cloudflare/worker.ts",
   "compatibility_date": "2026-11-01",
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  // Fonts (issue #104). Files here are served before the Worker runs; the
+  // local adapter serves the same files from src/local/fonts.ts.
+  "assets": { "directory": "./public" }
 
   // M3: read-only binding to bd-content and a service binding to bd-pipeline.
   // The web Worker never binds the private database.

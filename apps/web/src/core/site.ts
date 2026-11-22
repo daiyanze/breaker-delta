@@ -7,6 +7,7 @@
  * rendered from whatever `ReadQueries` the adapter passes in.
  */
 import type { Language, RankRow, ReadQueries } from "@bd/contracts";
+import { headStyles } from "./style.ts";
 
 const PLACEHOLDER = `<!doctype html>
 <html lang="en">
@@ -15,6 +16,7 @@ const PLACEHOLDER = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Breaker Delta</title>
+${headStyles()}
 </head>
 <body>
 <h1>Breaker Delta</h1>
@@ -74,6 +76,7 @@ export async function renderFront(q: ReadQueries, requested: string | null): Pro
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>${escapeHtml(meta.siteName)}</title>
+${headStyles()}
 </head>
 <body>
 <h1>${escapeHtml(meta.siteName)}</h1>
