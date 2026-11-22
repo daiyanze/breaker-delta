@@ -28,6 +28,36 @@ Issues labelled `owner:claude-ok` are the agent's to do; `owner:human` and
 one with `/next` (`.claude/commands/next.md`), or takes the one the owner
 names. Nothing on GitHub starts work by itself (ADR 0016).
 
+## Cloudflare credential
+
+ADR 0019 sets the rules; this is where the token lives. The owner stores it
+once in the system keychain, never in the repository or a chat:
+
+```sh
+# macOS. `-w` with no value prompts for it, so it stays out of shell history.
+security add-generic-password -a "$USER" -s breaker-delta-cloudflare-token -w
+security add-generic-password -a "$USER" -s breaker-delta-cloudflare-account -w '<account id>'
+```
+
+A session that needs Cloudflare loads both into its environment and never
+prints them:
+
+```sh
+export CLOUDFLARE_API_TOKEN="$(security find-generic-password -s breaker-delta-cloudflare-token -w)"
+export CLOUDFLARE_ACCOUNT_ID="$(security find-generic-password -s breaker-delta-cloudflare-account -w)"
+bun x --bun wrangler whoami
+```
+
+- On Linux, use `secret-tool store` and `secret-tool lookup`. On Windows, use
+  Credential Manager.
+- Without a keychain, use `~/.config/breaker-delta/cloudflare.env` with mode
+  600, loaded with `set -a; . <file>; set +a`.
+- Do not put the token in Claude Code's `settings.json` `env`. That hands it
+  to every command of every session, including ones that never use
+  Cloudflare.
+- If the token is missing or a load fails, stop and tell the owner. Do not
+  ask for the value in the chat.
+
 ## The loop
 
 1. **Explore.** Read the issue, `CLAUDE.md`, the ADRs it touches,
