@@ -135,3 +135,11 @@ change reviewable.
   the agent to do the rest. `/next` does not pick it up.
 - Later Cloudflare changes are done by the local agent under these rules.
 - If the token is ever exposed, the owner revokes it and creates a new one.
+
+## Amendment (2026-11-22): where the token lives
+
+The token may live in the system keychain as well as in a mode-600 file.
+Every wrangler call goes through `scripts/cf.sh`. The script loads the
+token for that one command, and it stops when no token is found: wrangler
+would otherwise use the owner's stored `wrangler login`. How to store and
+use the token is in `docs/development.md`, "Cloudflare credential".

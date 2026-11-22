@@ -4,6 +4,23 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L12 A missing credential must fail, not fall back
+
+- **Date:** 2026-11-22. **Status:** active.
+- **What happened:** #188 first told sessions to
+  `export CLOUDFLARE_API_TOKEN="$(security find-generic-password ...)"`.
+  When the lookup fails, `export` hides its exit status and leaves the value
+  empty, and exported variables do not carry over between an agent's shell
+  calls. Wrangler then uses the
+  owner's stored login, which ADR 0019 forbids. The review found this by
+  reading wrangler's auth code.
+- **Rule:** Load a credential in the same command that uses it, through one
+  wrapper that stops on an empty value. Check which identity a tool falls
+  back to when the credential is missing.
+- **Scope:** any CLI that has a stored login next to a token variable
+  (wrangler, gh, cloud CLIs).
+- **Check:** `scripts/cf.sh`, tested by `scripts/cf.test.ts` in `check`.
+
 ## L11 Survey the real inputs before writing rules that read them
 
 - **Date:** 2026-11-22. **Status:** active.

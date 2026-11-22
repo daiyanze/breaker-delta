@@ -28,6 +28,50 @@ Issues labelled `owner:claude-ok` are the agent's to do; `owner:human` and
 one with `/next` (`.claude/commands/next.md`), or takes the one the owner
 names. Nothing on GitHub starts work by itself (ADR 0016).
 
+## Cloudflare credential
+
+ADR 0019 sets the rules; this is where the token lives and how it is used.
+
+**Every wrangler call that reaches Cloudflare goes through
+`scripts/cf.sh`**, for example `scripts/cf.sh whoami`. Commands that need a
+`wrangler.jsonc` run from the app folder: `cd apps/pipeline &&
+../../scripts/cf.sh deploy`, which is what `bun run deploy` does there.
+Local `wrangler dev` needs no token. The script loads the
+agent's token into that one command. If it finds no token, or a malformed one, it stops, so
+wrangler never falls back to the owner's `wrangler login`. Do not export the
+token yourself: variables do not carry over between an agent's shell calls,
+and wrangler uses a stored login when `CLOUDFLARE_API_TOKEN` is empty.
+
+The owner stores the token and the account ID once. On macOS, use the
+keychain:
+
+```sh
+# -U replaces an existing item. -w last, with no value, prompts for the secret.
+security add-generic-password -U -a "$USER" -s breaker-delta-cloudflare-token -w
+security add-generic-password -U -a "$USER" -s breaker-delta-cloudflare-account -w
+```
+
+- **Linux, with a running Secret Service** (GNOME Keyring or KWallet):
+  `secret-tool store --label="Breaker Delta Cloudflare token" service breaker-delta-cloudflare-token`.
+  Store `breaker-delta-cloudflare-account` the same way. It prompts for the
+  value.
+- **Elsewhere (Windows with Git Bash, or no keychain):** use
+  `~/.config/breaker-delta/cloudflare.env` with mode 600, holding the lines
+  `CLOUDFLARE_API_TOKEN=...` and `CLOUDFLARE_ACCOUNT_ID=...`. The script
+  reads the file; it does not source it.
+
+The first time, check that `scripts/cf.sh whoami` reports an account API
+token, not an OAuth login.
+
+Rules:
+
+- Never read, print or `cat` the env file or a keychain item. Only
+  `scripts/cf.sh` reads them.
+- Do not put the token in Claude Code's `settings.json` `env`. That hands it
+  to every command of every session.
+- If the script says no token was found, stop and tell the owner. Do not ask
+  for the value in the chat.
+
 ## The loop
 
 1. **Explore.** Read the issue, `CLAUDE.md`, the ADRs it touches,
