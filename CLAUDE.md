@@ -106,7 +106,8 @@ Development runs on a local agent on the owner's machine (ADR 0016). The
 working method is `docs/development.md`; read it and `docs/lessons.md`
 before starting a task.
 
-1. Pick an issue. Branch from `develop`. Never push to `develop` directly.
+1. Pick an issue (`/next` finds the next `owner:claude-ok` one). Branch from
+   `develop`. Never push to `develop` directly.
 2. Implement, then run `bun run check` locally.
 3. Push the branch and open a PR. CI runs `check`.
 4. A separate review agent, with no context from the writing session,

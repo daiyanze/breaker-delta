@@ -21,6 +21,13 @@ best practices (explore, plan, code, commit; show evidence, not claims).
 4. **Goal-driven execution.** Turn the issue's acceptance criteria into checks
    (a test, a command, an observable result) and loop until they pass.
 
+## Picking work
+
+Issues labelled `owner:claude-ok` are the agent's to do; `owner:human` and
+`owner:human+claude` need the owner. A local session finds the next
+one with `/next` (`.claude/commands/next.md`), or takes the one the owner
+names. Nothing on GitHub starts work by itself (ADR 0016).
+
 ## The loop
 
 1. **Explore.** Read the issue, `CLAUDE.md`, the ADRs it touches,
