@@ -27,9 +27,9 @@ goal.
 Write it as a check a command can answer, log it, and tell the owner in one
 line. Derive it from the goal and the issue tracker, for example:
 
-> Every `owner:claude-ok` issue in milestone "UI M2" whose "Depends on"
-> references are all closed has an open PR with `Closes #n`, green CI on its
-> head, and an approving review comment for that head SHA.
+> Every open `owner:claude-ok` issue in milestone "UI M2" whose "Depends
+> on" references are all closed has an open PR with `Closes #n`, green CI on
+> its head, and an approving review comment for that head SHA.
 
 Issues that wait on the owner (`owner:human`, an unmerged dependency, a
 parked question) are outside the condition, and the final report lists

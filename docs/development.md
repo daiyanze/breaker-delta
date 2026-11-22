@@ -185,8 +185,11 @@ repeated. Rules for it:
   written rules. Keep the lesson as a pointer to its check. Prove a new
   check fails on the mistake it is for (L7).
 - **A repeat is a level-up.** If a mistake comes back while its lesson or
-  rule exists, the rule did not work: enforce it one level higher in the
-  same PR, and update "What enforces each rule" in `CLAUDE.md`.
+  rule exists, the rule did not work: enforce it one level higher, and
+  update "What enforces each rule" in `CLAUDE.md`. When that touches a
+  protected path the issue does not mention, open it as its own PR for the
+  owner instead of adding it to the issue's PR; in a long run, the issue is
+  not parked for it.
 - **Retire, do not delete.** A lesson that turns out wrong or obsolete is
   marked retired with the reason, so the record stays honest.
 - **Keep it short.** Merge duplicates. If the file grows past what an agent

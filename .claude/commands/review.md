@@ -69,6 +69,9 @@ pass returns candidate issues with file, line and reason.
     fixtures that should not be?
 11. **Design.** Does the change deviate from an ADR without saying so in the
     PR (lesson L5)? Does it repeat an active lesson?
+12. **Append-only.** Does any path update or delete a published summary,
+    correction, withdrawal or verdict row in place, instead of adding a new
+    row?
 
 ## 5. Validate every candidate
 
