@@ -38,6 +38,8 @@
       }
     ],
     "feedLimit": 100,
+    "timeZone": "Asia/Tokyo",
+    "mailSendTime": "08:00",
     "stepMaxAttempts": 3,
     "runLeaseMinutes": 30
   },
