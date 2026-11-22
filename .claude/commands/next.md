@@ -11,7 +11,7 @@ If `$ARGUMENTS` names an issue (`#123` or `M1-04`), skip to step 3 with it.
 ```sh
 gh issue list --label owner:claude-ok --state open --limit 300 \
   --json number,title,milestone,body
-gh issue list --state open --limit 300 --json number,title,milestone,labels
+gh issue list --state open --limit 300 --json number,title,milestone,labels,body
 gh pr list --state open --json number,headRefName,body
 ```
 
@@ -35,6 +35,10 @@ An `owner:claude-ok` issue is a candidate unless:
   | `M2 to M5` | every issue in those milestones, both ends included |
   | `None.`, `Nothing.` | no dependency |
 
+  A line may wrap references in words: a note after them
+  (`#162 (the read models)`) or a lead-in (`All other UI issues (#104 to
+  #140)`). Read the references and ignore the words.
+
   A reference is open if any issue it means is open. One exception: a line
   that says the issue needs another only "for its data" and can be built
   against the contracts and fixtures does not block. A line you cannot read
@@ -42,8 +46,9 @@ An `owner:claude-ok` issue is a candidate unless:
   issue text.
 
 Issues labelled `owner:human` or `owner:human+claude` are not the agent's
-to start. From the second list, report the open ones that block the most
-candidates.
+to start. Report the three of them that are named directly in "Depends on"
+by the most blocked `owner:claude-ok` issues: they are what the owner can
+unblock next.
 
 ## 2. Choose one
 
