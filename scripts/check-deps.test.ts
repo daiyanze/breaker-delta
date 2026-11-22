@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { RULES, relativeViolations, selfImports, unpinned, violations } from "./check-deps.ts";
@@ -170,6 +170,35 @@ describe("check-deps", () => {
       expect(rel()).toContain(
         'apps/pipeline/src/sources/back.ts imports "../core/q.ts", which is in apps/pipeline/src/core',
       );
+    });
+
+    test("a code file with a dotted name is code, not data (#211 review)", () => {
+      file("packages/judge/src/client.http.ts", "export const c = 1;");
+      file("apps/pipeline/src/local/server.bun.ts", "export const s = 1;");
+      file(
+        "apps/web/src/core/dot.ts",
+        'import { c } from "../../../../packages/judge/src/client.http";',
+      );
+      file("apps/pipeline/src/core/dot.ts", 'import { s } from "../local/server.bun";');
+      const found = rel();
+      expect(found).toContain(
+        'apps/web/src/core/dot.ts imports "../../../../packages/judge/src/client.http"',
+      );
+      expect(found).toContain('apps/pipeline/src/core/dot.ts imports "../local/server.bun"');
+    });
+
+    test("require, a plain template import(), `import type from` and a symlink are seen", () => {
+      file("apps/web/src/local/zz.ts", "export default 1;");
+      file("apps/web/src/core/req.ts", 'const z = require("../local/zz.ts");');
+      file("apps/web/src/core/tpl.ts", "const z = await import(`../local/zz.ts`);");
+      file("apps/web/src/core/named.ts", 'import type from "../local/zz.ts";');
+      mkdirSync(join(root, "apps/web/src/core/link"), { recursive: true });
+      symlinkSync(join(root, "apps/web/src/local"), join(root, "apps/web/src/core/link/to-local"));
+      file("apps/web/src/core/via.ts", 'import z from "./link/to-local/zz.ts";');
+      const found = rel();
+      for (const name of ["req.ts", "tpl.ts", "named.ts", "via.ts"]) {
+        expect(found).toContain(`apps/web/src/core/${name} imports`);
+      }
     });
 
     test("a file under a single-file rule is its own area", () => {
