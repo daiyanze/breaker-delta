@@ -28,3 +28,9 @@ repositories through a single issue; fixes are in v1.0.94.
 
 A PR opened by a workflow does not trigger other workflows. To have Claude
 review a Claude-authored PR, the owner adds the `claude-review` label.
+
+## Amendment (2026-11-22): Cloudflare
+
+ADR 0019 lets the local agent operate Cloudflare with its own scoped token.
+It replaces the sentence "Cloudflare credentials live in protected
+environments used by deploy jobs only." Deploy jobs keep their own token.

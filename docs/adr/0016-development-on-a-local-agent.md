@@ -57,3 +57,9 @@ while the workflows are off.
   `docs/lessons.md`, read at the start of every task. A lesson that can be
   enforced by a check becomes a check.
 
+
+## Amendment (2026-11-22): Cloudflare
+
+ADR 0019 lets the local agent operate Cloudflare with its own scoped token.
+It replaces the sentence "Only the deploy job holds Cloudflare credentials;
+the local agent never does." Deploys after #12 stay with the deploy job.
