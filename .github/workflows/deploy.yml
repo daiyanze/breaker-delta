@@ -30,18 +30,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
       - run: bun install --frozen-lockfile
       - run: bun run check
+      # `--bun` runs wrangler on Bun instead of the `node` in its shebang (ADR 0018).
       - name: Apply migrations
         working-directory: apps/pipeline
-        run: bunx wrangler d1 migrations apply bd-content --remote
+        run: bun x --bun wrangler d1 migrations apply bd-content --remote
       # Contract changes: pipeline first, then web.
       - name: Deploy pipeline
         working-directory: apps/pipeline
-        run: bunx wrangler deploy
+        run: bun x --bun wrangler deploy
       - name: Deploy web
         working-directory: apps/web
-        run: bunx wrangler deploy
+        run: bun x --bun wrangler deploy
