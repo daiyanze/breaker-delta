@@ -1,10 +1,15 @@
+---
+name: next
+description: Find the next issue the local agent may do (label owner:claude-ok) and do it end to end - branch, implement, check, PR, CI, independent review. Use when the owner asks for the next issue or names an issue to do.
+---
+
 # Next issue
 
 Pick the next issue the local agent may do, and do it. Nothing on GitHub
-starts work by itself (ADR 0016): a label marks an issue as Claude's to do,
-and this command is how a local session finds it.
+starts work by itself (ADR 0016): a label marks an issue as the agent's to
+do, and this skill is how a local session finds it.
 
-If `$ARGUMENTS` names an issue (`#123` or `M1-04`), skip to step 3 with it.
+If the request names an issue (`#123` or `M1-04`), skip to step 3 with it.
 
 ## 1. Find candidates
 
@@ -70,11 +75,12 @@ candidates, then start. The owner can redirect you at any point.
 Follow `docs/development.md` from step 1 (Explore) to step 7 (Learn):
 branch from `develop`, implement, `bun run check`, push, open a PR with
 `Closes #n`, wait for CI, then start a separate review agent with
-`.claude/commands/review.md`. Never merge; the owner does.
+the `review` skill (`.claude/skills/review/SKILL.md`). Never merge; the
+owner does.
 
 Stop and ask before building if the issue contradicts an ADR, needs a
 secret or an account, or touches a protected path it does not mention
-(`CLAUDE.md`, "Protected paths").
+(`AGENTS.md`, "Protected paths").
 
 ## 4. Report
 

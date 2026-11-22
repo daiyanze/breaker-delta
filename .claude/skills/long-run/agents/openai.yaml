@@ -1,0 +1,3 @@
+# Codex: do not start this skill unless the user names it.
+policy:
+  allow_implicit_invocation: false

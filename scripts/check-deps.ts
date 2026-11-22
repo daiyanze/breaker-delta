@@ -1,6 +1,6 @@
 /**
  * Dependency-direction check. Fails CI when a package imports something its
- * role forbids. Rules mirror CLAUDE.md "Architecture map".
+ * role forbids. Rules mirror AGENTS.md "Architecture map".
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";

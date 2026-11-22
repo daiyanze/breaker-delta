@@ -1,7 +1,7 @@
 # How changes are made
 
 The method every coding agent (Claude Code, Pi, Codex, ...) and every human
-follows in this repository. `CLAUDE.md` holds the rules; this file holds the
+follows in this repository. `AGENTS.md` holds the rules; this file holds the
 working method. Read `docs/lessons.md` before starting.
 
 Sources: Karpathy's LLM coding guidelines
@@ -28,8 +28,20 @@ for each mistake and what enforces it).
 
 Issues labelled `owner:claude-ok` are the agent's to do; `owner:human` and
 `owner:human+claude` need the owner. A local session finds the next
-one with `/next` (`.claude/commands/next.md`), or takes the one the owner
-names. Nothing on GitHub starts work by itself (ADR 0016).
+one with the `next` skill, or takes the one the owner names. Nothing on
+GitHub starts work by itself (ADR 0016).
+
+The procedures are skills in `.claude/skills/`: `next`, `long-run`, `review`
+and `verify-local`. Each runtime calls a skill by name:
+
+| Runtime | Finds skills in | Call |
+| --- | --- | --- |
+| Claude Code | `.claude/skills/` | `/next`, `/long-run <goal>` |
+| Pi | `.agents/skills` (a link to `.claude/skills`) | `/skill:next` |
+| Codex | `.agents/skills` | `$next`, or pick it from `/skills` |
+
+On a Windows clone without symlinks enabled, `.agents/skills` is a plain
+file and Pi and Codex find no skills; Claude Code is not affected.
 
 ## Cloudflare credential
 
@@ -108,7 +120,7 @@ The owner sets this up once:
 
 ## The loop
 
-1. **Explore.** Read the issue, `CLAUDE.md`, the ADRs it touches,
+1. **Explore.** Read the issue, `AGENTS.md`, the ADRs it touches,
    `docs/lessons.md` and the code involved. Before choosing an approach,
    check what the design already decided (ADRs, `packages/db` schema,
    contracts).
@@ -136,7 +148,7 @@ The owner sets this up once:
    not verified locally). Claims such as "behaviour unchanged" come with the
    test that shows it.
 6. **Review.** A separate agent with no context from the writing session
-   reviews the PR with `.claude/commands/review.md`. The writer fixes
+   reviews the PR with the `review` skill. The writer fixes
    blocking issues; a new agent re-reviews. After three rounds the owner
    decides.
 7. **Learn.** When the owner corrects something, or CI or review catches a
@@ -175,9 +187,9 @@ The loop above is the default. Two kinds of work add steps.
 ## Long runs
 
 When the owner gives a goal rather than an issue ("finish UI M2", "clear
-every open M1 issue you can"), run `/run` (`.claude/commands/run.md`). It
-loops `/next` until a stated exit condition holds, without stopping to ask
-for "continue". The rules:
+every open M1 issue you can"), use the `long-run` skill
+(`.claude/skills/long-run/SKILL.md`). It loops the `next` skill until a stated
+exit condition holds, without stopping to ask for "continue". The rules:
 
 - **Exit condition first.** Before the first issue, write it as something a
   command can check, for example "every `owner:claude-ok` issue in M1 whose
@@ -215,11 +227,11 @@ repeated. Rules for it:
   check fails on the mistake it is for (L7).
 - **A repeat is a level-up.** If a mistake comes back while its lesson or
   rule exists, the rule did not work: enforce it one level higher, and
-  update "What enforces each rule" in `CLAUDE.md`. When that touches a
+  update "What enforces each rule" in `AGENTS.md`. When that touches a
   protected path the issue does not mention, open it as its own PR for the
   owner instead of adding it to the issue's PR; in a long run, the issue is
   not parked for it.
 - **Retire, do not delete.** A lesson that turns out wrong or obsolete is
   marked retired with the reason, so the record stays honest.
 - **Keep it short.** Merge duplicates. If the file grows past what an agent
-  reads in a minute, promote the durable rules to `CLAUDE.md` or a check.
+  reads in a minute, promote the durable rules to `AGENTS.md` or a check.

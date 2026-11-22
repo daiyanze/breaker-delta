@@ -1,8 +1,10 @@
-# Protected paths: changes need the owner's review. See CLAUDE.md.
+# Protected paths: changes need the owner's review. See AGENTS.md.
 /packages/core/       @daiyanze
 /packages/contracts/  @daiyanze
 /evals/               @daiyanze
 /.github/             @daiyanze
 /.claude/             @daiyanze
 /docs/adr/            @daiyanze
+/.agents/             @daiyanze
+/AGENTS.md            @daiyanze
 /CLAUDE.md            @daiyanze
