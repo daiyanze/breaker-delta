@@ -14,6 +14,8 @@ on:
       - apps/web/**
       - packages/**
       - scripts/spike-local.ts
+      - scripts/verify-local.ts
+      - scripts/verify-local-selftest.sh
       - .github/workflows/spike-local.yml
       - bun.lock
   workflow_dispatch:
@@ -73,6 +75,16 @@ jobs:
       - name: Spike (macOS, Windows)
         if: runner.os != 'Linux'
         run: bun scripts/spike-local.ts
+
+      # The verify-local skill's harness, driven end to end against the real
+      # app with no network (.claude/skills/verify-local).
+      - name: verify-local harness, offline (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo unshare --net -- env "PATH=$PATH:/usr/sbin:/sbin" "HOME=$HOME" "RUN_AS=$USER" sh -c '
+            ip link set lo up
+            exec sudo -u "$RUN_AS" env "PATH=$PATH" "HOME=$HOME" bash scripts/verify-local-selftest.sh
+          '
 
       # The same criteria, against the single-file executable a user would
       # download: run from a fresh folder, with no bun on PATH.
