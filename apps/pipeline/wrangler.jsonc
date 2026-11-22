@@ -12,8 +12,8 @@
     {
       "binding": "DB",
       "database_name": "bd-content",
-      // Replace after `wrangler d1 create bd-content`. Not needed for local mode.
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      // Created in #10. Local mode does not use it.
+      "database_id": "808d9065-90f1-4f41-8552-856b0235110f",
       "migrations_dir": "../../packages/db/migrations"
     }
   ],
