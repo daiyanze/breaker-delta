@@ -19,9 +19,13 @@ The rest of both ADRs holds.
 
 - The agent uses its own **account-owned API token**, not the owner's
   `wrangler login`. The token has only these permissions, on this account:
-  Workers Scripts Edit, D1 Edit, Workers R2 Storage Edit, and Account
-  Settings Read. Where the dashboard allows, the Workers permission is
-  scoped to `bd-pipeline` and `bd-web` only.
+  - Workers: `Admin` at the Workers product scope. #10 creates the two
+    Workers, and creating a Worker needs product-level Admin; `Editor` (the
+    legacy Workers Scripts Edit) can only change Workers that exist.
+  - D1 Edit, Workers R2 Storage Edit, Account Settings Read.
+- After #10 the owner may narrow the Workers permission to `Editor` scoped
+  to `bd-pipeline` and `bd-web`. Creating or deleting a Worker then needs
+  the owner to widen it again.
 - The owner creates, widens and revokes it. It is a separate token from the
   one the deploy job uses, so revoking one does not break the other.
 - It lives outside the repository, in a file only the owner's user can read
@@ -35,8 +39,8 @@ The rest of both ADRs holds.
   fails for lack of a permission, the agent stops, names the command and the
   permission, and the owner decides whether to widen the token.
 - The token cannot enforce the data rules below. D1 Edit can read and write
-  rows, and R2 Edit can read and write objects. The data rules are rules for
-  the agent.
+  rows, R2 Edit can read and write objects, and the Workers roles can read
+  logs and traces. The data rules are rules for the agent.
 
 ### Configuration is code
 
@@ -52,9 +56,10 @@ merges, in the same order as `deploy.yml`:
 
 1. a clean checkout of `origin/develop` at the merged commit;
 2. `bun install --frozen-lockfile` and `bun run check`;
-3. `wrangler d1 migrations apply bd-content --remote`, but only after the
-   owner says yes to the list of migrations to apply, because a migration
-   cannot be undone;
+3. from `apps/pipeline`, `wrangler d1 migrations apply bd-content --remote`,
+   but only after the owner says yes to the list of migrations to apply,
+   because a migration cannot be undone. If the owner says no, stop: do not
+   deploy;
 4. deploy `apps/pipeline`;
 5. deploy `apps/web`.
 
@@ -65,7 +70,9 @@ only for a rollback the owner asks for.
 
 The rule, by its effect: **no content of `bd-content`, `bd-private` or
 `bd-blobs` reaches the agent's session, and the agent changes none of it
-except through migrations.**
+except through migrations, or through an action the owner approved under
+"Ask every time".** Production data is touched only by code deployed
+through the procedure above.
 
 - `bd-content` holds fetched content (invariant 6).
 - `bd-private` holds subscriber data.
@@ -81,7 +88,11 @@ Not allowed, as examples:
 - `r2 object get`, `r2 object put` and `r2 object delete`;
 - `wrangler tail`, and Workers Logs or traces in the dashboard or the API.
   These can carry fetched text once the pipeline fetches. To diagnose a
-  production failure, the agent asks the owner to read the logs.
+  production failure, the agent asks the owner to read the logs;
+- running Worker code against production resources outside the deploy
+  procedure: `wrangler dev --remote` or remote bindings, `versions upload`
+  from a branch, or a deploy from any tree other than the merged
+  `origin/develop`.
 
 Allowed:
 
