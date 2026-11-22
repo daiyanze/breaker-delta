@@ -7,20 +7,24 @@ Each rule applies only within its scope.
 ## L18 Check a token against every call the workflow makes, not the first one
 
 - **Date:** 2026-11-23. **Status:** active.
-- **What happened:** #11 gave the preview token Workers Scripts Edit and
-  checked it by creating a Preview. The `cleanup` job, which runs only when
-  a PR closes, deletes the Preview, and Edit cannot delete. It failed on
-  every closed PR from #11 to #206, and the Previews stayed. Nobody saw it,
-  because the job runs after the merge, when no one looks at the checks.
+- **What happened:** #200 (issue #11) set the preview token up with
+  Workers Scripts Edit and checked it by creating a Preview. The `cleanup`
+  job, which runs only when a PR closes, deletes the Preview, and Edit
+  cannot delete. It failed with "No access to the specified resource" on
+  #199 and #201 to #206, and those Previews stayed. The delete loop stops
+  at its first failure, so `bd-web`'s Preview was never even tried. Nobody
+  saw it, because the job runs after the merge, when no one looks at the
+  checks.
 - **Rule:** When choosing a token's permissions, list every API call the
   workflow makes (create, update, delete), and run each one once before
   calling the setup done. A job that runs after a merge has its result
   checked once, on the first PR that triggers it.
 - **Scope:** `.github/workflows/*.yml` and the tokens in their
   environments; `scripts/cf.sh` scopes.
-- **Evidence:** `preview` runs on #11 to #206, `cleanup/Delete previews`;
-  fixed by the owner on 2026-11-23; the rerun of run 45080746473 then
-  deleted `pr-206` for both Workers.
+- **Evidence:** `cleanup/Delete previews` in `preview.yml` runs
+  45036876471 (#199), 45037076175, 45037966166, 45038505176, 45040923078,
+  45075447737 and 45080746473 (#206). Fixed by the owner on 2026-11-23; the
+  rerun of 45080746473 then deleted `pr-206` for both Workers.
 
 ## L17 Test a parser with the escapes and neighbours real documents use
 
