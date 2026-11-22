@@ -64,7 +64,8 @@ Both apps are split the same way (ADR 0018):
 Scheduling belongs to the adapters: the core exports `tick()`. The core
 queries the database with drizzle through `drizzleOver(db)` from `@bd/db`.
 
-Dependency direction is enforced by `scripts/check-deps.ts`.
+Dependency direction is enforced by `scripts/check-deps.ts` for package
+imports; see "What enforces each rule" for what it does not cover.
 
 UI components are built from the Tide Paper design system. No third-party
 component library. There is no separate landing page: `/` is the front page
@@ -95,10 +96,39 @@ component library. There is no separate landing page: `/` is the front page
 9. **Behavior comes from settings, not constants.** Thresholds, intervals and
    budgets live in the `settings` table with defaults in `@bd/contracts`.
 
+## What enforces each rule
+
+A rule nothing enforces is only as good as the next reader. When a mistake
+repeats, move its rule up this table (`docs/development.md`, "Lessons").
+
+| Rule | Enforced by | Kind |
+| --- | --- | --- |
+| Dependency direction (architecture map) | `scripts/check-deps.ts`, for package imports only; relative imports: review checklist 13 | check, review |
+| App cores use no Bun or Cloudflare API | `src/core` tsconfig without those types; `check-deps` | types |
+| 1. Code decides | model result schemas have no wave, height or rank fields (`packages/contracts/src/model.ts`); core's package imports (`check-deps`); no IO or clock in core: review checklist 13 | types, check, review |
+| 2. Sources are referenced | model schemas cite echo IDs only (`model.ts`); storing and rendering: review checklist 3 | types, review |
+| 3. Independent sources per fetch group | `packages/core` tests | test |
+| 4. Append-only | review checklist 12; no check until M1 writes summaries | review |
+| 5. Review criteria are immutable | review checklist 1; no check until M1 registers predictions | review |
+| 6. Fetched content is data | `judge`'s package imports (`check-deps`); `verify-local get` does not print real pages; the rest: review checklist 6 | check, review |
+| 7. Single writer | `apps/web`'s package imports cannot name `judge` or the pipeline (`check-deps`); relative imports and writes through `@bd/db`: review checklist 4 | check, review |
+| 8. No cloud-only service locally | `check-deps` local rules; `spike-local.yml` offline with no Cloudflare tooling installed | check |
+| 9. Settings, not constants | review checklist 7 | review |
+| Migrations only add | review checklist 2 | review |
+| Protected paths | CODEOWNERS requests the owner's review; the `develop` ruleset requires a PR and `check`, not the owner's approval; the owner merges | owner |
+| Lessons with a check | each lesson's `Check:` line in `docs/lessons.md` | check |
+
+Rows marked review only are the next to enforce once the code they guard
+exists. Known gaps in the checks: `check-deps` skips relative imports, so
+`../../../packages/judge/src` from a file in `apps/web/src` passes it, and it does not look at
+globals (`fetch`, `Date.now`, `Bun`); `packages/core` typechecks with Bun's
+types.
+
 ## Protected paths (CODEOWNERS)
 
-`packages/core`, `packages/contracts`, `evals`, `.github`, `CLAUDE.md`,
-`docs/adr`. You may propose changes; the owner must approve them.
+`packages/core`, `packages/contracts`, `evals`, `.github`, `.claude`,
+`CLAUDE.md`, `docs/adr`. You may propose changes; the owner must approve
+them.
 
 ## How to work here
 
@@ -106,9 +136,11 @@ Development runs on a local agent on the owner's machine (ADR 0016). The
 working method is `docs/development.md`; read it and `docs/lessons.md`
 before starting a task.
 
-1. Pick an issue (`/next` finds the next `owner:claude-ok` one). Branch from
-   `develop`. Never push to `develop` directly.
-2. Implement, then run `bun run check` locally.
+1. Pick an issue (`/next` finds the next `owner:claude-ok` one; `/run`
+   works through a whole goal). Branch from `develop`. Never push to
+   `develop` directly.
+2. Implement, then run `bun run check` locally. Drive anything a user sees
+   on local mode with the `verify-local` skill.
 3. Push the branch and open a PR. CI runs `check`.
 4. A separate review agent, with no context from the writing session,
    reviews the PR with `.claude/commands/review.md`. The session that wrote a

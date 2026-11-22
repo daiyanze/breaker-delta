@@ -69,13 +69,37 @@ pass returns candidate issues with file, line and reason.
     fixtures that should not be?
 11. **Design.** Does the change deviate from an ADR without saying so in the
     PR (lesson L5)? Does it repeat an active lesson?
+12. **Append-only.** Does any path update or delete a published summary,
+    correction, withdrawal or verdict row in place, instead of adding a new
+    row?
+13. **What check-deps misses.** Does a relative import reach into another
+    package (`../../../packages/...`) past the dependency rules? Does
+    `packages/core` gain IO, a clock (`Date.now`, `new Date()`) or a runtime
+    global (`fetch`, `Bun`)?
 
 ## 5. Validate every candidate
 
-Give each candidate to a separate check (a subagent if you can): confirm it
-from the code, by quoting the lines, or by running a throwaway test. Drop
-what cannot be confirmed. If you are unsure, say what you would need to
-check instead of reporting it as an issue.
+Give each candidate to a separate check (a subagent if you can). Drop what
+cannot be confirmed. If you are unsure, say what you would need to check
+instead of reporting it as an issue.
+
+- A **bug** is confirmed only by a run: a throwaway test or script that
+  fails, or a command whose output shows the wrong behaviour. Record the
+  command and the output it printed. Reading the code is how you find a
+  bug, not how you prove it.
+- A **rule violation** is confirmed by quoting the rule and the lines that
+  break it, when the lines break it on their face. If it depends on what
+  the code does at run time, prove it with a run as for a bug.
+- For anything a user sees, the `verify-local` skill is a way to run it.
+
+### Second model
+
+When the PR touches `packages/core`, `packages/contracts` or the runner,
+and a model from another vendor is available to this session (for example
+through Pi), give that model the same brief for step 4: the diff, the
+checklist, and "find what breaks; prove each finding with a run". Validate
+its candidates the same way and merge them with yours. Name the models in
+the comment. If none is available, say so in the comment and go on.
 
 ## 6. Classify
 
@@ -98,7 +122,8 @@ _Review by an independent Claude agent, at <full head SHA>._
 **Checks:** `bun run check` result in one line.
 
 **Blocking issues**
-1. <file:line permalink> what is wrong, why it matters, how it was confirmed.
+1. <file:line permalink> what is wrong, why it matters, how it was confirmed
+   (the command and the output it printed, or the rule and the lines).
 
 **Non-blocking notes**
 - ...
