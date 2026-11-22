@@ -7,8 +7,13 @@ import { dirname, join, relative, resolve } from "node:path";
 
 interface Rule {
   dir: string;
-  /** Bare specifiers allowed. Relative imports are always allowed. */
+  /** Bare specifiers allowed. */
   allow: RegExp[];
+  /**
+   * Other rules' areas in the same package that this area may import by
+   * relative path (#209). Its own files are always allowed.
+   */
+  reach?: string[];
   why: string;
 }
 
@@ -43,6 +48,7 @@ export const RULES: Rule[] = [
   {
     dir: "apps/pipeline/src/core",
     allow: [/^@bd\/(contracts|core|db|judge)$/, PORTS, DRIZZLE, /^bun:test$/],
+    reach: ["apps/pipeline/src/sources"],
     why: "the pipeline core depends on ports only (ADR 0018)",
   },
   {
@@ -53,21 +59,25 @@ export const RULES: Rule[] = [
   {
     dir: "apps/pipeline/src/cloudflare",
     allow: [/^@bd\/(contracts|core|db|judge)$/, PORTS, DRIZZLE, /^cloudflare:/, /^bun:test$/],
+    reach: ["apps/pipeline/src/core"],
     why: "the Cloudflare adapter maps bindings onto ports; no Bun APIs (ADR 0018)",
   },
   {
     dir: "apps/pipeline/src/local",
     allow: [/^@bd\/(contracts|core|db)$/, PORTS, /^bun:/, /^node:/],
+    reach: ["apps/pipeline/src/core"],
     why: "the local adapter runs on Bun, never on Cloudflare APIs (ADR 0018)",
   },
   {
     dir: "apps/web/src/select.ts",
     allow: [/^@bd\/(contracts|fixtures)$/, PORTS],
+    reach: ["apps/web/src/core"],
     why: "the query-layer choice is shared by both adapters: no runtime APIs (ADR 0018)",
   },
   {
     dir: "apps/web/src/local",
     allow: [/^@bd\/(contracts|fixtures)$/, PORTS, /^bun:/, /^node:/],
+    reach: ["apps/web/src/core", "apps/web/src/select.ts"],
     why: "the local site adapter runs on Bun, never on Cloudflare APIs (ADR 0018)",
   },
   {
@@ -83,6 +93,7 @@ export const RULES: Rule[] = [
   {
     dir: "apps/web/src",
     allow: [/^@bd\/(contracts|db|fixtures)$/, PORTS, /^cloudflare:/, /^bun:test$/],
+    reach: ["apps/web/src/core", "apps/web/src/select.ts"],
     why: "web is read-only: no judge, no pipeline code",
   },
 ];
@@ -122,18 +133,76 @@ export function violations(root: string, rules: Rule[] = RULES): string[] {
   return found;
 }
 
-/** Relative imports that exist at run time (`import type` is erased). */
-function runtimeImports(file: string): string[] {
-  const out: string[] = [];
+/** Relative imports that exist at run time (`import type` is erased), resolved. */
+function relativeImports(file: string): { spec: string; target: string }[] {
+  const out: { spec: string; target: string }[] = [];
   for (const match of readFileSync(file, "utf8").matchAll(IMPORT)) {
     const spec = match[1] ?? match[2];
     if (!spec?.startsWith(".") || /^(import|export)\s+type\s/.test(match[0])) continue;
     const target = resolve(dirname(file), spec);
     // Bundler resolution also accepts "./index", "." and "./dir".
     const candidates = [target, `${target}.ts`, join(target, "index.ts")];
-    out.push(candidates.find((c) => /\.tsx?$/.test(c) && existsSync(c)) ?? target);
+    const found = candidates.find((c) => /\.tsx?$/.test(c) && existsSync(c));
+    out.push({ spec, target: found ?? target });
   }
   return out;
+}
+
+function runtimeImports(file: string): string[] {
+  return relativeImports(file).map((i) => i.target);
+}
+
+/** A specifier with an extension that is not a script's is a data file: JSON, SQL, a font. */
+const DATA = /\.(?!(?:[cm]?[jt]sx?)$)[A-Za-z0-9]+$/;
+
+/** The most specific rule whose area holds `path` (relative to the root). */
+function areaOf(path: string, rules: Rule[]): Rule | undefined {
+  return rules
+    .filter((r) => path === r.dir || path.startsWith(`${r.dir}/`))
+    .sort((a, b) => b.dir.length - a.dir.length)[0];
+}
+
+/** `packages/<x>` or `apps/<x>`, the workspace package a path is in. */
+function packageOf(path: string): string | undefined {
+  const [group, name] = path.split("/");
+  return (group === "packages" || group === "apps") && name ? `${group}/${name}` : undefined;
+}
+
+/**
+ * Issue #209: relative imports follow the dependency rules too. Code in
+ * another workspace package must be imported by its package name, so that
+ * package's rule applies; inside a package, an area may import another
+ * rule's area only if its rule lists it in `reach`. Data files are not
+ * code and pass; files no rule covers are not checked here.
+ */
+export function relativeViolations(root: string, rules: Rule[] = RULES): string[] {
+  const found: string[] = [];
+  for (const rule of rules) {
+    const dir = join(root, rule.dir);
+    if (!existsSync(dir)) continue;
+    const list = statSync(dir).isDirectory() ? files(dir) : [dir];
+    for (const file of list) {
+      const from = relative(root, file);
+      if (areaOf(from, rules) !== rule) continue; // checked under its most specific rule
+      for (const { spec, target } of relativeImports(file)) {
+        if (DATA.test(spec)) continue;
+        const to = relative(root, target);
+        const pkg = packageOf(to);
+        const head = `${from} imports "${spec}"`;
+        if (pkg !== packageOf(from)) {
+          const fix = "import it by its package name so its rule applies (#209)";
+          found.push(`${head}, code in ${pkg ?? to}: ${fix}`);
+          continue;
+        }
+        const area = areaOf(to, rules);
+        if (!area || area === rule || rule.reach?.includes(area.dir)) continue;
+        const may = rule.reach?.length ? `only ${rule.reach.join(", ")}` : "none";
+        const limit = `${rule.dir} may reach ${may} by relative path`;
+        found.push(`${head}, which is in ${area.dir}; ${limit} (${rule.why})`);
+      }
+    }
+  }
+  return found;
 }
 
 /**
@@ -215,7 +284,12 @@ export function unpinned(root: string): string[] {
 
 if (import.meta.main) {
   const root = join(import.meta.dir, "..");
-  const found = [...violations(root), ...selfImports(root), ...unpinned(root)];
+  const found = [
+    ...violations(root),
+    ...relativeViolations(root),
+    ...selfImports(root),
+    ...unpinned(root),
+  ];
   if (found.length > 0) {
     console.error(`check-deps found:\n${found.map((v) => `  - ${v}`).join("\n")}`);
     process.exit(1);

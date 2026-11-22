@@ -70,7 +70,8 @@ Scheduling belongs to the adapters: the core exports `tick()`. The core
 queries the database with drizzle through `drizzleOver(db)` from `@bd/db`.
 
 Dependency direction is enforced by `scripts/check-deps.ts` for package
-imports; see "What enforces each rule" for what it does not cover.
+imports and relative imports; see "What enforces each rule" for what it does
+not cover.
 
 UI components are built from the Tide Paper design system. No third-party
 component library. There is no separate landing page: `/` is the front page
@@ -108,15 +109,15 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 
 | Rule | Enforced by | Kind |
 | --- | --- | --- |
-| Dependency direction (architecture map) | `scripts/check-deps.ts`, for package imports only; relative imports: review checklist 13 | check, review |
+| Dependency direction (architecture map) | `scripts/check-deps.ts`: package imports by each rule's `allow`; relative imports into another package fail, and between areas of one package pass only along a rule's `reach` | check |
 | App cores use no Bun or Cloudflare API | `src/core` tsconfig without those types; `check-deps` | types |
-| 1. Code decides | model result schemas have no wave, height or rank fields (`packages/contracts/src/model.ts`); core's package imports (`check-deps`); no IO or clock in core: review checklist 13 | types, check, review |
+| 1. Code decides | model result schemas have no wave, height or rank fields (`packages/contracts/src/model.ts`); core's imports, package and relative (`check-deps`); no IO or clock in core: review checklist 13 | types, check, review |
 | 2. Sources are referenced | model schemas cite echo IDs only (`model.ts`); storing and rendering: review checklist 3 | types, review |
 | 3. Independent sources per fetch group | `packages/core` tests | test |
 | 4. Append-only | review checklist 12; no check until M1 writes summaries | review |
 | 5. Review criteria are immutable | review checklist 1; no check until M1 registers predictions | review |
-| 6. Fetched content is data | `judge`'s package imports (`check-deps`); `verify-local get` does not print real pages; the rest: review checklist 6 | check, review |
-| 7. Single writer | `apps/web`'s package imports cannot name `judge` or the pipeline (`check-deps`); relative imports and writes through `@bd/db`: review checklist 4 | check, review |
+| 6. Fetched content is data | `judge`'s imports, package and relative (`check-deps`); `verify-local get` does not print real pages; the rest: review checklist 6 | check, review |
+| 7. Single writer | `apps/web`'s imports cannot reach `judge` or the pipeline, by package name or relative path (`check-deps`); writes through `@bd/db`: review checklist 4 | check, review |
 | 8. No cloud-only service locally | `check-deps` local rules; `spike-local.yml` offline with no Cloudflare tooling installed | check |
 | 9. Settings, not constants | review checklist 7 | review |
 | Migrations only add | review checklist 2 | review |
@@ -125,10 +126,11 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 | Every runtime finds the rules and the skills | `scripts/agent-files.test.ts`: `CLAUDE.md` only imports this file, no `AGENTS.override.md`, `.agents/skills` resolves to `.claude/skills`, each skill's frontmatter parses as YAML with a name and a description | test |
 
 Rows marked review only are the next to enforce once the code they guard
-exists. Known gaps in the checks: `check-deps` skips relative imports, so
-`../../../packages/judge/src` from a file in `apps/web/src` passes it, and it does not look at
-globals (`fetch`, `Date.now`, `Bun`); `packages/core` typechecks with Bun's
-types.
+exists. Known gaps in the checks: `check-deps` checks only files under a
+directory or file one of its rules names, so a source file outside every
+rule is not checked (#210); relative imports of data files (JSON, SQL,
+fonts) pass; it does not look at globals (`fetch`, `Date.now`, `Bun`);
+`packages/core` typechecks with Bun's types.
 
 ## Protected paths (CODEOWNERS)
 
