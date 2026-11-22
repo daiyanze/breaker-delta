@@ -20,6 +20,7 @@ Each rule applies only within its scope.
 - **Scope:** ADRs, `docs/*.md` decision records, settings defaults, issue
   updates.
 - **Evidence:** fixed in #202 (`docs/settings.md` "Decided" column).
+
 ## L15 A red job is red even when it is not required
 
 - **Date:** 2026-11-22. **Status:** active.

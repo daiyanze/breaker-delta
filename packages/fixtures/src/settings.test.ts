@@ -28,7 +28,7 @@ describe("settings defaults (#16)", () => {
     }
   });
 
-  test("the time zone is an IANA name the runtime knows, spelled exactly", () => {
+  test("the time zone has the shape of an IANA name and the runtime knows it", () => {
     for (const ok of ["Asia/Tokyo", "Europe/Paris", "America/Argentina/Buenos_Aires", "UTC"]) {
       expect(SettingsSchema.safeParse({ timeZone: ok }).success).toBe(true);
     }

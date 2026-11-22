@@ -16,7 +16,7 @@ came with the scaffold and has not been reviewed by the owner yet.
 | `calmAfterDays` | 7 | scaffold | |
 | `risingPercent24h` | 50 | scaffold | |
 | `rewriteAfterNewEchoes` | 5 | scaffold | |
-| `summariesPerRun` | 3 | proposed by the agent | 72 summaries a day at hourly runs: within the three chosen free tiers together, not within any one of them, and not yet measured (`docs/providers.md`, "Budget"). |
+| `summariesPerRun` | 3 | proposed by the agent | 72 summaries a day at hourly runs. No single free tier covers that together with assign; the three together likely do, but it is not measured (`docs/providers.md`, "Budget"). |
 | `reviewWindowDays` | 14 | scaffold | |
 | `languages` | en, zh, ja | scaffold | |
 | `keywordsInclude`, `keywordsExclude` | empty | scaffold | |

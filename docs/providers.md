@@ -7,8 +7,8 @@ an installation is set up with.
 
 - **Owner's decisions (2026-11-22):** the hosted providers are Workers AI,
   Groq and Gemini; local mode uses the user's own agent first.
-- **Proposed by the agent, not yet confirmed:** the order inside each chain
-  below.
+- **Proposed by the agent, not yet confirmed:** which chain each provider
+  is in, the order inside each chain, and the models named below.
 
 Free tiers change often. The figures below were read on 2026-11-22, mostly
 from recent third-party readings of the providers' own pages (September to
@@ -32,7 +32,7 @@ reaches that agent only as data in a tool-less call (invariant 6).
 | Provider | Free allowance | Terms and risks | Use |
 | --- | --- | --- | --- |
 | Cloudflare Workers AI | 10,000 Neurons a day, on the free and paid Workers plans. gpt-oss-120b costs about 31,800 Neurons per million input tokens and 68,200 per million output tokens. | Same account as the pipeline. Ongoing allowance, not a credit. | assign first; summarize last |
-| Groq | Free-plan limits Groq lists for gpt-oss-120b: 30 requests a minute, 1,000 a day, 8,000 tokens a minute, 200,000 tokens a day, per organisation. | A third-party reading says Groq does not train on API data; not yet confirmed in Groq's own terms. | Both chains |
+| Groq | Base limits Groq lists for gpt-oss-120b (its page labels them the Developer plan's; the free plan may be lower): 30 requests a minute, 1,000 a day, 8,000 tokens a minute, 200,000 tokens a day, per organisation. | A third-party reading says Groq does not train on API data; not yet confirmed in Groq's own terms. | Both chains |
 | Google Gemini (AI Studio) | Flash and Flash-Lite are free within per-project limits. Google no longer publishes the numbers; they are shown in the AI Studio console. | Free-tier requests may be used to improve Google products. The inputs are public items, so this is acceptable. | summarize first (stronger in zh and ja); assign last |
 | OpenRouter `:free` models | 20 requests a minute; 50 a day, or 1,000 a day after $10 of lifetime credit. | Free models come and go without notice. | Not chosen; a candidate if the chosen quotas run short |
 | Cerebras | No renewing free tier since 2026; new accounts get a one-time trial credit. | Not free over time. | Not used |
