@@ -7,8 +7,9 @@ an installation is set up with.
 
 - **Owner's decisions (2026-11-22):** the hosted providers are Workers AI,
   Groq and Gemini; local mode uses the user's own agent first.
-- **Proposed by the agent, not yet confirmed:** which chain each provider
-  is in, the order inside each chain, and the models named below.
+- **Owner's decisions (2026-11-23):** which chain each provider is in, the
+  order inside each chain, the models in the table below, and the keys in
+  "Keys". The agent proposed them; the owner confirmed them.
 
 Free tiers change often. The figures below were read on 2026-11-22, mostly
 from recent third-party readings of the providers' own pages (September to
@@ -19,7 +20,7 @@ November 2026). Check the provider's console before relying on a number.
 | Mode | assign (frequent, simple) | summarize (rare, demanding; en, zh, ja) |
 | --- | --- | --- |
 | Local mode | local bridge, then the hosted chain if set | local bridge, then the hosted chain if set |
-| Hosted instance | Workers AI, Groq, Gemini Flash-Lite | Gemini Flash-Lite, Groq, Workers AI |
+| Hosted instance | Workers AI `@cf/openai/gpt-oss-120b`, Groq `openai/gpt-oss-120b`, Gemini `gemini-flash-lite-latest` | Gemini `gemini-flash-lite-latest`, Groq `openai/gpt-oss-120b`, Workers AI `@cf/openai/gpt-oss-120b` |
 
 **Local mode uses the user's own agent first.** The local bridge (ADR 0005,
 #49) turns a request into one tool-less call to an agent CLI on the user's
@@ -33,7 +34,7 @@ reaches that agent only as data in a tool-less call (invariant 6).
 | --- | --- | --- | --- |
 | Cloudflare Workers AI | 10,000 Neurons a day, on the free and paid Workers plans. gpt-oss-120b costs about 31,800 Neurons per million input tokens and 68,200 per million output tokens. | Same account as the pipeline. Ongoing allowance, not a credit. | assign first; summarize last |
 | Groq | Base limits Groq lists for gpt-oss-120b (its page labels them the Developer plan's; the free plan may be lower): 30 requests a minute, 1,000 a day, 8,000 tokens a minute, 200,000 tokens a day, per organisation. | A third-party reading says Groq does not train on API data; not yet confirmed in Groq's own terms. | Both chains |
-| Google Gemini (AI Studio) | Flash and Flash-Lite are free within per-project limits. Google no longer publishes the numbers; they are shown in the AI Studio console. | Free-tier requests may be used to improve Google products. The inputs are public items, so this is acceptable. | summarize first (stronger in zh and ja); assign last |
+| Google Gemini (AI Studio) | Flash and Flash-Lite are free within per-project limits. Google no longer publishes the numbers; they are shown in the AI Studio console. | Free-tier requests may be used to improve Google products. The inputs are public items, so this is acceptable. | summarize first, as Flash-Lite (Flash was overloaded during verification; zh and ja quality not yet checked, M2 evals); assign last |
 | OpenRouter `:free` models | 20 requests a minute; 50 a day, or 1,000 a day after $10 of lifetime credit. | Free models come and go without notice. | Not chosen; a candidate if the chosen quotas run short |
 | Cerebras | No renewing free tier since 2026; new accounts get a one-time trial credit. | Not free over time. | Not used |
 | GitHub Models | Free and rate-limited. | GitHub says the free use is not designed for production. A public service would break that. | Not used |
@@ -60,7 +61,8 @@ lowered without a release once real usage is known.
 ## Keys
 
 Keys are never stored in settings: a provider names the secret or
-environment variable that holds its key (`apiKeyRef`).
+environment variable that holds its key (`apiKeyRef`). The names and the
+arrangement below were confirmed by the owner on 2026-11-23.
 
 | Provider | Key | Where it comes from |
 | --- | --- | --- |
