@@ -19,9 +19,9 @@ Each rule applies only within its scope.
   it puts in a URL.
 - **Scope:** `scripts/cf.sh` and any wrapper that loads credentials for a
   CLI.
-- **Check:** `scripts/cf.test.ts` refuses a token as the account ID, a
-  wrong-length or upper-case ID, and swapped values, and asserts the
-  refusal does not echo the value.
+- **Check:** `scripts/cf.test.ts` refuses a token as the account ID (alone
+  or swapped with the ID), a wrong-length or upper-case ID, and an account
+  ID in the token slot, and asserts the refusal does not echo the value.
 
 ## L12 A missing credential must fail, not fall back
 

@@ -72,7 +72,8 @@ describe("scripts/cf.sh", () => {
       `CLOUDFLARE_API_TOKEN=tok\nCLOUDFLARE_ACCOUNT_ID=${ACC.toUpperCase()}\n`,
     ],
     ["a 33-digit account ID", `CLOUDFLARE_API_TOKEN=tok\nCLOUDFLARE_ACCOUNT_ID=${ACC}0\n`],
-    ["swapped values", `CLOUDFLARE_API_TOKEN=${ACC}\nCLOUDFLARE_ACCOUNT_ID=${ACC}\n`],
+    ["swapped values", `CLOUDFLARE_API_TOKEN=${ACC}\nCLOUDFLARE_ACCOUNT_ID=cfat_abc123-x\n`],
+    ["an account ID in both slots", `CLOUDFLARE_API_TOKEN=${ACC}\nCLOUDFLARE_ACCOUNT_ID=${ACC}\n`],
   ];
   for (const [name, file, env] of refused) {
     test(`refuses ${name}, without running wrangler`, () => {
