@@ -4,6 +4,23 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L16 Write down who decided each value
+
+- **Date:** 2026-11-23. **Status:** active.
+- **What happened:** #202 recorded the owner's choice of three providers,
+  then wrote a chain that included a fourth (OpenRouter) and said the chains
+  were "chosen by the owner". `docs/settings.md` said every default was the
+  owner's, including one the agent had only proposed and others nobody had
+  reviewed. The PR description said so; the docs did not. The review caught
+  it. It is L5 again, in documents instead of code.
+- **Rule:** In a decision record, mark every value as the owner's decision
+  (with the date), the agent's proposal, or inherited and unreviewed. Never
+  widen an owner's decision when writing it down. A PR closes a decision
+  issue only when every value in it is the owner's.
+- **Scope:** ADRs, `docs/*.md` decision records, settings defaults, issue
+  updates.
+- **Evidence:** fixed in #202 (`docs/settings.md` "Decided" column).
+
 ## L15 A red job is red even when it is not required
 
 - **Date:** 2026-11-22. **Status:** active.

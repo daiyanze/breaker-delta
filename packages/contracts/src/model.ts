@@ -12,15 +12,41 @@ export const ProviderSchema = z.object({
 });
 export type Provider = z.infer<typeof ProviderSchema>;
 
-/** Everything a user can tune without touching code. Defaults are proposals. */
+/** "HH:MM", 24-hour clock. */
+const ClockTimeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+
+/**
+ * An IANA time zone name the runtime knows, e.g. "Asia/Tokyo" or "UTC".
+ * Runtimes differ in what else they accept ("JST", "+09:00", "asia/tokyo"),
+ * so the name's shape is checked first: a value saved on one runtime must
+ * load on the other. (Comparing with `resolvedOptions().timeZone` would not
+ * help: V8 rewrites some valid names, Bun does not.)
+ */
+const TimeZoneSchema = z.string().refine(
+  (tz) => {
+    if (tz !== "UTC" && !/^[A-Z][A-Za-z_]*(\/[A-Z][A-Za-z0-9_+-]*)+$/.test(tz)) return false;
+    try {
+      new Intl.DateTimeFormat("en", { timeZone: tz });
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  { message: "not an IANA time zone name" },
+);
+
+/**
+ * Everything a user can tune without touching code. The defaults were set by
+ * the owner on 2026-11-22 (#16); docs/settings.md says why.
+ */
 export const SettingsSchema = z.object({
   runIntervalMinutes: z.number().int().min(15).default(60),
-  waveThreshold: z.number().int().min(2).default(2),
-  halfLifeHours: z.number().positive().default(48),
+  waveThreshold: z.number().int().min(2).default(3),
+  halfLifeHours: z.number().positive().default(24),
   calmAfterDays: z.number().int().positive().default(7),
   risingPercent24h: z.number().positive().default(50),
   rewriteAfterNewEchoes: z.number().int().positive().default(5),
-  summariesPerRun: z.number().int().min(0).default(10),
+  summariesPerRun: z.number().int().min(0).default(3),
   reviewWindowDays: z.number().int().positive().default(14),
   languages: z.array(LanguageSchema).min(1).default(["en", "zh", "ja"]),
   keywordsInclude: z.array(z.string()).default([]),
@@ -28,6 +54,10 @@ export const SettingsSchema = z.object({
   assignProviders: z.array(ProviderSchema).default([]),
   summarizeProviders: z.array(ProviderSchema).default([]),
   feedLimit: z.number().int().positive().default(100),
+  /** The site's time zone: day boundaries, labels and the mail send time. */
+  timeZone: TimeZoneSchema.default("Asia/Tokyo"),
+  /** When the edition mail goes out, in `timeZone`; everyone at the same moment. */
+  mailSendTime: ClockTimeSchema.default("08:00"),
   /** Attempts per pipeline step before the run is marked failed. */
   stepMaxAttempts: z.number().int().min(1).max(10).default(3),
   /** How long a runner holds a run; it renews after each step. Longer than the slowest step. */

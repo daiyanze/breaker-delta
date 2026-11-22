@@ -21,8 +21,6 @@ export interface WaveParams {
   halfLifeHours: number;
 }
 
-export const DEFAULT_WAVE_PARAMS: WaveParams = { waveThreshold: 2, halfLifeHours: 48 };
-
 const HOUR_MS = 3_600_000;
 
 /** Independent sources are counted per fetch group, never per echo. */

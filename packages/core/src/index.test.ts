@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import {
   countIndependentSources,
-  DEFAULT_WAVE_PARAMS,
   type EchoLike,
   isRunDue,
   isWave,
   slotId,
+  type WaveParams,
   waveHeight,
 } from "./index.ts";
 
@@ -18,27 +18,30 @@ const echo = (id: string, groupId: string, heat = 0, firstSeenAt = T0): EchoLike
   firstSeenAt,
 });
 
+/** Callers pass the values from settings; core has no defaults of its own (invariant 9). */
+const PARAMS: WaveParams = { waveThreshold: 2, halfLifeHours: 48 };
+
 describe("independent sources", () => {
   test("many echoes from one group count as one source", () => {
     const echoes = [echo("a", "official_blogs"), echo("b", "official_blogs")];
     expect(countIndependentSources(echoes)).toBe(1);
-    expect(isWave(echoes, DEFAULT_WAVE_PARAMS)).toBe(false);
+    expect(isWave(echoes, PARAMS)).toBe(false);
   });
 
-  test("two groups make a wave at the default threshold", () => {
+  test("reaching the threshold in groups makes a wave", () => {
     const echoes = [echo("a", "hn"), echo("b", "github")];
-    expect(isWave(echoes, DEFAULT_WAVE_PARAMS)).toBe(true);
+    expect(isWave(echoes, PARAMS)).toBe(true);
   });
 
   test("below the threshold is never a wave, whatever the heat", () => {
     const echoes = [echo("a", "hn", 1_000_000), echo("b", "hn", 1_000_000)];
-    expect(isWave(echoes, { ...DEFAULT_WAVE_PARAMS, waveThreshold: 3 })).toBe(false);
+    expect(isWave(echoes, { ...PARAMS, waveThreshold: 3 })).toBe(false);
   });
 });
 
 describe("wave height properties", () => {
   test("empty topic has height 0", () => {
-    expect(waveHeight([], T0, DEFAULT_WAVE_PARAMS)).toBe(0);
+    expect(waveHeight([], T0, PARAMS)).toBe(0);
   });
 
   test("one more independent source never lowers the height", () => {
@@ -46,8 +49,8 @@ describe("wave height properties", () => {
     for (const heat of [0, 1, 50, 10_000]) {
       for (const ageHours of [0, 1, 48, 500]) {
         const extra = echo("c", "github", heat, T0 - ageHours * HOUR);
-        const before = waveHeight(base, T0, DEFAULT_WAVE_PARAMS);
-        const after = waveHeight([...base, extra], T0, DEFAULT_WAVE_PARAMS);
+        const before = waveHeight(base, T0, PARAMS);
+        const after = waveHeight([...base, extra], T0, PARAMS);
         expect(after).toBeGreaterThanOrEqual(before);
       }
     }
@@ -57,7 +60,7 @@ describe("wave height properties", () => {
     const echoes = [echo("a", "hn", 300), echo("b", "github", 40, T0 - 5 * HOUR)];
     let previous = Number.POSITIVE_INFINITY;
     for (let h = 0; h <= 24 * 14; h += 6) {
-      const height = waveHeight(echoes, T0 + h * HOUR, DEFAULT_WAVE_PARAMS);
+      const height = waveHeight(echoes, T0 + h * HOUR, PARAMS);
       expect(height).toBeLessThanOrEqual(previous);
       previous = height;
     }
@@ -65,8 +68,8 @@ describe("wave height properties", () => {
 
   test("one half-life halves a single echo's contribution", () => {
     const e = [echo("a", "hn", 0)];
-    const now = waveHeight(e, T0, DEFAULT_WAVE_PARAMS);
-    const later = waveHeight(e, T0 + 48 * HOUR, DEFAULT_WAVE_PARAMS);
+    const now = waveHeight(e, T0, PARAMS);
+    const later = waveHeight(e, T0 + 48 * HOUR, PARAMS);
     expect(later).toBeCloseTo(now / 2, 10);
   });
 });

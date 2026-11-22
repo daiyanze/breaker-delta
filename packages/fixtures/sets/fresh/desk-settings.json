@@ -1,12 +1,12 @@
 {
   "current": {
     "runIntervalMinutes": 60,
-    "waveThreshold": 2,
-    "halfLifeHours": 48,
+    "waveThreshold": 3,
+    "halfLifeHours": 24,
     "calmAfterDays": 7,
     "risingPercent24h": 50,
     "rewriteAfterNewEchoes": 5,
-    "summariesPerRun": 10,
+    "summariesPerRun": 3,
     "reviewWindowDays": 14,
     "languages": [
       "en",
@@ -18,6 +18,8 @@
     "assignProviders": [],
     "summarizeProviders": [],
     "feedLimit": 100,
+    "timeZone": "Asia/Tokyo",
+    "mailSendTime": "08:00",
     "stepMaxAttempts": 3,
     "runLeaseMinutes": 30
   },
