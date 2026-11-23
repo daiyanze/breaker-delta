@@ -4,6 +4,7 @@
  */
 import { handle, type SiteVars } from "../select.ts";
 import { serveFont } from "./fonts.ts";
+import { serveIcon } from "./icons.ts";
 
 export interface LocalSiteOptions {
   /** 0 picks a free port. */
@@ -22,7 +23,7 @@ export function startSite(options: LocalSiteOptions): LocalSite {
   const server = Bun.serve({
     port: options.port,
     hostname: options.hostname ?? "127.0.0.1",
-    fetch: (request) => serveFont(request) ?? handle(request, options.vars),
+    fetch: (request) => serveFont(request) ?? serveIcon(request) ?? handle(request, options.vars),
   });
   return {
     url: `http://${server.hostname}:${server.port}`,
