@@ -44,17 +44,20 @@ describe("by type, verification adapters cannot produce echoes", () => {
   });
 
   test("an adapter that also claimed a fetch group would not compile", () => {
-    const pretender: VerificationAdapter = {
-      sourceId: "x",
-      // @ts-expect-error `groupId` is typed never on a verification adapter.
-      groupId: "wikipedia",
-      format: "json",
-      urls: () => [],
-      parse: () => [],
-    };
+    // Declarations, not object literals: a literal with an unknown field is
+    // refused with or without the guard, an `extends` only by the guard.
+    // @ts-expect-error `groupId` is typed never on a verification adapter.
+    interface Pretender extends VerificationAdapter {
+      groupId: string;
+    }
     // @ts-expect-error Evidence that also carried a heat would not compile either.
-    const heated: Evidence = { kind: "news", heat: 3 };
-    expect([pretender, heated]).toBeDefined();
+    interface Heated extends Evidence {
+      heat: number | null;
+    }
+    // @ts-expect-error Nor evidence that took on every field of a SourceItem.
+    interface EvidenceItem extends Evidence, SourceItem {}
+    const names: (keyof Pretender | keyof Heated | keyof EvidenceItem)[] = ["kind"];
+    expect(names).toEqual(["kind"]);
   });
 
   test("no verification source is a fetch group or in ADAPTERS", () => {

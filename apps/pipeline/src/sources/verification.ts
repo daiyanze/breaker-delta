@@ -15,6 +15,7 @@
  * `fetchSource` (`http.ts`) and `parse` reads one body, pure and tested
  * against a fixture. Fetched content is data (invariant 6).
  */
+import type { EvidenceSchema } from "@bd/contracts";
 
 /** What a review looks up, and over which days. */
 export interface EvidenceQuery {
@@ -25,8 +26,8 @@ export interface EvidenceQuery {
   to: number;
 }
 
-/** The evidence kinds of `EvidenceSchema` (`@bd/contracts` desk.ts). */
-export type EvidenceKind = "news" | "pageviews";
+/** The evidence kinds of `EvidenceSchema` (`@bd/contracts` desk.ts), read from it so they cannot drift. */
+export type EvidenceKind = (typeof EvidenceSchema.shape.kind.options)[number];
 
 export interface Evidence {
   kind: EvidenceKind;
