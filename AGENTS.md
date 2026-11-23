@@ -121,7 +121,7 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 | 8. No cloud-only service locally | `check-deps` local rules; `spike-local.yml` offline with no Cloudflare tooling installed | check |
 | 9. Settings, not constants | review checklist 7 | review |
 | Migrations only add | review checklist 2 | review |
-| Protected paths | CODEOWNERS requests the owner's review; the `develop` ruleset requires a PR and `check`, not the owner's approval; the owner merges | owner |
+| Protected paths | CODEOWNERS requests the owner's review; the `develop` ruleset requires a PR and `check`, not the owner's approval; the owner merges. A granted `docket` run must never merge a PR that touches one: that rests on the skill alone, since the run uses the owner's account and the ruleset needs no approval | owner, instruction |
 | Lessons with a check | each lesson's `Check:` line in `docs/lessons.md` | check |
 | Every runtime finds the rules and the skills | `scripts/agent-files.test.ts`: `CLAUDE.md` only imports this file, no `AGENTS.override.md`, `.agents/skills` resolves to `.claude/skills`, each skill's frontmatter parses as YAML with a name and a description | test |
 
@@ -168,8 +168,15 @@ before starting a task.
    reviews the PR with the `cross-examine` skill
    (`.claude/skills/cross-examine/SKILL.md`) and the review checklist in
    `docs/development.md`. The session that wrote a PR does not review it.
-5. The owner merges. A merge to `develop` deploys both Workers to Cloudflare
-   once deploys are switched on.
+5. The owner merges, or grants a `docket` run, in its session, the right to
+   merge its own PRs under that skill's conditions (ADR 0007, amendment of
+   2026-11-23). A merge to `develop` deploys nothing by itself: it queues the
+   `production` deploy job, which waits for the owner's approval, then
+   applies migrations and deploys both Workers. This holds only while the
+   `production` environment requires the owner's review and no hosting
+   service builds on push (the Cloudflare Workers and Pages app is
+   installed but builds nothing); if either changes, update this line. The
+   agent never approves that deployment, under a grant or not.
 6. A mistake caught by the owner, CI or review becomes a lesson in
    `docs/lessons.md`, or a check.
 
