@@ -13,15 +13,23 @@ const NAMESPACE =
   /^(Special|Wikipedia|Project|File|Image|MediaWiki|Template|Help|Category|Portal|Draft|Module|TimedText|User|Talk|Media)(_talk)?:/i;
 const NOT_ARTICLES = new Set(["Main_Page", "-"]);
 
+/**
+ * An English Wikipedia article's page, or "" when the name is not a path on
+ * the site. Encoded as Wikipedia writes its own links: `/`, `:` and `,` stay
+ * as they are (`AC/DC`, `Star_Wars:_Episode_IV`), `?`, `#`, `%` and the rest
+ * are escaped. Also read by the pageviews verification adapter.
+ */
+export function articleUrl(name: string): string {
+  const path = encodeURIComponent(name).replace(/%(2F|3A|2C)/g, (e) => decodeURIComponent(e));
+  return pageUrl(SITE, `/wiki/${path}`);
+}
+
 function article(a: Record<string, unknown>, day: number | null): SourceItem | null {
   const name = cleanText(a.article);
   if (name === "" || NOT_ARTICLES.has(name) || NAMESPACE.test(name) || /^\w+_talk:/i.test(name)) {
     return null;
   }
-  // Encoded as Wikipedia writes its own links: `/`, `:` and `,` stay as they
-  // are (`AC/DC`, `Star_Wars:_Episode_IV`), `?`, `#`, `%` and the rest are escaped.
-  const path = encodeURIComponent(name).replace(/%(2F|3A|2C)/g, (e) => decodeURIComponent(e));
-  const url = pageUrl(SITE, `/wiki/${path}`);
+  const url = articleUrl(name);
   if (url === "") return null;
   return { url, title: name.replaceAll("_", " "), publishedAt: day, heat: count(a.views) };
 }
