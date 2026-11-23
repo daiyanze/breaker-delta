@@ -33,6 +33,8 @@ agent's proposal for `summariesPerRun`.
 | `assignBatchSize` | 20 | agent's proposal (#32), not reviewed | New echoes per assign model call. Small enough that one bad answer leaves few echoes for the next run, large enough that a busy hour takes a handful of calls. |
 | `assignShortlistSize` | 30 | agent's proposal (#32), not reviewed | Existing topics offered per call, ranked by words shared with the batch's titles, then by latest activity. Keeps the prompt short. |
 | `assignActivityDays` | 7 | agent's proposal (#32), not reviewed | A topic whose latest activity (the later of its latest echo and its creation) is older is not offered; a returning story starts a new topic. Same as `calmAfterDays`. |
+| `echoRetentionDays` | 30 | owner, issue #38 | An echo of a topic that never became a wave is removed this many days after its last recorded sighting, unless a summary cites it or a topic edit names it (`apps/pipeline/src/core/retention.ts`). Ingest records a sighting only when the owning group lists the echo and its title passes the keyword filters. The 30 days are the issue's; counting from the last recorded sighting rather than the first is the agent's reading (#38), not reviewed. |
+| `rawRetentionDays` | 30 | owner, issue #38 | A scan's raw responses (`raw/<slot>/...` blobs) are removed this many days after the slot started. |
 
 The `fresh` fixture set is a new installation, so its settings equal these
 defaults; `packages/fixtures/src/settings.test.ts` checks that.

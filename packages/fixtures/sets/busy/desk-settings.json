@@ -47,7 +47,9 @@
     "fetchRetryDelaySeconds": 2,
     "assignBatchSize": 20,
     "assignShortlistSize": 30,
-    "assignActivityDays": 7
+    "assignActivityDays": 7,
+    "echoRetentionDays": 30,
+    "rawRetentionDays": 30
   },
   "updatedAt": "2026-11-18T21:15:00+09:00",
   "history": [

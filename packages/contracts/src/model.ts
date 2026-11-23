@@ -74,6 +74,10 @@ export const SettingsSchema = z.object({
   assignShortlistSize: z.number().int().min(0).max(200).default(30),
   /** A topic can be shortlisted while its latest activity (the later of its latest echo and its creation) is at most this old. */
   assignActivityDays: z.number().int().min(1).default(7),
+  /** Days after it was last seen that an echo of a topic that never became a wave is removed. */
+  echoRetentionDays: z.number().int().min(1).default(30),
+  /** Days after its slot that a scan's raw responses are removed from blob storage. */
+  rawRetentionDays: z.number().int().min(1).default(30),
 });
 export type Settings = z.infer<typeof SettingsSchema>;
 
