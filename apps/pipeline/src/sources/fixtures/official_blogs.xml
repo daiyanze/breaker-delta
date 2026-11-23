@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+  <channel>
+    <title>text 1</title>
+    <description>text 2</description>
+    <link>https://example.com/item/3</link>
+    <image>
+      <url>https://example.com/item/4</url>
+      <title>text 5</title>
+      <link>https://example.com/item/6</link>
+    </image>
+    <generator>text 7</generator>
+    <lastBuildDate>Mon, 23 Nov 2026 08:40:53 GMT</lastBuildDate>
+    <atom:link href="https://example.com/item/8" rel="self" type="application/rss+xml"></atom:link>
+    <language>text 9</language>
+    <item>
+      <title>text 10</title>
+      <description>text 11</description>
+      <link>https://example.com/item/12</link>
+      <guid isPermaLink="true">https://example.com/item/13</guid>
+      <category>text 14</category>
+      <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>text 15</title>
+      <description>text 16</description>
+      <link>https://example.com/item/17</link>
+      <guid isPermaLink="true">https://example.com/item/18</guid>
+      <pubDate>Fri, 20 Nov 2026 10:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>text 19</title>
+      <description>text 20</description>
+      <link>https://example.com/item/21</link>
+      <guid isPermaLink="true">https://example.com/item/22</guid>
+      <pubDate>Fri, 20 Nov 2026 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>text 23</title>
+      <description>text 24</description>
+      <link>https://example.com/item/25</link>
+      <guid isPermaLink="true">https://example.com/item/26</guid>
+      <category>text 27</category>
+      <pubDate>Fri, 20 Nov 2026 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>text 28</title>
+      <description>text 29</description>
+      <link>https://example.com/item/30</link>
+      <guid isPermaLink="true">https://example.com/item/31</guid>
+      <category>text 32</category>
+      <pubDate>Thu, 19 Nov 2026 08:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>
