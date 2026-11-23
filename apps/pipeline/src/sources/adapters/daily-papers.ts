@@ -1,6 +1,7 @@
 /**
  * Hugging Face Daily Papers (`daily_papers`): the papers featured today, each
- * with its arXiv ID. The item is the paper's page on Hugging Face.
+ * with its arXiv ID. The item is the paper's page on Hugging Face, dated the
+ * day it was featured.
  */
 import { type Adapter, ParseError, type SourceItem } from "../adapter.ts";
 import { cleanText, count, pageUrl, parseDate, parseJson, records } from "../parse.ts";
@@ -19,8 +20,12 @@ function entry(e: Record<string, unknown>): SourceItem | null {
   return {
     url,
     title,
-    // When it was featured; the paper's own date is the fallback.
-    publishedAt: parseDate(e.publishedAt) ?? parseDate(paper.publishedAt),
+    // When it was featured on Daily Papers. The top-level `publishedAt` and
+    // the paper's are its arXiv date, used only when that is missing.
+    publishedAt:
+      parseDate(paper.submittedOnDailyAt) ??
+      parseDate(e.publishedAt) ??
+      parseDate(paper.publishedAt),
     heat: count(paper.upvotes),
   };
 }

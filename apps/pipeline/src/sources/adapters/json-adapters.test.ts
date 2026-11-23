@@ -44,7 +44,8 @@ const FIRST: [Adapter, SourceItem][] = [
     {
       url: "https://huggingface.co/papers/2611.15449",
       title: "text 9",
-      publishedAt: 1794337200000,
+      // Featured on 2026-11-23; its arXiv date is days earlier.
+      publishedAt: Date.UTC(2026, 10, 23),
       heat: 3,
     },
   ],
@@ -246,12 +247,23 @@ describe("IDs become pages on the source's own site", () => {
       "https://huggingface.co/spaces/solo-model",
     ]);
     const papers = JSON.stringify([
+      // Dated the day it was featured, not its arXiv date.
       {
-        paper: { id: "2611.01234", title: "A paper", upvotes: 40 },
-        publishedAt: "2026-11-21T00:00:00Z",
+        paper: {
+          id: "2611.01234",
+          title: "A paper",
+          upvotes: 40,
+          publishedAt: "2026-11-10T19:00:00Z",
+          submittedOnDailyAt: "2026-11-23T00:00:00Z",
+        },
+        publishedAt: "2026-11-10T19:00:00Z",
       },
-      // The paper's own date when the featured date is missing.
-      { paper: { id: "2611.05678", title: "B", publishedAt: "2026-11-19T00:00:00Z" } },
+      // No featured date: the arXiv date, from the entry or else the paper.
+      {
+        paper: { id: "2611.05678", title: "B", publishedAt: "2026-11-18T00:00:00Z" },
+        publishedAt: "2026-11-19T00:00:00Z",
+      },
+      { paper: { id: "2611.09999", title: "C", publishedAt: "2026-11-17T00:00:00Z" } },
       { paper: { title: "no id" } },
       { title: "no paper" },
     ]);
@@ -259,13 +271,19 @@ describe("IDs become pages on the source's own site", () => {
       {
         url: "https://huggingface.co/papers/2611.01234",
         title: "A paper",
-        publishedAt: Date.UTC(2026, 10, 21),
+        publishedAt: Date.UTC(2026, 10, 23),
         heat: 40,
       },
       {
         url: "https://huggingface.co/papers/2611.05678",
         title: "B",
         publishedAt: Date.UTC(2026, 10, 19),
+        heat: null,
+      },
+      {
+        url: "https://huggingface.co/papers/2611.09999",
+        title: "C",
+        publishedAt: Date.UTC(2026, 10, 17),
         heat: null,
       },
     ]);
@@ -321,7 +339,7 @@ describe("wikipedia", () => {
     );
     expect(items).toEqual([
       {
-        url: "https://en.wikipedia.org/wiki/Star_Wars%3A_Episode_IV",
+        url: "https://en.wikipedia.org/wiki/Star_Wars:_Episode_IV",
         title: "Star Wars: Episode IV",
         publishedAt: Date.UTC(2026, 10, 22),
         heat: 50000,
@@ -338,6 +356,22 @@ describe("wikipedia", () => {
         publishedAt: Date.UTC(2026, 10, 22),
         heat: 30000,
       },
+    ]);
+  });
+
+  test("links are written as Wikipedia writes them: `,` kept, `%` and `#` escaped", () => {
+    const items = wikipedia.parse(
+      body([
+        { article: "Washington,_D.C.", views: 3 },
+        { article: "100%_Pure", views: 2 },
+        { article: "C#", views: 1 },
+      ]),
+      "",
+    );
+    expect(urls(items)).toEqual([
+      "https://en.wikipedia.org/wiki/Washington,_D.C.",
+      "https://en.wikipedia.org/wiki/100%25_Pure",
+      "https://en.wikipedia.org/wiki/C%23",
     ]);
   });
 

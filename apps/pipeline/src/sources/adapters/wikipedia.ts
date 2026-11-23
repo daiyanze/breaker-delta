@@ -18,8 +18,10 @@ function article(a: Record<string, unknown>, day: number | null): SourceItem | n
   if (name === "" || NOT_ARTICLES.has(name) || NAMESPACE.test(name) || /^\w+_talk:/i.test(name)) {
     return null;
   }
-  // Titles keep `/` (`AC/DC`); everything else that is not a path character is encoded.
-  const url = pageUrl(SITE, `/wiki/${encodeURIComponent(name).replaceAll("%2F", "/")}`);
+  // Encoded as Wikipedia writes its own links: `/`, `:` and `,` stay as they
+  // are (`AC/DC`, `Star_Wars:_Episode_IV`), `?`, `#`, `%` and the rest are escaped.
+  const path = encodeURIComponent(name).replace(/%(2F|3A|2C)/g, (e) => decodeURIComponent(e));
+  const url = pageUrl(SITE, `/wiki/${path}`);
   if (url === "") return null;
   return { url, title: name.replaceAll("_", " "), publishedAt: day, heat: count(a.views) };
 }
