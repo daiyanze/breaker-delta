@@ -2,7 +2,14 @@ import { afterAll, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { RULES, relativeViolations, selfImports, unpinned, violations } from "./check-deps.ts";
+import {
+  RULES,
+  relativeViolations,
+  selfImports,
+  uncovered,
+  unpinned,
+  violations,
+} from "./check-deps.ts";
 
 const root = mkdtempSync(join(tmpdir(), "bd-deps-"));
 afterAll(() => rmSync(root, { recursive: true, force: true }));
@@ -18,6 +25,7 @@ describe("check-deps", () => {
     const found = [
       ...violations(repo),
       ...relativeViolations(repo),
+      ...uncovered(repo),
       ...selfImports(repo),
       ...unpinned(repo),
     ];
@@ -296,6 +304,43 @@ describe("check-deps", () => {
         'apps/web/src/core/sel.ts imports "../select.ts", which is in apps/web/src/select.ts',
       );
       expect(found).not.toContain("web/src/local/sel.ts");
+    });
+  });
+
+  describe("every source file is under a rule (#210)", () => {
+    test("a source file no rule covers fails and names the fix", () => {
+      file("apps/pipeline/src/util.ts", "export const u = 1;");
+      file("apps/pipeline/src/core/covered.ts", "export const c = 1;");
+      const found = uncovered(root, RULES).join("\n");
+      expect(found).toContain("apps/pipeline/src/util.ts is under no check-deps rule");
+      expect(found).toContain("add a rule for it or move it under one");
+      expect(found).not.toContain("core/covered.ts");
+    });
+
+    test(".mts and .cts files are checked too (#214 review)", () => {
+      file("apps/pipeline/src/util.mts", "export const u = 1;");
+      file("apps/web/src/local/y.mts", 'export { judge } from "@bd/judge";');
+      file("apps/web/src/core/z.cts", 'export * from "../local/x.ts";');
+      expect(uncovered(root, RULES).join("\n")).toContain("apps/pipeline/src/util.mts is under no");
+      expect(violations(root, RULES).join("\n")).toContain(
+        'apps/web/src/local/y.mts imports "@bd/judge"',
+      );
+      expect(relativeViolations(root, RULES).join("\n")).toContain(
+        'apps/web/src/core/z.cts imports "../local/x.ts"',
+      );
+    });
+
+    test("a package with no src folder is not an error", () => {
+      file("apps/nosrc/start.ts", "export {};");
+      expect(uncovered(root, RULES).join("\n")).not.toContain("apps/nosrc");
+    });
+
+    test("a ruled file may not import code that no rule covers", () => {
+      file("apps/pipeline/test/helper.ts", 'export * from "../src/local/x.ts";');
+      file("apps/pipeline/src/core/through.ts", 'import { x } from "../../test/helper.ts";');
+      const found = relativeViolations(root, RULES).join("\n");
+      expect(found).toContain('apps/pipeline/src/core/through.ts imports "../../test/helper.ts"');
+      expect(found).toContain("which no check-deps rule covers");
     });
   });
 });
