@@ -73,12 +73,16 @@ function setup() {
   const { blobs, store } = memoryBlobs();
   const adapters = { a: adapter("a"), b: adapter("b") };
   /** Store raw responses for `slot` as the scan step would. */
-  const scanned = (slot: string, groups: Record<string, SourceItem[][]>) => {
+  const scanned = (
+    slot: string,
+    groups: Record<string, SourceItem[][]>,
+    fetchedAt = slot === SLOT ? NOW : NEXT_NOW,
+  ) => {
     for (const [groupId, responses] of Object.entries(groups)) {
       const raw: RawScan = {
         groupId,
         slot,
-        fetchedAt: NOW,
+        fetchedAt,
         responses: responses.map((items, i) => ({
           url: `https://${groupId}.test/feed/${i}`,
           status: 200,
@@ -219,12 +223,15 @@ describe("ingest step", () => {
     ]);
   });
 
-  test("a retried attempt in the same slot leaves the same rows and output", async () => {
+  test("a retried attempt in the same slot, minutes later, leaves the same rows and output", async () => {
     const { scanned, run, echoes, metrics } = setup();
     scanned(SLOT, { a: [[item("https://a.test/1", "One", 5)]] });
-    const first = await run(SLOT, NOW, ["a"]);
+    // Ingest runs a little after the scan; its times are the scan's.
+    const first = await run(SLOT, NOW + 60_000, ["a"]);
     const rows = [echoes(), metrics()];
-    const again = await run(SLOT, NOW, ["a"]);
+    expect(echoes()[0]?.first_seen_at).toBe(NOW);
+    expect(metrics()).toEqual([{ url: "https://a.test/1", slot: SLOT, heat: 5, seen_at: NOW }]);
+    const again = await run(SLOT, NOW + 5 * 60_000, ["a"]);
     expect(again).toEqual(first);
     expect([echoes(), metrics()]).toEqual(rows);
   });

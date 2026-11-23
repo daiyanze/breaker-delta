@@ -25,9 +25,11 @@
  *    source has none). So ingesting the same data again in a later run adds
  *    heat rows and no echoes.
  *
- * All writes for the slot are one batch, and each insert ignores a row that
- * is already there (echoes) or replaces it (the slot's heat), so a retried
- * or resumed attempt leaves the same rows as one attempt. Rows travel as one
+ * Times come from the stored scan, not the clock: `first_seen_at` and
+ * `seen_at` are the scan's `fetchedAt`. All writes for the slot are one
+ * batch, and each insert ignores a row that is already there (echoes) or
+ * replaces it with the same values (the slot's heat), so a retried or
+ * resumed attempt, at any later time, leaves the same rows as one attempt. Rows travel as one
  * JSON parameter per statement (`json_each`), in chunks: D1 binds at most
  * 100 values per statement and limits the statements per invocation, and a
  * run can have thousands of items.
@@ -103,6 +105,8 @@ interface Kept {
   title: string;
   publishedAt: number | null;
   heat: number;
+  /** When scan fetched it (`RawScan.fetchedAt`), not when ingest ran. */
+  seenAt: number;
 }
 
 /** Read one group's stored responses again; null when they cannot be read. */
@@ -117,7 +121,8 @@ async function readGroup(
   if (bytes === null) return null;
   try {
     const raw = JSON.parse(new TextDecoder().decode(bytes)) as RawScan;
-    return raw.responses.flatMap((r) => adapter.parse(r.body, r.url));
+    const items = raw.responses.flatMap((r) => adapter.parse(r.body, r.url));
+    return { items, fetchedAt: raw.fetchedAt };
   } catch (err) {
     // A response scan read once should read again; if not, skip the group,
     // naming no fetched text (a JSON or adapter error may quote the body).
@@ -170,11 +175,12 @@ export function ingestStep(deps: IngestDeps): Step {
       // Every item kept so far, by normalised URL, in the order they were read.
       const byUrl = new Map<string, Kept[]>();
       for (const groupId of scan.fetched) {
-        const items = await readGroup(deps.blobs, deps.adapters[groupId], ctx.slot, groupId);
-        if (items === null) {
+        const read = await readGroup(deps.blobs, deps.adapters[groupId], ctx.slot, groupId);
+        if (read === null) {
           output.unreadable.push(groupId);
           continue;
         }
+        const { items, fetchedAt } = read;
         output.items += items.length;
         for (const item of items) {
           const url = normaliseUrl(item.url);
@@ -193,6 +199,7 @@ export function ingestStep(deps: IngestDeps): Step {
             title: cut(item.title),
             publishedAt: item.publishedAt,
             heat: item.heat ?? 0,
+            seenAt: fetchedAt,
           });
           byUrl.set(url, seen);
         }
@@ -200,7 +207,7 @@ export function ingestStep(deps: IngestDeps): Step {
 
       const known = await existing(ctx.db, [...byUrl.keys()]);
       const created: (Kept & { id: string })[] = [];
-      const metrics: { id: string; heat: number }[] = [];
+      const metrics: { id: string; heat: number; seenAt: number }[] = [];
       for (const [url, seen] of byUrl) {
         const echo = known.get(url);
         // A known URL takes its heat from the group that owns it; a new one
@@ -215,12 +222,12 @@ export function ingestStep(deps: IngestDeps): Step {
           // An earlier attempt of this run already created it: still new to the run.
           if (echo.firstSlot === ctx.slot) output.newEchoes++;
           else output.knownEchoes++;
-          metrics.push({ id: echo.id, heat: item.heat });
+          metrics.push({ id: echo.id, heat: item.heat, seenAt: item.seenAt });
           continue;
         }
         const id = await echoId(url);
         created.push({ ...item, id });
-        metrics.push({ id, heat: item.heat });
+        metrics.push({ id, heat: item.heat, seenAt: item.seenAt });
         output.newEchoes++;
       }
 
@@ -230,13 +237,14 @@ export function ingestStep(deps: IngestDeps): Step {
               (id, url, group_id, title, published_at, first_seen_at, first_slot)
             SELECT json_extract(value, '$.id'), json_extract(value, '$.url'),
               json_extract(value, '$.groupId'), json_extract(value, '$.title'),
-              json_extract(value, '$.publishedAt'), ${nowMs}, ${ctx.slot}
+              json_extract(value, '$.publishedAt'), json_extract(value, '$.seenAt'), ${ctx.slot}
             FROM json_each(${JSON.stringify(part)}) WHERE true
             ON CONFLICT (url) DO NOTHING`),
         ),
         ...chunks(metrics).map((part) =>
           ctx.db.run(sql`INSERT INTO echo_metrics (echo_id, slot, heat, seen_at)
-            SELECT json_extract(value, '$.id'), ${ctx.slot}, json_extract(value, '$.heat'), ${nowMs}
+            SELECT json_extract(value, '$.id'), ${ctx.slot}, json_extract(value, '$.heat'),
+              json_extract(value, '$.seenAt')
             FROM json_each(${JSON.stringify(part)}) WHERE true
             ON CONFLICT (echo_id, slot) DO UPDATE SET heat = excluded.heat, seen_at = excluded.seen_at`),
         ),
