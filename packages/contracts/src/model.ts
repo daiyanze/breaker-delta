@@ -68,6 +68,10 @@ export const SettingsSchema = z.object({
   fetchRetries: z.number().int().min(0).max(5).default(2),
   /** Wait before a source URL's first retry; doubled before each next one. */
   fetchRetryDelaySeconds: z.number().min(0).max(60).default(2),
+  /** Days after it was last seen that an echo of a topic that never became a wave is removed. */
+  echoRetentionDays: z.number().int().min(1).default(30),
+  /** Days after its slot that a scan's raw responses are removed from blob storage. */
+  rawRetentionDays: z.number().int().min(1).default(30),
 });
 export type Settings = z.infer<typeof SettingsSchema>;
 
