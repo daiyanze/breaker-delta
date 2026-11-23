@@ -133,17 +133,18 @@ folders and `apps/local` (tests, scripts) are not checked, though a ruled
 file may not import their code. It reads relative imports with Bun's parser
 and resolver (symlinks followed), plus the two forms that parser drops but
 the build keeps: a brace import whose first name is `type`, and
-`import.meta.require`. Those two are matched in the raw text, so the same
-text in a comment or a string fails the file too, and a file Bun cannot
-parse (an `accessor` field) fails. These are false failures, loud and by
-name; the owner chose them over a reader that could miss an import silently
-(#215). A `#!` line is blanked before parsing. A relative import that
-resolves to no TypeScript file and has another extension counts as data
-(JSON, SQL, fonts) and passes. It reads package imports with a pattern
-(import statements, `import.meta.require()`, and `import()` or `require()`
-with a string or a template without `${}`). Neither sees paths built at run
-time. It does not look at globals (`fetch`, `Date.now`, `Bun`);
-`packages/core` typechecks with Bun's types.
+`import.meta.require`. Those two, and package imports, are matched in the
+raw text, so the same text in a comment or a string fails the file too when
+it names a path the rules forbid, and a file Bun cannot parse (an `accessor`
+field) fails. These are false failures, loud and by name; the owner chose
+them over a reader that could miss an import silently (#215). A `#!` line is
+blanked before parsing. A relative import that resolves to no TypeScript
+file and has another extension counts as data (JSON, SQL, fonts) and passes.
+It reads package imports with a pattern (import statements,
+`import.meta.require()`, and `import()` or `require()` with a string or a
+template with no `${`). Neither sees paths built at run time. It does not
+look at globals (`fetch`, `Date.now`, `Bun`); `packages/core` typechecks
+with Bun's types.
 
 ## Protected paths (CODEOWNERS)
 

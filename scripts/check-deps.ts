@@ -113,11 +113,14 @@ export const RULES: Rule[] = [
  * `loader.require("x")` is not one; `import.meta.require("x")` is. Relative
  * imports are read by Bun's own parser instead (`relativeImports`, L14).
  */
+/** A template's text with no substitution: any character but a backtick or `${`. */
+const TPL = String.raw`(?:[^\x60$]|\$(?!\{))`;
+
 const IMPORT = new RegExp(
   [
     String.raw`(?:import|export)\s+(?:[^'"]*?\sfrom\s+)?['"]([^'"]+)['"]`,
-    String.raw`(?:^|[^\w$.])(?:import|require)\(\s*(?:['"]([^'"]+)['"]|\x60([^\x60$]+)\x60)\s*[,)]`,
-    String.raw`import\.meta\.require\(\s*(?:['"]([^'"]+)['"]|\x60([^\x60$]+)\x60)`,
+    String.raw`(?:^|[^\w$.])(?:import|require)\(\s*(?:['"]([^'"]+)['"]|\x60(${TPL}+)\x60)\s*[,)]`,
+    String.raw`import\.meta\.require\(\s*(?:['"]([^'"]+)['"]|\x60(${TPL}+)\x60)`,
   ].join("|"),
   "gm",
 );
@@ -172,7 +175,7 @@ const TSX = new Bun.Transpiler({ loader: "tsx" });
 const KEPT = new RegExp(
   [
     String.raw`(?:^|[;\s])(?:import|export)\s*\{\s*type\s[^}]*\}\s*from\s*['"](\.[^'"]*)['"]`,
-    String.raw`import\.meta\.require\(\s*(?:['"](\.[^'"]*)['"]|\x60(\.[^\x60$]*)\x60)`,
+    String.raw`import\.meta\.require\(\s*(?:['"](\.[^'"]*)['"]|\x60(\.${TPL}*)\x60)`,
   ].join("|"),
   "gm",
 );
@@ -262,7 +265,8 @@ function packageOf(path: string): string | undefined {
  * another workspace package must be imported by its package name, so that
  * package's rule applies; inside a package, an area may import another
  * rule's area only if its rule lists it in `reach`. Data files are not
- * code and pass; files no rule covers are not checked here.
+ * code and pass. A file no rule covers is not checked itself, but an
+ * import into one from a ruled file fails here (#210).
  */
 export function relativeViolations(root: string, rules: Rule[] = RULES): string[] {
   const found: string[] = [];
@@ -296,7 +300,7 @@ export function relativeViolations(root: string, rules: Rule[] = RULES): string[
         const area = areaOf(to, rules);
         if (!area) {
           // Code no rule covers would be an unchecked way between two areas.
-          const fix = "nothing checks what it imports; move it under src (#210)";
+          const fix = "nothing checks what it imports; move it into a ruled area (#210)";
           found.push(`${head}, which no check-deps rule covers, so ${fix}`);
           continue;
         }
