@@ -10,11 +10,12 @@ import { join } from "node:path";
 
 const NAME = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 /**
- * Names a runtime already uses. Claude Code ships a `run` skill, and a
- * project skill of that name with `disable-model-invocation` puts the
- * bundled one in the model's list (lesson L14).
+ * Names a runtime already uses. Claude Code ships `run` and `code-review`
+ * (also called as `/review`); a project skill with one of these names can be
+ * left out of the model's list or replaced there by the bundled one
+ * (lesson L14).
  */
-const RESERVED = ["run"];
+const RESERVED = ["run", "review", "code-review"];
 
 /** The frontmatter of a SKILL.md as a mapping, or what is wrong with it. */
 function frontmatter(text: string): Record<string, unknown> | string {

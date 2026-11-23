@@ -43,6 +43,8 @@ test("each kind of broken skill is reported", () => {
     long: `---\nname: long\ndescription: ${"x".repeat(1025)}\n---\n`,
     Bad_Name: `---\nname: Bad_Name\n${ok}\n---\n`,
     run: `---\nname: run\n${ok}\n---\n`,
+    review: `---\nname: review\n${ok}\n---\n`,
+    "code-review": `---\nname: code-review\n${ok}\n---\n`,
   };
   for (const [name, content] of Object.entries(broken)) skill(dir, name, content);
 

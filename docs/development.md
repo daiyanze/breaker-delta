@@ -28,17 +28,24 @@ for each mistake and what enforces it).
 
 Issues labelled `owner:claude-ok` are the agent's to do; `owner:human` and
 `owner:human+claude` need the owner. A local session finds the next
-one with the `next` skill, or takes the one the owner names. Nothing on
+one with the `take-case` skill, or takes the one the owner names. Nothing on
 GitHub starts work by itself (ADR 0016).
 
-The procedures are skills in `.claude/skills/`: `next`, `long-run`, `review`
-and `verify-local`. Each runtime calls a skill by name:
+The procedures are skills in `.claude/skills/`, taken from the Onus method
+(github.com/daiyanze/Onus): `take-case` (the next issue), `docket` (a long
+run toward a goal), `cross-examine` (an independent PR review), and this
+project's `verify-local`. Before 2026-11-23 they were named `next`,
+`long-run` and `review`; lessons and ADRs from before keep the old names.
+Each runtime calls a skill by name:
 
 | Runtime | Finds skills in | Call |
 | --- | --- | --- |
-| Claude Code | `.claude/skills/` | `/next`, `/long-run <goal>` |
-| Pi | `.agents/skills` (a link to `.claude/skills`) | `/skill:next` |
-| Codex | `.agents/skills` | `$next`, or pick it from `/skills` |
+| Claude Code | `.claude/skills/` | `/take-case`, `/docket <goal>` |
+| Pi | `.agents/skills` (a link to `.claude/skills`) | `/skill:take-case` |
+| Codex | `.agents/skills` | `$take-case`, or pick it from `/skills` |
+
+`docket` starts only when named: its frontmatter and `agents/openai.yaml`
+turn off implicit invocation.
 
 On a Windows clone without symlinks enabled, `.agents/skills` is a plain
 file and Pi and Codex find no skills; Claude Code is not affected.
@@ -150,9 +157,12 @@ The owner sets this up once:
    not verified locally). Claims such as "behaviour unchanged" come with the
    test that shows it.
 6. **Review.** A separate agent with no context from the writing session
-   reviews the PR with the `review` skill. The writer fixes
-   blocking issues; a new agent re-reviews. After three rounds the owner
-   decides.
+   reviews the PR with the `cross-examine` skill, using the review
+   checklist below. The writer fixes blocking issues; a new agent
+   re-reviews. After three rounds the owner decides. A verdict covers the
+   commit it names: later commits need a re-review, unless they only fix
+   that review's non-blocking notes or merge the base branch, and the
+   writer lists them in a PR comment.
 7. **Learn.** When the owner corrects something, or CI or review catches a
    mistake the writer made, add a lesson (below). Do it in the same PR when
    the lesson is about that PR.
@@ -189,8 +199,8 @@ The loop above is the default. Two kinds of work add steps.
 ## Long runs
 
 When the owner gives a goal rather than an issue ("finish UI M2", "clear
-every open M1 issue you can"), use the `long-run` skill
-(`.claude/skills/long-run/SKILL.md`). It loops the `next` skill until a stated
+every open M1 issue you can"), use the `docket` skill
+(`.claude/skills/docket/SKILL.md`). It loops the `take-case` skill until a stated
 exit condition holds, without stopping to ask for "continue". The rules:
 
 - **Exit condition first.** Before the first issue, write it as something a
@@ -205,11 +215,54 @@ exit condition holds, without stopping to ask for "continue". The rules:
 - **Pick up, do not redo.** A new session continuing a run reads the log,
   the open PRs and `git log` first, names the resume point, and checks
   inherited claims against CI and the code rather than redoing the work.
-- **Stops.** The owner merges; a run never does. It stops for the owner on
-  an ADR conflict, a secret or account it needs, a protected path the issue
-  does not mention, three review rounds without approval, or anything that
-  cannot be undone (deploys, data deletion, messages to people). It parks
-  that issue, logs why, and moves to the next one.
+- **Budgets.** An issue is parked for the owner after three review rounds
+  without approval, or when the same check has failed three times after
+  three different fixes. Then the premise is probably wrong: write it down
+  with the evidence instead of trying a fourth fix.
+- **Stops.** The owner merges; a run never does. It parks an issue for the
+  owner on an ADR conflict, a secret or account it needs, a protected path
+  the issue does not mention, a spent budget, or anything that cannot be
+  undone (deploys, data deletion, messages to people). It logs why and
+  moves to the next issue.
+
+## Review checklist
+
+Project-specific questions the `cross-examine` skill asks of every PR, on top
+of its own passes. `AGENTS.md` points at them by number.
+
+1. **Invariants.** Does the change alter wave detection, wave height, ranking,
+   or when a prediction is registered? Is registration still inside the same
+   transaction as the wave forming?
+2. **Contracts and schema.** Does a contract or schema change come with a
+   migration? Does the migration only add?
+3. **Citations.** Does any path store or render a URL or source name written
+   by a model instead of mapping an echo ID?
+4. **Write boundary.** Does `apps/web` gain a write path, a judge import, or
+   access to subscriber data? Does anything other than `apps/pipeline` write?
+5. **Local mode.** Does the change put a cloud-only service, or a cloud
+   vendor's tooling, on the local path (ADR 0018)?
+6. **Untrusted input.** Is fetched text passed anywhere other than a
+   tool-less model call? Is it escaped before rendering?
+7. **Settings.** Is a new threshold, interval or budget hard-coded instead of
+   added to settings with a default?
+8. **Languages.** Are user-facing strings present for every enabled language?
+9. **Tests.** Do rule changes in `packages/core` have tests, including the
+   property tests?
+10. **Secrets and personal data.** Anything logged, committed or put in
+    fixtures that should not be?
+11. **Design.** Does the change deviate from an ADR without saying so in the
+    PR (lesson L5)? Does it repeat an active lesson?
+12. **Append-only.** Does any path update or delete a published summary,
+    correction, withdrawal or verdict row in place, instead of adding a new
+    row?
+13. **What check-deps misses.** Does `packages/core` gain IO, a clock
+    (`Date.now`, `new Date()`) or a runtime global (`fetch`, `Bun`)? Does
+    code outside every rule (tests, scripts) reach where the rules forbid,
+    for something that ships?
+
+For the skill's second-model step, the step runner
+(`apps/pipeline/src/core/runner.ts`) counts as protected product code, like
+`packages/core` and `packages/contracts`.
 
 ## Lessons
 
