@@ -197,6 +197,29 @@ function relativeImports(file: string): { spec: string; target: string }[] {
   return out;
 }
 
+/**
+ * Issue #210: every source file under `packages/<x>/src` or `apps/<x>/src`
+ * falls under a rule, so none of them is outside the dependency check.
+ */
+export function uncovered(root: string, rules: Rule[] = RULES): string[] {
+  const found: string[] = [];
+  for (const group of ["packages", "apps"]) {
+    if (!existsSync(join(root, group))) continue;
+    for (const name of readdirSync(join(root, group))) {
+      const src = join(root, group, name, "src");
+      if (!existsSync(src) || !statSync(src).isDirectory()) continue;
+      for (const file of files(src)) {
+        const path = relative(root, file);
+        if (!areaOf(path, rules)) {
+          const fix = "add a rule for it or move it under one (#210)";
+          found.push(`${path} is under no check-deps rule: ${fix}`);
+        }
+      }
+    }
+  }
+  return found;
+}
+
 /** For the lesson-L1 check; a file that does not parse is reported by relativeViolations. */
 function runtimeImports(file: string): string[] {
   try {
@@ -262,7 +285,13 @@ export function relativeViolations(root: string, rules: Rule[] = RULES): string[
           continue;
         }
         const area = areaOf(to, rules);
-        if (!area || area === rule || rule.reach?.includes(area.dir)) continue;
+        if (!area) {
+          // Code no rule covers would be an unchecked way between two areas.
+          const fix = "nothing checks what it imports (#210)";
+          found.push(`${head}, which no check-deps rule covers, so ${fix}`);
+          continue;
+        }
+        if (area === rule || rule.reach?.includes(area.dir)) continue;
         const may = rule.reach?.length ? `only ${rule.reach.join(", ")}` : "none";
         const limit = `${rule.dir} may reach ${may} by relative path`;
         found.push(`${head}, which is in ${area.dir}; ${limit} (${rule.why})`);
@@ -357,6 +386,7 @@ if (import.meta.main) {
   const found = [
     ...violations(root),
     ...relativeViolations(root),
+    ...uncovered(root),
     ...selfImports(root),
     ...unpinned(root),
   ];
