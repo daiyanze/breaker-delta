@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { ParseError } from "./adapter.ts";
-import { parseDate, parseFeed, parseJson } from "./parse.ts";
+import { count, pageUrl, parseDate, parseFeed, parseJson } from "./parse.ts";
 
 const RSS = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">
@@ -175,5 +175,31 @@ describe("parseJson and parseDate", () => {
     expect(parseDate("soon")).toBeNull();
     expect(parseDate("")).toBeNull();
     expect(parseDate(1_700_000_000)).toBeNull();
+  });
+});
+
+describe("count", () => {
+  test("numbers and decimal strings; anything else is null", () => {
+    expect([12, " 41 ", "0", 1.5].map(count)).toEqual([12, 41, 0, 1.5]);
+    expect(
+      [Number.NaN, Number.POSITIVE_INFINITY, "-3", "1e3", "many", "", null, {}].map(count),
+    ).toEqual([null, null, null, null, null, null, null, null]);
+  });
+});
+
+describe("pageUrl", () => {
+  const origin = "https://huggingface.co";
+  test("a path or a bare ID on the origin", () => {
+    expect(pageUrl(origin, "/org/model")).toBe("https://huggingface.co/org/model");
+    expect(pageUrl(origin, "org/model")).toBe("https://huggingface.co/org/model");
+    expect(pageUrl(origin, "/text 2")).toBe("https://huggingface.co/text%202");
+    expect(pageUrl(origin, "/../up")).toBe("https://huggingface.co/up");
+  });
+  test("a path that would leave the origin is refused", () => {
+    expect(pageUrl(origin, "//evil.example/x")).toBe("");
+    expect(pageUrl(origin, "")).toBe("");
+    expect(pageUrl(origin, "\\\\evil.example")).toBe("");
+    expect(pageUrl(origin, "/spaces//evil.example")).toBe("");
+    expect(pageUrl(origin, "/spaces/\\evil.example")).toBe("");
   });
 });

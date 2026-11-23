@@ -1,0 +1,180 @@
+{
+  "exhaustive": {
+    "nbHits": true,
+    "typo": true
+  },
+  "exhaustiveNbHits": true,
+  "exhaustiveTypo": true,
+  "hits": [
+    {
+      "_highlightResult": {
+        "author": {
+          "matchLevel": "text 1",
+          "matchedWords": [],
+          "value": "text 2"
+        },
+        "title": {
+          "matchLevel": "text 3",
+          "matchedWords": [],
+          "value": "text 4"
+        },
+        "url": {
+          "matchLevel": "text 5",
+          "matchedWords": [],
+          "value": "https://example.com/item/6"
+        }
+      },
+      "_tags": ["text 7", "text 8", "text 9", "text 10"],
+      "author": "text 11",
+      "children": [50596250, 50596277, 50596288, 50596295, 50596313],
+      "created_at": "2026-11-22T04:04:56Z",
+      "created_at_i": 1795320296,
+      "num_comments": 686,
+      "objectID": "50596133",
+      "points": 1221,
+      "story_id": 50596133,
+      "title": "text 12",
+      "updated_at": "2026-11-23T04:24:30Z",
+      "url": "https://example.com/item/13"
+    },
+    {
+      "_highlightResult": {
+        "author": {
+          "matchLevel": "text 14",
+          "matchedWords": [],
+          "value": "text 15"
+        },
+        "title": {
+          "matchLevel": "text 16",
+          "matchedWords": [],
+          "value": "text 17"
+        },
+        "url": {
+          "matchLevel": "text 18",
+          "matchedWords": [],
+          "value": "https://example.com/item/19"
+        }
+      },
+      "_tags": ["text 20", "text 21", "text 22", "text 23"],
+      "author": "text 24",
+      "children": [50601580, 50601855, 50601957, 50601963, 50601972],
+      "created_at": "2026-11-22T17:06:27Z",
+      "created_at_i": 1795367187,
+      "num_comments": 360,
+      "objectID": "50601525",
+      "points": 525,
+      "story_id": 50601525,
+      "title": "text 25",
+      "updated_at": "2026-11-23T04:31:30Z",
+      "url": "https://example.com/item/26"
+    },
+    {
+      "_highlightResult": {
+        "author": {
+          "matchLevel": "text 27",
+          "matchedWords": [],
+          "value": "text 28"
+        },
+        "title": {
+          "matchLevel": "text 29",
+          "matchedWords": [],
+          "value": "text 30"
+        },
+        "url": {
+          "matchLevel": "text 31",
+          "matchedWords": [],
+          "value": "https://example.com/item/32"
+        }
+      },
+      "_tags": ["text 33", "text 34", "text 35", "text 36"],
+      "author": "text 37",
+      "children": [50603337, 50603368, 50603433, 50603482, 50603522],
+      "created_at": "2026-11-22T19:20:15Z",
+      "created_at_i": 1795375215,
+      "num_comments": 286,
+      "objectID": "50602947",
+      "points": 507,
+      "story_id": 50602947,
+      "title": "text 38",
+      "updated_at": "2026-11-23T04:31:30Z",
+      "url": "https://example.com/item/39"
+    },
+    {
+      "_highlightResult": {
+        "author": {
+          "matchLevel": "text 40",
+          "matchedWords": [],
+          "value": "text 41"
+        },
+        "title": {
+          "matchLevel": "text 42",
+          "matchedWords": [],
+          "value": "text 43"
+        },
+        "url": {
+          "matchLevel": "text 44",
+          "matchedWords": [],
+          "value": "https://example.com/item/45"
+        }
+      },
+      "_tags": ["text 46", "text 47", "text 48", "text 49"],
+      "author": "text 50",
+      "children": [50603473, 50603498, 50603500, 50603534, 50603567],
+      "created_at": "2026-11-22T19:10:34Z",
+      "created_at_i": 1795374634,
+      "num_comments": 200,
+      "objectID": "50602843",
+      "points": 405,
+      "story_id": 50602843,
+      "title": "text 51",
+      "updated_at": "2026-11-23T04:31:30Z",
+      "url": "https://example.com/item/52"
+    },
+    {
+      "_highlightResult": {
+        "author": {
+          "matchLevel": "text 53",
+          "matchedWords": [],
+          "value": "text 54"
+        },
+        "title": {
+          "matchLevel": "text 55",
+          "matchedWords": [],
+          "value": "text 56"
+        },
+        "url": {
+          "matchLevel": "text 57",
+          "matchedWords": [],
+          "value": "https://example.com/item/58"
+        }
+      },
+      "_tags": ["text 59", "text 60", "text 61", "text 62"],
+      "author": "text 63",
+      "children": [50604455, 50604479, 50604572, 50604606, 50604638],
+      "created_at": "2026-11-22T21:01:16Z",
+      "created_at_i": 1795381276,
+      "num_comments": 143,
+      "objectID": "50603845",
+      "points": 336,
+      "story_id": 50603845,
+      "title": "text 64",
+      "updated_at": "2026-11-23T04:31:30Z",
+      "url": "https://example.com/item/65"
+    }
+  ],
+  "hitsPerPage": 30,
+  "nbHits": 30,
+  "nbPages": 1,
+  "page": 0,
+  "params": "text 66",
+  "processingTimeMS": 1,
+  "processingTimingsMS": {
+    "_request": {
+      "queue": 29,
+      "roundTrip": 24
+    },
+    "total": 0
+  },
+  "query": "",
+  "serverTimeMS": 30
+}
