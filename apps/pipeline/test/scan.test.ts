@@ -451,10 +451,22 @@ describe("scan step", () => {
     };
     const limited: typeof db = {
       ...db,
-      all: (sql, ...params) => (check(params), db.all(sql, ...params)),
-      values: (sql, ...params) => (check(params), db.values(sql, ...params)),
-      first: (sql, ...params) => (check(params), db.first(sql, ...params)),
-      run: (sql, ...params) => (check(params), db.run(sql, ...params)),
+      all: (sql, ...params) => {
+        check(params);
+        return db.all(sql, ...params);
+      },
+      values: (sql, ...params) => {
+        check(params);
+        return db.values(sql, ...params);
+      },
+      first: (sql, ...params) => {
+        check(params);
+        return db.first(sql, ...params);
+      },
+      run: (sql, ...params) => {
+        check(params);
+        return db.run(sql, ...params);
+      },
       batch: (statements) => {
         for (const st of statements) check(st.params);
         return db.batch(statements);
