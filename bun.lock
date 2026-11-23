@@ -63,6 +63,7 @@
       "name": "@bd/db",
       "version": "0.0.0",
       "dependencies": {
+        "@bd/contracts": "workspace:*",
         "@bd/ports": "workspace:*",
         "drizzle-orm": "^0.45.4",
       },

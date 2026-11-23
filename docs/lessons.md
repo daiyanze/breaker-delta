@@ -4,6 +4,23 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L19 A drift check compares values, not that a value is there
+
+- **Date:** 2026-11-23. **Status:** active.
+- **What happened:** #208's schema test compared each index's "is partial"
+  flag but not its WHERE, so a migration index that guarded the wrong event
+  type passed it. The schema also typed enums and a version rule that SQL
+  never checked, so a raw write could break them. The review found both with
+  throwaway edits.
+- **Rule:** When a check compares two descriptions of one thing (schema and
+  migration, config and docs), compare every property's value, rendered the
+  same way on both sides. A rule only one side types (an enum, "published
+  has a version") also goes in the side that stores the data.
+- **Scope:** `apps/pipeline/test/schema.test.ts`, migrations, any
+  two-sided consistency check.
+- **Check:** `schema.test.ts` compares WHERE and CHECK text and plants a
+  changed one of each.
+
 ## L18 Check a token against every call the workflow makes, not the first one
 
 - **Date:** 2026-11-23. **Status:** active.
