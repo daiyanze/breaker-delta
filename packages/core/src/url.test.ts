@@ -24,6 +24,8 @@ const SAME: Record<string, readonly string[]> = {
     "https://example.com/post/42?utm%5Fsource=hn",
     "https://example.com/post/42?fbclid=abc&gclid=def&msclkid=ghi",
     "https://example.com/post/42?mc_cid=1&mc_eid=2&_hsenc=3&_hsmi=4&igshid=5",
+    "https://example.com/post/42?_ga=1&_gl=2&dclid=3&gbraid=4&gclsrc=5&mkt_tok=6",
+    "https://example.com/post/42?ttclid=1&twclid=2&wbraid=3&yclid=4",
     "http://EXAMPLE.com./post/42/?utm_content=a#top",
   ],
   "https://news.example/item?id=8863": [
@@ -64,7 +66,8 @@ const SAME: Record<string, readonly string[]> = {
 const KEPT: Record<string, string> = {
   // An escaped `&` and `=` are part of the value, not a tracking pair.
   "https://example.com/s?q=a%26utm_source%3Dx": "https://example.com/s?q=a%26utm_source%3Dx",
-  // Pairs are kept as written: no re-encoding, a bare name stays bare.
+  // Past the escape rules, pairs keep their spelling: `+` and `%20` are not
+  // re-encoded, and a bare name stays bare.
   "https://example.com/s?q=a%20b+c&flag": "https://example.com/s?flag&q=a%20b+c",
   // Repeated names keep their order; names sort ignoring case.
   "https://example.com/s?tag=b&A=0&tag=a": "https://example.com/s?A=0&tag=b&tag=a",

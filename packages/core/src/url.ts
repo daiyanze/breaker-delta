@@ -72,8 +72,9 @@ function isTracking(name: string): boolean {
  *   ports, credentials and the fragment are dropped.
  * - Escapes are normalised (RFC 3986 6.2.2): an escaped unreserved
  *   character is decoded, other escapes are upper case.
- * - Tracking parameters are removed; the rest are kept as written and
- *   sorted by name ignoring case (stable, so repeated names, and names
+ * - Tracking parameters are removed; the rest keep their spelling apart
+ *   from the escapes above (no other re-encoding, a bare name stays bare)
+ *   and are sorted by name ignoring case (stable, so repeated names, and names
  *   that differ only in case, keep their order). An empty query is
  *   dropped.
  * - Trailing slashes are removed from the path, except the root `/`. Path
