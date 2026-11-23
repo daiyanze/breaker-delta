@@ -44,9 +44,9 @@ A labelled issue is a candidate unless:
   issue's data does not block. A line you cannot read blocks: list it in the
   report so the owner can fix the issue text.
 
-The project's own reference forms and milestone order, if it lists them in
-`docs/development.md` "Picking work", come first; read them before these.
-Before relying on any forms, look at how this project's issues really write
+The project's own reference forms, if it lists them in `docs/development.md`
+"Picking work", come first; read them before these. Before relying on any
+forms, look at how this project's issues really write
 their dependencies, and say in the report if they use another form.
 
 Issues without the agent label are not the agent's to start. Report the
@@ -55,8 +55,10 @@ can unblock next.
 
 ## 2. Choose one
 
-If the project works milestone by milestone, only candidates in the
-earliest milestone that still has one are considered. If the order of the
+If `docs/development.md` "Picking work" gives the milestone order, follow
+it instead of this paragraph. Otherwise, if the project works milestone by
+milestone, only candidates in the earliest milestone that still has one are
+considered. If the order of the
 milestones is not clear from their due dates or names, skip this rule and
 say so. Among the candidates, prefer:
 

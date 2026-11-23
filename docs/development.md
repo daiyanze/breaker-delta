@@ -47,6 +47,9 @@ Each runtime calls a skill by name:
 `docket` starts only when named: its frontmatter and `agents/openai.yaml`
 turn off implicit invocation.
 
+On a Windows clone without symlinks enabled, `.agents/skills` is a plain
+file and Pi and Codex find no skills; Claude Code is not affected.
+
 ### Dependencies and milestones
 
 The `take-case` skill reads this before its own defaults. Issues name what
@@ -70,9 +73,6 @@ to `M6`) and the site (`UI M0` to `UI M10`), ordered by the number after
 `M`, not alphabetically. A track's front is its lowest milestone that still
 has an open `owner:claude-ok` candidate. Only candidates at the front of
 their track are considered, and both fronts rank the same.
-
-On a Windows clone without symlinks enabled, `.agents/skills` is a plain
-file and Pi and Codex find no skills; Claude Code is not affected.
 
 ## Cloudflare credential
 
