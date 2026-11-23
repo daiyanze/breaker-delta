@@ -49,18 +49,23 @@ describe("check-deps", () => {
     file("packages/x/src/a.ts", 'import { b } from "./index.ts";');
     file("packages/x/src/deep/c.ts", 'import { b } from "../index.ts";');
     // Extensionless forms resolve the same under bundler resolution.
-    const entry = ["./a.ts", "./deep/c.ts", "./d", "./e.ts"].map((m) => `export * from "${m}";`);
+    const entry = ["./a.ts", "./deep/c.ts", "./d", "./e.ts", "./inline.ts"].map(
+      (m) => `export * from "${m}";`,
+    );
     file("packages/x/src/index.ts", entry.join("\n"));
     file("packages/x/src/d.ts", 'import { b } from "./index";');
     file("packages/x/src/e.ts", 'import { b } from ".";');
     // Not cycles: a test the entry never imports, and a type-only import.
     file("packages/x/src/a.test.ts", 'import { b } from "./index.ts";');
     file("packages/x/src/types.ts", 'import type { B } from "./index.ts";');
+    // Kept as `import {} from` under verbatimModuleSyntax: still a cycle.
+    file("packages/x/src/inline.ts", 'import { type B } from "./index.ts";');
     const found = selfImports(root).join("\n");
     expect(found).toContain("x/src/a.ts and its package entry import each other");
     expect(found).toContain("x/src/deep/c.ts and its package entry import each other");
     expect(found).toContain("x/src/d.ts and its package entry import each other");
     expect(found).toContain("x/src/e.ts and its package entry import each other");
+    expect(found).toContain("x/src/inline.ts and its package entry import each other");
     expect(found).not.toContain("a.test.ts");
     expect(found).not.toContain("types.ts");
   });
@@ -226,6 +231,31 @@ describe("check-deps", () => {
       const all = [...violations(root, RULES), ...relativeViolations(root, RULES)].join("\n");
       expect(all).not.toContain("core/g2.ts");
       expect(all).toContain('apps/web/src/core/sp.ts imports "../local/zz.ts"');
+    });
+
+    test("inline type imports, import.meta.require and .ts generics (#211 round 3)", () => {
+      file("packages/judge/src/zj.ts", "export type J = 1;");
+      file("apps/pipeline/src/local/zt.ts", "export type X = 1;");
+      // verbatimModuleSyntax keeps these as `import {} from`, so the target is bundled.
+      file("apps/pipeline/src/core/inline.ts", 'import { type X } from "../local/zt.ts";');
+      const judge = "../../../../packages/judge/src/zj.ts";
+      file("apps/web/src/core/reexp.ts", `export { type J } from "${judge}";`);
+      file("apps/web/src/local/meta.ts", `const j = import.meta.require("${judge}");`);
+      file("apps/web/src/local/metapkg.ts", 'const w = import.meta.require("wrangler");');
+      // Valid TypeScript that a tsx parser rejects.
+      file("apps/web/src/core/generic.ts", "export const first = <T>(xs: T[]): T => xs[0];");
+      const found = rel();
+      expect(found).toContain('apps/pipeline/src/core/inline.ts imports "../local/zt.ts"');
+      expect(found).toContain("apps/web/src/core/reexp.ts imports");
+      expect(found).toContain("apps/web/src/local/meta.ts imports");
+      const pkg = violations(root, RULES).join("\n");
+      expect(pkg).toContain('web/src/local/metapkg.ts imports "wrangler"');
+      expect(found).not.toContain("generic.ts");
+    });
+
+    test("a file the parser cannot read is reported, not a crash", () => {
+      file("apps/web/src/core/broken.ts", "export const = ;");
+      expect(rel()).toContain("apps/web/src/core/broken.ts could not be parsed");
     });
 
     test("a file under a single-file rule is its own area", () => {
