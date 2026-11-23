@@ -292,7 +292,9 @@ describe("check-deps", () => {
       file("apps/web/src/local/y.mts", 'export { judge } from "@bd/judge";');
       file("apps/web/src/core/z.cts", 'export * from "../local/x.ts";');
       expect(uncovered(root, RULES).join("\n")).toContain("apps/pipeline/src/util.mts is under no");
-      expect(violations(root, RULES).join("\n")).toContain('apps/web/src/local/y.mts imports "@bd/judge"');
+      expect(violations(root, RULES).join("\n")).toContain(
+        'apps/web/src/local/y.mts imports "@bd/judge"',
+      );
       expect(relativeViolations(root, RULES).join("\n")).toContain(
         'apps/web/src/core/z.cts imports "../local/x.ts"',
       );
