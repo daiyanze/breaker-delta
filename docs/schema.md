@@ -127,6 +127,52 @@ A correction's note to readers in one language; key `(correction_id, lang)`.
 
 - Model-written short titles (`shortTitles` in the read contracts): the
   summarize contract has no such field yet (#44).
-- Outside evidence for verdicts and the private tables (editors, subscribers):
-  #79 and #18.
+- Outside evidence for verdicts (#79), and editors (desk sign-in, #74).
+- Subscriber data: the private database, below.
 - Fetched page text for enrich and raw responses: blob storage (#45, #38).
+
+# Private database schema
+
+`bd-private` holds the mailing list and what was sent to it (ADR 0012), and
+nothing else; ADR 0019 keeps its rows out of the agent's session. The
+drizzle definitions are in `packages/private-db/src/schema.ts`, the SQL in
+`packages/private-db/migrations`, and the same test compares the two. It is
+its own package so content-database code cannot name these tables: no
+`scripts/check-deps.ts` rule for content code allows `@bd/private-db`, and
+nothing allows it yet. The code that sends mail (#81, #82, #83) gets the
+first rule that does, and binds the database on both runtimes.
+
+**Who decided it.** The tables and columns are the agent's proposal (#18),
+taken from the issue, ADR 0012, the desk mail contract (`DeskMail` in
+`packages/contracts/src/desk.ts`) and #156, #157 and #81, for the owner to
+review in the PR. The conventions are the content database's.
+
+## subscribers
+
+One address on the list; `email` is unique and stored normalised by the
+code that adds it. `lang` is the email language; `edition` is `morning` or
+`weekly` (the `MailKind` names). "None" is not an edition: it is
+`status = 'unsubscribed'`. `status` is `pending` until the confirmation link
+is opened. `added_via` is `form` or `desk`; `added_by` names the editor and
+is set exactly for `desk` (a CHECK). `bounces_in_a_row` counts bounces since
+the last delivery that did not bounce; `stopped_at` is set when sending
+stops after three in a row (#157) and is null while mail still goes out.
+Confirmation and preference tokens come with the subscription flow (#81).
+
+## sends
+
+One email sent to the list. `kind` is a `MailKind`. The two editions carry
+`edition_key`, the edition's day in the site's time zone, and a partial
+unique index sends each edition once; hand-written emails have none (a
+CHECK). `subject` is a hand-written email's; `status` is `sending`, `sent`
+or `held` (a held edition is skipped and kept as a row, #156). `created_by`
+is the editor, when there is one.
+
+## deliveries
+
+One send to one subscriber, keyed `(send_id, subscriber_id)`, so the same
+send can never reach a person twice (#157). `status` goes from `queued` to
+`sent`, then `delivered` or `bounced`, or `failed` when the transport
+refused it; `attempts` counts tries. `error` is the transport's short
+message, never the address. A deleted subscriber's rows keep their counts
+for Recent sends; the id they hold no longer leads to an address.

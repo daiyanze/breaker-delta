@@ -18,5 +18,8 @@
   },
   "exports": {
     "./local": "./src/local/index.ts"
+  },
+  "devDependencies": {
+    "@bd/private-db": "workspace:*"
   }
 }

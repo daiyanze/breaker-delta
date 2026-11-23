@@ -111,6 +111,21 @@ describe("check-deps", () => {
     expect(found).toContain('web/src/select.ts imports "cloudflare:sockets"');
   });
 
+  test("content-database code may not reference the private database (#18)", () => {
+    const named = 'import { subscribers } from "@bd/private-db";';
+    file("packages/db/src/p.ts", named);
+    file("apps/pipeline/src/core/p.ts", named);
+    file("apps/pipeline/src/cloudflare/p.ts", named);
+    file("apps/pipeline/src/local/p.ts", named);
+    file("apps/web/src/p.ts", `export type { Subscriber } from "@bd/private-db";`);
+    file("packages/private-db/src/q.ts", 'import { echoes } from "@bd/db";');
+    const found = violations(root, RULES).join("\n");
+    for (const area of ["db/src", "core", "cloudflare", "local", "web/src"]) {
+      expect(found).toContain(`${area}/p.ts imports "@bd/private-db"`);
+    }
+    expect(found).toContain('private-db/src/q.ts imports "@bd/db"');
+  });
+
   test("ports have no imports at all", () => {
     file("packages/ports/src/f.ts", 'import { z } from "zod";');
     expect(violations(root, RULES).join("\n")).toContain('ports/src/f.ts imports "zod"');
@@ -129,6 +144,21 @@ describe("check-deps", () => {
       );
       expect(found).toContain('apps/web/src/leak-dir.ts imports "../../../packages/judge/src"');
       expect(found).toContain("import it by its package name");
+    });
+
+    test("content-database code may not reach the private schema by path (#18)", () => {
+      file("packages/private-db/src/schema.ts", "export const subscribers = 1;");
+      file(
+        "packages/db/src/leak.ts",
+        'import { subscribers } from "../../private-db/src/schema.ts";',
+      );
+      file(
+        "apps/pipeline/src/core/leak.ts",
+        'import { subscribers } from "../../../../packages/private-db/src/schema.ts";',
+      );
+      const found = rel();
+      expect(found).toContain('packages/db/src/leak.ts imports "../../private-db/src/schema.ts"');
+      expect(found).toContain("apps/pipeline/src/core/leak.ts imports");
     });
 
     test("an app core may not reach an adapter by relative path", () => {
