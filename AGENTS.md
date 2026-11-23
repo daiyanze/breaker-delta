@@ -158,16 +158,16 @@ Development runs on a local agent on the owner's machine (ADR 0016). The
 working method is `docs/development.md`; read it and `docs/lessons.md`
 before starting a task.
 
-1. Pick an issue (the `next` skill finds the next `owner:claude-ok` one;
-   the `long-run` skill works through a whole goal). Branch from `develop`. Never
-   push to `develop` directly.
+1. Pick an issue (the `take-case` skill finds the next `owner:claude-ok`
+   one; the `docket` skill works through a whole goal). Branch from
+   `develop`. Never push to `develop` directly.
 2. Implement, then run `bun run check` locally. Drive anything a user sees
    on local mode with the `verify-local` skill.
 3. Push the branch and open a PR. CI runs `check`.
 4. A separate review agent, with no context from the writing session,
-   reviews the PR with the `review` skill
-   (`.claude/skills/review/SKILL.md`). The session that wrote a PR does not
-   review it.
+   reviews the PR with the `cross-examine` skill
+   (`.claude/skills/cross-examine/SKILL.md`) and the review checklist in
+   `docs/development.md`. The session that wrote a PR does not review it.
 5. The owner merges. A merge to `develop` deploys both Workers to Cloudflare
    once deploys are switched on.
 6. A mistake caught by the owner, CI or review becomes a lesson in

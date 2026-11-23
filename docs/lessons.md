@@ -105,7 +105,7 @@ Each rule applies only within its scope.
 - **Rule:** Before calling a PR done, read every failed job, not only the
   required ones. A failure that predates the PR is named in its report with
   the first run that failed.
-- **Scope:** every PR, `/next` and `/run` reports.
+- **Scope:** every PR, `take-case` and `docket` reports (`/next` and `/run` when written).
 - **Evidence:** fixed in this PR; `verify-local get` now prints from `<body>`.
 
 ## L14 Read a standard format with its parser, and check names against the runtime's own
