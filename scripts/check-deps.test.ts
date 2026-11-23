@@ -288,6 +288,18 @@ describe("check-deps", () => {
       expect(rel()).toContain("apps/web/src/core/broken.ts could not be parsed");
     });
 
+    test("a #! line parses, and a template import.meta.require is read (#215 decision)", () => {
+      file("apps/pipeline/src/local/zt.ts", "export const n = 1;");
+      file("apps/web/src/local/hashbang.ts", '#!/usr/bin/env bun\nimport { s } from "../select";');
+      file("apps/pipeline/src/core/tplmeta.ts", "const l = import.meta.require(`../local/zt.ts`);");
+      file("apps/web/src/local/tplpkg.ts", "const w = import.meta.require(`wrangler`);");
+      const found = rel();
+      expect(found).not.toContain("hashbang.ts");
+      expect(found).toContain('apps/pipeline/src/core/tplmeta.ts imports "../local/zt.ts"');
+      const pkg = violations(root, RULES).join("\n");
+      expect(pkg).toContain('web/src/local/tplpkg.ts imports "wrangler"');
+    });
+
     test("a file under a single-file rule is its own area", () => {
       file("apps/web/src/core/sel.ts", 'import { s } from "../select.ts";');
       file("apps/web/src/local/sel.ts", 'import { s } from "../select.ts";');
