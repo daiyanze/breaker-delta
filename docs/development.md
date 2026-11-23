@@ -265,13 +265,18 @@ exit condition holds, without stopping to ask for "continue". The rules:
   the conditions every such merge must meet. No branch rule can read a
   review verdict, so those conditions rest on the agent following them.
   - **The gate here.** A granted run never merges a PR that changes how
-    `bun run check` works: `package.json` scripts, `bun.lock`,
-    `biome.json`, any `tsconfig*.json`, `scripts/check-deps.ts` or
-    `scripts/agent-files.*`. Test files are not the gate; the review reads
-    them.
+    `bun run check` works: any `package.json` scripts (each workspace's
+    `typecheck` included: `bun --filter '*'` skips a package without one),
+    `bun.lock`, `.gitignore` (biome reads it), any `biome.json`,
+    `bunfig.toml` or `tsconfig*.json`, `scripts/check-deps.ts` or
+    `scripts/agent-files.*`, or a new config file of the same kind. Test
+    files are not the gate; the review reads them.
   - **Deploys.** A merge to `develop` only queues the `production` deploy,
     which waits for the owner's approval (`AGENTS.md`). The agent never
     approves it.
+  - **CI after a merge.** The CI to wait for on the merge commit is
+    `ci.yml`'s `check` job. The `deploy` check on that commit waits for the
+    owner and is not part of it.
   - **A grant can lapse.** It needs the owner's words in front of the agent
     word for word, so it ends when the session's context is compacted.
     The run then carries on without merging until the owner grants it
