@@ -83,16 +83,20 @@ Each rule applies only within its scope.
   `description: ""`, a list), which Pi then drops. It also showed that a
   project skill named `run` with `disable-model-invocation` made Claude
   Code list its own bundled `run` skill to the model instead. Reading a
-  format with hand-written rules repeats L11.
-- **Rule:** When a check reads YAML, JSON or another standard format, use
-  the parser the consumers use, and test it with inputs that parser
-  rejects. Before naming a skill or command, check the name against what
+  format with hand-written rules repeats L11. It happened again in #211:
+  the relative-import check read TypeScript with a regex, and two review
+  rounds found forms it missed (`./x.bun` for `x.bun.ts`, `./x.js`,
+  `import(p, { with })`, template `require`, symlinks).
+- **Rule:** When a check reads YAML, JSON, source code or another standard
+  format, use the parser the consumers use, and test it with inputs that
+  parser rejects or reads differently. Before naming a skill or command, check the name against what
   each runtime already ships.
-- **Scope:** checks and scripts that read config or frontmatter; names of
-  skills in `.claude/skills/`.
+- **Scope:** checks and scripts that read config, frontmatter or source
+  code; names of skills in `.claude/skills/`.
 - **Check:** `scripts/agent-files.ts` parses frontmatter with `Bun.YAML` and
   refuses the reserved name `run`; `scripts/agent-files.test.ts` covers
-  both.
+  both. `scripts/check-deps.ts` reads relative imports with
+  `Bun.Transpiler.scanImports` and resolves them with `Bun.resolveSync`.
 
 ## L13 Check a credential's shape, not only its characters
 

@@ -128,13 +128,14 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 Rows marked review only are the next to enforce once the code they guard
 exists. Known gaps in the checks: `check-deps` checks only files under a
 directory or file one of its rules names, so a source file outside every
-rule is not checked, and a ruled file can import through one (#210); a
-relative import that does not resolve to a `.ts`/`.tsx` file and has another
-extension counts as data (JSON, SQL, fonts) and passes; it reads import
-statements, and `import()` and `require()` calls whose path is a string or
-a template without `${}`, resolving `.js` to `.ts` and following symlinks;
-it does not see paths built at run time; it does not look at globals (`fetch`, `Date.now`, `Bun`);
-`packages/core` typechecks with Bun's types.
+rule is not checked, and a ruled file can import through one (#210). It
+reads relative imports with Bun's parser and resolver (symlinks followed);
+one that resolves to no TypeScript file and has another extension counts as
+data (JSON, SQL, fonts) and passes. It reads package imports with a pattern
+(import statements, and `import()` or `require()` with a string or a
+template without `${}`). Neither sees paths built at run time. It does not
+look at globals (`fetch`, `Date.now`, `Bun`); `packages/core` typechecks
+with Bun's types.
 
 ## Protected paths (CODEOWNERS)
 

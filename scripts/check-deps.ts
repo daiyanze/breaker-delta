@@ -99,9 +99,12 @@ export const RULES: Rule[] = [
 ];
 
 /**
- * Import statements, and `import(...)` or `require(...)` calls whose first
- * argument is a quoted string or a template without `${}`. A call must not
- * follow a name character or a dot, so `loader.require("x")` is not one.
+ * Package imports are read with this pattern, so a type-only import of a
+ * forbidden package fails too: import statements, and `import(...)` or
+ * `require(...)` calls whose first argument is a string or a template
+ * without `${}`. A call must not follow a name character or a dot, so
+ * `loader.require("x")` is not one. Relative imports are read by Bun's own
+ * parser instead (`relativeImports`, lesson L14).
  */
 const IMPORT = new RegExp(
   [
@@ -113,12 +116,6 @@ const IMPORT = new RegExp(
 
 /** The specifier an IMPORT match captured. */
 const specOf = (m: RegExpMatchArray) => m[1] ?? m[2] ?? m[3];
-
-/**
- * `import type { X }` and `export type` are erased; `import type from "x"`
- * binds a default import named `type`, so it stays.
- */
-const TYPE_ONLY = /^(import|export)\s+type(?!\s+from\s*['"])\s/;
 
 function files(dir: string): string[] {
   let out: string[] = [];
@@ -155,21 +152,26 @@ export function violations(root: string, rules: Rule[] = RULES): string[] {
 /** A TypeScript source file. */
 const CODE = /\.[cm]?tsx?$/;
 
-/** Relative imports that exist at run time (`import type` is erased), resolved. */
+const transpiler = new Bun.Transpiler({ loader: "tsx" });
+
+/**
+ * Relative imports that exist at run time, resolved to real paths. Bun's
+ * parser reads every form the runtime does (statements, `import()`,
+ * `require()`, with options or templates) and drops type-only imports and
+ * comments; Bun's resolver maps `./x.js` to `x.ts`, finds `x.tsx`, an index,
+ * and follows symlinks. A path it cannot resolve is kept as written.
+ */
 function relativeImports(file: string): { spec: string; target: string }[] {
   const out: { spec: string; target: string }[] = [];
-  for (const match of readFileSync(file, "utf8").matchAll(IMPORT)) {
-    const spec = specOf(match);
-    if (!spec?.startsWith(".") || TYPE_ONLY.test(match[0])) continue;
-    const target = resolve(dirname(file), spec);
-    // Bundler resolution also accepts "./x" for x.ts or x.tsx, "./x.js" for
-    // x.ts, "." and "./dir" for its index.
-    const stem = target.replace(/\.[cm]?jsx?$/, "");
-    const candidates = [target, ...[".ts", ".tsx"].map((e) => `${target}${e}`)];
-    candidates.push(join(target, "index.ts"), join(target, "index.tsx"));
-    if (stem !== target) candidates.push(`${stem}.ts`, `${stem}.tsx`, `${stem}.mts`, `${stem}.cts`);
-    const found = candidates.find((c) => CODE.test(c) && existsSync(c));
-    out.push({ spec, target: found ?? target });
+  for (const { path: spec } of transpiler.scanImports(readFileSync(file, "utf8"))) {
+    if (!spec.startsWith(".")) continue;
+    let target: string;
+    try {
+      target = Bun.resolveSync(spec, dirname(file));
+    } catch {
+      target = resolve(dirname(file), spec);
+    }
+    out.push({ spec, target: existsSync(target) ? realpathSync(target) : target });
   }
   return out;
 }
@@ -216,10 +218,8 @@ export function relativeViolations(root: string, rules: Rule[] = RULES): string[
       if (areaOf(from, rules) !== rule) continue; // checked under its most specific rule
       for (const { spec, target } of relativeImports(file)) {
         if (DATA.test(spec) && !CODE.test(target)) continue;
-        // Through any symlink, so a link cannot carry an import into another area.
-        const to = existsSync(target)
-          ? relative(real, realpathSync(target))
-          : relative(root, target);
+        // Resolved through any symlink, so a link cannot carry an import elsewhere.
+        const to = existsSync(target) ? relative(real, target) : relative(root, target);
         const pkg = packageOf(to);
         const head = `${from} imports "${spec}"`;
         if (pkg !== packageOf(from)) {
@@ -254,10 +254,12 @@ export function selfImports(root: string): string[] {
       continue;
     }
     for (const name of names) {
-      const entry = join(root, group, name, "src", "index.ts");
+      let entry = join(root, group, name, "src", "index.ts");
       let list: string[];
       try {
-        list = files(dirname(entry));
+        // Real paths, as relativeImports resolves them.
+        list = files(dirname(entry)).map((f) => realpathSync(f));
+        if (existsSync(entry)) entry = realpathSync(entry);
       } catch {
         continue;
       }
@@ -273,7 +275,8 @@ export function selfImports(root: string): string[] {
       for (const file of list) {
         if (file === entry || !reached.has(file)) continue;
         if (runtimeImports(file).includes(entry)) {
-          found.push(`${relative(root, file)} and its package entry import each other (lesson L1)`);
+          const at = relative(realpathSync(root), file);
+          found.push(`${at} and its package entry import each other (lesson L1)`);
         }
       }
     }
