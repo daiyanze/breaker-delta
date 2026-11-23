@@ -60,10 +60,18 @@ export interface Database {
   batch(statements: readonly Statement[]): Promise<void>;
 }
 
-/** Object storage for share cards, snapshots and exports. Keys are `/`-separated paths. */
+/**
+ * Object storage for raw responses, share cards, snapshots and exports.
+ * A key is `/`-separated segments of letters, digits, `.`, `_` and `-`, none
+ * starting with `.`, e.g. `raw/20261201T0900/hackernews.json`. An adapter
+ * may refuse any other key.
+ */
 export interface Blobs {
+  /** The stored bytes, or null when there is no such key. */
   get(key: string): Promise<Uint8Array | null>;
+  /** Stores `body` (a string as UTF-8), replacing what the key held. */
   put(key: string, body: Uint8Array | string, contentType?: string): Promise<void>;
+  /** Removes the key; a key that does not exist is not an error. */
   delete(key: string): Promise<void>;
   /** Keys that start with `prefix`, sorted. */
   list(prefix: string): Promise<string[]>;
