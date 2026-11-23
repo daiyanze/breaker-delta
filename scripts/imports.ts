@@ -70,10 +70,7 @@ function tokens(source: string): Token[] {
     let kind = scanner.scan();
     if (kind === SyntaxKind.EndOfFile) break;
     const last = out.at(-1);
-    if (
-      (kind === SyntaxKind.SlashToken || kind === SyntaxKind.SlashEqualsToken) &&
-      !last?.ends
-    ) {
+    if ((kind === SyntaxKind.SlashToken || kind === SyntaxKind.SlashEqualsToken) && !last?.ends) {
       kind = scanner.reScanSlashToken();
     } else if (kind === SyntaxKind.OpenBraceToken) {
       braces.push("block");
