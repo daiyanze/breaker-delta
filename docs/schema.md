@@ -46,6 +46,9 @@ One item on one source, identified by its normalised URL (`url` is unique).
 language, `und` until known. `first_slot` is the run that found it.
 `topic_id` is null until assign places it, so an echo whose assignment
 failed is picked up again next run (#32).
+Ingest (#27) creates echoes: `id` is `e` and the first 24 hex digits of the
+SHA-256 of `url`, so one URL always gets the same id, and the echo belongs to
+the group that first listed the URL.
 
 ## echo_metrics
 
