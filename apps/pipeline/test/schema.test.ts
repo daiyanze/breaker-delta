@@ -6,20 +6,42 @@
  */
 import { Database as SQLite } from "bun:sqlite";
 import { describe, expect, test } from "bun:test";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import * as schema from "@bd/db";
+import * as privateSchema from "@bd/private-db";
 import type { SQL } from "drizzle-orm";
 import { getTableConfig, SQLiteSyncDialect, SQLiteTable } from "drizzle-orm/sqlite-core";
 import { migrate } from "../src/local/migrate.ts";
+import type { Migration } from "../src/local/migrations.ts";
 
-const tables = Object.values(schema as Record<string, unknown>).filter(
-  (v): v is SQLiteTable => v instanceof SQLiteTable,
-);
+const tablesOf = (module: Record<string, unknown>) =>
+  Object.values(module).filter((v): v is SQLiteTable => v instanceof SQLiteTable);
+const tables = tablesOf(schema);
+
+/** The private database's migrations, read from its own directory (#18). */
+const PRIVATE_DIR = join(import.meta.dir, "../../../packages/private-db/migrations");
+const PRIVATE_MIGRATIONS: Migration[] = readdirSync(PRIVATE_DIR)
+  .filter((n) => n.endsWith(".sql"))
+  .map((name) => ({ name, sql: readFileSync(join(PRIVATE_DIR, name), "utf8") }));
 
 function migrated(): SQLite {
   const sqlite = new SQLite(":memory:");
   migrate(sqlite);
   return sqlite;
 }
+
+function migratedPrivate(): SQLite {
+  const sqlite = new SQLite(":memory:");
+  migrate(sqlite, PRIVATE_MIGRATIONS);
+  return sqlite;
+}
+
+/** Each database: its drizzle tables and a fresh copy with its migrations applied. */
+const DATABASES = [
+  { name: "content", tables, migrated },
+  { name: "private", tables: tablesOf(privateSchema), migrated: migratedPrivate },
+];
 
 interface Column {
   name: string;
@@ -137,26 +159,46 @@ function sides(sqlite: SQLite, config: TableConfig) {
   return { db, declared };
 }
 
-describe("schema and migrations", () => {
-  test("every migrated table is in the schema, and the other way round", () => {
-    const sqlite = migrated();
-    const inDb = sqlite
-      .query(
-        "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT IN ('_migrations', 'sqlite_sequence')",
-      )
-      .all() as { name: string }[];
-    const inSchema = tables.map((t) => getTableConfig(t).name);
-    expect(inDb.map((r) => r.name).sort()).toEqual(inSchema.sort());
-  });
-
-  for (const table of tables) {
-    const config = getTableConfig(table);
-    test(`${config.name}: same columns, NOT NULLs, defaults, keys and indexes`, () => {
-      const { db, declared } = sides(migrated(), config);
-      expect(db).toEqual(declared);
+for (const database of DATABASES) {
+  describe(`${database.name} schema and migrations`, () => {
+    test("every migrated table is in the schema, and the other way round", () => {
+      const sqlite = database.migrated();
+      const inDb = sqlite
+        .query(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT IN ('_migrations', 'sqlite_sequence')",
+        )
+        .all() as { name: string }[];
+      const inSchema = database.tables.map((t) => getTableConfig(t).name);
+      expect(inDb.map((r) => r.name).sort()).toEqual(inSchema.sort());
     });
-  }
 
+    for (const table of database.tables) {
+      const config = getTableConfig(table);
+      test(`${config.name}: same columns, NOT NULLs, defaults, keys and indexes`, () => {
+        const { db, declared } = sides(database.migrated(), config);
+        expect(db).toEqual(declared);
+      });
+    }
+  });
+}
+
+describe("the two databases (#18)", () => {
+  test("share no table: subscriber data never lands in the content database", () => {
+    const names = (sqlite: SQLite) =>
+      (
+        sqlite.query("SELECT name FROM sqlite_master WHERE type = 'table'").all() as {
+          name: string;
+        }[]
+      ).map((r) => r.name);
+    const content = names(migrated());
+    for (const name of names(migratedPrivate())) {
+      if (name === "_migrations" || name === "sqlite_sequence") continue;
+      expect(content).not.toContain(name);
+    }
+  });
+});
+
+describe("schema and migrations", () => {
   test("the comparison sees each kind of drift", () => {
     const config = getTableConfig(schema.echoes);
     const good = sides(migrated(), config).declared;
@@ -306,5 +348,68 @@ describe("content tables", () => {
     expect(() => add.run("e2")).toThrow(/UNIQUE/);
     const row = sqlite.query("SELECT lang, topic_id FROM echoes").get();
     expect(row).toEqual({ lang: "und", topic_id: null });
+  });
+});
+
+describe("private tables (#18)", () => {
+  const ADD = `INSERT INTO subscribers (id, email, lang, edition, added_via, added_by, added_at)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, 0)`;
+
+  test("an address is on the list once, and starts pending with no bounces", () => {
+    const sqlite = migratedPrivate();
+    const add = sqlite.query(ADD);
+    add.run("s1", "a@example.com", "en", "morning", "form", null);
+    expect(() => add.run("s2", "a@example.com", "ja", "weekly", "form", null)).toThrow(/UNIQUE/);
+    const row = sqlite.query("SELECT status, bounces_in_a_row, stopped_at FROM subscribers").get();
+    expect(row).toEqual({ status: "pending", bounces_in_a_row: 0, stopped_at: null });
+  });
+
+  test("an address added at the desk names its editor; one from the form does not", () => {
+    const add = migratedPrivate().query(ADD);
+    expect(() => add.run("s1", "a@example.com", "en", "morning", "desk", null)).toThrow(/CHECK/);
+    expect(() => add.run("s2", "b@example.com", "en", "morning", "form", "ed")).toThrow(/CHECK/);
+    add.run("s3", "c@example.com", "en", "morning", "desk", "ed");
+    add.run("s4", "d@example.com", "en", "morning", "form", null);
+  });
+
+  test("enum columns refuse values no reader expects", () => {
+    const sqlite = migratedPrivate();
+    const add = sqlite.query(ADD);
+    expect(() => add.run("s1", "a@example.com", "fr", "morning", "form", null)).toThrow(/CHECK/);
+    expect(() => add.run("s2", "b@example.com", "en", "daily", "form", null)).toThrow(/CHECK/);
+    expect(() => add.run("s3", "c@example.com", "en", "morning", "import", null)).toThrow(/CHECK/);
+    const bad = [
+      "UPDATE subscribers SET status = 'bounced'",
+      "UPDATE subscribers SET bounces_in_a_row = -1",
+      "INSERT INTO sends (id, kind, created_at) VALUES ('m', 'digest', 0)",
+      "INSERT INTO sends (id, kind, status, created_at) VALUES ('m', 'notice', 'draft', 0)",
+      "INSERT INTO deliveries (send_id, subscriber_id, status, updated_at) VALUES ('m', 's', 'lost', 0)",
+    ];
+    add.run("s4", "d@example.com", "en", "morning", "form", null);
+    for (const q of bad) expect(() => sqlite.run(q)).toThrow(/CHECK/);
+  });
+
+  test("an edition is sent once per day; hand-written emails have no edition day", () => {
+    const sqlite = migratedPrivate();
+    const add = sqlite.query(
+      "INSERT INTO sends (id, kind, edition_key, created_at) VALUES (?1, ?2, ?3, 0)",
+    );
+    add.run("m1", "morning", "2026-11-23");
+    expect(() => add.run("m2", "morning", "2026-11-23")).toThrow(/UNIQUE/);
+    add.run("w1", "weekly", "2026-11-23");
+    expect(() => add.run("m3", "morning", null)).toThrow(/CHECK/);
+    expect(() => add.run("n1", "notice", "2026-11-23")).toThrow(/CHECK/);
+    add.run("n2", "notice", null);
+    add.run("n3", "notice", null);
+  });
+
+  test("the same send never reaches the same person twice", () => {
+    const add = migratedPrivate().query(
+      "INSERT INTO deliveries (send_id, subscriber_id, updated_at) VALUES (?1, ?2, 0)",
+    );
+    add.run("m1", "s1");
+    expect(() => add.run("m1", "s1")).toThrow(/UNIQUE/);
+    add.run("m1", "s2");
+    add.run("m2", "s1");
   });
 });
