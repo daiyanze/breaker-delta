@@ -49,7 +49,7 @@ describe("check-deps", () => {
     file("packages/x/src/a.ts", 'import { b } from "./index.ts";');
     file("packages/x/src/deep/c.ts", 'import { b } from "../index.ts";');
     // Extensionless forms resolve the same under bundler resolution.
-    const entry = ["./a.ts", "./deep/c.ts", "./d", "./e.ts", "./inline.ts"].map(
+    const entry = ["./a.ts", "./deep/c.ts", "./d", "./e.ts", "./inline.ts", "./typeof.ts"].map(
       (m) => `export * from "${m}";`,
     );
     file("packages/x/src/index.ts", entry.join("\n"));
@@ -58,6 +58,7 @@ describe("check-deps", () => {
     // Not cycles: a test the entry never imports, and a type-only import.
     file("packages/x/src/a.test.ts", 'import { b } from "./index.ts";');
     file("packages/x/src/types.ts", 'import type { B } from "./index.ts";');
+    file("packages/x/src/typeof.ts", 'export type Self = typeof import("./index.ts");');
     // Kept as `import {} from` under verbatimModuleSyntax: still a cycle.
     file("packages/x/src/inline.ts", 'import { type B } from "./index.ts";');
     const found = selfImports(root).join("\n");
@@ -68,6 +69,7 @@ describe("check-deps", () => {
     expect(found).toContain("x/src/inline.ts and its package entry import each other");
     expect(found).not.toContain("a.test.ts");
     expect(found).not.toContain("types.ts");
+    expect(found).not.toContain("typeof.ts");
   });
 
   test("an app core may not import Cloudflare or Bun APIs (ADR 0018)", () => {
@@ -278,6 +280,29 @@ describe("check-deps", () => {
         expect(found).not.toContain(ok);
       }
       expect(found).toContain('apps/pipeline/src/core/tplmeta.ts imports "../local/zt.ts"');
+    });
+
+    test("a / the scanner cannot place does not hide an import (#215 review)", () => {
+      file("apps/pipeline/src/local/zt.ts", "export const n = 1;");
+      const lazy = 'await import("../local/zt.ts")';
+      const plant = {
+        bang: `declare const w: number | undefined;\nexport const s = \`\${w! / 2}/px\`;\n${lazy};`,
+        bang2: `declare const w: number | undefined;\nexport const s = w! / 2 + (${lazy}).n / 3;`,
+        ctx: `const type = 4;\nexport const s = type / 2 + (${lazy}).n / 3;`,
+        block: 'function f() {}\n/`/.test("");\nimport "../local/zt.ts";',
+      };
+      for (const [name, source] of Object.entries(plant)) {
+        file(`apps/pipeline/src/core/slash-${name}.ts`, source);
+      }
+      const found = rel();
+      for (const name of Object.keys(plant)) {
+        expect(found).toContain(`apps/pipeline/src/core/slash-${name}.ts imports "../local/zt.ts"`);
+      }
+    });
+
+    test("import() in a type position does not load (#215 review)", () => {
+      file("apps/pipeline/src/core/typeimp.ts", 'export type T = typeof import("../local/zt.ts");');
+      expect(rel()).not.toContain("core/typeimp.ts");
     });
 
     test("a file under a single-file rule is its own area", () => {

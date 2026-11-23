@@ -30,11 +30,12 @@ describe("readImports (#212)", () => {
       'export type * from "d";',
       'import { type E } from "e";',
       'import type from "f";',
+      'import type, { h } from "h2";',
       "import {",
       "  type G,",
       '} from "g";',
     ].join("\n");
-    expect(read(source)).toEqual(["type a", "type b", "type c", "type d", "e", "f", "g"]);
+    expect(read(source)).toEqual(["type a", "type b", "type c", "type d", "e", "f", "h2", "g"]);
   });
 
   test("comments, strings, templates, regular expressions and names ending in require", () => {
@@ -48,11 +49,16 @@ describe("readImports (#212)", () => {
       "const e = /['\"]/.test(c);",
       'loader.require("f");',
       'prerequire("g");',
+      'x?.require("g2");',
       "export { h };",
       'const i = Array.from("i");',
       "const j = import(name);",
       'import k from "k";',
     ].join("\n");
     expect(read(source)).toEqual(["k"]);
+  });
+
+  test("an escaped name is the name", () => {
+    expect(read('const r = \\u0072equire("r");')).toEqual(["r"]);
   });
 });
