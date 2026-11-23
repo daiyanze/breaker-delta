@@ -305,7 +305,8 @@ describe("check-deps", () => {
       file("apps/pipeline/src/cloudflare/zc.ts", "export const c = 1;");
       const cf = 'import.meta.require("../cloudflare/zc.ts");';
       const plant: Record<string, string> = {
-        "core/mBraceInline.ts": 'function f() {}\n/`/.test("");\nimport { type Z } from "../local/zt.ts";',
+        "core/mBraceInline.ts":
+          'function f() {}\n/`/.test("");\nimport { type Z } from "../local/zt.ts";',
         "core/mParenTypePkg.ts":
           'declare const ok: boolean;\nif (ok) /`/.test("");\nimport type { X } from "wrangler";',
         "core/mDefault.ts": 'import { type default as D } from "../local/zt.ts";',
@@ -315,7 +316,9 @@ describe("check-deps", () => {
       };
       for (const [path, source] of Object.entries(plant)) file(`apps/pipeline/src/${path}`, source);
       const found = [...violations(root, RULES), ...rel().split("\n")].join("\n");
-      for (const path of Object.keys(plant)) expect(found).toContain(`apps/pipeline/src/${path} imports`);
+      for (const path of Object.keys(plant)) {
+        expect(found).toContain(`apps/pipeline/src/${path} imports`);
+      }
     });
 
     test("import() in a type position does not load (#215 review)", () => {

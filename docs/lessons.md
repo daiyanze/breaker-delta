@@ -109,8 +109,11 @@ Each rule applies only within its scope.
   loader rejects `.ts` generics. A fourth round found valid files its
   parser rejected (a `#!` line, an `accessor` field). In #215 the scanner
   of the TypeScript the repository builds with, alone, misplaced a `/` and
-  hid imports; no tool here parses TypeScript exactly as the build does, so
-  the check now reads with both and each covers the other's known misses.
+  hid imports; no tool here parses TypeScript exactly as the build does.
+  The check now reads with Bun's parser and adds from the scanner only what
+  Bun drops, and the scanner tracks the brace and paren context the grammar
+  uses to place a `/`. Each rule of that guess has a test that fails
+  without it.
 - **Rule:** When a check reads YAML, JSON, source code or another standard
   format, use the parser the consumers use, and test it with inputs that
   parser rejects or reads differently. Before naming a skill or command, check the name against what

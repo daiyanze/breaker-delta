@@ -35,11 +35,12 @@ interface Token {
 
 /**
  * Tokens after which a `/` divides; anywhere else it starts a regular
- * expression. The parser knows from the grammar; this is the usual guess.
- * Identifiers count, contextual keywords used as names (`type`, `of`)
- * included, and so does a postfix `!`. It is still wrong after the `)` of
- * `if (x) /re/` and after a block's `}`; check-deps reads with Bun's parser
- * first for that reason.
+ * expression. The parser knows from the grammar; this follows it closely.
+ * Identifiers count, contextual keywords used as names (`type`) included,
+ * but not `await`, `yield` and `of`; so does a postfix `!`. A `)` counts
+ * unless it closes the condition of `if`, `while`, `for` or `with`, and a
+ * `}` counts only when it closes an object literal or type, which is told
+ * from a block by the token before its `{` (OPENS_OBJECT).
  */
 const ENDS_EXPRESSION = new Set<SyntaxKind>([
   SyntaxKind.Identifier,
@@ -61,29 +62,82 @@ const ENDS_EXPRESSION = new Set<SyntaxKind>([
   SyntaxKind.MinusMinusToken,
 ]);
 
+/** After `{ type` or `, type`, these mean `type` is the name, not a modifier. */
+const NOT_A_NAME = new Set<SyntaxKind>([SyntaxKind.CommaToken, SyntaxKind.CloseBraceToken]);
+
+/** Keywords whose `(...)` is a condition, after which a statement starts. */
+const CONTROL = new Set<SyntaxKind>([
+  SyntaxKind.IfKeyword,
+  SyntaxKind.WhileKeyword,
+  SyntaxKind.ForKeyword,
+  SyntaxKind.WithKeyword,
+]);
+
+/** Tokens after which a `{` opens an object literal or type, not a block. */
+const OPENS_OBJECT = new Set<SyntaxKind>([
+  SyntaxKind.EqualsToken,
+  SyntaxKind.OpenParenToken,
+  SyntaxKind.OpenBracketToken,
+  SyntaxKind.CommaToken,
+  SyntaxKind.ColonToken,
+  SyntaxKind.QuestionToken,
+  SyntaxKind.ReturnKeyword,
+  SyntaxKind.LessThanToken,
+  SyntaxKind.BarToken,
+  SyntaxKind.AmpersandToken,
+  SyntaxKind.DotDotDotToken,
+  SyntaxKind.TemplateHead,
+  SyntaxKind.TemplateMiddle,
+  SyntaxKind.BarBarToken,
+  SyntaxKind.AmpersandAmpersandToken,
+  SyntaxKind.QuestionQuestionToken,
+  SyntaxKind.EqualsEqualsEqualsToken,
+  SyntaxKind.ExclamationEqualsEqualsToken,
+  SyntaxKind.PlusToken,
+]);
+
+/** Contextual keywords the scanner calls identifiers that start an expression. */
+const BEFORE_EXPRESSION = new Set(["await", "yield", "of"]);
+
 function tokens(source: string): Token[] {
   const scanner = createScanner(true, LanguageVariant.Standard, source);
   const out: Token[] = [];
-  // What each open `{` belongs to: a block, or a `${` inside a template.
-  const braces: ("block" | "template")[] = [];
+  // What each open `{` belongs to: a block or class body, an object literal
+  // or type, or a `${` inside a template. A `/` after a block's `}` starts
+  // a regular expression; after an object's `}` it divides.
+  const braces: ("block" | "object" | "template")[] = [];
+  // Whether each open `(` follows `if`, `while`, `for` or `with`: after its
+  // `)` a `/` starts a regular expression.
+  const parens: boolean[] = [];
   for (;;) {
     let kind = scanner.scan();
     if (kind === SyntaxKind.EndOfFile) break;
     const last = out.at(-1);
     if ((kind === SyntaxKind.SlashToken || kind === SyntaxKind.SlashEqualsToken) && !last?.ends) {
       kind = scanner.reScanSlashToken();
-    } else if (kind === SyntaxKind.OpenBraceToken) {
-      braces.push("block");
+    }
+    let closes: "block" | "object" | "control" | undefined;
+    if (kind === SyntaxKind.OpenBraceToken) {
+      braces.push(last && OPENS_OBJECT.has(last.kind) ? "object" : "block");
     } else if (kind === SyntaxKind.TemplateHead) {
       braces.push("template");
-    } else if (kind === SyntaxKind.CloseBraceToken && braces.pop() === "template") {
-      kind = scanner.reScanTemplateToken(false);
-      if (kind === SyntaxKind.TemplateMiddle) braces.push("template");
+    } else if (kind === SyntaxKind.CloseBraceToken) {
+      const opened = braces.pop();
+      if (opened === "template") {
+        kind = scanner.reScanTemplateToken(false);
+        if (kind === SyntaxKind.TemplateMiddle) braces.push("template");
+      } else {
+        closes = opened ?? "block";
+      }
+    } else if (kind === SyntaxKind.OpenParenToken) {
+      parens.push(last !== undefined && CONTROL.has(last.kind));
+    } else if (kind === SyntaxKind.CloseParenToken && parens.pop()) {
+      closes = "control";
     }
-    const ends =
-      ENDS_EXPRESSION.has(kind) ||
-      scanner.isIdentifier() ||
-      (kind === SyntaxKind.ExclamationToken && last?.ends === true);
+    const name = scanner.isIdentifier() && !BEFORE_EXPRESSION.has(scanner.getTokenValue());
+    const closesStatement = closes === "block" || closes === "control";
+    const bang = kind === SyntaxKind.ExclamationToken && last?.ends === true;
+    const ends = !closesStatement && (ENDS_EXPRESSION.has(kind) || name || bang);
     out.push({ kind, text: scanner.getTokenText(), value: scanner.getTokenValue(), ends });
   }
   return out;
@@ -122,7 +176,9 @@ export function readImports(source: string): ImportRef[] {
         depth === 1 &&
         isWord(t[j], "type") &&
         (opener === SyntaxKind.OpenBraceToken || opener === SyntaxKind.CommaToken) &&
-        t[j + 1]?.ends
+        t[j + 1] !== undefined &&
+        !NOT_A_NAME.has(t[j + 1]?.kind as SyntaxKind) &&
+        !isWord(t[j + 1], "as")
       ) {
         inlineType = true;
       }
