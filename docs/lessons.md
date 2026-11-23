@@ -106,7 +106,9 @@ Each rule applies only within its scope.
   `import(p, { with })`, template `require`, symlinks). The third round
   showed Bun's parser itself reading differently from the build: it drops
   `import { type X } from`, which `verbatimModuleSyntax` keeps, and its tsx
-  loader rejects `.ts` generics.
+  loader rejects `.ts` generics. A fourth round found valid files its
+  parser rejected (a `#!` line, an `accessor` field); #212 moved to the
+  scanner of the TypeScript the repository builds with.
 - **Rule:** When a check reads YAML, JSON, source code or another standard
   format, use the parser the consumers use, and test it with inputs that
   parser rejects or reads differently. Before naming a skill or command, check the name against what
@@ -115,8 +117,9 @@ Each rule applies only within its scope.
   code; names of skills in `.claude/skills/`.
 - **Check:** `scripts/agent-files.ts` parses frontmatter with `Bun.YAML` and
   refuses the reserved name `run`; `scripts/agent-files.test.ts` covers
-  both. `scripts/check-deps.ts` reads relative imports with
-  `Bun.Transpiler.scanImports` and resolves them with `Bun.resolveSync`.
+  both. `scripts/check-deps.ts` reads imports with TypeScript's own
+  scanner (`scripts/imports.ts`, #212) and resolves them with
+  `Bun.resolveSync`.
 
 ## L13 Check a credential's shape, not only its characters
 

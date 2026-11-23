@@ -4,6 +4,7 @@
  */
 import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
+import { type ImportRef, readImports } from "./imports.ts";
 
 interface Rule {
   dir: string;
@@ -98,26 +99,6 @@ export const RULES: Rule[] = [
   },
 ];
 
-/**
- * Package imports are read with this pattern, so a type-only import of a
- * forbidden package fails too: import statements, and `import(...)` or
- * `require(...)` calls whose first argument is a string or a template
- * without `${}`. A call must not follow a name character or a dot, so
- * `loader.require("x")` is not one; `import.meta.require("x")` is. Relative
- * imports are read by Bun's own parser instead (`relativeImports`, L14).
- */
-const IMPORT = new RegExp(
-  [
-    String.raw`(?:import|export)\s+(?:[^'"]*?\sfrom\s+)?['"]([^'"]+)['"]`,
-    String.raw`(?:^|[^\w$.])(?:import|require)\(\s*(?:['"]([^'"]+)['"]|\x60([^\x60$]+)\x60)\s*[,)]`,
-    String.raw`import\.meta\.require\(\s*['"]([^'"]+)['"]`,
-  ].join("|"),
-  "gm",
-);
-
-/** The specifier an IMPORT match captured. */
-const specOf = (m: RegExpMatchArray) => m[1] ?? m[2] ?? m[3] ?? m[4];
-
 function files(dir: string): string[] {
   let out: string[] = [];
   for (const name of readdirSync(dir)) {
@@ -137,10 +118,15 @@ export function violations(root: string, rules: Rule[] = RULES): string[] {
     // A rule names a directory or a single file.
     const list = statSync(target).isDirectory() ? files(target) : [target];
     for (const file of list) {
-      const source = readFileSync(file, "utf8");
-      for (const match of source.matchAll(IMPORT)) {
-        const spec = specOf(match);
-        if (!spec || spec.startsWith(".")) continue;
+      let imports: ImportRef[];
+      try {
+        imports = importsOf(file);
+      } catch {
+        continue; // relativeViolations reports it
+      }
+      // Type-only imports count here: a core may not even name a forbidden package.
+      for (const { spec } of imports) {
+        if (spec.startsWith(".")) continue;
         if (!rule.allow.some((re) => re.test(spec))) {
           found.push(`${relative(root, file)} imports "${spec}" (${rule.why})`);
         }
@@ -153,36 +139,23 @@ export function violations(root: string, rules: Rule[] = RULES): string[] {
 /** A TypeScript source file. */
 const CODE = /\.[cm]?tsx?$/;
 
-/** One parser per loader: a tsx parser rejects valid `.ts` such as `<T>(x: T) => x`. */
-const TS = new Bun.Transpiler({ loader: "ts" });
-const TSX = new Bun.Transpiler({ loader: "tsx" });
-
 /**
- * Two forms Bun's parser drops that still load at run time: a brace import
- * or export whose first name is `type` (verbatimModuleSyntax keeps it as
- * `import {} from`, so the target is bundled), and `import.meta.require`.
+ * The imports of a file, read with TypeScript's scanner (`./imports.ts`).
+ * A `.tsx` file throws: the scanner alone cannot read JSX text, and the
+ * repository has none yet (#212).
  */
-const KEPT = new RegExp(
-  [
-    String.raw`(?:^|[;\s])(?:import|export)\s*\{\s*type\s[^}]*\}\s*from\s*['"](\.[^'"]*)['"]`,
-    String.raw`import\.meta\.require\(\s*['"](\.[^'"]*)['"]`,
-  ].join("|"),
-  "gm",
-);
+function importsOf(file: string): ImportRef[] {
+  if (file.endsWith(".tsx")) throw new Error("check-deps does not read .tsx files yet (#212)");
+  return readImports(readFileSync(file, "utf8"));
+}
 
 /**
- * Relative imports that load at run time, resolved to real paths. Bun's
- * parser reads statements, `import()` and `require()` (with options or a
- * template without `${}`), and skips comments, strings and type-only
- * imports; `KEPT` adds the two forms it drops. Bun's resolver maps `./x.js`
- * to `x.ts`, finds `x.tsx` and an index, and follows symlinks. A path it
- * cannot resolve is kept as written. Throws when the file does not parse.
+ * Relative imports that load at run time (not `import type`), resolved to
+ * real paths. Bun's resolver maps `./x.js` to `x.ts`, finds `x.tsx` and an
+ * index, and follows symlinks; a path it cannot resolve is kept as written.
  */
 function relativeImports(file: string): { spec: string; target: string }[] {
-  const source = readFileSync(file, "utf8");
-  const parser = /\.tsx$/.test(file) ? TSX : TS;
-  const specs = new Set(parser.scanImports(source).map((i) => i.path));
-  for (const m of source.matchAll(KEPT)) specs.add((m[1] ?? m[2]) as string);
+  const specs = new Set(importsOf(file).flatMap((i) => (i.typeOnly ? [] : [i.spec])));
   const out: { spec: string; target: string }[] = [];
   for (const spec of specs) {
     if (!spec.startsWith(".")) continue;
@@ -197,7 +170,7 @@ function relativeImports(file: string): { spec: string; target: string }[] {
   return out;
 }
 
-/** For the lesson-L1 check; a file that does not parse is reported by relativeViolations. */
+/** For the lesson-L1 check; a file it cannot read is reported by relativeViolations. */
 function runtimeImports(file: string): string[] {
   try {
     return relativeImports(file).map((i) => i.target);
@@ -247,7 +220,7 @@ export function relativeViolations(root: string, rules: Rule[] = RULES): string[
         imports = relativeImports(file);
       } catch (error) {
         const why = error instanceof Error ? error.message : String(error);
-        found.push(`${from} could not be parsed: ${why}`);
+        found.push(`${from} could not be read: ${why}`);
         continue;
       }
       for (const { spec, target } of imports) {
