@@ -163,6 +163,44 @@ describe("parseFeed", () => {
   });
 });
 
+describe("parseFeed with feed fields", () => {
+  const rss = (items: string) => `<rss version="2.0"><channel>${items}</channel></rss>`;
+
+  test("titleFallback is read only when an item has no title", () => {
+    const body = rss(`
+      <item><link>https://example.com/1</link><description>Only text</description></item>
+      <item><link>https://example.com/2</link><title>Title</title><description>Text</description></item>
+      <item><link>https://example.com/3</link><title> </title><description>Blank title</description></item>
+      <item><link>https://example.com/4</link><description></description></item>`);
+    expect(parseFeed(body, { titleFallback: "description" }).map((i) => i.title)).toEqual([
+      "Only text",
+      "Title",
+      "Blank title",
+    ]);
+    // Without the field, items with no title are skipped as before.
+    expect(parseFeed(body).map((i) => i.title)).toEqual(["Title"]);
+  });
+
+  test("heat reads a decimal count from the named element, with or without attributes", () => {
+    const body = `<feed xmlns="http://www.w3.org/2005/Atom" xmlns:re="http://purl.org/atompub/rank/1.0">
+      <entry><title>a</title><link href="https://example.com/a"/><re:rank scheme="https://example.com/s">47</re:rank></entry>
+      <entry><title>b</title><link href="https://example.com/b"/><re:rank>3</re:rank></entry>
+      <entry><title>c</title><link href="https://example.com/c"/><re:rank>-2</re:rank></entry>
+      <entry><title>d</title><link href="https://example.com/d"/><rank>9</rank></entry>
+      <entry><title>e</title><link href="https://example.com/e"/></entry>
+    </feed>`;
+    expect(parseFeed(body, { heat: "re:rank" }).map((i) => i.heat)).toEqual([
+      47,
+      3,
+      null,
+      // Another element of the same local name is not the rank.
+      null,
+      null,
+    ]);
+    expect(parseFeed(body).every((i) => i.heat === null)).toBe(true);
+  });
+});
+
 describe("parseJson and parseDate", () => {
   test("parseJson throws a ParseError on HTML", () => {
     expect(parseJson("[1]")).toEqual([1]);

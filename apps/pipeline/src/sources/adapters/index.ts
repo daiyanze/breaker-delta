@@ -2,6 +2,7 @@
 import type { Adapter } from "../adapter.ts";
 import { appStore } from "./app-store.ts";
 import { arxiv } from "./arxiv.ts";
+import { bluesky } from "./bluesky.ts";
 import { dailyPapers } from "./daily-papers.ts";
 import { devto } from "./devto.ts";
 import { federalRegister } from "./federal-register.ts";
@@ -13,11 +14,14 @@ import { hfSpaces, huggingface } from "./huggingface.ts";
 import { lobsters } from "./lobsters.ts";
 import { mastodon } from "./mastodon.ts";
 import { openrouter } from "./openrouter.ts";
+import { productHunt } from "./producthunt.ts";
+import { stackExchange } from "./stackexchange.ts";
 import { wikipedia } from "./wikipedia.ts";
 
 const ALL: readonly Adapter[] = [
   appStore,
   arxiv,
+  bluesky,
   dailyPapers,
   devto,
   federalRegister,
@@ -31,6 +35,8 @@ const ALL: readonly Adapter[] = [
   mastodon,
   officialBlogs,
   openrouter,
+  productHunt,
+  stackExchange,
   techMedia,
   wikipedia,
 ];
