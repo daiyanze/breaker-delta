@@ -10,7 +10,7 @@
  */
 import type { LaunchGroup } from "./launch-groups.ts";
 
-/** One item as a source lists it. Ingest normalises the URL (M1-09). */
+/** One item as a source lists it. Ingest normalises the URL with `normaliseUrl` from `@bd/core` (M1-09). */
 export interface SourceItem {
   url: string;
   title: string;
@@ -27,6 +27,12 @@ export interface Adapter {
   /**
    * URLs to fetch in one scan. A bundle group returns one per member. `now`
    * (epoch ms) is the scan's time, for sources whose URL names a date.
+   *
+   * Each URL is fetched and parsed on its own, so one member of a bundle
+   * that fails (a fetch error, or `parse` throwing) does not stop the rest:
+   * its items are missing, the other members' are kept. The group is missing
+   * from a scan only when every one of its URLs failed; when some failed,
+   * the scan result names them in its error.
    */
   urls(group: LaunchGroup, now: number): readonly string[];
   /**
