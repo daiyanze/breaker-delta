@@ -50,9 +50,14 @@ is a later stage." with:
   PR, no protected path or check change, an approving review from the run's
   account that covers the head, green CI, the base merged in, and nothing
   blocking. It never uses `--admin`.
-- A merge to `develop` deploys once deploys are switched on, so a grant must
-  then say that merging may deploy.
+- A merge to `develop` queues the `production` deploy job, which waits for
+  the owner's approval in the `production` environment and applies
+  migrations that cannot be undone. A grant never covers approving that
+  deployment, even though the agent's account could. While the environment
+  requires the owner's review, a merge deploys nothing by itself
+  (`AGENTS.md` says so, which is what the skill reads).
 - Claude workflows in GitHub Actions still never merge.
+- ADR 0016 is amended to match.
 
 No branch rule can read a review verdict: a granted merge rests on the
 agent following the skill, and the owner's grant is the safeguard.

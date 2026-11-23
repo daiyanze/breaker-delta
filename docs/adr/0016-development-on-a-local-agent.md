@@ -84,3 +84,12 @@ The skills are now named as in the Onus method (#219): `next` is
 this ADR or its earlier amendments name the old skills or
 `.claude/skills/review/SKILL.md`, read `.claude/skills/cross-examine/SKILL.md`
 and the new names.
+
+## Amendment (2026-11-23): merging under a grant
+
+ADR 0007's amendment of the same date lets a `docket` run merge its own PRs
+when the owner grants it in that session. Where this ADR says "the owner
+merges" (the flow above) and "The owner still merges." (the amendment of
+2026-11-21), read: the owner merges, or a `docket` run the owner granted
+merging does, under the conditions of that skill's step 5. A merge never
+approves the `production` deployment it queues; that stays the owner's.
