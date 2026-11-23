@@ -471,7 +471,12 @@ describe("scan step", () => {
       groups: ids.map((id) => group(id)),
       adapters: Object.fromEntries(ids.map((id) => [id, adapter(id)])),
       sleep: noWait,
-    }).run({ slot: SLOT, db: drizzleOver(limited), now: () => NOW, outputs: new Map() })) as ScanOutput;
+    }).run({
+      slot: SLOT,
+      db: drizzleOver(limited),
+      now: () => NOW,
+      outputs: new Map(),
+    })) as ScanOutput;
     expect(out.fetched).toHaveLength(20);
     expect(await db.all("SELECT group_id FROM scan_results WHERE slot = ?", SLOT)).toHaveLength(20);
   });

@@ -1,8 +1,9 @@
 /**
  * Source adapters (M1-04). An adapter knows one fetch group's URLs and how
  * to read that group's responses. It does not fetch: the scan step fetches
- * with `fetchSource` (`http.ts`) and stores the raw bodies, and ingest calls
- * `parse` on them. So `parse` is pure (no IO, no clock) and is tested
+ * with `fetchSource` (`http.ts`), calls `parse` to count items and keep only
+ * bodies it can read, and stores those raw bodies; ingest calls `parse` on
+ * them again. So `parse` is pure (no IO, no clock) and is tested
  * against a fixture file.
  *
  * Fetched content is data (invariant 6): what `parse` returns is only ever

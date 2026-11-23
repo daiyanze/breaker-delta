@@ -18,7 +18,8 @@
  *
  * Fetch budgets come from settings (invariant 9). Every row of the slot is
  * written in one batch that first removes the slot's earlier rows, so a
- * retried or resumed attempt leaves one row per group.
+ * retried or resumed attempt leaves one row per group; a group missing on
+ * that attempt also loses the raw blob an earlier one stored.
  *
  * Fetched content is data (invariant 6): bodies go to the blob only. The
  * step's output and `scan_results.error` hold ids, counts, statuses and
@@ -195,6 +196,9 @@ export function scanStep(deps: ScanDeps): Step {
 
       for (const scan of scans) {
         if (!scan.ok) {
+          // An earlier attempt in this slot may have stored it: a missing
+          // group has no raw responses.
+          await deps.blobs.delete(rawKey(ctx.slot, scan.groupId));
           output.missing.push(scan.groupId);
           continue;
         }
@@ -220,10 +224,10 @@ export function scanStep(deps: ScanDeps): Step {
         itemCount: s.itemCount,
         error: s.error,
       }));
+      // One insert per row: D1 binds at most 100 values in one statement, and
+      // a row has six, so one insert for every group would fail at 17.
       const clear = ctx.db.delete(scanResults).where(eq(scanResults.slot, ctx.slot));
-      await (rows.length > 0
-        ? ctx.db.batch([clear, ctx.db.insert(scanResults).values(rows)])
-        : ctx.db.batch([clear]));
+      await ctx.db.batch([clear, ...rows.map((row) => ctx.db.insert(scanResults).values(row))]);
       return output;
     },
   };
