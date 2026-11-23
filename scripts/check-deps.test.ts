@@ -201,6 +201,33 @@ describe("check-deps", () => {
       }
     });
 
+    test("call options, template require, .js and .tsx resolution (#211 round 2)", () => {
+      file("packages/judge/src/z.ts", "export const z = 1;");
+      file("apps/pipeline/src/local/srv.bun.tsx", "export const s = 1;");
+      file("apps/pipeline/src/local/zz.ts", "export const z = 1;");
+      const judge = "../../../../packages/judge/src/z.ts";
+      file("apps/web/src/core/e2.ts", `await import("${judge}", { with: {} });`);
+      file("apps/web/src/local/d2.ts", `const z = require(\`${judge}\`);`);
+      symlinkSync(join(root, "packages/judge/src/z.ts"), join(root, "apps/web/src/core/j.ts"));
+      file("apps/web/src/core/a2.ts", 'import z from "./j.js";');
+      file("apps/pipeline/src/core/js.ts", 'import { z } from "../local/zz.js";');
+      file("apps/pipeline/src/core/b.ts", 'import { s } from "../local/srv.bun";');
+      const found = rel();
+      expect(found).toContain(`apps/web/src/core/e2.ts imports "${judge}"`);
+      expect(found).toContain(`apps/web/src/local/d2.ts imports "${judge}"`);
+      expect(found).toContain('apps/web/src/core/a2.ts imports "./j.js", code in packages/judge');
+      expect(found).toContain('apps/pipeline/src/core/js.ts imports "../local/zz.js"');
+      expect(found).toContain('apps/pipeline/src/core/b.ts imports "../local/srv.bun"');
+    });
+
+    test("a name ending in require is not an import; spacing after type does not matter", () => {
+      file("apps/web/src/core/g2.ts", 'loader.require("anything");\nprerequire("abc");');
+      file("apps/web/src/core/sp.ts", 'import type  from "../local/zz.ts";');
+      const all = [...violations(root, RULES), ...relativeViolations(root, RULES)].join("\n");
+      expect(all).not.toContain("core/g2.ts");
+      expect(all).toContain('apps/web/src/core/sp.ts imports "../local/zz.ts"');
+    });
+
     test("a file under a single-file rule is its own area", () => {
       file("apps/web/src/core/sel.ts", 'import { s } from "../select.ts";');
       file("apps/web/src/local/sel.ts", 'import { s } from "../select.ts";');
