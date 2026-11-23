@@ -84,3 +84,10 @@ The skills are now named as in the Onus method (#219): `next` is
 this ADR or its earlier amendments name the old skills or
 `.claude/skills/review/SKILL.md`, read `.claude/skills/cross-examine/SKILL.md`
 and the new names.
+
+## Amendment (2026-11-24): label names
+
+The labels no longer name one agent runtime: `owner:claude-ok` is now
+`owner:agent-ok`, and `owner:human+claude` is now `owner:human+agent`.
+`owner:human` is unchanged. GitHub renames a label in place, so every issue
+keeps its label. Text above and in older lessons keeps the old names.

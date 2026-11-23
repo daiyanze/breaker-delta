@@ -158,7 +158,7 @@ Development runs on a local agent on the owner's machine (ADR 0016). The
 working method is `docs/development.md`; read it and `docs/lessons.md`
 before starting a task.
 
-1. Pick an issue (the `take-case` skill finds the next `owner:claude-ok`
+1. Pick an issue (the `take-case` skill finds the next `owner:agent-ok`
    one; the `docket` skill works through a whole goal). Branch from
    `develop`. Never push to `develop` directly.
 2. Implement, then run `bun run check` locally. Drive anything a user sees
