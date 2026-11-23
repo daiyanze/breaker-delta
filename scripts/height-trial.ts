@@ -70,7 +70,7 @@ Options:
   --top <n>          clusters to show (default 20)
   --days <n>         echoes first seen in the last n days (default 7)
   --sets <file>      JSON array of 2 to 4 sets: { "name", ...height settings }
-  --now <iso time>   score as of this time (default: now)
+  --now <iso time>   score as of this time (default: now, read after --collect)
   --collect          run scan and ingest once first (fetches the sources)
   --help             this text
 `;
@@ -393,7 +393,17 @@ async function collect(dataDir: string): Promise<string> {
   }
 }
 
-async function main(argv: string[]) {
+/** What `main` uses from outside; tests pass their own, with no network. */
+export interface MainDeps {
+  collect: (dataDir: string) => Promise<string>;
+  now: () => number;
+  print: (text: string) => void;
+}
+
+const DEFAULT_DEPS: MainDeps = { collect, now: () => Date.now(), print: (t) => console.log(t) };
+
+export async function main(argv: string[], deps: MainDeps = DEFAULT_DEPS) {
+  const print = deps.print;
   const { values } = parseArgs({
     args: argv,
     options: {
@@ -407,21 +417,24 @@ async function main(argv: string[]) {
     },
   });
   if (values.help) {
-    console.log(HELP);
+    print(HELP);
     return;
   }
   const dataDir = resolve(values["data-dir"] ?? process.env.BD_DATA_DIR ?? ".bd-data");
   const top = Number(values.top);
   const days = Number(values.days);
-  const nowMs = values.now === undefined ? Date.now() : Date.parse(values.now);
+  const givenNow = values.now === undefined ? undefined : Date.parse(values.now);
   if (!Number.isInteger(top) || top < 1) throw new Error("--top: a whole number of at least 1");
   if (!(days > 0)) throw new Error("--days: a positive number");
-  if (Number.isNaN(nowMs)) throw new Error("--now: an ISO time");
+  if (Number.isNaN(givenNow)) throw new Error("--now: an ISO time");
   const sets = values.sets === undefined ? undefined : await Bun.file(values.sets).json();
 
-  console.log(`${WARNING}\n`);
-  if (values.collect) console.log(`[height-trial] collect: ${await collect(dataDir)}\n`);
-  console.log(trial({ dataDir, top, days, nowMs, sets }));
+  print(`${WARNING}\n`);
+  if (values.collect) print(`[height-trial] collect: ${await deps.collect(dataDir)}\n`);
+  // Read the clock after collecting: echoes are stamped with the fetch time,
+  // and an earlier "now" would leave out everything just collected.
+  const nowMs = givenNow ?? deps.now();
+  print(trial({ dataDir, top, days, nowMs, sets }));
 }
 
 if (import.meta.main) {

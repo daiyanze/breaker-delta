@@ -4,6 +4,24 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L21 A time bound must be read after the writes it is meant to include
+
+- **Date:** 2026-11-23. **Status:** active.
+- **What happened:** #233's review asked the height trial to score "as of
+  `--now`", and the fix bounded the query by `first_seen_at <= now`. With
+  no `--now`, the script read the clock before `--collect` fetched, so the
+  owner's first run stored 5,502 echoes, all stamped a few milliseconds
+  after "now", and showed 0. The test seeded rows with fixed times, so it
+  never ran collect and query in one command. The owner caught it.
+- **Rule:** When adding a time bound, check where its clock is read
+  against every write the same command makes before the query, and test
+  the whole command with a stand-in for those writes, not only the query.
+- **Scope:** scripts and steps that write and then read by time
+  (`scripts/`, `apps/pipeline/src/core`).
+- **Check:** the test "with --collect and no --now, echoes just collected
+  are scored" in `scripts/height-trial.test.ts` (fails with the clock read
+  before collect). Fixed in #234.
+
 ## L20 Check what a field means in a recorded response, not only that it is there
 
 - **Date:** 2026-11-23. **Status:** active.

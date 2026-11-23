@@ -14,6 +14,7 @@ import {
   cleanTitle,
   HELP,
   loadClusters,
+  main,
   parseSets,
   score,
   trial,
@@ -161,5 +162,29 @@ describe("height trial", () => {
   test("titles lose control characters and are cut to one bounded line", () => {
     expect(cleanTitle("a\u001b[31mred\u0007\nnext‮line")).toBe("a [31mred next line");
     expect(cleanTitle("x".repeat(80), 10)).toBe(`${"x".repeat(9)}…`);
+  });
+
+  test("with --collect and no --now, echoes just collected are scored", async () => {
+    const { dir } = seed();
+    let clock = NOW;
+    const out: string[] = [];
+    await main(["--data-dir", dir, "--collect"], {
+      now: () => clock,
+      print: (t) => out.push(t),
+      // Stands in for scan and ingest, offline: one echo stamped with the fetch time.
+      collect: async (dataDir) => {
+        clock += 50;
+        const db = new SQLite(join(dataDir, "content.db"));
+        db.run(
+          `INSERT INTO echoes (id, url, group_id, title, first_seen_at, first_slot)
+           VALUES ('fresh', 'https://example.test/fresh', 'hn', 'Synthetic fresh', ?1, 's')`,
+          [clock],
+        );
+        db.close();
+        clock += 50;
+        return "{}";
+      },
+    });
+    expect(out.join("\n")).toContain("Synthetic fresh");
   });
 });
