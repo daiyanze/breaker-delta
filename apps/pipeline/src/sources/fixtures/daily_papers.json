@@ -1,0 +1,392 @@
+[
+  {
+    "paper": {
+      "id": "2611.15449",
+      "authors": [
+        {
+          "_id": "text 1",
+          "name": "text 2",
+          "hidden": false
+        },
+        {
+          "_id": "text 3",
+          "name": "text 4",
+          "hidden": false
+        },
+        {
+          "_id": "text 5",
+          "name": "text 6",
+          "hidden": false
+        },
+        {
+          "_id": "text 7",
+          "name": "text 8",
+          "hidden": false
+        }
+      ],
+      "publishedAt": "2026-11-11T00:00:00.000Z",
+      "submittedOnDailyAt": "2026-11-23T00:00:00.000Z",
+      "title": "text 9",
+      "submittedOnDailyBy": {
+        "_id": "text 10",
+        "avatarUrl": "https://example.com/item/11",
+        "isPro": false,
+        "fullname": "text 12",
+        "user": "text 13",
+        "type": "text 14",
+        "name": "text 15"
+      },
+      "summary": "text 16",
+      "upvotes": 3,
+      "discussionId": "text 17",
+      "projectPage": "https://example.com/item/18",
+      "githubRepo": "https://example.com/item/19",
+      "githubRepoAddedBy": "text 20",
+      "githubStars": 0
+    },
+    "publishedAt": "2026-11-10T19:00:00.000Z",
+    "title": "text 21",
+    "summary": "text 22",
+    "thumbnail": "https://example.com/item/23",
+    "numComments": 1,
+    "submittedBy": {
+      "_id": "text 24",
+      "avatarUrl": "https://example.com/item/25",
+      "fullname": "text 26",
+      "name": "text 27",
+      "type": "text 28",
+      "isPro": false,
+      "isHf": false,
+      "isHfAdmin": false,
+      "isMod": false,
+      "isUserFollowing": false
+    },
+    "isAuthorParticipating": false
+  },
+  {
+    "paper": {
+      "id": "2611.24636",
+      "authors": [
+        {
+          "_id": "text 29",
+          "name": "text 30",
+          "hidden": false
+        }
+      ],
+      "publishedAt": "2026-11-18T00:00:00.000Z",
+      "submittedOnDailyAt": "2026-11-23T00:00:00.000Z",
+      "title": "text 31",
+      "submittedOnDailyBy": {
+        "_id": "text 32",
+        "avatarUrl": "text 33",
+        "isPro": false,
+        "fullname": "text 34",
+        "user": "text 35",
+        "type": "text 36",
+        "name": "text 37"
+      },
+      "summary": "text 38",
+      "upvotes": 17,
+      "discussionId": "text 39",
+      "projectPage": "https://example.com/item/40",
+      "githubRepo": "https://example.com/item/41",
+      "githubRepoAddedBy": "text 42",
+      "githubStars": 161,
+      "organization": {
+        "_id": "text 43",
+        "name": "text 44",
+        "fullname": "text 45",
+        "avatar": "https://example.com/item/46"
+      }
+    },
+    "publishedAt": "2026-11-17T19:00:00.000Z",
+    "title": "text 47",
+    "summary": "text 48",
+    "thumbnail": "https://example.com/item/49",
+    "numComments": 2,
+    "submittedBy": {
+      "_id": "text 50",
+      "avatarUrl": "text 51",
+      "fullname": "text 52",
+      "name": "text 53",
+      "type": "text 54",
+      "isPro": false,
+      "isHf": false,
+      "isHfAdmin": false,
+      "isMod": false,
+      "followerCount": 8,
+      "isUserFollowing": false
+    },
+    "organization": {
+      "_id": "text 55",
+      "name": "text 56",
+      "fullname": "text 57",
+      "avatar": "https://example.com/item/58"
+    },
+    "isAuthorParticipating": false
+  },
+  {
+    "paper": {
+      "id": "2611.27229",
+      "authors": [
+        {
+          "_id": "text 59",
+          "name": "text 60",
+          "hidden": false
+        },
+        {
+          "_id": "text 61",
+          "name": "text 62",
+          "hidden": false
+        },
+        {
+          "_id": "text 63",
+          "name": "text 64",
+          "hidden": false
+        }
+      ],
+      "publishedAt": "2026-11-20T00:00:00.000Z",
+      "submittedOnDailyAt": "2026-11-23T00:00:00.000Z",
+      "title": "text 65",
+      "submittedOnDailyBy": {
+        "_id": "text 66",
+        "avatarUrl": "https://example.com/item/67",
+        "isPro": false,
+        "fullname": "text 68",
+        "user": "text 69",
+        "type": "text 70",
+        "name": "text 71"
+      },
+      "summary": "text 72",
+      "upvotes": 2,
+      "discussionId": "text 73",
+      "ai_summary": "text 74",
+      "ai_keywords": ["text 75", "text 76", "text 77", "text 78", "text 79"],
+      "ai_summary_model": "text 80",
+      "organization": {
+        "_id": "text 81",
+        "name": "text 82",
+        "fullname": "text 83",
+        "avatar": "https://example.com/item/84"
+      }
+    },
+    "publishedAt": "2026-11-19T19:00:00.000Z",
+    "title": "text 85",
+    "summary": "text 86",
+    "thumbnail": "https://example.com/item/87",
+    "numComments": 1,
+    "submittedBy": {
+      "_id": "text 88",
+      "avatarUrl": "https://example.com/item/89",
+      "fullname": "text 90",
+      "name": "text 91",
+      "type": "text 92",
+      "isPro": false,
+      "isHf": false,
+      "isHfAdmin": false,
+      "isMod": false,
+      "followerCount": 11,
+      "isUserFollowing": false
+    },
+    "organization": {
+      "_id": "text 93",
+      "name": "text 94",
+      "fullname": "text 95",
+      "avatar": "https://example.com/item/96"
+    },
+    "isAuthorParticipating": false
+  },
+  {
+    "paper": {
+      "id": "2611.24077",
+      "authors": [
+        {
+          "_id": "text 97",
+          "user": {
+            "_id": "text 98",
+            "avatarUrl": "text 99",
+            "isPro": false,
+            "fullname": "text 100",
+            "user": "text 101",
+            "type": "text 102",
+            "name": "text 103"
+          },
+          "name": "text 104",
+          "status": "text 105",
+          "statusLastChangedAt": "2026-11-19T08:45:04.960Z",
+          "hidden": false
+        },
+        {
+          "_id": "text 106",
+          "name": "text 107",
+          "hidden": false
+        },
+        {
+          "_id": "text 108",
+          "name": "text 109",
+          "hidden": false
+        },
+        {
+          "_id": "text 110",
+          "name": "text 111",
+          "hidden": false
+        },
+        {
+          "_id": "text 112",
+          "name": "text 113",
+          "hidden": false
+        }
+      ],
+      "mediaUrls": [
+        "https://example.com/item/114",
+        "https://example.com/item/115",
+        "https://example.com/item/116"
+      ],
+      "publishedAt": "2026-11-18T00:00:00.000Z",
+      "submittedOnDailyAt": "2026-11-23T00:00:00.000Z",
+      "title": "text 117",
+      "submittedOnDailyBy": {
+        "_id": "text 118",
+        "avatarUrl": "text 119",
+        "isPro": false,
+        "fullname": "text 120",
+        "user": "text 121",
+        "type": "text 122",
+        "name": "text 123"
+      },
+      "summary": "text 124",
+      "upvotes": 1,
+      "discussionId": "text 125",
+      "projectPage": "https://example.com/item/126",
+      "githubRepo": "https://example.com/item/127",
+      "githubRepoAddedBy": "text 128",
+      "githubStars": 4,
+      "organization": {
+        "_id": "text 129",
+        "name": "text 130",
+        "fullname": "text 131",
+        "avatar": "https://example.com/item/132"
+      }
+    },
+    "publishedAt": "2026-11-17T19:00:00.000Z",
+    "title": "text 133",
+    "summary": "text 134",
+    "mediaUrls": [
+      "https://example.com/item/135",
+      "https://example.com/item/136",
+      "https://example.com/item/137"
+    ],
+    "thumbnail": "https://example.com/item/138",
+    "numComments": 1,
+    "submittedBy": {
+      "_id": "text 139",
+      "avatarUrl": "text 140",
+      "fullname": "text 141",
+      "name": "text 142",
+      "type": "text 143",
+      "isPro": false,
+      "isHf": false,
+      "isHfAdmin": false,
+      "isMod": false,
+      "isUserFollowing": false
+    },
+    "organization": {
+      "_id": "text 144",
+      "name": "text 145",
+      "fullname": "text 146",
+      "avatar": "https://example.com/item/147"
+    },
+    "isAuthorParticipating": true
+  },
+  {
+    "paper": {
+      "id": "2611.25773",
+      "authors": [
+        {
+          "_id": "text 148",
+          "user": {
+            "_id": "text 149",
+            "avatarUrl": "https://example.com/item/150",
+            "isPro": false,
+            "fullname": "text 151",
+            "user": "text 152",
+            "type": "text 153",
+            "name": "text 154"
+          },
+          "name": "text 155",
+          "status": "text 156",
+          "statusLastChangedAt": "2026-11-20T17:08:11.951Z",
+          "hidden": false
+        },
+        {
+          "_id": "text 157",
+          "name": "text 158",
+          "hidden": false
+        },
+        {
+          "_id": "text 159",
+          "name": "text 160",
+          "hidden": false
+        },
+        {
+          "_id": "text 161",
+          "name": "text 162",
+          "hidden": false
+        },
+        {
+          "_id": "text 163",
+          "name": "text 164",
+          "hidden": false
+        }
+      ],
+      "mediaUrls": [
+        "https://example.com/item/165",
+        "https://example.com/item/166",
+        "https://example.com/item/167"
+      ],
+      "publishedAt": "2026-11-19T00:00:00.000Z",
+      "submittedOnDailyAt": "2026-11-23T00:00:00.000Z",
+      "title": "text 168",
+      "submittedOnDailyBy": {
+        "_id": "text 169",
+        "avatarUrl": "https://example.com/item/170",
+        "isPro": false,
+        "fullname": "text 171",
+        "user": "text 172",
+        "type": "text 173",
+        "name": "text 174"
+      },
+      "summary": "text 175",
+      "upvotes": 11,
+      "discussionId": "text 176",
+      "projectPage": "https://example.com/item/177",
+      "githubRepo": "https://example.com/item/178",
+      "githubRepoAddedBy": "text 179",
+      "githubStars": 35
+    },
+    "publishedAt": "2026-11-18T19:00:00.000Z",
+    "title": "text 180",
+    "summary": "text 181",
+    "mediaUrls": [
+      "https://example.com/item/182",
+      "https://example.com/item/183",
+      "https://example.com/item/184"
+    ],
+    "thumbnail": "https://example.com/item/185",
+    "numComments": 1,
+    "submittedBy": {
+      "_id": "text 186",
+      "avatarUrl": "https://example.com/item/187",
+      "fullname": "text 188",
+      "name": "text 189",
+      "type": "text 190",
+      "isPro": false,
+      "isHf": false,
+      "isHfAdmin": false,
+      "isMod": false,
+      "followerCount": 1,
+      "isUserFollowing": false
+    },
+    "isAuthorParticipating": true
+  }
+]

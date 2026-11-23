@@ -24,8 +24,11 @@ export interface Adapter {
   groupId: string;
   /** What `parse` reads, and how a recorded fixture is scrubbed. */
   format: "json" | "xml";
-  /** URLs to fetch in one scan. A bundle group returns one per member. */
-  urls(group: LaunchGroup): readonly string[];
+  /**
+   * URLs to fetch in one scan. A bundle group returns one per member. `now`
+   * (epoch ms) is the scan's time, for sources whose URL names a date.
+   */
+  urls(group: LaunchGroup, now: number): readonly string[];
   /**
    * The items in one response body. Throws `ParseError` on a body it cannot
    * read at all; skips single items that lack a URL or a title.

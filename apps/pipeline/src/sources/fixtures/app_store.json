@@ -1,0 +1,71 @@
+{
+  "feed": {
+    "title": "text 1",
+    "id": "https://example.com/item/2",
+    "author": {
+      "name": "text 3",
+      "url": "https://example.com/item/4"
+    },
+    "links": [
+      {
+        "self": "https://example.com/item/5"
+      }
+    ],
+    "copyright": "text 6",
+    "country": "text 7",
+    "icon": "https://example.com/item/8",
+    "updated": "Mon, 23 Nov 2026 04:34:51 +0000",
+    "results": [
+      {
+        "artistName": "text 9",
+        "id": "6741796873",
+        "name": "text 10",
+        "releaseDate": "2026-06-03",
+        "kind": "text 11",
+        "artworkUrl100": "https://example.com/item/12",
+        "genres": [],
+        "url": "https://example.com/item/13"
+      },
+      {
+        "artistName": "text 14",
+        "id": "6760173601",
+        "name": "text 15",
+        "releaseDate": "2026-09-08",
+        "kind": "text 16",
+        "artworkUrl100": "https://example.com/item/17",
+        "genres": [],
+        "url": "https://example.com/item/18"
+      },
+      {
+        "artistName": "text 19",
+        "id": "632064380",
+        "name": "text 20",
+        "releaseDate": "2013-04-11",
+        "kind": "text 21",
+        "artworkUrl100": "https://example.com/item/22",
+        "genres": [],
+        "url": "https://example.com/item/23"
+      },
+      {
+        "artistName": "text 24",
+        "id": "6448311069",
+        "name": "text 25",
+        "releaseDate": "2023-05-18",
+        "kind": "text 26",
+        "artworkUrl100": "https://example.com/item/27",
+        "genres": [],
+        "url": "https://example.com/item/28"
+      },
+      {
+        "artistName": "text 29",
+        "id": "1605170923",
+        "name": "text 30",
+        "releaseDate": "2023-04-03",
+        "kind": "text 31",
+        "artworkUrl100": "https://example.com/item/32",
+        "genres": [],
+        "url": "https://example.com/item/33"
+      }
+    ]
+  }
+}

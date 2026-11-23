@@ -13,6 +13,14 @@ export function parseJson(body: string): unknown {
   }
 }
 
+/** The objects in a JSON list; anything else in it is dropped. Not a list: []. */
+export function records(value: unknown): Record<string, unknown>[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter(
+    (v): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v),
+  );
+}
+
 /** Epoch ms from an ISO 8601 or RFC 822 date, or null. */
 export function parseDate(value: unknown): number | null {
   if (typeof value !== "string" || value.trim() === "") return null;
@@ -66,6 +74,31 @@ export function isWebUrl(s: string): boolean {
     return true;
   } catch {
     return false;
+  }
+}
+
+/**
+ * A source's own count (points, likes, views) as a number, or null. Some APIs
+ * send counts as decimal strings (Mastodon's `uses`).
+ */
+export function count(value: unknown): number | null {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "string" && /^\d+$/.test(value.trim())) return Number(value.trim());
+  return null;
+}
+
+/**
+ * The page for a path the source names by ID (`org/model`), on the source's
+ * own site, or "" when the path is empty or holds `//` or `\\`, which a URL
+ * parser may read as another host.
+ */
+export function pageUrl(origin: string, path: string): string {
+  if (path === "" || path.includes("//") || path.includes("\\")) return "";
+  try {
+    const url = new URL(path.startsWith("/") ? path : `/${path}`, origin);
+    return url.origin === origin ? url.href : "";
+  } catch {
+    return "";
   }
 }
 

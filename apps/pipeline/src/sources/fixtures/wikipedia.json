@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "project": "text 1",
+      "access": "text 2",
+      "year": "2026",
+      "month": "11",
+      "day": "22",
+      "articles": [
+        {
+          "article": "text 3",
+          "views": 3672266,
+          "rank": 1
+        },
+        {
+          "article": "text 4",
+          "views": 641297,
+          "rank": 2
+        },
+        {
+          "article": "text 5",
+          "views": 530567,
+          "rank": 3
+        },
+        {
+          "article": "text 6",
+          "views": 384249,
+          "rank": 4
+        },
+        {
+          "article": "text 7",
+          "views": 308867,
+          "rank": 5
+        }
+      ]
+    }
+  ]
+}

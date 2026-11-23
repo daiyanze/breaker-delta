@@ -26,7 +26,7 @@ if (!adapter || !group) {
   process.exit(2);
 }
 
-const [url] = adapter.urls(group);
+const [url] = adapter.urls(group, Date.now());
 if (!url) {
   console.error(`${groupId}: the adapter lists no URL`);
   process.exit(1);
