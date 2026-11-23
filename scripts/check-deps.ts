@@ -2,13 +2,18 @@
  * Dependency-direction check. Fails CI when a package imports something its
  * role forbids. Rules mirror AGENTS.md "Architecture map".
  */
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 
 interface Rule {
   dir: string;
-  /** Bare specifiers allowed. Relative imports are always allowed. */
+  /** Bare specifiers allowed. */
   allow: RegExp[];
+  /**
+   * Other rules' areas in the same package that this area may import by
+   * relative path (#209). Its own files are always allowed.
+   */
+  reach?: string[];
   why: string;
 }
 
@@ -43,6 +48,7 @@ export const RULES: Rule[] = [
   {
     dir: "apps/pipeline/src/core",
     allow: [/^@bd\/(contracts|core|db|judge)$/, PORTS, DRIZZLE, /^bun:test$/],
+    reach: ["apps/pipeline/src/sources"],
     why: "the pipeline core depends on ports only (ADR 0018)",
   },
   {
@@ -53,21 +59,25 @@ export const RULES: Rule[] = [
   {
     dir: "apps/pipeline/src/cloudflare",
     allow: [/^@bd\/(contracts|core|db|judge)$/, PORTS, DRIZZLE, /^cloudflare:/, /^bun:test$/],
+    reach: ["apps/pipeline/src/core"],
     why: "the Cloudflare adapter maps bindings onto ports; no Bun APIs (ADR 0018)",
   },
   {
     dir: "apps/pipeline/src/local",
     allow: [/^@bd\/(contracts|core|db)$/, PORTS, /^bun:/, /^node:/],
+    reach: ["apps/pipeline/src/core"],
     why: "the local adapter runs on Bun, never on Cloudflare APIs (ADR 0018)",
   },
   {
     dir: "apps/web/src/select.ts",
     allow: [/^@bd\/(contracts|fixtures)$/, PORTS],
+    reach: ["apps/web/src/core"],
     why: "the query-layer choice is shared by both adapters: no runtime APIs (ADR 0018)",
   },
   {
     dir: "apps/web/src/local",
     allow: [/^@bd\/(contracts|fixtures)$/, PORTS, /^bun:/, /^node:/],
+    reach: ["apps/web/src/core", "apps/web/src/select.ts"],
     why: "the local site adapter runs on Bun, never on Cloudflare APIs (ADR 0018)",
   },
   {
@@ -83,12 +93,30 @@ export const RULES: Rule[] = [
   {
     dir: "apps/web/src",
     allow: [/^@bd\/(contracts|db|fixtures)$/, PORTS, /^cloudflare:/, /^bun:test$/],
+    reach: ["apps/web/src/core", "apps/web/src/select.ts"],
     why: "web is read-only: no judge, no pipeline code",
   },
 ];
 
-const IMPORT =
-  /(?:import|export)\s+(?:[^'"]*?\sfrom\s+)?['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)/g;
+/**
+ * Package imports are read with this pattern, so a type-only import of a
+ * forbidden package fails too: import statements, and `import(...)` or
+ * `require(...)` calls whose first argument is a string or a template
+ * without `${}`. A call must not follow a name character or a dot, so
+ * `loader.require("x")` is not one; `import.meta.require("x")` is. Relative
+ * imports are read by Bun's own parser instead (`relativeImports`, L14).
+ */
+const IMPORT = new RegExp(
+  [
+    String.raw`(?:import|export)\s+(?:[^'"]*?\sfrom\s+)?['"]([^'"]+)['"]`,
+    String.raw`(?:^|[^\w$.])(?:import|require)\(\s*(?:['"]([^'"]+)['"]|\x60([^\x60$]+)\x60)\s*[,)]`,
+    String.raw`import\.meta\.require\(\s*['"]([^'"]+)['"]`,
+  ].join("|"),
+  "gm",
+);
+
+/** The specifier an IMPORT match captured. */
+const specOf = (m: RegExpMatchArray) => m[1] ?? m[2] ?? m[3] ?? m[4];
 
 function files(dir: string): string[] {
   let out: string[] = [];
@@ -111,7 +139,7 @@ export function violations(root: string, rules: Rule[] = RULES): string[] {
     for (const file of list) {
       const source = readFileSync(file, "utf8");
       for (const match of source.matchAll(IMPORT)) {
-        const spec = match[1] ?? match[2];
+        const spec = specOf(match);
         if (!spec || spec.startsWith(".")) continue;
         if (!rule.allow.some((re) => re.test(spec))) {
           found.push(`${relative(root, file)} imports "${spec}" (${rule.why})`);
@@ -122,18 +150,126 @@ export function violations(root: string, rules: Rule[] = RULES): string[] {
   return found;
 }
 
-/** Relative imports that exist at run time (`import type` is erased). */
-function runtimeImports(file: string): string[] {
-  const out: string[] = [];
-  for (const match of readFileSync(file, "utf8").matchAll(IMPORT)) {
-    const spec = match[1] ?? match[2];
-    if (!spec?.startsWith(".") || /^(import|export)\s+type\s/.test(match[0])) continue;
-    const target = resolve(dirname(file), spec);
-    // Bundler resolution also accepts "./index", "." and "./dir".
-    const candidates = [target, `${target}.ts`, join(target, "index.ts")];
-    out.push(candidates.find((c) => /\.tsx?$/.test(c) && existsSync(c)) ?? target);
+/** A TypeScript source file. */
+const CODE = /\.[cm]?tsx?$/;
+
+/** One parser per loader: a tsx parser rejects valid `.ts` such as `<T>(x: T) => x`. */
+const TS = new Bun.Transpiler({ loader: "ts" });
+const TSX = new Bun.Transpiler({ loader: "tsx" });
+
+/**
+ * Two forms Bun's parser drops that still load at run time: a brace import
+ * or export whose first name is `type` (verbatimModuleSyntax keeps it as
+ * `import {} from`, so the target is bundled), and `import.meta.require`.
+ */
+const KEPT = new RegExp(
+  [
+    String.raw`(?:^|[;\s])(?:import|export)\s*\{\s*type\s[^}]*\}\s*from\s*['"](\.[^'"]*)['"]`,
+    String.raw`import\.meta\.require\(\s*['"](\.[^'"]*)['"]`,
+  ].join("|"),
+  "gm",
+);
+
+/**
+ * Relative imports that load at run time, resolved to real paths. Bun's
+ * parser reads statements, `import()` and `require()` (with options or a
+ * template without `${}`), and skips comments, strings and type-only
+ * imports; `KEPT` adds the two forms it drops. Bun's resolver maps `./x.js`
+ * to `x.ts`, finds `x.tsx` and an index, and follows symlinks. A path it
+ * cannot resolve is kept as written. Throws when the file does not parse.
+ */
+function relativeImports(file: string): { spec: string; target: string }[] {
+  const source = readFileSync(file, "utf8");
+  const parser = /\.tsx$/.test(file) ? TSX : TS;
+  const specs = new Set(parser.scanImports(source).map((i) => i.path));
+  for (const m of source.matchAll(KEPT)) specs.add((m[1] ?? m[2]) as string);
+  const out: { spec: string; target: string }[] = [];
+  for (const spec of specs) {
+    if (!spec.startsWith(".")) continue;
+    let target: string;
+    try {
+      target = Bun.resolveSync(spec, dirname(file));
+    } catch {
+      target = resolve(dirname(file), spec);
+    }
+    out.push({ spec, target: existsSync(target) ? realpathSync(target) : target });
   }
   return out;
+}
+
+/** For the lesson-L1 check; a file that does not parse is reported by relativeViolations. */
+function runtimeImports(file: string): string[] {
+  try {
+    return relativeImports(file).map((i) => i.target);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * A specifier with an extension that is not a script's, and that does not
+ * resolve to a `.ts`/`.tsx` file, is a data file: JSON, SQL, a font.
+ */
+const DATA = /\.(?!(?:[cm]?[jt]sx?)$)[A-Za-z0-9]+$/;
+
+/** The most specific rule whose area holds `path` (relative to the root). */
+function areaOf(path: string, rules: Rule[]): Rule | undefined {
+  return rules
+    .filter((r) => path === r.dir || path.startsWith(`${r.dir}/`))
+    .sort((a, b) => b.dir.length - a.dir.length)[0];
+}
+
+/** `packages/<x>` or `apps/<x>`, the workspace package a path is in. */
+function packageOf(path: string): string | undefined {
+  const [group, name] = path.split("/");
+  return (group === "packages" || group === "apps") && name ? `${group}/${name}` : undefined;
+}
+
+/**
+ * Issue #209: relative imports follow the dependency rules too. Code in
+ * another workspace package must be imported by its package name, so that
+ * package's rule applies; inside a package, an area may import another
+ * rule's area only if its rule lists it in `reach`. Data files are not
+ * code and pass; files no rule covers are not checked here.
+ */
+export function relativeViolations(root: string, rules: Rule[] = RULES): string[] {
+  const found: string[] = [];
+  const real = realpathSync(root);
+  for (const rule of rules) {
+    const dir = join(root, rule.dir);
+    if (!existsSync(dir)) continue;
+    const list = statSync(dir).isDirectory() ? files(dir) : [dir];
+    for (const file of list) {
+      const from = relative(root, file);
+      if (areaOf(from, rules) !== rule) continue; // checked under its most specific rule
+      let imports: { spec: string; target: string }[];
+      try {
+        imports = relativeImports(file);
+      } catch (error) {
+        const why = error instanceof Error ? error.message : String(error);
+        found.push(`${from} could not be parsed: ${why}`);
+        continue;
+      }
+      for (const { spec, target } of imports) {
+        if (DATA.test(spec) && !CODE.test(target)) continue;
+        // Resolved through any symlink, so a link cannot carry an import elsewhere.
+        const to = existsSync(target) ? relative(real, target) : relative(root, target);
+        const pkg = packageOf(to);
+        const head = `${from} imports "${spec}"`;
+        if (pkg !== packageOf(from)) {
+          const fix = "import it by its package name so its rule applies (#209)";
+          found.push(`${head}, code in ${pkg ?? to}: ${fix}`);
+          continue;
+        }
+        const area = areaOf(to, rules);
+        if (!area || area === rule || rule.reach?.includes(area.dir)) continue;
+        const may = rule.reach?.length ? `only ${rule.reach.join(", ")}` : "none";
+        const limit = `${rule.dir} may reach ${may} by relative path`;
+        found.push(`${head}, which is in ${area.dir}; ${limit} (${rule.why})`);
+      }
+    }
+  }
+  return found;
 }
 
 /**
@@ -152,10 +288,12 @@ export function selfImports(root: string): string[] {
       continue;
     }
     for (const name of names) {
-      const entry = join(root, group, name, "src", "index.ts");
+      let entry = join(root, group, name, "src", "index.ts");
       let list: string[];
       try {
-        list = files(dirname(entry));
+        // Real paths, as relativeImports resolves them.
+        list = files(dirname(entry)).map((f) => realpathSync(f));
+        if (existsSync(entry)) entry = realpathSync(entry);
       } catch {
         continue;
       }
@@ -171,7 +309,8 @@ export function selfImports(root: string): string[] {
       for (const file of list) {
         if (file === entry || !reached.has(file)) continue;
         if (runtimeImports(file).includes(entry)) {
-          found.push(`${relative(root, file)} and its package entry import each other (lesson L1)`);
+          const at = relative(realpathSync(root), file);
+          found.push(`${at} and its package entry import each other (lesson L1)`);
         }
       }
     }
@@ -215,7 +354,12 @@ export function unpinned(root: string): string[] {
 
 if (import.meta.main) {
   const root = join(import.meta.dir, "..");
-  const found = [...violations(root), ...selfImports(root), ...unpinned(root)];
+  const found = [
+    ...violations(root),
+    ...relativeViolations(root),
+    ...selfImports(root),
+    ...unpinned(root),
+  ];
   if (found.length > 0) {
     console.error(`check-deps found:\n${found.map((v) => `  - ${v}`).join("\n")}`);
     process.exit(1);

@@ -1,8 +1,8 @@
 import { afterAll, describe, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { RULES, selfImports, unpinned, violations } from "./check-deps.ts";
+import { RULES, relativeViolations, selfImports, unpinned, violations } from "./check-deps.ts";
 
 const root = mkdtempSync(join(tmpdir(), "bd-deps-"));
 afterAll(() => rmSync(root, { recursive: true, force: true }));
@@ -15,7 +15,13 @@ function file(path: string, source: string) {
 describe("check-deps", () => {
   test("the repository passes", () => {
     const repo = join(import.meta.dir, "..");
-    expect([...violations(repo), ...selfImports(repo), ...unpinned(repo)]).toEqual([]);
+    const found = [
+      ...violations(repo),
+      ...relativeViolations(repo),
+      ...selfImports(repo),
+      ...unpinned(repo),
+    ];
+    expect(found).toEqual([]);
   });
 
   test("every dependency names a version range (#3)", () => {
@@ -43,18 +49,23 @@ describe("check-deps", () => {
     file("packages/x/src/a.ts", 'import { b } from "./index.ts";');
     file("packages/x/src/deep/c.ts", 'import { b } from "../index.ts";');
     // Extensionless forms resolve the same under bundler resolution.
-    const entry = ["./a.ts", "./deep/c.ts", "./d", "./e.ts"].map((m) => `export * from "${m}";`);
+    const entry = ["./a.ts", "./deep/c.ts", "./d", "./e.ts", "./inline.ts"].map(
+      (m) => `export * from "${m}";`,
+    );
     file("packages/x/src/index.ts", entry.join("\n"));
     file("packages/x/src/d.ts", 'import { b } from "./index";');
     file("packages/x/src/e.ts", 'import { b } from ".";');
     // Not cycles: a test the entry never imports, and a type-only import.
     file("packages/x/src/a.test.ts", 'import { b } from "./index.ts";');
     file("packages/x/src/types.ts", 'import type { B } from "./index.ts";');
+    // Kept as `import {} from` under verbatimModuleSyntax: still a cycle.
+    file("packages/x/src/inline.ts", 'import { type B } from "./index.ts";');
     const found = selfImports(root).join("\n");
     expect(found).toContain("x/src/a.ts and its package entry import each other");
     expect(found).toContain("x/src/deep/c.ts and its package entry import each other");
     expect(found).toContain("x/src/d.ts and its package entry import each other");
     expect(found).toContain("x/src/e.ts and its package entry import each other");
+    expect(found).toContain("x/src/inline.ts and its package entry import each other");
     expect(found).not.toContain("a.test.ts");
     expect(found).not.toContain("types.ts");
   });
@@ -103,5 +114,158 @@ describe("check-deps", () => {
   test("ports have no imports at all", () => {
     file("packages/ports/src/f.ts", 'import { z } from "zod";');
     expect(violations(root, RULES).join("\n")).toContain('ports/src/f.ts imports "zod"');
+  });
+
+  describe("relative imports (#209)", () => {
+    const rel = () => relativeViolations(root, RULES).join("\n");
+
+    test("a relative import into another package fails and names the fix", () => {
+      file("packages/judge/src/index.ts", "export const judge = 1;");
+      file("apps/web/src/leak.ts", 'import { judge } from "../../../packages/judge/src/index.ts";');
+      file("apps/web/src/leak-dir.ts", 'import { judge } from "../../../packages/judge/src";');
+      const found = rel();
+      expect(found).toContain(
+        'apps/web/src/leak.ts imports "../../../packages/judge/src/index.ts"',
+      );
+      expect(found).toContain('apps/web/src/leak-dir.ts imports "../../../packages/judge/src"');
+      expect(found).toContain("import it by its package name");
+    });
+
+    test("an app core may not reach an adapter by relative path", () => {
+      file("apps/web/src/local/x.ts", "export const x = 1;");
+      file("apps/pipeline/src/local/x.ts", "export const x = 1;");
+      file("apps/web/src/core/bad.ts", 'import { x } from "../local/x.ts";');
+      file("apps/pipeline/src/core/bad.ts", 'export { x } from "../local/x";');
+      file("apps/pipeline/src/core/lazy.ts", 'const m = await import("../local/x.ts");');
+      const found = rel();
+      expect(found).toContain(
+        'apps/web/src/core/bad.ts imports "../local/x.ts", which is in apps/web/src/local',
+      );
+      expect(found).toContain('apps/pipeline/src/core/bad.ts imports "../local/x"');
+      expect(found).toContain('apps/pipeline/src/core/lazy.ts imports "../local/x.ts"');
+    });
+
+    test("the listed edges, files in the same area, type-only imports and data files pass", () => {
+      file(
+        "apps/pipeline/src/core/app2.ts",
+        'import { p } from "../sources/p.ts";\nimport { q } from "./q.ts";',
+      );
+      file("apps/pipeline/src/sources/p.ts", "export const p = 1;");
+      file("apps/pipeline/src/core/q.ts", "export const q = 1;");
+      file("apps/pipeline/src/local/srv.ts", 'import { q } from "../core/q.ts";');
+      file(
+        "apps/web/src/core/t.ts",
+        'import type { X } from "../local/x.ts";\nexport type { Y } from "../local/x.ts";',
+      );
+      file(
+        "apps/web/src/core/data.ts",
+        'import tokens from "../../../../design/system/tokens.json";',
+      );
+      file(
+        "apps/pipeline/src/local/sql.ts",
+        'import m from "../../../../packages/db/migrations/0000_init.sql" with { type: "text" };',
+      );
+      const found = rel();
+      const ok = ["app2.ts", "core/q.ts", "srv.ts", "core/t.ts", "data.ts", "sql.ts"];
+      for (const name of ok) expect(found).not.toContain(name);
+    });
+
+    test("an edge is one way: sources may not reach the core", () => {
+      file("apps/pipeline/src/sources/back.ts", 'import { q } from "../core/q.ts";');
+      expect(rel()).toContain(
+        'apps/pipeline/src/sources/back.ts imports "../core/q.ts", which is in apps/pipeline/src/core',
+      );
+    });
+
+    test("a code file with a dotted name is code, not data (#211 review)", () => {
+      file("packages/judge/src/client.http.ts", "export const c = 1;");
+      file("apps/pipeline/src/local/server.bun.ts", "export const s = 1;");
+      file(
+        "apps/web/src/core/dot.ts",
+        'import { c } from "../../../../packages/judge/src/client.http";',
+      );
+      file("apps/pipeline/src/core/dot.ts", 'import { s } from "../local/server.bun";');
+      const found = rel();
+      expect(found).toContain(
+        'apps/web/src/core/dot.ts imports "../../../../packages/judge/src/client.http"',
+      );
+      expect(found).toContain('apps/pipeline/src/core/dot.ts imports "../local/server.bun"');
+    });
+
+    test("require, a plain template import(), `import type from` and a symlink are seen", () => {
+      file("apps/web/src/local/zz.ts", "export default 1;");
+      file("apps/web/src/core/req.ts", 'const z = require("../local/zz.ts");');
+      file("apps/web/src/core/tpl.ts", "const z = await import(`../local/zz.ts`);");
+      file("apps/web/src/core/named.ts", 'import type from "../local/zz.ts";');
+      mkdirSync(join(root, "apps/web/src/core/link"), { recursive: true });
+      symlinkSync(join(root, "apps/web/src/local"), join(root, "apps/web/src/core/link/to-local"));
+      file("apps/web/src/core/via.ts", 'import z from "./link/to-local/zz.ts";');
+      const found = rel();
+      for (const name of ["req.ts", "tpl.ts", "named.ts", "via.ts"]) {
+        expect(found).toContain(`apps/web/src/core/${name} imports`);
+      }
+    });
+
+    test("call options, template require, .js and .tsx resolution (#211 round 2)", () => {
+      file("packages/judge/src/z.ts", "export const z = 1;");
+      file("apps/pipeline/src/local/srv.bun.tsx", "export const s = 1;");
+      file("apps/pipeline/src/local/zz.ts", "export const z = 1;");
+      const judge = "../../../../packages/judge/src/z.ts";
+      file("apps/web/src/core/e2.ts", `await import("${judge}", { with: {} });`);
+      file("apps/web/src/local/d2.ts", `const z = require(\`${judge}\`);`);
+      symlinkSync(join(root, "packages/judge/src/z.ts"), join(root, "apps/web/src/core/j.ts"));
+      file("apps/web/src/core/a2.ts", 'import z from "./j.js";');
+      file("apps/pipeline/src/core/js.ts", 'import { z } from "../local/zz.js";');
+      file("apps/pipeline/src/core/b.ts", 'import { s } from "../local/srv.bun";');
+      const found = rel();
+      expect(found).toContain(`apps/web/src/core/e2.ts imports "${judge}"`);
+      expect(found).toContain(`apps/web/src/local/d2.ts imports "${judge}"`);
+      expect(found).toContain('apps/web/src/core/a2.ts imports "./j.js", code in packages/judge');
+      expect(found).toContain('apps/pipeline/src/core/js.ts imports "../local/zz.js"');
+      expect(found).toContain('apps/pipeline/src/core/b.ts imports "../local/srv.bun"');
+    });
+
+    test("a name ending in require is not an import; spacing after type does not matter", () => {
+      file("apps/web/src/core/g2.ts", 'loader.require("anything");\nprerequire("abc");');
+      file("apps/web/src/core/sp.ts", 'import type  from "../local/zz.ts";');
+      const all = [...violations(root, RULES), ...relativeViolations(root, RULES)].join("\n");
+      expect(all).not.toContain("core/g2.ts");
+      expect(all).toContain('apps/web/src/core/sp.ts imports "../local/zz.ts"');
+    });
+
+    test("inline type imports, import.meta.require and .ts generics (#211 round 3)", () => {
+      file("packages/judge/src/zj.ts", "export type J = 1;");
+      file("apps/pipeline/src/local/zt.ts", "export type X = 1;");
+      // verbatimModuleSyntax keeps these as `import {} from`, so the target is bundled.
+      file("apps/pipeline/src/core/inline.ts", 'import { type X } from "../local/zt.ts";');
+      const judge = "../../../../packages/judge/src/zj.ts";
+      file("apps/web/src/core/reexp.ts", `export { type J } from "${judge}";`);
+      file("apps/web/src/local/meta.ts", `const j = import.meta.require("${judge}");`);
+      file("apps/web/src/local/metapkg.ts", 'const w = import.meta.require("wrangler");');
+      // Valid TypeScript that a tsx parser rejects.
+      file("apps/web/src/core/generic.ts", "export const first = <T>(xs: T[]): T => xs[0];");
+      const found = rel();
+      expect(found).toContain('apps/pipeline/src/core/inline.ts imports "../local/zt.ts"');
+      expect(found).toContain("apps/web/src/core/reexp.ts imports");
+      expect(found).toContain("apps/web/src/local/meta.ts imports");
+      const pkg = violations(root, RULES).join("\n");
+      expect(pkg).toContain('web/src/local/metapkg.ts imports "wrangler"');
+      expect(found).not.toContain("generic.ts");
+    });
+
+    test("a file the parser cannot read is reported, not a crash", () => {
+      file("apps/web/src/core/broken.ts", "export const = ;");
+      expect(rel()).toContain("apps/web/src/core/broken.ts could not be parsed");
+    });
+
+    test("a file under a single-file rule is its own area", () => {
+      file("apps/web/src/core/sel.ts", 'import { s } from "../select.ts";');
+      file("apps/web/src/local/sel.ts", 'import { s } from "../select.ts";');
+      const found = rel();
+      expect(found).toContain(
+        'apps/web/src/core/sel.ts imports "../select.ts", which is in apps/web/src/select.ts',
+      );
+      expect(found).not.toContain("web/src/local/sel.ts");
+    });
   });
 });
