@@ -36,8 +36,9 @@ const TimeZoneSchema = z.string().refine(
 );
 
 /**
- * Everything a user can tune without touching code. The defaults were set by
- * the owner on 2026-11-22 (#16); docs/settings.md says why.
+ * Everything a user can tune without touching code. docs/settings.md says
+ * why each default was chosen and who decided it: the owner, the agent's
+ * proposal, or inherited and unreviewed.
  */
 export const SettingsSchema = z.object({
   runIntervalMinutes: z.number().int().min(15).default(60),
