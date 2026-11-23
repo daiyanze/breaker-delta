@@ -54,6 +54,12 @@ describe("readSettings", () => {
     expect(settings).toEqual({ ...DEFAULTS, waveThreshold: 4 });
   });
 
+  test("a stored row that is not JSON is the same error", async () => {
+    const { sqlite, db } = setup();
+    sqlite.run("INSERT INTO settings (id, json, updated_at) VALUES (1, '{', ?)", [NOW]);
+    expect(readSettings(db, NOW)).rejects.toThrow("stored settings are invalid: not JSON");
+  });
+
   test("a stored value the schema refuses is an error, not the defaults", async () => {
     const { sqlite, db } = setup();
     sqlite.run("INSERT INTO settings (id, json, updated_at) VALUES (1, ?, ?)", [
@@ -148,6 +154,24 @@ describe("changeSettings", () => {
     expect(err).toBeInstanceOf(SettingsConflictError);
     expect((await readSettings(db, NOW + 3)).settings.waveThreshold).toBe(5);
     expect(history(sqlite)).toHaveLength(1);
+  });
+  test("a change that applied is not reported as a conflict when another change follows it", async () => {
+    const { sqlite, port, db } = setup();
+    await readSettings(db, NOW);
+    // Another writer changes the row right after this change's batch.
+    const followed = drizzleOver({
+      ...port,
+      async batch(statements) {
+        await port.batch(statements);
+        sqlite.run("UPDATE settings SET json = ?, updated_at = ? WHERE id = 1", [
+          JSON.stringify({ ...DEFAULTS, waveThreshold: 5 }),
+          NOW + 3,
+        ]);
+      },
+    });
+    const result = await changeSettings(followed, NOW + 2, { waveThreshold: 4 });
+    expect(result.settings.waveThreshold).toBe(4);
+    expect(history(sqlite).map((h) => h.settings.waveThreshold)).toEqual([3, 4]);
   });
 });
 

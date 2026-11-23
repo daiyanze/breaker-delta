@@ -10,8 +10,8 @@
  * a silent fallback to the defaults.
  */
 import { type Settings, SettingsSchema } from "@bd/contracts";
-import { type Db, settings } from "@bd/db";
-import { eq, sql } from "drizzle-orm";
+import { type Db, settings, settingsHistory } from "@bd/db";
+import { and, desc, eq, gt, sql } from "drizzle-orm";
 
 const ROW = 1;
 
@@ -51,7 +51,13 @@ async function readRow(db: Db) {
 }
 
 function parseStored(json: string): Settings {
-  const parsed = SettingsSchema.safeParse(JSON.parse(json));
+  let value: unknown;
+  try {
+    value = JSON.parse(json);
+  } catch {
+    throw new Error("stored settings are invalid: not JSON");
+  }
+  const parsed = SettingsSchema.safeParse(value);
   if (!parsed.success) {
     throw new Error(
       `stored settings are invalid: ${parsed.error.issues.map((i) => i.path.join(".")).join(", ")}`,
@@ -116,6 +122,12 @@ export async function changeSettings(
     return { settings: current.settings, updatedAt: current.updatedAt };
   }
 
+  const last = await db
+    .select({ id: settingsHistory.id })
+    .from(settingsHistory)
+    .orderBy(desc(settingsHistory.id))
+    .limit(1)
+    .get();
   // Both statements only apply while the row still holds what was read, so
   // two changes at once cannot lose one or leave history without a change.
   await db.batch([
@@ -126,7 +138,19 @@ export async function changeSettings(
       .set({ json: after, updatedAt: nowMs })
       .where(sql`${settings.id} = ${ROW} AND ${settings.json} = ${before}`),
   ]);
-  const row = await readRow(db);
-  if (row?.json !== after || row.updatedAt !== nowMs) throw new SettingsConflictError();
+  // Whether this batch applied shows in its history row, not in the settings
+  // row: another change may already have replaced that one.
+  const written = await db
+    .select({ id: settingsHistory.id })
+    .from(settingsHistory)
+    .where(
+      and(
+        gt(settingsHistory.id, last?.id ?? 0),
+        eq(settingsHistory.json, after),
+        eq(settingsHistory.changedAt, nowMs),
+      ),
+    )
+    .get();
+  if (!written) throw new SettingsConflictError();
   return { settings: parsed.data, updatedAt: nowMs };
 }
