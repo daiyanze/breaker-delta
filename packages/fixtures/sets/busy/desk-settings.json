@@ -41,7 +41,10 @@
     "timeZone": "Asia/Tokyo",
     "mailSendTime": "08:00",
     "stepMaxAttempts": 3,
-    "runLeaseMinutes": 30
+    "runLeaseMinutes": 30,
+    "fetchTimeoutSeconds": 20,
+    "fetchRetries": 2,
+    "fetchRetryDelaySeconds": 2
   },
   "updatedAt": "2026-11-18T21:15:00+09:00",
   "history": [

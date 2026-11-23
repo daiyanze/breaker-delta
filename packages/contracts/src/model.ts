@@ -62,6 +62,12 @@ export const SettingsSchema = z.object({
   stepMaxAttempts: z.number().int().min(1).max(10).default(3),
   /** How long a runner holds a run; it renews after each step. Longer than the slowest step. */
   runLeaseMinutes: z.number().int().min(1).default(30),
+  /** Per attempt to fetch one source URL in the scan step, reading the body included. */
+  fetchTimeoutSeconds: z.number().int().min(1).max(120).default(20),
+  /** Attempts after the first for a source URL that may answer next time (network error, 429, 5xx). */
+  fetchRetries: z.number().int().min(0).max(5).default(2),
+  /** Wait before a source URL's first retry; doubled before each next one. */
+  fetchRetryDelaySeconds: z.number().min(0).max(60).default(2),
 });
 export type Settings = z.infer<typeof SettingsSchema>;
 
