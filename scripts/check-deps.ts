@@ -124,7 +124,7 @@ function files(dir: string): string[] {
     if (name === "node_modules") continue;
     const path = join(dir, name);
     if (statSync(path).isDirectory()) out = out.concat(files(path));
-    else if (/\.(ts|tsx)$/.test(name)) out.push(path);
+    else if (CODE.test(name)) out.push(path);
   }
   return out;
 }
@@ -287,7 +287,7 @@ export function relativeViolations(root: string, rules: Rule[] = RULES): string[
         const area = areaOf(to, rules);
         if (!area) {
           // Code no rule covers would be an unchecked way between two areas.
-          const fix = "nothing checks what it imports (#210)";
+          const fix = "nothing checks what it imports; move it under src (#210)";
           found.push(`${head}, which no check-deps rule covers, so ${fix}`);
           continue;
         }

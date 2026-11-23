@@ -109,7 +109,7 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 
 | Rule | Enforced by | Kind |
 | --- | --- | --- |
-| Dependency direction (architecture map) | `scripts/check-deps.ts`: package imports by each rule's `allow`; relative imports into another package fail, and between areas of one package pass only along a rule's `reach`; every file under a `src` folder is under a rule, and a ruled file may not import code no rule covers | check |
+| Dependency direction (architecture map) | `scripts/check-deps.ts`: package imports by each rule's `allow`; relative imports into another package fail, and between areas of one package pass only along a rule's `reach`; every file under a `src` folder is under a rule, and a ruled file may not import code no rule covers; code outside every rule (tests, scripts): review checklist 13 | check, review |
 | App cores use no Bun or Cloudflare API | `src/core` tsconfig without those types; `check-deps` | types |
 | 1. Code decides | model result schemas have no wave, height or rank fields (`packages/contracts/src/model.ts`); core's imports, package and relative (`check-deps`); no IO or clock in core: review checklist 13 | types, check, review |
 | 2. Sources are referenced | model schemas cite echo IDs only (`model.ts`); storing and rendering: review checklist 3 | types, review |
@@ -127,18 +127,19 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 
 Rows marked review only are the next to enforce once the code they guard
 exists. Known gaps in the checks: `check-deps` checks the files its rules
-name, and fails on any file under `packages/*/src` or `apps/*/src` that no
-rule covers; files outside those folders and `apps/local` (tests, scripts)
-are not checked, though a ruled file may not import their code. It reads
-relative imports with Bun's parser and resolver (symlinks followed), plus
-the two forms that parser drops but the build keeps: a brace import whose
-first name is `type`, and `import.meta.require`. A file it cannot parse
-fails. A relative import that resolves to no TypeScript file and has another
-extension counts as data (JSON, SQL, fonts) and passes. It reads package
-imports with a pattern (import statements, `import.meta.require()`, and
-`import()` or `require()` with a string or a template without `${}`).
-Neither sees paths built at run time. It does not look at globals (`fetch`,
-`Date.now`, `Bun`); `packages/core` typechecks with Bun's types.
+name, and fails on any TypeScript file (`.ts`, `.tsx`, `.mts`, `.cts`) under
+`packages/*/src` or `apps/*/src` that no rule covers; files outside those
+folders and `apps/local` (tests, scripts) are not checked, though a ruled
+file may not import their code. It reads relative imports with Bun's parser
+and resolver (symlinks followed), plus the two forms that parser drops but
+the build keeps: a brace import whose first name is `type`, and
+`import.meta.require`. A file it cannot parse fails. A relative import that
+resolves to no TypeScript file and has another extension counts as data
+(JSON, SQL, fonts) and passes. It reads package imports with a pattern
+(import statements, `import.meta.require()`, and `import()` or `require()`
+with a string or a template without `${}`). Neither sees paths built at run
+time. It does not look at globals (`fetch`, `Date.now`, `Bun`);
+`packages/core` typechecks with Bun's types.
 
 ## Protected paths (CODEOWNERS)
 
