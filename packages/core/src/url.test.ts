@@ -54,8 +54,10 @@ const SAME: Record<string, readonly string[]> = {
   "https://example.com/a%2Fb?q=a%26b": [
     "https://example.com/a%2Fb?q=a%26b",
     "https://example.com/a%2fb?q=a%26b",
-    "https://example.com/a%2fb?q=a%26b",
   ],
+  // A `%` that starts no escape is escaped, so a decoded digit beside it
+  // cannot make a new escape (normalising twice changes nothing).
+  "https://example.com/%25aA?q=%25A": ["https://example.com/%a%41?q=%%41"],
 };
 
 /** Input -> output, where the output keeps something a careless rule would drop. */

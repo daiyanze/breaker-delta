@@ -43,6 +43,21 @@ function paramName(pair: string): string {
   }
 }
 
+/**
+ * RFC 3986 6.2.2: an escaped unreserved character (letters, digits,
+ * `-._~`) is decoded, and every other escape is written in upper case. A
+ * `%` that starts no escape is escaped first, so a decoded digit can never
+ * join it into a new escape on a second pass.
+ */
+function normaliseEscapes(s: string): string {
+  return s
+    .replace(/%(?![0-9a-fA-F]{2})/g, "%25")
+    .replace(/%([0-9a-fA-F]{2})/g, (_, hex: string) => {
+      const c = String.fromCharCode(Number.parseInt(hex, 16));
+      return /[A-Za-z0-9\-._~]/.test(c) ? c : `%${hex.toUpperCase()}`;
+    });
+}
+
 function isTracking(name: string): boolean {
   const lower = name.toLowerCase();
   return TRACKING_PARAMS.has(lower) || TRACKING_PREFIXES.some((p) => lower.startsWith(p));
@@ -55,9 +70,12 @@ function isTracking(name: string): boolean {
  * - `http` becomes `https`, unless the URL names a port of its own.
  * - Host is lower case (IDN in punycode), without a trailing dot; default
  *   ports, credentials and the fragment are dropped.
+ * - Escapes are normalised (RFC 3986 6.2.2): an escaped unreserved
+ *   character is decoded, other escapes are upper case.
  * - Tracking parameters are removed; the rest are kept as written and
- *   sorted by name (stable, so repeated names keep their order). An empty
- *   query is dropped.
+ *   sorted by name ignoring case (stable, so repeated names, and names
+ *   that differ only in case, keep their order). An empty query is
+ *   dropped.
  * - Trailing slashes are removed from the path, except the root `/`. Path
  *   case is kept: paths are case-sensitive.
  */
@@ -81,11 +99,15 @@ export function normaliseUrl(raw: string): string | null {
     .slice(1)
     .split("&")
     .filter((pair) => pair !== "")
-    .map((pair) => ({ pair, name: paramName(pair) }))
+    .map((raw) => {
+      const pair = normaliseEscapes(raw);
+      return { pair, name: paramName(pair), key: paramName(pair).toLowerCase() };
+    })
     .filter((p) => !isTracking(p.name))
-    .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+    .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
   url.search = pairs.length > 0 ? `?${pairs.map((p) => p.pair).join("&")}` : "";
 
-  if (url.pathname !== "/") url.pathname = url.pathname.replace(/\/+$/, "") || "/";
+  const path = normaliseEscapes(url.pathname);
+  url.pathname = path === "/" ? path : path.replace(/\/+$/, "") || "/";
   return url.href;
 }
