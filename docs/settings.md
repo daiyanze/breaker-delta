@@ -27,6 +27,9 @@ agent's proposal for `summariesPerRun`.
 | `mailSendTime` | 08:00 | owner, 2026-11-21 | The edition mail goes out at one time of day in `timeZone`, to everyone at the same moment (#156, #157). |
 | `stepMaxAttempts` | 3 | owner, 2026-11-23 | |
 | `runLeaseMinutes` | 30 | owner, 2026-11-23 | |
+| `fetchTimeoutSeconds` | 20 | agent's proposal (#26), not reviewed | Per attempt for one source URL in the scan step, body included. Long enough for a slow feed, short enough that a dead one does not hold the run. |
+| `fetchRetries` | 2 | agent's proposal (#26), not reviewed | Retries for network errors, 429 and 5xx only (`fetchSource`). Spike 2 saw intermittent 503s from `google_news`. |
+| `fetchRetryDelaySeconds` | 2 | agent's proposal (#26), not reviewed | Doubled before each next retry: 2 s, then 4 s. |
 
 The `fresh` fixture set is a new installation, so its settings equal these
 defaults; `packages/fixtures/src/settings.test.ts` checks that.

@@ -33,6 +33,12 @@ group was the topic's first), and a clipping's "merged from" (the
 `settings`, `settings_history`, `source_groups`, `runs`, `run_steps`,
 `scan_results`: see the comments in `schema.ts`.
 
+`scan_results` gets one row per fetch group the scan step tried in a slot
+(#26): `ok` is false when the group is missing. A group that was not due,
+or has no adapter yet, gets no row. The step reads a group's last good
+scan from here to decide whether it is due. Its raw responses are a blob,
+`raw/<slot>/<group id>.json` (`apps/pipeline/src/core/scan.ts`).
+
 ## echoes
 
 One item on one source, identified by its normalised URL (`url` is unique).
@@ -129,7 +135,8 @@ A correction's note to readers in one language; key `(correction_id, lang)`.
   summarize contract has no such field yet (#44).
 - Outside evidence for verdicts (#79), and editors (desk sign-in, #74).
 - Subscriber data: the private database, below.
-- Fetched page text for enrich and raw responses: blob storage (#45, #38).
+- Fetched page text for enrich (#45) and raw responses (#26, removed by
+  #38): blob storage.
 
 # Private database schema
 

@@ -1,10 +1,11 @@
 /**
  * Conformance checks for port adapters. Every Database adapter (bun:sqlite,
- * D1, ...) must pass the same list, so the core can rely on one behaviour.
+ * D1, ...) and every Blobs adapter (a directory, R2) must pass the same
+ * list, so the core can rely on one behaviour.
  * Framework-free: each check throws on failure. Run them from any test
  * runner; see `apps/pipeline/src/local/database.test.ts`.
  */
-import type { Database } from "./index.ts";
+import type { Blobs, Database } from "./index.ts";
 
 export interface PortCheck {
   name: string;
@@ -137,6 +138,81 @@ export function databaseChecks(open: () => Promise<Database>): PortCheck[] {
           failed = true;
         }
         expectEqual(failed, true, "duplicate primary key rejected");
+      },
+    },
+  ];
+}
+
+const text = (bytes: Uint8Array | null) =>
+  bytes === null ? null : new TextDecoder().decode(bytes);
+
+/** `open` must return a fresh, empty store each time it is called. */
+export function blobsChecks(open: () => Promise<Blobs>): PortCheck[] {
+  return [
+    {
+      name: "a string is stored as UTF-8 and read back as bytes",
+      async run() {
+        const blobs = await open();
+        await blobs.put("raw/s1/a.json", '{"t":"波頭 ✓"}', "application/json");
+        const got = await blobs.get("raw/s1/a.json");
+        expectEqual(got instanceof Uint8Array, true, "get returns a Uint8Array");
+        expectEqual(text(got), '{"t":"波頭 ✓"}', "text");
+      },
+    },
+    {
+      name: "bytes round-trip unchanged",
+      async run() {
+        const blobs = await open();
+        const bytes = new Uint8Array([0, 1, 2, 254, 255]);
+        await blobs.put("og/x.png", bytes, "image/png");
+        expectEqual(Array.from((await blobs.get("og/x.png")) ?? []), [0, 1, 2, 254, 255], "bytes");
+      },
+    },
+    {
+      name: "a missing key reads as null",
+      async run() {
+        const blobs = await open();
+        expectEqual(await blobs.get("raw/none.json"), null, "missing key");
+      },
+    },
+    {
+      name: "put replaces what the key held",
+      async run() {
+        const blobs = await open();
+        await blobs.put("a/b.txt", "first");
+        await blobs.put("a/b.txt", "second");
+        expectEqual(text(await blobs.get("a/b.txt")), "second", "text");
+      },
+    },
+    {
+      name: "delete removes the key, and a missing key is not an error",
+      async run() {
+        const blobs = await open();
+        await blobs.put("a/b.txt", "x");
+        await blobs.delete("a/b.txt");
+        expectEqual(await blobs.get("a/b.txt"), null, "after delete");
+        await blobs.delete("a/b.txt");
+        await blobs.delete("never/was.txt");
+        expectEqual(await blobs.list(""), [], "nothing left");
+      },
+    },
+    {
+      name: "list returns the keys that start with the prefix, sorted",
+      async run() {
+        const blobs = await open();
+        for (const key of ["raw/s2/b.json", "raw/s1/a.json", "raw/s10/c.json", "og/x.png"]) {
+          await blobs.put(key, key);
+        }
+        expectEqual(
+          await blobs.list("raw/"),
+          ["raw/s1/a.json", "raw/s10/c.json", "raw/s2/b.json"],
+          "raw/",
+        );
+        // A prefix is a string prefix, not a whole segment.
+        expectEqual(await blobs.list("raw/s1"), ["raw/s1/a.json", "raw/s10/c.json"], "raw/s1");
+        expectEqual(await blobs.list("raw/s1/"), ["raw/s1/a.json"], "raw/s1/");
+        expectEqual(await blobs.list("nothing/"), [], "no match");
+        expectEqual((await blobs.list("")).length, 4, "every key");
       },
     },
   ];

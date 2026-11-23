@@ -102,29 +102,43 @@ export function pageUrl(origin: string, path: string): string {
   }
 }
 
-function item(url: string, title: string, date: unknown): SourceItem | null {
-  if (!isWebUrl(url) || title === "") return null;
-  return { url, title, publishedAt: parseDate(textOf(date)), heat: null };
+/**
+ * What one feed reads beyond the standard elements. Element names are as
+ * written in the feed, prefix included (`re:rank`).
+ */
+export interface FeedFields {
+  /** Read as the title when an item has no `<title>` (Bluesky posts have only a description). */
+  titleFallback?: string;
+  /** The element holding the source's own count, as a decimal number (Stack Exchange's `re:rank`). */
+  heat?: string;
 }
 
-function rssItem(n: Node): SourceItem | null {
+function item(n: Node, url: string, date: unknown, fields: FeedFields): SourceItem | null {
+  let title = textOf(n.title);
+  if (title === "" && fields.titleFallback) title = textOf(n[fields.titleFallback]);
+  if (!isWebUrl(url) || title === "") return null;
+  const heat = fields.heat ? count(textOf(n[fields.heat])) : null;
+  return { url, title, publishedAt: parseDate(textOf(date)), heat };
+}
+
+function rssItem(n: Node, fields: FeedFields): SourceItem | null {
   let url = textOf(n.link);
   const guid = n.guid;
   if (url === "" && isNode(guid) && guid["@_isPermaLink"] !== "false") url = textOf(guid);
   if (url === "" && typeof guid === "string") url = cleanText(guid);
-  return item(url, textOf(n.title), n.pubDate ?? n["dc:date"]);
+  return item(n, url, n.pubDate ?? n["dc:date"], fields);
 }
 
-function atomEntry(n: Node): SourceItem | null {
+function atomEntry(n: Node, fields: FeedFields): SourceItem | null {
   const links = list(n.link);
   // No fallback to another rel: an `enclosure` or `replies` link is not the entry.
   const link = links.find((l) => (l["@_rel"] ?? "alternate") === "alternate");
   const url = cleanText(link?.["@_href"]);
-  return item(url, textOf(n.title), n.published ?? n.updated);
+  return item(n, url, n.published ?? n.updated, fields);
 }
 
 /** Items of an RSS 2.0, RSS 1.0 or Atom feed. Throws `ParseError` on anything else. */
-export function parseFeed(body: string): SourceItem[] {
+export function parseFeed(body: string, fields: FeedFields = {}): SourceItem[] {
   let doc: unknown;
   try {
     doc = xml.parse(body);
@@ -135,11 +149,11 @@ export function parseFeed(body: string): SourceItem[] {
   let items: (SourceItem | null)[];
   if (isNode(doc.rss)) {
     const channel = doc.rss.channel;
-    items = list(isNode(channel) ? channel.item : undefined).map(rssItem);
+    items = list(isNode(channel) ? channel.item : undefined).map((n) => rssItem(n, fields));
   } else if (isNode(doc["rdf:RDF"])) {
-    items = list(doc["rdf:RDF"].item).map(rssItem);
+    items = list(doc["rdf:RDF"].item).map((n) => rssItem(n, fields));
   } else if (isNode(doc.feed)) {
-    items = list(doc.feed.entry).map(atomEntry);
+    items = list(doc.feed.entry).map((n) => atomEntry(n, fields));
   } else if (doc.feed === "") {
     // `<feed></feed>`: an Atom feed with no entries.
     items = [];
