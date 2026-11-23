@@ -56,11 +56,12 @@ can unblock next.
 ## 2. Choose one
 
 If `docs/development.md` "Picking work" says which milestones' candidates
-count (an order, tracks, fronts), use that in place of the rest of this
+count (tracks, fronts or the like), use that in place of the rest of this
 paragraph. Otherwise, if the project works milestone by milestone, only
-candidates in the earliest milestone that still has one are considered. If
-the order of the milestones is not clear from their due dates or names,
-skip this rule and say so.
+candidates in the earliest milestone that still has one are considered.
+Take the order of the milestones from "Picking work" if it gives one, else
+from their due dates or names; if it is still not clear, skip this rule and
+say so.
 
 Among the candidates that count, prefer:
 
