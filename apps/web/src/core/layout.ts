@@ -4,6 +4,7 @@
  * rail with the italic section name and a right column with the content.
  * The styles are `LAYOUT_CSS` in `style.ts`.
  */
+import { ICON_LINKS } from "./icon.ts";
 import { headStyles } from "./style.ts";
 
 export function escapeHtml(text: string): string {
@@ -51,6 +52,7 @@ export function renderPage(page: Page): string {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>${escapeHtml(page.title)}</title>
+${ICON_LINKS}
 ${headStyles()}
 </head>
 <body>
