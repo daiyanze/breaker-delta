@@ -7,12 +7,14 @@
  * **Echoes.** An echo is removed, with its `echo_metrics` rows, when every
  * one of these holds:
  *
- * - Its own group has not listed it for longer than the window: its first
- *   sighting and its latest heat record are both older than the cutoff.
- *   Ingest records a sighting only from the group the echo belongs to
- *   (#27), so a listing by another group does not count: such an echo is
- *   removed, and that group's next scan creates it again (same id, now
- *   owned by that group, without a topic) for assign to place.
+ * - No sighting of it has been recorded for longer than the window: its
+ *   `first_seen_at` and its latest `echo_metrics.seen_at` are both older
+ *   than the cutoff. Ingest records a sighting only when the group that
+ *   owns the echo lists it and its title passes the keyword filters (#27).
+ *   So an echo only another group still lists is removed, and the next
+ *   ingest creates it again (same id, no topic) under whichever group
+ *   lists it first; an echo whose title the desk now filters out is
+ *   removed too.
  * - Its topic, if it has one, never became a wave. A topic was a wave when
  *   its state is `up` or `flat`, it has a `formed_at`, a `wave_points` row
  *   says `up` or `flat`, or it has a `wave_formed` event. Any one is enough.

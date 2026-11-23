@@ -2,10 +2,12 @@
 import { describe, expect, test } from "bun:test";
 import { drizzleOver } from "@bd/db";
 import type { Blobs } from "@bd/ports";
+import { type IngestOutput, ingestStep } from "../src/core/ingest.ts";
 import { type RetentionOutput, retentionStep } from "../src/core/retention.ts";
 import type { StepContext } from "../src/core/runner.ts";
-import { rawKey } from "../src/core/scan.ts";
-import { changeSettings } from "../src/core/settings.ts";
+import { type RawScan, rawKey, type ScanOutput } from "../src/core/scan.ts";
+import { changeSettings, readSettings } from "../src/core/settings.ts";
+import { type Adapter, ParseError, type SourceItem } from "../src/sources/adapter.ts";
 import { migratedDatabase, NOW, SLOT } from "./helpers.ts";
 
 const DAY = 86_400_000;
@@ -32,7 +34,21 @@ function memoryBlobs() {
 
 function setup() {
   const { db, sqlite } = migratedDatabase();
-  const orm = drizzleOver(db);
+  /** Every write statement the step sends, and the size of each batch. */
+  const writes: string[] = [];
+  const batches: number[] = [];
+  const orm = drizzleOver({
+    ...db,
+    run: (q, ...params) => {
+      writes.push(q);
+      return db.run(q, ...params);
+    },
+    batch: (statements) => {
+      batches.push(statements.length);
+      for (const st of statements) writes.push(st.sql);
+      return db.batch(statements);
+    },
+  });
   const { blobs, store } = memoryBlobs();
   const ctx = (now = NOW): StepContext => ({
     slot: SLOT,
@@ -40,7 +56,13 @@ function setup() {
     now: () => now,
     outputs: new Map(),
   });
-  const run = (now = NOW) => retentionStep({ blobs }).run(ctx(now)) as Promise<RetentionOutput>;
+  const run = async (now = NOW) => {
+    // The first settings read stores the defaults; count only the step's own writes.
+    await readSettings(orm, now);
+    writes.length = 0;
+    batches.length = 0;
+    return (await retentionStep({ blobs }).run(ctx(now))) as RetentionOutput;
+  };
 
   /** An echo first seen `daysAgo` days before NOW, optionally in a topic. */
   const echo = (id: string, daysAgo: number, topicId: string | null = null) =>
@@ -64,7 +86,7 @@ function setup() {
     (sqlite.query("SELECT id FROM echoes ORDER BY id").all() as { id: string }[]).map((r) => r.id);
   const metricRows = () =>
     sqlite.query("SELECT echo_id, slot FROM echo_metrics ORDER BY echo_id, slot").all();
-  return { sqlite, orm, store, run, echo, heat, topic, ids, metricRows };
+  return { sqlite, orm, blobs, store, run, echo, heat, topic, ids, metricRows, writes, batches };
 }
 
 describe("echoes", () => {
@@ -92,6 +114,14 @@ describe("echoes", () => {
   test("exactly 30 days is kept; the boundary is strict", async () => {
     const t = setup();
     t.echo("edge", 30);
+    await t.run();
+    expect(t.ids()).toEqual(["edge"]);
+  });
+
+  test("a sighting exactly at the cutoff keeps the echo", async () => {
+    const t = setup();
+    t.echo("edge", 40);
+    t.heat("edge", "s1", 30);
     await t.run();
     expect(t.ids()).toEqual(["edge"]);
   });
@@ -145,10 +175,16 @@ describe("echoes", () => {
       `INSERT INTO wave_points (slot, topic_id, state, height, source_count, echo_count)
        VALUES ('s1', 'only-echo-points', 'echo', 1, 1, 1)`,
     );
+    t.topic("pointed-up");
+    t.sqlite.run(
+      `INSERT INTO wave_points (slot, topic_id, state, height, source_count, echo_count)
+       VALUES ('s1', 'pointed-up', 'up', 1, 3, 3)`,
+    );
     t.echo("a", 400, "pointed");
     t.echo("b", 400, "only-echo-points");
+    t.echo("c", 400, "pointed-up");
     await t.run();
-    expect(t.ids()).toEqual(["a"]);
+    expect(t.ids()).toEqual(["a", "c"]);
   });
 
   test("a topic with a wave_formed event counts as a wave", async () => {
@@ -213,6 +249,11 @@ describe("echoes", () => {
     await t.run();
     expect(t.ids()).toEqual(["cited"]);
     expect(counts()).toEqual(before);
+    // Whatever is seeded, the step writes to no table but these two.
+    expect(t.writes.length).toBeGreaterThan(0);
+    for (const q of t.writes) {
+      expect(q).toMatch(/^\s*DELETE FROM (echoes|echo_metrics)\s/);
+    }
   });
 
   test("the window comes from settings", async () => {
@@ -238,6 +279,92 @@ describe("echoes", () => {
     const out = await t.run();
     expect(out.echoesRemoved).toBe(1203);
     expect(t.ids()).toEqual(["young"]);
+    // 500 ids per statement: three chunks, two deletes each, in one batch.
+    expect(t.batches).toEqual([6]);
+  });
+});
+
+describe("with the real ingest step", () => {
+  function adapter(id: string): Adapter {
+    return {
+      groupId: id,
+      format: "json",
+      urls: () => [`https://${id}.test/feed`],
+      parse(body) {
+        const items = JSON.parse(body) as unknown;
+        if (!Array.isArray(items)) throw new ParseError(`${id}: expected an array`);
+        return items as SourceItem[];
+      },
+    };
+  }
+  const url = "https://news.test/story";
+  const item: SourceItem = { url, title: "A story", publishedAt: Date.UTC(2026, 9, 1), heat: 1 };
+
+  function withIngest() {
+    const t = setup();
+    const adapters = { a: adapter("a"), b: adapter("b"), c: adapter("c") };
+    const ingest = (slot: string, now: number, fetched: string[]) => {
+      for (const groupId of fetched) {
+        const raw: RawScan = {
+          groupId,
+          slot,
+          fetchedAt: now,
+          responses: [
+            {
+              url: `https://${groupId}.test/feed`,
+              status: 200,
+              contentType: "application/json",
+              body: JSON.stringify([item]),
+            },
+          ],
+        };
+        t.store.set(rawKey(slot, groupId), JSON.stringify(raw));
+      }
+      const scan: ScanOutput = { fetched, missing: [], notDue: [], noAdapter: [] };
+      return ingestStep({ blobs: t.blobs, adapters }).run({
+        slot,
+        db: t.orm,
+        now: () => now,
+        outputs: new Map([["scan", scan]]),
+      }) as Promise<IngestOutput>;
+    };
+    const owner = () =>
+      t.sqlite.query("SELECT group_id, topic_id FROM echoes").all() as {
+        group_id: string;
+        topic_id: string | null;
+      }[];
+    return { ...t, ingest, owner };
+  }
+
+  test("an echo only another group still lists is removed, then created again by the first group to list it", async () => {
+    const t = withIngest();
+    const old = NOW - 31 * DAY;
+    await t.ingest("20261019T0500", old, ["a"]);
+    t.topic("quiet");
+    t.sqlite.run("UPDATE echoes SET topic_id = 'quiet'");
+    // b lists it now; ingest records nothing for b, since a owns the echo.
+    expect((await t.ingest(SLOT, NOW, ["b"])).dropped.otherGroup).toBe(1);
+    expect((await t.run()).echoesRemoved).toBe(1);
+    expect(t.ids()).toEqual([]);
+    // Next run, c is read before b: c owns the echo again, with no topic.
+    await t.ingest("20261119T0600", NOW + 3_600_000, ["c", "b"]);
+    expect(t.owner()).toEqual([{ group_id: "c", topic_id: null }]);
+  });
+
+  test("an echo whose title the desk now filters out is removed even while its group lists it", async () => {
+    const t = withIngest();
+    await t.ingest("20261019T0500", NOW - 31 * DAY, ["a"]);
+    await changeSettings(t.orm, NOW, { keywordsExclude: ["story"] });
+    expect((await t.ingest(SLOT, NOW, ["a"])).dropped.filtered).toBe(1);
+    expect((await t.run()).echoesRemoved).toBe(1);
+  });
+
+  test("an echo its own group still lists stays", async () => {
+    const t = withIngest();
+    await t.ingest("20261019T0500", NOW - 31 * DAY, ["a"]);
+    await t.ingest(SLOT, NOW, ["a"]);
+    expect((await t.run()).echoesRemoved).toBe(0);
+    expect(t.owner()).toEqual([{ group_id: "a", topic_id: null }]);
   });
 });
 
