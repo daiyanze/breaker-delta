@@ -33,6 +33,9 @@
         "drizzle-orm": "^0.45.4",
         "fast-xml-parser": "5.11.2",
       },
+      "devDependencies": {
+        "@bd/private-db": "workspace:*",
+      },
     },
     "apps/web": {
       "name": "@bd/web",
@@ -77,6 +80,14 @@
       "name": "@bd/ports",
       "version": "0.0.0",
     },
+    "packages/private-db": {
+      "name": "@bd/private-db",
+      "version": "0.0.0",
+      "dependencies": {
+        "@bd/contracts": "workspace:*",
+        "drizzle-orm": "^0.45.4",
+      },
+    },
   },
   "packages": {
     "@bd/contracts": ["@bd/contracts@workspace:packages/contracts"],
@@ -94,6 +105,8 @@
     "@bd/pipeline": ["@bd/pipeline@workspace:apps/pipeline"],
 
     "@bd/ports": ["@bd/ports@workspace:packages/ports"],
+
+    "@bd/private-db": ["@bd/private-db@workspace:packages/private-db"],
 
     "@bd/web": ["@bd/web@workspace:apps/web"],
 

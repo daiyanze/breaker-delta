@@ -44,6 +44,13 @@ export const RULES: Rule[] = [
     allow: [/^@bd\/contracts$/, PORTS, DRIZZLE, /^bun:test$/],
     why: "db holds schema and queries, on the Database port",
   },
+  // #18: only code with its own rule allowing `@bd/private-db` may name the
+  // private tables. No content-database rule allows it.
+  {
+    dir: "packages/private-db/src",
+    allow: [/^@bd\/contracts$/, DRIZZLE, /^bun:test$/],
+    why: "the private schema is subscriber data only; it knows nothing of the content database",
+  },
   // ADR 0018: app cores run on any runtime, so no `cloudflare:*` and no Bun APIs.
   {
     dir: "apps/pipeline/src/core",
