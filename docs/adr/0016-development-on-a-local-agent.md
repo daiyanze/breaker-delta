@@ -81,6 +81,6 @@ place. So there is one copy of everything:
 
 The skills are now named as in the Onus method (#219): `next` is
 `take-case`, `long-run` is `docket` and `review` is `cross-examine`. Where
-this ADR or the amendment above names the old skills or
+this ADR or its earlier amendments name the old skills or
 `.claude/skills/review/SKILL.md`, read `.claude/skills/cross-examine/SKILL.md`
 and the new names.

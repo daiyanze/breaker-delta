@@ -45,7 +45,14 @@ jobs:
           prompt: |
             Review pull request #${{ github.event.pull_request.number }} in ${{ github.repository }}.
             Follow .claude/skills/cross-examine/SKILL.md exactly. Read AGENTS.md first.
-            Write the comment to a file, post it with `gh pr comment <n> --body-file <file>`,
-            and read it back with `gh pr view <n> --comments`. Do not push commits.
+            Write the comment to /tmp/bd-review.md, the only file you may write.
+            Post it with `gh pr comment <n> --body-file /tmp/bd-review.md` and read it
+            back with `gh pr view <n> --json comments --jq '.comments[-1].body'`. If it
+            came back altered, fix it in place with
+            `gh pr comment <n> --edit-last --body-file /tmp/bd-review.md`. Do not push commits.
+          # The action runs in auto mode unless told otherwise, and in auto mode
+          # --allowedTools is not a limit. Default mode makes it one: the session
+          # can do only what is listed, and anything else is refused.
           claude_args: |
-            --allowedTools "Read,Grep,Glob,Write,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
+            --permission-mode default
+            --allowedTools "Read,Grep,Glob,Edit(//tmp/bd-review.md),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
