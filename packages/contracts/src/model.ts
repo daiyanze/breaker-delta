@@ -68,6 +68,12 @@ export const SettingsSchema = z.object({
   fetchRetries: z.number().int().min(0).max(5).default(2),
   /** Wait before a source URL's first retry; doubled before each next one. */
   fetchRetryDelaySeconds: z.number().min(0).max(60).default(2),
+  /** New echoes per assign model call. */
+  assignBatchSize: z.number().int().min(1).max(100).default(20),
+  /** Most existing topics offered to the assign model per call. 0: every echo starts a new topic. */
+  assignShortlistSize: z.number().int().min(0).max(200).default(30),
+  /** A topic can be shortlisted while its latest activity (the later of its latest echo and its creation) is at most this old. */
+  assignActivityDays: z.number().int().min(1).default(7),
   /** Days after it was last seen that an echo of a topic that never became a wave is removed. */
   echoRetentionDays: z.number().int().min(1).default(30),
   /** Days after its slot that a scan's raw responses are removed from blob storage. */

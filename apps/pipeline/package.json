@@ -12,6 +12,7 @@
     "@bd/contracts": "workspace:*",
     "@bd/core": "workspace:*",
     "@bd/db": "workspace:*",
+    "@bd/judge": "workspace:*",
     "@bd/ports": "workspace:*",
     "drizzle-orm": "^0.45.4",
     "fast-xml-parser": "5.11.2"
