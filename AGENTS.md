@@ -131,13 +131,17 @@ directory or file one of its rules names, so a source file outside every
 rule is not checked, and a ruled file can import through one (#210). It
 reads relative imports with Bun's parser and resolver (symlinks followed),
 plus the two forms that parser drops but the build keeps: a brace import
-whose first name is `type`, and `import.meta.require`. A file it cannot
-parse fails. A relative import that resolves to no TypeScript file and has
-another extension counts as data (JSON, SQL, fonts) and passes. It reads package imports with a pattern
-(import statements, `import.meta.require()`, and `import()` or `require()`
-with a string or a template without `${}`). Neither sees paths built at run time. It does not
-look at globals (`fetch`, `Date.now`, `Bun`); `packages/core` typechecks
-with Bun's types.
+whose first name is `type`, and `import.meta.require`. Those two are matched
+in the raw text, so the same text in a comment or a string fails the file
+too, and a file Bun cannot parse (an `accessor` field) fails. These are
+false failures, loud and by name; the owner chose them over a reader that
+could miss an import silently (#215). A `#!` line is blanked before parsing.
+A relative import that resolves to no TypeScript file and has another
+extension counts as data (JSON, SQL, fonts) and passes. It reads package
+imports with a pattern (import statements, `import.meta.require()`, and
+`import()` or `require()` with a string or a template without `${}`).
+Neither sees paths built at run time. It does not look at globals (`fetch`,
+`Date.now`, `Bun`); `packages/core` typechecks with Bun's types.
 
 ## Protected paths (CODEOWNERS)
 

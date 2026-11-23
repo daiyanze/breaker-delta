@@ -117,13 +117,13 @@ const IMPORT = new RegExp(
   [
     String.raw`(?:import|export)\s+(?:[^'"]*?\sfrom\s+)?['"]([^'"]+)['"]`,
     String.raw`(?:^|[^\w$.])(?:import|require)\(\s*(?:['"]([^'"]+)['"]|\x60([^\x60$]+)\x60)\s*[,)]`,
-    String.raw`import\.meta\.require\(\s*['"]([^'"]+)['"]`,
+    String.raw`import\.meta\.require\(\s*(?:['"]([^'"]+)['"]|\x60([^\x60$]+)\x60)`,
   ].join("|"),
   "gm",
 );
 
 /** The specifier an IMPORT match captured. */
-const specOf = (m: RegExpMatchArray) => m[1] ?? m[2] ?? m[3] ?? m[4];
+const specOf = (m: RegExpMatchArray) => m[1] ?? m[2] ?? m[3] ?? m[4] ?? m[5];
 
 function files(dir: string): string[] {
   let out: string[] = [];
@@ -172,7 +172,7 @@ const TSX = new Bun.Transpiler({ loader: "tsx" });
 const KEPT = new RegExp(
   [
     String.raw`(?:^|[;\s])(?:import|export)\s*\{\s*type\s[^}]*\}\s*from\s*['"](\.[^'"]*)['"]`,
-    String.raw`import\.meta\.require\(\s*['"](\.[^'"]*)['"]`,
+    String.raw`import\.meta\.require\(\s*(?:['"](\.[^'"]*)['"]|\x60(\.[^\x60$]*)\x60)`,
   ].join("|"),
   "gm",
 );
@@ -188,8 +188,10 @@ const KEPT = new RegExp(
 function relativeImports(file: string): { spec: string; target: string }[] {
   const source = readFileSync(file, "utf8");
   const parser = /\.tsx$/.test(file) ? TSX : TS;
-  const specs = new Set(parser.scanImports(source).map((i) => i.path));
-  for (const m of source.matchAll(KEPT)) specs.add((m[1] ?? m[2]) as string);
+  // Bun's scanImports rejects a `#!` line that the runtime accepts.
+  const code = source.replace(/^#!.*/, (line) => " ".repeat(line.length));
+  const specs = new Set(parser.scanImports(code).map((i) => i.path));
+  for (const m of source.matchAll(KEPT)) specs.add((m[1] ?? m[2] ?? m[3]) as string);
   const out: { spec: string; target: string }[] = [];
   for (const spec of specs) {
     if (!spec.startsWith(".")) continue;
