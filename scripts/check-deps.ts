@@ -98,8 +98,18 @@ export const RULES: Rule[] = [
   },
 ];
 
-const IMPORT =
-  /(?:import|export)\s+(?:[^'"]*?\sfrom\s+)?['"]([^'"]+)['"]|(?:import|require)\(\s*['"]([^'"]+)['"]\s*\)|import\(\s*`([^`$]+)`\s*\)/g;
+/**
+ * Import statements, and `import(...)` or `require(...)` calls whose first
+ * argument is a quoted string or a template without `${}`. A call must not
+ * follow a name character or a dot, so `loader.require("x")` is not one.
+ */
+const IMPORT = new RegExp(
+  [
+    String.raw`(?:import|export)\s+(?:[^'"]*?\sfrom\s+)?['"]([^'"]+)['"]`,
+    String.raw`(?:^|[^\w$.])(?:import|require)\(\s*(?:['"]([^'"]+)['"]|\x60([^\x60$]+)\x60)\s*[,)]`,
+  ].join("|"),
+  "gm",
+);
 
 /** The specifier an IMPORT match captured. */
 const specOf = (m: RegExpMatchArray) => m[1] ?? m[2] ?? m[3];
@@ -108,7 +118,7 @@ const specOf = (m: RegExpMatchArray) => m[1] ?? m[2] ?? m[3];
  * `import type { X }` and `export type` are erased; `import type from "x"`
  * binds a default import named `type`, so it stays.
  */
-const TYPE_ONLY = /^(import|export)\s+type\s+(?!from\s*['"])/;
+const TYPE_ONLY = /^(import|export)\s+type(?!\s+from\s*['"])\s/;
 
 function files(dir: string): string[] {
   let out: string[] = [];
@@ -142,6 +152,9 @@ export function violations(root: string, rules: Rule[] = RULES): string[] {
   return found;
 }
 
+/** A TypeScript source file. */
+const CODE = /\.[cm]?tsx?$/;
+
 /** Relative imports that exist at run time (`import type` is erased), resolved. */
 function relativeImports(file: string): { spec: string; target: string }[] {
   const out: { spec: string; target: string }[] = [];
@@ -149,9 +162,13 @@ function relativeImports(file: string): { spec: string; target: string }[] {
     const spec = specOf(match);
     if (!spec?.startsWith(".") || TYPE_ONLY.test(match[0])) continue;
     const target = resolve(dirname(file), spec);
-    // Bundler resolution also accepts "./index", "." and "./dir".
-    const candidates = [target, `${target}.ts`, join(target, "index.ts")];
-    const found = candidates.find((c) => /\.tsx?$/.test(c) && existsSync(c));
+    // Bundler resolution also accepts "./x" for x.ts or x.tsx, "./x.js" for
+    // x.ts, "." and "./dir" for its index.
+    const stem = target.replace(/\.[cm]?jsx?$/, "");
+    const candidates = [target, ...[".ts", ".tsx"].map((e) => `${target}${e}`)];
+    candidates.push(join(target, "index.ts"), join(target, "index.tsx"));
+    if (stem !== target) candidates.push(`${stem}.ts`, `${stem}.tsx`, `${stem}.mts`, `${stem}.cts`);
+    const found = candidates.find((c) => CODE.test(c) && existsSync(c));
     out.push({ spec, target: found ?? target });
   }
   return out;
@@ -198,7 +215,7 @@ export function relativeViolations(root: string, rules: Rule[] = RULES): string[
       const from = relative(root, file);
       if (areaOf(from, rules) !== rule) continue; // checked under its most specific rule
       for (const { spec, target } of relativeImports(file)) {
-        if (DATA.test(spec) && !/\.tsx?$/.test(target)) continue;
+        if (DATA.test(spec) && !CODE.test(target)) continue;
         // Through any symlink, so a link cannot carry an import into another area.
         const to = existsSync(target)
           ? relative(real, realpathSync(target))

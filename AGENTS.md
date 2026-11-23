@@ -131,8 +131,9 @@ directory or file one of its rules names, so a source file outside every
 rule is not checked, and a ruled file can import through one (#210); a
 relative import that does not resolve to a `.ts`/`.tsx` file and has another
 extension counts as data (JSON, SQL, fonts) and passes; it reads import
-statements, `import()` and `require()` with a literal path, not paths built
-at run time; it does not look at globals (`fetch`, `Date.now`, `Bun`);
+statements, and `import()` and `require()` calls whose path is a string or
+a template without `${}`, resolving `.js` to `.ts` and following symlinks;
+it does not see paths built at run time; it does not look at globals (`fetch`, `Date.now`, `Bun`);
 `packages/core` typechecks with Bun's types.
 
 ## Protected paths (CODEOWNERS)
