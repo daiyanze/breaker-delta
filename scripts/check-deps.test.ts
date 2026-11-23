@@ -253,9 +253,30 @@ describe("check-deps", () => {
       expect(found).not.toContain("generic.ts");
     });
 
-    test("a file the parser cannot read is reported, not a crash", () => {
-      file("apps/web/src/core/broken.ts", "export const = ;");
-      expect(rel()).toContain("apps/web/src/core/broken.ts could not be parsed");
+    test("a .tsx file is reported, not misread (#212)", () => {
+      file("apps/web/src/core/view.tsx", "export const v = <p>Don't</p>;");
+      expect(rel()).toContain("apps/web/src/core/view.tsx could not be read");
+    });
+
+    test("valid files from round 4 pass, and comments and strings are not imports (#212)", () => {
+      file("apps/web/src/local/start.ts", '#!/usr/bin/env bun\nimport { s } from "../select.ts";');
+      file("apps/web/src/core/acc.ts", "export class K {\n  accessor z = 1;\n}");
+      file(
+        "apps/web/src/core/quiet.ts",
+        [
+          '// import { type X } from "../local/zt.ts";',
+          '/* import.meta.require("../local/zt.ts") */',
+          'const s = "import { type Y } from \'../local/zt.ts\'";',
+          "const t = `${s} import z from '../local/zt.ts' ${s}`;",
+          "const r = /['\"]/;",
+        ].join("\n"),
+      );
+      file("apps/pipeline/src/core/tplmeta.ts", "const l = import.meta.require(`../local/zt.ts`);");
+      const found = rel();
+      for (const ok of ["local/start.ts", "core/acc.ts", "core/quiet.ts"]) {
+        expect(found).not.toContain(ok);
+      }
+      expect(found).toContain('apps/pipeline/src/core/tplmeta.ts imports "../local/zt.ts"');
     });
 
     test("a file under a single-file rule is its own area", () => {
