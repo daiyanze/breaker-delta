@@ -162,14 +162,24 @@ describe("validateAssignments", () => {
       "news.ycombinator.com thread",
       "x.org",
     ]) {
-      const r = validateAssignments(["e1"], [], { assignments: [{ echoId: "e1", newTopic: { name } }] });
+      const r = validateAssignments(["e1"], [], {
+        assignments: [{ echoId: "e1", newTopic: { name } }],
+      });
       expect([name, r.rejected]).toEqual([name, 1]);
     }
   });
 
   test("names with dots that are not web addresses are kept", () => {
-    for (const name of ["Rust 2.0", "Next.js 16", "Node.js release", "GPT-5.5", "U.S. chip rules"]) {
-      const r = validateAssignments(["e1"], [], { assignments: [{ echoId: "e1", newTopic: { name } }] });
+    for (const name of [
+      "Rust 2.0",
+      "Next.js 16",
+      "Node.js release",
+      "GPT-5.5",
+      "U.S. chip rules",
+    ]) {
+      const r = validateAssignments(["e1"], [], {
+        assignments: [{ echoId: "e1", newTopic: { name } }],
+      });
       expect([name, r.rejected]).toEqual([name, 0]);
     }
   });

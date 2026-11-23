@@ -7,8 +7,9 @@
  * 1. **Echoes.** Every echo with no topic, oldest first. That is this run's
  *    new echoes and any an earlier run could not place, so a failed echo is
  *    tried again next run.
- * 2. **Pool.** Topics not merged away whose latest echo (or, with none, their
- *    creation) is at most `assignActivityDays` old. Topics this run creates
+ * 2. **Pool.** Topics not merged away whose latest activity, the later of
+ *    their latest echo and their creation, is at most `assignActivityDays`
+ *    old. Topics this run creates
  *    join the pool for later batches.
  * 3. **Batches.** `assignBatchSize` echoes per model call. For each batch the
  *    shortlist is at most `assignShortlistSize` pool topics, ranked by words
@@ -16,7 +17,8 @@
  *    activity (`shortlist`).
  * 4. **Validate.** An assignment is kept only when its echo is in the batch
  *    and named once, and its topic is in that batch's shortlist or is a new
- *    topic with a non-blank name (`validateAssignments`). Everything else is
+ *    topic with a non-blank name that holds no URL or web address
+ *    (`validateAssignments`, invariant 2). Everything else is
  *    rejected, and its echo stays without a topic for the next run. A batch
  *    whose model call fails leaves all its echoes for the next run.
  * 5. **Write.** One batch of statements per model call: the new topics, each
@@ -71,6 +73,15 @@ export interface PoolTopic {
 
 /** Longest slug made from a name; a number may follow. */
 export const MAX_SLUG = 60;
+
+/**
+ * A URL or web address in a model-written name: a scheme, `www.`, a host
+ * followed by a path, or a host under a common top-level domain. The site
+ * renders a topic's name and slug, and no model-authored URL is ever stored
+ * (invariant 2), so such a name is rejected. `Next.js` and `Rust 2.0` pass.
+ */
+const WEB_ADDRESS =
+  /[a-z][a-z0-9+.-]*:\/\/|\bwww\.|[\p{L}\p{N}-]+\.[\p{L}\p{N}.-]+\/|\b[a-z0-9-]+\.(?:com|org|net|io|dev|app|gov|edu|info|example|test)\b/iu;
 
 /**
  * At most `size` topics for the batch whose titles are given: most words
@@ -132,7 +143,7 @@ export function validateAssignments(
       continue;
     }
     const name = a.newTopic.name.trim();
-    if (name) placements.set(a.echoId, { newTopic: name });
+    if (name && !WEB_ADDRESS.test(name)) placements.set(a.echoId, { newTopic: name });
     else rejected++;
   }
   return { placements, rejected };
