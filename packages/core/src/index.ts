@@ -79,6 +79,7 @@ export function waveHeight(
     throw new Error('waveHeight: heatNormalisation "group" needs a heatReference');
   }
   const scoresByGroup = new Map<string, number[]>();
+  let sum = 0;
   for (const e of echoes) {
     const ageHours = Math.max(0, (nowMs - e.firstSeenAt) / HOUR_MS);
     const freshness = 0.5 ** (ageHours / params.halfLifeHours);
@@ -89,17 +90,18 @@ export function waveHeight(
       heat = ref > 0 ? rawHeat / ref : 0;
     }
     const score = (1 + Math.log10(1 + heat)) * freshness;
+    // Uncapped, add in input order, so the defaults give the old formula's
+    // numbers bit for bit (#28).
+    if (params.maxEchoesPerGroup === 0) sum += score;
     const scores = scoresByGroup.get(e.groupId);
     if (scores) scores.push(score);
     else scoresByGroup.set(e.groupId, [score]);
   }
-  let sum = 0;
-  for (const scores of scoresByGroup.values()) {
-    const counted =
-      params.maxEchoesPerGroup > 0
-        ? scores.sort((a, b) => b - a).slice(0, params.maxEchoesPerGroup)
-        : scores;
-    for (const s of counted) sum += s;
+  if (params.maxEchoesPerGroup > 0) {
+    for (const scores of scoresByGroup.values()) {
+      scores.sort((a, b) => b - a);
+      for (const s of scores.slice(0, params.maxEchoesPerGroup)) sum += s;
+    }
   }
   const sources = scoresByGroup.size;
   return params.heightScale * sum * (1 + params.sourceBonus * (sources - 1));
@@ -126,7 +128,7 @@ export function groupHeatReferences(
   const out = new Map<string, number>();
   for (const [group, list] of heats) {
     list.sort((a, b) => a - b);
-    const rank = Math.max(1, Math.ceil((p / 100) * list.length));
+    const rank = Math.max(1, Math.ceil((p * list.length) / 100));
     out.set(group, list[rank - 1] as number);
   }
   return out;
