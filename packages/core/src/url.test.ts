@@ -43,6 +43,19 @@ const SAME: Record<string, readonly string[]> = {
     "https://example.com/#",
   ],
   "https://xn--bcher-kva.example/x": ["https://bücher.example/x", "https://BÜCHER.example/x/"],
+  // RFC 3986 2.3: an escaped unreserved character is the character itself.
+  "https://example.com/~tide/a-b_c.d?q=~x": [
+    "https://example.com/~tide/a-b_c.d?q=~x",
+    "https://example.com/%7Etide/a-b_c.d?q=%7Ex",
+    "https://example.com/%7etide/a%2Db%5Fc%2Ed?q=%7ex",
+    "https://example.com/%7E%74ide/a-b_c.d?%71=~x",
+  ],
+  // RFC 3986 6.2.2.1: escapes that stay are upper case.
+  "https://example.com/a%2Fb?q=a%26b": [
+    "https://example.com/a%2Fb?q=a%26b",
+    "https://example.com/a%2fb?q=a%26b",
+    "https://example.com/a%2fb?q=a%26b",
+  ],
 };
 
 /** Input -> output, where the output keeps something a careless rule would drop. */
@@ -51,8 +64,12 @@ const KEPT: Record<string, string> = {
   "https://example.com/s?q=a%26utm_source%3Dx": "https://example.com/s?q=a%26utm_source%3Dx",
   // Pairs are kept as written: no re-encoding, a bare name stays bare.
   "https://example.com/s?q=a%20b+c&flag": "https://example.com/s?flag&q=a%20b+c",
-  // Repeated names keep their order; names sort by code unit (A < a).
+  // Repeated names keep their order; names sort ignoring case.
   "https://example.com/s?tag=b&A=0&tag=a": "https://example.com/s?A=0&tag=b&tag=a",
+  // Names that differ only in case keep their order: some servers read
+  // names without case and take the first value.
+  "https://example.com/s?id=1&ID=2": "https://example.com/s?id=1&ID=2",
+  "https://example.com/s?ID=2&b=0&id=1": "https://example.com/s?b=0&ID=2&id=1",
   // Names that carry meaning on some sites are not tracking.
   "https://example.com/s?ref=main&source=x&si=1": "https://example.com/s?ref=main&si=1&source=x",
   // A non-default port names another service: keep the scheme.
@@ -70,6 +87,7 @@ const DIFFERENT: readonly (readonly [string, string])[] = [
   ["https://news.example/item?id=1", "https://news.example/item?id=2"],
   ["https://example.com/a", "https://www.example.com/a"],
   ["https://example.com/a?x=1&x=2", "https://example.com/a?x=2&x=1"],
+  ["https://example.com/a?id=1&ID=2", "https://example.com/a?ID=2&id=1"],
   ["http://example.com:8080/a", "https://example.com:8080/a"],
 ];
 
