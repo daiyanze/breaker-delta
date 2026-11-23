@@ -287,6 +287,17 @@ describe("check-deps", () => {
       expect(found).not.toContain("core/covered.ts");
     });
 
+    test(".mts and .cts files are checked too (#214 review)", () => {
+      file("apps/pipeline/src/util.mts", "export const u = 1;");
+      file("apps/web/src/local/y.mts", 'export { judge } from "@bd/judge";');
+      file("apps/web/src/core/z.cts", 'export * from "../local/x.ts";');
+      expect(uncovered(root, RULES).join("\n")).toContain("apps/pipeline/src/util.mts is under no");
+      expect(violations(root, RULES).join("\n")).toContain('apps/web/src/local/y.mts imports "@bd/judge"');
+      expect(relativeViolations(root, RULES).join("\n")).toContain(
+        'apps/web/src/core/z.cts imports "../local/x.ts"',
+      );
+    });
+
     test("a package with no src folder is not an error", () => {
       file("apps/nosrc/start.ts", "export {};");
       expect(uncovered(root, RULES).join("\n")).not.toContain("apps/nosrc");
