@@ -75,6 +75,9 @@
     "packages/judge": {
       "name": "@bd/judge",
       "version": "0.0.0",
+      "dependencies": {
+        "@bd/contracts": "workspace:*",
+      },
     },
     "packages/ports": {
       "name": "@bd/ports",

@@ -10,7 +10,7 @@
  */
 import type { LaunchGroup } from "./launch-groups.ts";
 
-/** One item as a source lists it. Ingest normalises the URL (M1-09). */
+/** One item as a source lists it. Ingest normalises the URL with `normaliseUrl` from `@bd/core` (M1-09). */
 export interface SourceItem {
   url: string;
   title: string;
