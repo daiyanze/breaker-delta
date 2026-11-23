@@ -17,8 +17,8 @@
  * What it does:
  * - Reads `<data dir>/content.db` read-only (`--data-dir`, else
  *   `BD_DATA_DIR`, else `.bd-data`, as `bun run local` does).
- * - Takes the echoes first seen in the last `--days` days, each with the heat
- *   of its latest `echo_metrics` row (0 when it has none).
+ * - Takes the echoes first seen in the `--days` days up to `--now`, each with the heat
+ *   of its latest `echo_metrics` row at or before `--now` (0 when it has none).
  * - Groups them: by topic when assign placed the echo (following merges),
  *   otherwise by URL across groups. `echoes.url` is unique, so today every
  *   unassigned echo is a cluster of its own, from one source.
@@ -147,17 +147,17 @@ export interface Cluster {
 }
 
 /** Load echoes and group them into clusters (see the header). */
-export function loadClusters(sqlite: SQLite, sinceMs: number): Cluster[] {
+export function loadClusters(sqlite: SQLite, sinceMs: number, untilMs: number): Cluster[] {
   const rows = sqlite
     .query(
       `SELECT e.id, e.url, e.group_id AS groupId, e.title, e.first_seen_at AS firstSeenAt,
               e.topic_id AS topicId,
-              (SELECT m.heat FROM echo_metrics m WHERE m.echo_id = e.id
+              (SELECT m.heat FROM echo_metrics m WHERE m.echo_id = e.id AND m.seen_at <= ?2
                  ORDER BY m.slot DESC LIMIT 1) AS heat
-         FROM echoes e WHERE e.first_seen_at >= ?1
+         FROM echoes e WHERE e.first_seen_at >= ?1 AND e.first_seen_at <= ?2
         ORDER BY e.first_seen_at, e.id`,
     )
-    .all(sinceMs) as EchoRow[];
+    .all(sinceMs, untilMs) as EchoRow[];
   const mergedInto = new Map(
     (
       sqlite.query("SELECT id, merged_into AS m FROM topics").all() as {
@@ -338,7 +338,7 @@ export function trial(options: TrialOptions): string {
   try {
     const base = storedSettings(sqlite);
     const sets = options.sets === undefined ? builtInSets(base) : parseSets(options.sets, base);
-    const clusters = loadClusters(sqlite, options.nowMs - options.days * 86_400_000);
+    const clusters = loadClusters(sqlite, options.nowMs - options.days * 86_400_000, options.nowMs);
     const rows = score(clusters, sets, options.nowMs);
     const head = [
       `${clusters.length} clusters from ${rows.reduce((n, r) => n + r.cluster.echoes.length, 0)} echoes, ` +

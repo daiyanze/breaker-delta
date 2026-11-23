@@ -104,7 +104,12 @@ describe("height trial", () => {
     const clusters = loadClusters(sqlite, at - 7 * 24 * HOUR, at);
     const byId = new Map(clusters.map((c) => [c.id, c]));
     expect(byId.has("s1")).toBe(false);
-    expect(byId.get("t-big")?.echoes.map((e) => e.id).sort()).toEqual(["b1", "b2"]);
+    expect(
+      byId
+        .get("t-big")
+        ?.echoes.map((e) => e.id)
+        .sort(),
+    ).toEqual(["b1", "b2"]);
     expect(byId.get("t-big")?.echoes.find((e) => e.id === "b1")?.heat).toBe(10);
   });
 
