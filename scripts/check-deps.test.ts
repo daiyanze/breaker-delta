@@ -300,6 +300,24 @@ describe("check-deps", () => {
       }
     });
 
+    test("a misplaced / does not hide the forms only the scanner reads (#215 round 2)", () => {
+      file("apps/pipeline/src/local/zt.ts", "export const n = 1;");
+      file("apps/pipeline/src/cloudflare/zc.ts", "export const c = 1;");
+      const cf = 'import.meta.require("../cloudflare/zc.ts");';
+      const plant: Record<string, string> = {
+        "core/mBraceInline.ts": 'function f() {}\n/`/.test("");\nimport { type Z } from "../local/zt.ts";',
+        "core/mParenTypePkg.ts":
+          'declare const ok: boolean;\nif (ok) /`/.test("");\nimport type { X } from "wrangler";',
+        "core/mDefault.ts": 'import { type default as D } from "../local/zt.ts";',
+        "local/LmBraceMeta.ts": `function f() {}\n/\`/.test("");\n${cf}`,
+        "local/LmAwaitMeta.ts": `await /\`/.test("");\n${cf}`,
+        "local/LmYieldMeta.ts": `function* g() {\n  yield /\`/.test("");\n}\n${cf}`,
+      };
+      for (const [path, source] of Object.entries(plant)) file(`apps/pipeline/src/${path}`, source);
+      const found = [...violations(root, RULES), ...rel().split("\n")].join("\n");
+      for (const path of Object.keys(plant)) expect(found).toContain(`apps/pipeline/src/${path} imports`);
+    });
+
     test("import() in a type position does not load (#215 review)", () => {
       file("apps/pipeline/src/core/typeimp.ts", 'export type T = typeof import("../local/zt.ts");');
       expect(rel()).not.toContain("core/typeimp.ts");

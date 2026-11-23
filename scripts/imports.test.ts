@@ -61,4 +61,13 @@ describe("readImports (#212)", () => {
   test("an escaped name is the name", () => {
     expect(read('const r = \\u0072equire("r");')).toEqual(["r"]);
   });
+
+  test("a / after a name or a postfix ! divides; after await or yield it starts a regex", () => {
+    const hidden = 'import h from "h";';
+    // A / misread as a regex would swallow the template's } and hide the import.
+    expect(read(`declare const w: number;\nconst a = \`\${w! / 2}/px\`;\n${hidden}`)).toEqual(["h"]);
+    expect(read(`const type = 4;\nconst a = \`\${type / 2}/px\`;\n${hidden}`)).toEqual(["h"]);
+    expect(read(`async function f() {\n  await /\`/.test("");\n}\n${hidden}`)).toEqual(["h"]);
+    expect(read(`function* g() {\n  yield /\`/.test("");\n}\n${hidden}`)).toEqual(["h"]);
+  });
 });
