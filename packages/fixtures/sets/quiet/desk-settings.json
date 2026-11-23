@@ -34,7 +34,9 @@
     "runLeaseMinutes": 30,
     "fetchTimeoutSeconds": 20,
     "fetchRetries": 2,
-    "fetchRetryDelaySeconds": 2
+    "fetchRetryDelaySeconds": 2,
+    "echoRetentionDays": 30,
+    "rawRetentionDays": 30
   },
   "updatedAt": "2026-11-15T10:00:00+09:00",
   "history": [
