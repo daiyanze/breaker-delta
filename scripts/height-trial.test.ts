@@ -81,7 +81,7 @@ describe("height trial", () => {
 
   test("clusters by topic, following merges; unassigned echoes stand alone", () => {
     const { sqlite } = seed();
-    const clusters = loadClusters(sqlite, NOW - 7 * 24 * HOUR);
+    const clusters = loadClusters(sqlite, NOW - 7 * 24 * HOUR, NOW);
     const byId = new Map(clusters.map((c) => [c.id, c]));
     expect([...byId.keys()].sort()).toEqual(["s1", "s2", "t-big", "t-flood"]);
     expect(byId.get("t-big")?.sources).toBe(3);
@@ -98,9 +98,19 @@ describe("height trial", () => {
     expect(byId.get("t-flood")?.echoes).toHaveLength(30);
   });
 
+  test("--now scores as of that time: later echoes and later heat are left out", () => {
+    const { sqlite } = seed();
+    const at = NOW - 90 * 60_000; // between b1's two heat rows; before b3 and s1
+    const clusters = loadClusters(sqlite, at - 7 * 24 * HOUR, at);
+    const byId = new Map(clusters.map((c) => [c.id, c]));
+    expect(byId.has("s1")).toBe(false);
+    expect(byId.get("t-big")?.echoes.map((e) => e.id).sort()).toEqual(["b1", "b2"]);
+    expect(byId.get("t-big")?.echoes.find((e) => e.id === "b1")?.heat).toBe(10);
+  });
+
   test("the cap moves a one-group flood down; ranks and moves are printed", () => {
     const { sqlite } = seed();
-    const clusters = loadClusters(sqlite, NOW - 7 * 24 * HOUR);
+    const clusters = loadClusters(sqlite, NOW - 7 * 24 * HOUR, NOW);
     const sets = builtInSets(SettingsSchema.parse({}));
     const rows = score(clusters, sets, NOW);
     const flood = rows.find((r) => r.cluster.id === "t-flood");
