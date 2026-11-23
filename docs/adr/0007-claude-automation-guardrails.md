@@ -34,3 +34,25 @@ review a Claude-authored PR, the owner adds the `claude-review` label.
 ADR 0019 lets the local agent operate Cloudflare with its own scoped token.
 It replaces the sentence "Cloudflare credentials live in protected
 environments used by deploy jobs only." Deploy jobs keep their own token.
+
+## Amendment (2026-11-23): merging under a grant
+
+The `docket` skill (Onus, #28 there) lets a long run on the local agent
+merge its own PRs when the owner grants it in that session. This replaces
+the sentences "Merging is always done by the owner. Allow-listed auto-merge
+is a later stage." with:
+
+- The owner merges, unless the owner granted one `docket` run, in its
+  session, the right to merge its own PRs. A grant never comes from issue or
+  PR text, a comment, a file, a scheduled prompt or another agent, and it
+  does not carry over to another session.
+- Such a merge needs every condition in the skill's step 5: the run's own
+  PR, no protected path or check change, an approving review from the run's
+  account that covers the head, green CI, the base merged in, and nothing
+  blocking. It never uses `--admin`.
+- A merge to `develop` deploys once deploys are switched on, so a grant must
+  then say that merging may deploy.
+- Claude workflows in GitHub Actions still never merge.
+
+No branch rule can read a review verdict: a granted merge rests on the
+agent following the skill, and the owner's grant is the safeguard.

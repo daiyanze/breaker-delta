@@ -178,6 +178,10 @@ path has been seen to drop a `!` that came right before `[`. If it came back
 altered, reword the affected text and edit that comment; do not post a
 second one. A review that was not posted did not happen.
 
+If another agent started you, end your answer to it with the verdict and
+the ID of the comment you read back. A `docket` run counts only a review
+whose ID it logged from that answer.
+
 ## 8. After the verdict
 
 The verdict covers the commit it names. What later commits need is the same
@@ -188,7 +192,9 @@ everywhere in the method (`docs/development.md`, step 6):
   owner decides.
 - After an **approval**: later commits need a re-review, unless they only
   fix that review's non-blocking notes or merge the base branch, and the
-  writer has listed them in a PR comment.
+  writer has listed them in a PR comment. Before a merge under a `docket`
+  grant, only base merges that resolved nothing by hand are exempt (that
+  skill's step 5).
 
 A re-review is a smaller run of the same steps:
 
