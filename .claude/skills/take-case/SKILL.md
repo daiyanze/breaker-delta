@@ -55,12 +55,14 @@ can unblock next.
 
 ## 2. Choose one
 
-If `docs/development.md` "Picking work" gives the milestone order, follow
-it instead of this paragraph. Otherwise, if the project works milestone by
-milestone, only candidates in the earliest milestone that still has one are
-considered. If the order of the
-milestones is not clear from their due dates or names, skip this rule and
-say so. Among the candidates, prefer:
+If `docs/development.md` "Picking work" says which milestones' candidates
+count (an order, tracks, fronts), use that in place of the rest of this
+paragraph. Otherwise, if the project works milestone by milestone, only
+candidates in the earliest milestone that still has one are considered. If
+the order of the milestones is not clear from their due dates or names,
+skip this rule and say so.
+
+Among the candidates that count, prefer:
 
 1. the one that the most open issues name in "Depends on";
 2. then the lowest issue number.
