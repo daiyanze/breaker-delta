@@ -87,7 +87,8 @@ and the new names.
 
 ## Amendment (2026-11-24): label names
 
-The labels no longer name one agent runtime: `owner:claude-ok` is now
-`owner:agent-ok`, and `owner:human+claude` is now `owner:human+agent`.
-`owner:human` is unchanged. GitHub renames a label in place, so every issue
-keeps its label. Text above and in older lessons keeps the old names.
+The labels no longer name one agent runtime (the owner's decision,
+2026-11-24): `owner:claude-ok` is now `owner:agent-ok`, and
+`owner:human+claude` is now `owner:human+agent`. `owner:human` is unchanged.
+GitHub renames a label in place, so every issue keeps its label. Text above
+keeps the old names.
