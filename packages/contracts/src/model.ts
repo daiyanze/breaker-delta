@@ -43,6 +43,16 @@ export const SettingsSchema = z.object({
   runIntervalMinutes: z.number().int().min(15).default(60),
   waveThreshold: z.number().int().min(2).default(3),
   halfLifeHours: z.number().positive().default(24),
+  /** Wave height: multiplies the whole height (#28). */
+  heightScale: z.number().positive().max(1000).default(10),
+  /** Wave height: extra weight per independent source after the first (#28). */
+  sourceBonus: z.number().min(0).max(10).default(0.5),
+  /** Wave height: echo scores counted per fetch group, highest first. 0: all (#28). */
+  maxEchoesPerGroup: z.number().int().min(0).max(100).default(0),
+  /** Wave height: "group" divides heat by the group's reference heat (#28). */
+  heatNormalisation: z.enum(["none", "group"]).default("none"),
+  /** Wave height: the percentile of a group's recent heat used as its reference under "group" (#28). */
+  heatReferencePercentile: z.number().int().min(50).max(100).default(90),
   calmAfterDays: z.number().int().positive().default(7),
   risingPercent24h: z.number().positive().default(50),
   rewriteAfterNewEchoes: z.number().int().positive().default(5),

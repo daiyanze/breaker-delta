@@ -14,6 +14,11 @@ agent's proposal for `summariesPerRun`.
 | `runIntervalMinutes` | 60 | owner, 2026-11-23 | Hourly runs. The timer fires every 15 minutes and only checks whether a run is due. |
 | `waveThreshold` | 3 | owner, 2026-11-22 | With 20 source groups, two groups agreeing (say, Hacker News and Lobsters) is common. Three groups is a clearer signal. |
 | `halfLifeHours` | 24 | owner, 2026-11-22 | The site is read as one edition a day, so an echo's weight halves over a day. |
+| `heightScale` | 10 | inherited, unreviewed | Multiplies the whole wave height. 10 is the coefficient the scaffold's formula had hard-coded; moved to settings unchanged (#28). |
+| `sourceBonus` | 0.5 | inherited, unreviewed | Each independent source after the first adds this much to the height's multiplier: `1 + sourceBonus * (sources - 1)`. 0.5 is the scaffold's hard-coded value (#28). |
+| `maxEchoesPerGroup` | 0 | agent's proposal (#28), not reviewed | Per fetch group, only this many of its highest echo scores count toward the height; 0 counts all, which is the scaffold's formula. Stops one busy group adding up on its own. The owner picks a value with `height-trial`. |
+| `heatNormalisation` | none | agent's proposal (#28), not reviewed | `none`: heat in each source's own units (HN points, GitHub stars...), the scaffold's formula. `group`: each echo's heat is divided by its group's reference heat first. |
+| `heatReferencePercentile` | 90 | agent's proposal (#28), not reviewed | Under `group`, a group's reference heat is this percentile (nearest rank) of its recent echoes' heat (`groupHeatReferences` in `packages/core`). Unused under `none`. |
 | `calmAfterDays` | 7 | owner, 2026-11-23 | |
 | `risingPercent24h` | 50 | owner, 2026-11-23 | |
 | `rewriteAfterNewEchoes` | 5 | owner, 2026-11-23 | |

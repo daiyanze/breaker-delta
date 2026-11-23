@@ -7,6 +7,12 @@ describe("settings defaults (#16)", () => {
     const d = SettingsSchema.parse({});
     expect(d.waveThreshold).toBe(3);
     expect(d.halfLifeHours).toBe(24);
+    // Wave height (#28): these keep the scaffold's formula until the owner chooses.
+    expect(d.heightScale).toBe(10);
+    expect(d.sourceBonus).toBe(0.5);
+    expect(d.maxEchoesPerGroup).toBe(0);
+    expect(d.heatNormalisation).toBe("none");
+    expect(d.heatReferencePercentile).toBe(90);
     expect(d.summariesPerRun).toBe(3);
     expect(d.timeZone).toBe("Asia/Tokyo");
     expect(d.mailSendTime).toBe("08:00");
