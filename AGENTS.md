@@ -129,16 +129,20 @@ Rows marked review only are the next to enforce once the code they guard
 exists. Known gaps in the checks: `check-deps` checks only files under a
 directory or file one of its rules names, so a source file outside every
 rule is not checked, and a ruled file can import through one (#210). It
-reads imports with TypeScript's scanner (`scripts/imports.ts`): statements,
-re-exports, and `import()`, `require()` and `import.meta.require()` with a
-string or a template without substitutions; comments and strings are not
-read. It does not see paths built at run time, and it refuses `.tsx` files,
-whose JSX text the scanner cannot read alone (#212). A `/` after `)` is read
-as division, so a regular expression there can hide what follows. Relative
-imports are resolved with Bun's resolver (symlinks followed); one that
-resolves to no TypeScript file and has another extension counts as data
-(JSON, SQL, fonts) and passes. It does not look at globals (`fetch`,
-`Date.now`, `Bun`); `packages/core` typechecks with Bun's types.
+reads imports with two readers that cover each other: Bun's parser, which
+places every `/` and type as the runtime does, and TypeScript's scanner
+(`scripts/imports.ts`), which adds what Bun drops (type-only imports, a
+brace import with an inline `type`, `import.meta.require()`). Both skip
+comments and strings, and read statements, re-exports, and `import()`,
+`require()` and `import.meta.require()` with a string or a template without
+substitutions. When Bun cannot parse a file (an `accessor` field), the
+scanner reads it alone, and a `/` after `)` or after a block's `}` can then
+hide what follows. Neither sees paths built at run time, and `.tsx` files
+fail: the scanner cannot read JSX text (#212). Relative imports are resolved
+with Bun's resolver (symlinks followed); one that resolves to no TypeScript
+file and has another extension counts as data (JSON, SQL, fonts) and passes.
+It does not look at globals (`fetch`, `Date.now`, `Bun`); `packages/core`
+typechecks with Bun's types.
 
 ## Protected paths (CODEOWNERS)
 

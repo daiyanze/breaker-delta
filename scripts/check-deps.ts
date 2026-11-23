@@ -139,14 +139,41 @@ export function violations(root: string, rules: Rule[] = RULES): string[] {
 /** A TypeScript source file. */
 const CODE = /\.[cm]?tsx?$/;
 
+/** Bun's own parser, the one that runs the files (`.ts` loader). */
+const BUN = new Bun.Transpiler({ loader: "ts" });
+
 /**
- * The imports of a file, read with TypeScript's scanner (`./imports.ts`).
- * A `.tsx` file throws: the scanner alone cannot read JSX text, and the
- * repository has none yet (#212).
+ * The imports of a file, from two readers that cover each other:
+ * - Bun's parser places every `/` and every type the way the runtime does,
+ *   but drops type-only imports, brace imports with an inline `type` (kept
+ *   by `verbatimModuleSyntax`) and `import.meta.require()`, and throws on
+ *   some valid syntax (an `accessor` field);
+ * - TypeScript's scanner (`./imports.ts`) reads those forms, comments and
+ *   strings included, but can misplace a `/`.
+ * Bun's list comes first; the scanner adds only the forms Bun drops. When
+ * Bun cannot parse a file, the scanner's list is used alone. A `.tsx` file
+ * throws: the scanner cannot read JSX text, and there are none yet (#212).
  */
 function importsOf(file: string): ImportRef[] {
   if (file.endsWith(".tsx")) throw new Error("check-deps does not read .tsx files yet (#212)");
-  return readImports(readFileSync(file, "utf8"));
+  const source = readFileSync(file, "utf8");
+  const scanned = readImports(source);
+  let parsed: ImportRef[];
+  try {
+    // Bun's scanImports rejects a `#!` line the runtime accepts.
+    const code = source.replace(/^#!.*/, (line) => " ".repeat(line.length));
+    const ref = (spec: string): ImportRef => ({
+      spec,
+      typeOnly: false,
+      form: "statement",
+      inlineType: false,
+    });
+    parsed = BUN.scanImports(code).map(({ path }) => ref(path));
+  } catch {
+    return scanned;
+  }
+  const dropped = scanned.filter((i) => i.typeOnly || i.inlineType || i.form === "meta");
+  return [...parsed, ...dropped];
 }
 
 /**
