@@ -22,8 +22,8 @@
   ],
   "r2_buckets": [{ "binding": "BLOBS", "bucket_name": "bd-blobs" }],
 
-  // M1 moves this into the settings table.
-  "vars": { "RUN_INTERVAL_MINUTES": "60" },
+  // The run interval and the other behaviour settings are read from the
+  // settings table at each tick (#19), not from vars.
 
   // Per-PR previews (#11). Bindings here are not inherited from the top level:
   // previews bind only the preview database and bucket, never production.
@@ -38,8 +38,7 @@
         "database_id": "93f7fee4-8087-4b5b-b4d8-4d4c9387af4a"
       }
     ],
-    "r2_buckets": [{ "binding": "BLOBS", "bucket_name": "bd-blobs-preview" }],
-    "vars": { "RUN_INTERVAL_MINUTES": "60" }
+    "r2_buckets": [{ "binding": "BLOBS", "bucket_name": "bd-blobs-preview" }]
   }
 
   // Secrets (wrangler secret put / .dev.vars): PROBE_TOKEN

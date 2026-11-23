@@ -8,7 +8,6 @@
  * APIs only (lib WebWorker, no `types`), so using a Bun or Cloudflare API
  * here is a compile error. `scripts/check-deps.ts` rejects the imports.
  */
-import { SettingsSchema } from "@bd/contracts";
 import { slotId } from "@bd/core";
 import { drizzleOver } from "@bd/db";
 import type { Clock, Database } from "@bd/ports";
@@ -16,6 +15,7 @@ import { probeAll } from "../sources/probe.ts";
 import { PROBE_TARGETS } from "../sources/probe-targets.ts";
 import { runSlot, type Step } from "./runner.ts";
 import { lastRun } from "./runs.ts";
+import { readSettings } from "./settings.ts";
 import { STEPS } from "./steps.ts";
 
 export interface PipelinePorts {
@@ -25,29 +25,19 @@ export interface PipelinePorts {
   fetch?: typeof fetch;
 }
 
+/**
+ * What the adapter passes in. Behaviour (the run interval, step attempts,
+ * the lease) is not here: each tick reads it from the settings table
+ * (invariant 9), so a change applies at the next tick.
+ */
 export interface PipelineConfig {
-  runIntervalMinutes: number;
   /** Guards /__probe and /__tick. Null means those routes do not exist. */
   probeToken: string | null;
-  /** Attempts per step before the run fails (settings: `stepMaxAttempts`). */
-  stepMaxAttempts: number;
-  /** Lease a runner holds on a run (settings: `runLeaseMinutes`). */
-  runLeaseMinutes: number;
 }
 
 /** Configuration from plain string variables; the same names in every adapter. */
-export function pipelineConfig(vars: {
-  RUN_INTERVAL_MINUTES?: string | undefined;
-  PROBE_TOKEN?: string | undefined;
-}): PipelineConfig {
-  // The settings table is read from #19; until then the defaults apply.
-  const defaults = SettingsSchema.parse({});
-  return {
-    runIntervalMinutes: Number(vars.RUN_INTERVAL_MINUTES) || 60,
-    probeToken: vars.PROBE_TOKEN ? vars.PROBE_TOKEN : null,
-    stepMaxAttempts: defaults.stepMaxAttempts,
-    runLeaseMinutes: defaults.runLeaseMinutes,
-  };
+export function pipelineConfig(vars: { PROBE_TOKEN?: string | undefined }): PipelineConfig {
+  return { probeToken: vars.PROBE_TOKEN ? vars.PROBE_TOKEN : null };
 }
 
 export interface TickResult {
@@ -79,10 +69,11 @@ export function createPipeline(
 
   async function tick(): Promise<TickResult> {
     const now = () => ports.clock.now();
-    const slot = slotId(now(), config.runIntervalMinutes);
+    const { settings } = await readSettings(db, now());
+    const slot = slotId(now(), settings.runIntervalMinutes);
     const outcome = await runSlot(db, now, slot, steps, {
-      maxAttempts: config.stepMaxAttempts,
-      leaseMs: config.runLeaseMinutes * 60_000,
+      maxAttempts: settings.stepMaxAttempts,
+      leaseMs: settings.runLeaseMinutes * 60_000,
     });
     switch (outcome.status) {
       case "finished":

@@ -27,5 +27,5 @@ bun scripts/verify-local.ts down
 ```
 
 **Edges.** A restart keeps the data; `spike-local.ts` checks that. A slot is
-`RUN_INTERVAL_MINUTES` long (default 60), so a first run near the top of the
+`runIntervalMinutes` long (a setting, default 60), so a first run near the top of the
 hour may be followed by a second slot soon after.

@@ -10,7 +10,7 @@
  *   BD_PORT           pipeline port (default 8787)
  *   BD_WEB_PORT       site port (default 8788)
  *   BD_TICK_SECONDS   seconds between ticks (default 60)
- *   RUN_INTERVAL_MINUTES, PROBE_TOKEN   as on Cloudflare
+ *   PROBE_TOKEN       as on Cloudflare
  *   READ_SOURCE, FIXTURE_SET            what the site reads (see apps/web)
  */
 import { resolve } from "node:path";
@@ -26,7 +26,7 @@ const pipeline = startPipeline({
   dataDir,
   port: Number(env.BD_PORT ?? 8787),
   tickSeconds: Number(env.BD_TICK_SECONDS ?? 60),
-  vars: { RUN_INTERVAL_MINUTES: env.RUN_INTERVAL_MINUTES, PROBE_TOKEN: env.PROBE_TOKEN },
+  vars: { PROBE_TOKEN: env.PROBE_TOKEN },
 });
 const site = startSite({
   port: Number(env.BD_WEB_PORT ?? 8788),

@@ -6,7 +6,7 @@ import { migratedDatabase, NOW, SLOT } from "./helpers.ts";
 function setup(overrides: Partial<PipelinePorts> = {}) {
   const { db } = migratedDatabase();
   const ports: PipelinePorts = { db, clock: { now: () => NOW }, ...overrides };
-  const config = pipelineConfig({ RUN_INTERVAL_MINUTES: "60", PROBE_TOKEN: "secret" });
+  const config = pipelineConfig({ PROBE_TOKEN: "secret" });
   return { pipeline: createPipeline(ports, config) };
 }
 
@@ -16,18 +16,9 @@ const get = (path: string, token?: string) =>
   });
 
 describe("pipeline config", () => {
-  test("defaults: 60 minutes, no probe token, step settings from @bd/contracts", () => {
-    expect(pipelineConfig({})).toEqual({
-      runIntervalMinutes: 60,
-      probeToken: null,
-      stepMaxAttempts: 3,
-      runLeaseMinutes: 30,
-    });
-  });
-
-  test("reads the interval and the token", () => {
-    const config = pipelineConfig({ RUN_INTERVAL_MINUTES: "30", PROBE_TOKEN: "t" });
-    expect(config).toMatchObject({ runIntervalMinutes: 30, probeToken: "t" });
+  test("holds only the probe token; behaviour comes from settings", () => {
+    expect(pipelineConfig({})).toEqual({ probeToken: null });
+    expect(pipelineConfig({ PROBE_TOKEN: "t" })).toEqual({ probeToken: "t" });
   });
 });
 

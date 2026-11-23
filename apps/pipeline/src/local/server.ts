@@ -19,7 +19,7 @@ export interface LocalPipelineOptions {
   hostname?: string;
   /** Seconds between ticks. The runner decides whether a slot is due. */
   tickSeconds: number;
-  /** RUN_INTERVAL_MINUTES and PROBE_TOKEN, as on Cloudflare. */
+  /** PROBE_TOKEN, as on Cloudflare. */
   vars: Record<string, string | undefined>;
   log?: (line: string) => void;
 }
@@ -44,10 +44,7 @@ export function startPipeline(options: LocalPipelineOptions): LocalPipeline {
 
   const pipeline = createPipeline(
     { db: sqliteDatabase(sqlite), clock: { now: () => Date.now() } },
-    pipelineConfig({
-      RUN_INTERVAL_MINUTES: options.vars.RUN_INTERVAL_MINUTES,
-      PROBE_TOKEN: options.vars.PROBE_TOKEN,
-    }),
+    pipelineConfig({ PROBE_TOKEN: options.vars.PROBE_TOKEN }),
   );
 
   const server = Bun.serve({

@@ -9,7 +9,6 @@ import { d1Database } from "./d1.ts";
 export interface Env {
   DB: D1Database;
   BLOBS: R2Bucket;
-  RUN_INTERVAL_MINUTES?: string;
   /** Guards /__probe and /__tick. Unset = those routes do not exist. */
   PROBE_TOKEN?: string;
 }
