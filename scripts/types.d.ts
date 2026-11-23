@@ -4,3 +4,4 @@
  * module, the way Miniflare itself does it.
  */
 type D1Database = import("@cloudflare/workers-types/experimental").D1Database;
+type R2Bucket = import("@cloudflare/workers-types/experimental").R2Bucket;

@@ -3,7 +3,8 @@
  * `wrangler deploy --dry-run` has built bd-pipeline. It loads the built
  * Worker into the Workers runtime (miniflare, no account) and checks:
  *
- *   1. the D1 Database adapter passes the same port checks as bun:sqlite;
+ *   1. the D1 Database adapter passes the same port checks as bun:sqlite,
+ *      and the R2 Blobs adapter the same checks as a directory;
  *   2. the cron handler runs the step runner, and a slot runs once.
  *
  * Cloudflare tooling stays out of `bun test` (ADR 0018): only this script,
@@ -15,7 +16,8 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { convertV4MiniflareOptions, Miniflare } from "miniflare";
 import { d1Database } from "../apps/pipeline/src/cloudflare/d1.ts";
-import { databaseChecks } from "../packages/ports/src/conformance.ts";
+import { r2Blobs } from "../apps/pipeline/src/cloudflare/r2.ts";
+import { blobsChecks, databaseChecks } from "../packages/ports/src/conformance.ts";
 
 const root = join(import.meta.dir, "..");
 const outDir = resolve(process.argv[2] ?? join(root, ".wrangler-dist", "pipeline"));
@@ -39,12 +41,21 @@ function statements(sql: string): string[] {
     .filter((s) => s.length > 0);
 }
 
-// 1. D1 against the Database port checks. One empty database per check.
+// 1. D1 against the Database port checks, R2 against the Blobs port checks.
+// One empty database or bucket per check.
 let conformance: Miniflare | null = null;
 let next = 0;
 const d1Checks = databaseChecks(async () => {
   if (!conformance) throw new Error("miniflare not started");
   return d1Database(await conformance.getD1Database(`C${next++}`));
+});
+let nextBucket = 0;
+const r2Checks = blobsChecks(async () => {
+  if (!conformance) throw new Error("miniflare not started");
+  // Miniflare types the bucket with undici's Headers, not the Workers' own;
+  // the object is the runtime's R2 binding either way.
+  const bucket = await conformance.getR2Bucket(`B${nextBucket++}`);
+  return r2Blobs(bucket as unknown as R2Bucket);
 });
 // Miniflare 5 nests worker options under `config`; convertV4MiniflareOptions
 // accepts the flat v4 shape, which is the documented one.
@@ -54,14 +65,20 @@ conformance = new Miniflare(
     script: "export default { fetch() { return new Response('ok'); } };",
     compatibilityDate: "2026-11-01",
     d1Databases: d1Checks.map((_, i) => `C${i}`),
+    r2Buckets: r2Checks.map((_, i) => `B${i}`),
   }),
 );
-for (const check of d1Checks) {
-  try {
-    await check.run();
-    record(`D1: ${check.name}`, true);
-  } catch (err) {
-    record(`D1: ${check.name}`, false, err instanceof Error ? err.message : String(err));
+for (const [label, checks] of [
+  ["D1", d1Checks],
+  ["R2", r2Checks],
+] as const) {
+  for (const check of checks) {
+    try {
+      await check.run();
+      record(`${label}: ${check.name}`, true);
+    } catch (err) {
+      record(`${label}: ${check.name}`, false, err instanceof Error ? err.message : String(err));
+    }
   }
 }
 await conformance.dispose();
