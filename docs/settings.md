@@ -32,7 +32,7 @@ agent's proposal for `summariesPerRun`.
 | `fetchRetryDelaySeconds` | 2 | agent's proposal (#26), not reviewed | Doubled before each next retry: 2 s, then 4 s. |
 | `assignBatchSize` | 20 | agent's proposal (#32), not reviewed | New echoes per assign model call. Small enough that one bad answer leaves few echoes for the next run, large enough that a busy hour takes a handful of calls. |
 | `assignShortlistSize` | 30 | agent's proposal (#32), not reviewed | Existing topics offered per call, ranked by words shared with the batch's titles, then by latest activity. Keeps the prompt short. |
-| `assignActivityDays` | 7 | agent's proposal (#32), not reviewed | A topic whose latest echo is older is not offered; a returning story starts a new topic. Same as `calmAfterDays`. |
+| `assignActivityDays` | 7 | agent's proposal (#32), not reviewed | A topic whose latest activity (the later of its latest echo and its creation) is older is not offered; a returning story starts a new topic. Same as `calmAfterDays`. |
 
 The `fresh` fixture set is a new installation, so its settings equal these
 defaults; `packages/fixtures/src/settings.test.ts` checks that.

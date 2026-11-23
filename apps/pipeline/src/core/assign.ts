@@ -17,8 +17,8 @@
  *    activity (`shortlist`).
  * 4. **Validate.** An assignment is kept only when its echo is in the batch
  *    and named once, and its topic is in that batch's shortlist or is a new
- *    topic with a non-blank name that holds no URL or web address
- *    (`validateAssignments`, invariant 2). Everything else is
+ *    topic with a non-blank name that holds no URL scheme or `www.`, and no
+ *    dotted word its echo's title lacks (`nameCitesNoAddress`, invariant 2). Everything else is
  *    rejected, and its echo stays without a topic for the next run. A batch
  *    whose model call fails leaves all its echoes for the next run.
  * 5. **Write.** One batch of statements per model call: the new topics, each
@@ -75,13 +75,37 @@ export interface PoolTopic {
 export const MAX_SLUG = 60;
 
 /**
- * A URL or web address in a model-written name: a scheme, `www.`, a host
- * followed by a path, or a host under a common top-level domain. The site
- * renders a topic's name and slug, and no model-authored URL is ever stored
- * (invariant 2), so such a name is rejected. `Next.js` and `Rust 2.0` pass.
+ * Invariant 2 for a model-written topic name, which the site renders with
+ * its slug. No list of domain endings can tell `x.ai` the address from a
+ * product name, so the rule leans on the source's own text instead:
+ *
+ * - a URL scheme (`https://`) or `www.` is never kept;
+ * - a dotted word whose last part has two or more characters and a letter
+ *   (`bbc.co.uk`, `x.ai`, `ASP.NET`, `config.test.ts`) is kept only when the
+ *   echo's own title has it, ignoring case, so the model cannot invent an
+ *   address. `Rust 2.0`, `5.8/5.9` and `U.S.` have none.
+ *
+ * Both sides are NFKC-normalised with ideographic full stops read as dots,
+ * since browsers read `example．com` and `example。com` as `example.com`.
  */
-const WEB_ADDRESS =
-  /[a-z][a-z0-9+.-]*:\/\/|\bwww\.|[\p{L}\p{N}-]+\.[\p{L}\p{N}.-]+\/|\b[a-z0-9-]+\.(?:com|org|net|io|dev|app|gov|edu|info|example|test)\b/iu;
+const SCHEME_OR_WWW = /\p{L}[\p{L}\p{N}+.-]*:\/\/|(?:^|[^\p{L}\p{N}])www\./iu;
+const DOTTED_WORD = /[\p{L}\p{N}_-]+(?:\.[\p{L}\p{N}_-]+)+/gu;
+
+function plain(text: string): string {
+  return text.normalize("NFKC").replace(/[。｡]/g, ".").toLowerCase();
+}
+
+/** Whether a new topic's name keeps to invariant 2 for the echo titled `title`. Pure. */
+export function nameCitesNoAddress(name: string, title: string): boolean {
+  const n = plain(name);
+  if (SCHEME_OR_WWW.test(n)) return false;
+  const inTitle = new Set(Array.from(plain(title).matchAll(DOTTED_WORD), (m) => m[0]));
+  for (const [word] of n.matchAll(DOTTED_WORD)) {
+    const last = word.slice(word.lastIndexOf(".") + 1);
+    if (last.length >= 2 && /\p{L}/u.test(last) && !inTitle.has(word)) return false;
+  }
+  return true;
+}
 
 /**
  * At most `size` topics for the batch whose titles are given: most words
@@ -116,24 +140,25 @@ export type Placement = { topicId: string } | { newTopic: string };
  * The assignments code accepts from a model answer, by echo id, and how many
  * it rejected. Rejected: an answer that fails the contract (all of it), an
  * echo not in the batch, an echo named more than once (every one of its
- * assignments), a topic not in the shortlist, a blank new topic name. Pure;
+ * assignments), a topic not in the shortlist, a blank new topic name, a new name
+ * `nameCitesNoAddress` refuses. Pure;
  * exported for tests.
  */
 export function validateAssignments(
-  echoIds: readonly string[],
+  batch: readonly { id: string; title: string }[],
   shortlistIds: readonly string[],
   answer: unknown,
 ): { placements: Map<string, Placement>; rejected: number } {
   const parsed = AssignResultSchema.safeParse(answer);
-  if (!parsed.success) return { placements: new Map(), rejected: echoIds.length };
-  const inBatch = new Set(echoIds);
+  if (!parsed.success) return { placements: new Map(), rejected: batch.length };
+  const titles = new Map(batch.map((e) => [e.id, e.title]));
   const offered = new Set(shortlistIds);
   const named = new Map<string, number>();
   for (const a of parsed.data.assignments) named.set(a.echoId, (named.get(a.echoId) ?? 0) + 1);
   const placements = new Map<string, Placement>();
   let rejected = 0;
   for (const a of parsed.data.assignments) {
-    if (!inBatch.has(a.echoId) || named.get(a.echoId) !== 1) {
+    if (!titles.has(a.echoId) || named.get(a.echoId) !== 1) {
       rejected++;
       continue;
     }
@@ -143,7 +168,8 @@ export function validateAssignments(
       continue;
     }
     const name = a.newTopic.name.trim();
-    if (name && !WEB_ADDRESS.test(name)) placements.set(a.echoId, { newTopic: name });
+    if (name && nameCitesNoAddress(name, titles.get(a.echoId) ?? ""))
+      placements.set(a.echoId, { newTopic: name });
     else rejected++;
   }
   return { placements, rejected };
@@ -259,7 +285,7 @@ export function assignStep(deps: AssignDeps): Step {
           continue;
         }
         const { placements, rejected } = validateAssignments(
-          batch.map((e) => e.id),
+          batch,
           offered.map((t) => t.id),
           answer,
         );

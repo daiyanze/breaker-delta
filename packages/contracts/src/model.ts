@@ -72,7 +72,7 @@ export const SettingsSchema = z.object({
   assignBatchSize: z.number().int().min(1).max(100).default(20),
   /** Most existing topics offered to the assign model per call. 0: every echo starts a new topic. */
   assignShortlistSize: z.number().int().min(0).max(200).default(30),
-  /** A topic can be shortlisted while its latest echo is at most this old. */
+  /** A topic can be shortlisted while its latest activity (the later of its latest echo and its creation) is at most this old. */
   assignActivityDays: z.number().int().min(1).default(7),
 });
 export type Settings = z.infer<typeof SettingsSchema>;

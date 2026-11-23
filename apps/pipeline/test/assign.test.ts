@@ -107,7 +107,11 @@ describe("shortlist", () => {
 });
 
 describe("validateAssignments", () => {
-  const ok = (answer: unknown) => validateAssignments(["e1", "e2"], ["t1"], answer);
+  const batch = [
+    { id: "e1", title: "t" },
+    { id: "e2", title: "t" },
+  ];
+  const ok = (answer: unknown) => validateAssignments(batch, ["t1"], answer);
 
   test("keeps shortlisted topics and named new topics", () => {
     const r = ok({
@@ -152,35 +156,55 @@ describe("validateAssignments", () => {
     expect(r.rejected).toBe(2);
   });
 
-  test("a new name that holds a URL or a web address is rejected (invariant 2)", () => {
+  /** Rejections for `name` proposed as a new topic for an echo titled `title`. */
+  const named = (name: string, title = "Release notes") =>
+    validateAssignments([{ id: "e1", title }], [], {
+      assignments: [{ echoId: "e1", newTopic: { name } }],
+    }).rejected;
+
+  test("a name with a URL scheme or www. is rejected, even when the title has it (invariant 2)", () => {
     for (const name of [
       "https://invented.example/source",
       "see HTTP://x.test",
       "www.example.org launch",
-      "invented.example/news",
-      "Story on example.com",
-      "news.ycombinator.com thread",
-      "x.org",
     ]) {
-      const r = validateAssignments(["e1"], [], {
-        assignments: [{ echoId: "e1", newTopic: { name } }],
-      });
-      expect([name, r.rejected]).toEqual([name, 1]);
+      expect([name, named(name, name)]).toEqual([name, 1]);
     }
   });
 
-  test("names with dots that are not web addresses are kept", () => {
+  test("a dotted word the echo's title does not have is rejected (invariant 2)", () => {
+    for (const name of [
+      "invented.example/news",
+      "Story on example.com",
+      "bbc.co.uk",
+      "x.ai",
+      "techcrunch.news",
+      "例子.com",
+      "example．com",
+      "example。com",
+      "ASP.NET Core 10 release",
+    ]) {
+      expect([name, named(name)]).toEqual([name, 1]);
+    }
+  });
+
+  test("a dotted word the echo's own title has is kept", () => {
+    expect(named("ASP.NET Core 10 release", "What's new in ASP.NET Core 10")).toBe(0);
+    expect(named("Node.js/Deno", "node.js and Deno ship together")).toBe(0);
+    expect(named("config.test.ts migration", "Moving config.test.ts to Bun")).toBe(0);
+    expect(named("x.ai funding", "X.AI raises again")).toBe(0);
+    expect(named("x.ai funding", "xAI raises again")).toBe(1);
+    expect(named("example.com", "Posted on example.community")).toBe(1);
+  });
+
+  test("numbers, initials and slashes without a dotted word are kept", () => {
     for (const name of [
       "Rust 2.0",
-      "Next.js 16",
-      "Node.js release",
       "GPT-5.5",
+      "TypeScript 5.8/5.9 compatibility",
       "U.S. chip rules",
     ]) {
-      const r = validateAssignments(["e1"], [], {
-        assignments: [{ echoId: "e1", newTopic: { name } }],
-      });
-      expect([name, r.rejected]).toEqual([name, 0]);
+      expect([name, named(name)]).toEqual([name, 0]);
     }
   });
 
@@ -315,6 +339,23 @@ describe("assign step", () => {
       { id: "tAlias", name: "Qubits", aliases: ["quantum chips record"] },
       { id: "tName", name: "Rust compiler release" },
     ]);
+  });
+
+  test("a topic's activity is the later of its latest echo and its creation", async () => {
+    const s = setup();
+    await changeSettings(s.orm, NOW, { assignActivityDays: 7 });
+    s.topic("tNewOldEcho", "Alpha", { at: NOW - DAY });
+    s.echo("a", "Alpha old", { at: NOW - 8 * DAY, topic: "tNewOldEcho" });
+    s.topic("tOldNewEcho", "Beta", { at: NOW - 10 * DAY });
+    s.echo("b", "Beta new", { at: NOW - 2 * DAY, topic: "tOldNewEcho" });
+    s.topic("tStale", "Gamma", { at: NOW - 10 * DAY });
+    s.echo("c", "Gamma old", { at: NOW - 8 * DAY, topic: "tStale" });
+    s.echo("e1", "Something new");
+    const { driver, inputs } = scripted((input) => ({
+      assignments: input.echoes.map((e) => ({ echoId: e.id, newTopic: { name: "x" } })),
+    }));
+    await s.run(driver);
+    expect(inputs[0]?.topics.map((t) => t.id).sort()).toEqual(["tNewOldEcho", "tOldNewEcho"]);
   });
 
   test("batches follow the settings; later batches see topics earlier ones created", async () => {
