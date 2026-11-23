@@ -103,7 +103,10 @@ Each rule applies only within its scope.
   format with hand-written rules repeats L11. It happened again in #211:
   the relative-import check read TypeScript with a regex, and two review
   rounds found forms it missed (`./x.bun` for `x.bun.ts`, `./x.js`,
-  `import(p, { with })`, template `require`, symlinks).
+  `import(p, { with })`, template `require`, symlinks). The third round
+  showed Bun's parser itself reading differently from the build: it drops
+  `import { type X } from`, which `verbatimModuleSyntax` keeps, and its tsx
+  loader rejects `.ts` generics.
 - **Rule:** When a check reads YAML, JSON, source code or another standard
   format, use the parser the consumers use, and test it with inputs that
   parser rejects or reads differently. Before naming a skill or command, check the name against what

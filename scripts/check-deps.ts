@@ -103,19 +103,20 @@ export const RULES: Rule[] = [
  * forbidden package fails too: import statements, and `import(...)` or
  * `require(...)` calls whose first argument is a string or a template
  * without `${}`. A call must not follow a name character or a dot, so
- * `loader.require("x")` is not one. Relative imports are read by Bun's own
- * parser instead (`relativeImports`, lesson L14).
+ * `loader.require("x")` is not one; `import.meta.require("x")` is. Relative
+ * imports are read by Bun's own parser instead (`relativeImports`, L14).
  */
 const IMPORT = new RegExp(
   [
     String.raw`(?:import|export)\s+(?:[^'"]*?\sfrom\s+)?['"]([^'"]+)['"]`,
     String.raw`(?:^|[^\w$.])(?:import|require)\(\s*(?:['"]([^'"]+)['"]|\x60([^\x60$]+)\x60)\s*[,)]`,
+    String.raw`import\.meta\.require\(\s*['"]([^'"]+)['"]`,
   ].join("|"),
   "gm",
 );
 
 /** The specifier an IMPORT match captured. */
-const specOf = (m: RegExpMatchArray) => m[1] ?? m[2] ?? m[3];
+const specOf = (m: RegExpMatchArray) => m[1] ?? m[2] ?? m[3] ?? m[4];
 
 function files(dir: string): string[] {
   let out: string[] = [];
@@ -152,18 +153,38 @@ export function violations(root: string, rules: Rule[] = RULES): string[] {
 /** A TypeScript source file. */
 const CODE = /\.[cm]?tsx?$/;
 
-const transpiler = new Bun.Transpiler({ loader: "tsx" });
+/** One parser per loader: a tsx parser rejects valid `.ts` such as `<T>(x: T) => x`. */
+const TS = new Bun.Transpiler({ loader: "ts" });
+const TSX = new Bun.Transpiler({ loader: "tsx" });
 
 /**
- * Relative imports that exist at run time, resolved to real paths. Bun's
- * parser reads every form the runtime does (statements, `import()`,
- * `require()`, with options or templates) and drops type-only imports and
- * comments; Bun's resolver maps `./x.js` to `x.ts`, finds `x.tsx`, an index,
- * and follows symlinks. A path it cannot resolve is kept as written.
+ * Two forms Bun's parser drops that still load at run time: a brace import
+ * or export whose first name is `type` (verbatimModuleSyntax keeps it as
+ * `import {} from`, so the target is bundled), and `import.meta.require`.
+ */
+const KEPT = new RegExp(
+  [
+    String.raw`(?:^|[;\s])(?:import|export)\s*\{\s*type\s[^}]*\}\s*from\s*['"](\.[^'"]*)['"]`,
+    String.raw`import\.meta\.require\(\s*['"](\.[^'"]*)['"]`,
+  ].join("|"),
+  "gm",
+);
+
+/**
+ * Relative imports that load at run time, resolved to real paths. Bun's
+ * parser reads statements, `import()` and `require()` (with options or a
+ * template without `${}`), and skips comments, strings and type-only
+ * imports; `KEPT` adds the two forms it drops. Bun's resolver maps `./x.js`
+ * to `x.ts`, finds `x.tsx` and an index, and follows symlinks. A path it
+ * cannot resolve is kept as written. Throws when the file does not parse.
  */
 function relativeImports(file: string): { spec: string; target: string }[] {
+  const source = readFileSync(file, "utf8");
+  const parser = /\.tsx$/.test(file) ? TSX : TS;
+  const specs = new Set(parser.scanImports(source).map((i) => i.path));
+  for (const m of source.matchAll(KEPT)) specs.add((m[1] ?? m[2]) as string);
   const out: { spec: string; target: string }[] = [];
-  for (const { path: spec } of transpiler.scanImports(readFileSync(file, "utf8"))) {
+  for (const spec of specs) {
     if (!spec.startsWith(".")) continue;
     let target: string;
     try {
@@ -176,8 +197,13 @@ function relativeImports(file: string): { spec: string; target: string }[] {
   return out;
 }
 
+/** For the lesson-L1 check; a file that does not parse is reported by relativeViolations. */
 function runtimeImports(file: string): string[] {
-  return relativeImports(file).map((i) => i.target);
+  try {
+    return relativeImports(file).map((i) => i.target);
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -216,7 +242,15 @@ export function relativeViolations(root: string, rules: Rule[] = RULES): string[
     for (const file of list) {
       const from = relative(root, file);
       if (areaOf(from, rules) !== rule) continue; // checked under its most specific rule
-      for (const { spec, target } of relativeImports(file)) {
+      let imports: { spec: string; target: string }[];
+      try {
+        imports = relativeImports(file);
+      } catch (error) {
+        const why = error instanceof Error ? error.message : String(error);
+        found.push(`${from} could not be parsed: ${why}`);
+        continue;
+      }
+      for (const { spec, target } of imports) {
         if (DATA.test(spec) && !CODE.test(target)) continue;
         // Resolved through any symlink, so a link cannot carry an import elsewhere.
         const to = existsSync(target) ? relative(real, target) : relative(root, target);
