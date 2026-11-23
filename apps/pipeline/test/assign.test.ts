@@ -152,6 +152,28 @@ describe("validateAssignments", () => {
     expect(r.rejected).toBe(2);
   });
 
+  test("a new name that holds a URL or a web address is rejected (invariant 2)", () => {
+    for (const name of [
+      "https://invented.example/source",
+      "see HTTP://x.test",
+      "www.example.org launch",
+      "invented.example/news",
+      "Story on example.com",
+      "news.ycombinator.com thread",
+      "x.org",
+    ]) {
+      const r = validateAssignments(["e1"], [], { assignments: [{ echoId: "e1", newTopic: { name } }] });
+      expect([name, r.rejected]).toEqual([name, 1]);
+    }
+  });
+
+  test("names with dots that are not web addresses are kept", () => {
+    for (const name of ["Rust 2.0", "Next.js 16", "Node.js release", "GPT-5.5", "U.S. chip rules"]) {
+      const r = validateAssignments(["e1"], [], { assignments: [{ echoId: "e1", newTopic: { name } }] });
+      expect([name, r.rejected]).toEqual([name, 0]);
+    }
+  });
+
   test("an answer that fails the contract rejects the whole batch", () => {
     for (const bad of [null, { assignments: [{ echoId: "e1" }] }, { assignments: "x" }]) {
       expect(ok(bad)).toEqual({ placements: new Map(), rejected: 2 });
