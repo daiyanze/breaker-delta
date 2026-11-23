@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <generator>text 1</generator>
+    <title>text 2</title>
+    <link>https://example.com/item/3</link>
+    <language>text 4</language>
+    <webMaster>text 5</webMaster>
+    <copyright>text 6</copyright>
+    <lastBuildDate>Mon, 23 Nov 2026 09:09:34 GMT</lastBuildDate>
+    <image>
+      <title>text 7</title>
+      <url>https://example.com/item/8</url>
+      <link>https://example.com/item/9</link>
+      <height>256</height>
+      <width>256</width>
+    </image>
+    <description>text 10</description>
+    <item>
+      <title>text 11</title>
+      <link>https://example.com/item/12</link>
+      <guid isPermaLink="false">text 13</guid>
+      <pubDate>Sun, 22 Nov 2026 19:12:41 GMT</pubDate>
+      <description>text 14</description>
+      <source url="https://example.com/item/16">text 15</source>
+    </item>
+    <item>
+      <title>text 17</title>
+      <link>https://example.com/item/18</link>
+      <guid isPermaLink="false">text 19</guid>
+      <pubDate>Mon, 23 Nov 2026 00:08:00 GMT</pubDate>
+      <description>text 20</description>
+      <source url="https://example.com/item/22">text 21</source>
+    </item>
+    <item>
+      <title>text 23</title>
+      <link>https://example.com/item/24</link>
+      <guid isPermaLink="false">text 25</guid>
+      <pubDate>Sun, 22 Nov 2026 23:44:00 GMT</pubDate>
+      <description>text 26</description>
+      <source url="https://example.com/item/28">text 27</source>
+    </item>
+    <item>
+      <title>text 29</title>
+      <link>https://example.com/item/30</link>
+      <guid isPermaLink="false">text 31</guid>
+      <pubDate>Sun, 22 Nov 2026 23:44:19 GMT</pubDate>
+      <description>text 32</description>
+      <source url="https://example.com/item/34">text 33</source>
+    </item>
+    <item>
+      <title>text 35</title>
+      <link>https://example.com/item/36</link>
+      <guid isPermaLink="false">text 37</guid>
+      <pubDate>Mon, 23 Nov 2026 07:55:00 GMT</pubDate>
+      <description>text 38</description>
+      <source url="https://example.com/item/40">text 39</source>
+    </item>
+  </channel>
+</rss>

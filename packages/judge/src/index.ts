@@ -121,3 +121,6 @@ export function parseJson(text: string): unknown {
     return undefined;
   }
 }
+
+export * from "./driver.ts";
+export * from "./fake.ts";
