@@ -13,7 +13,8 @@ Project facts come from the repository: the agent label and the method from
 `docs/development.md`; the check command, the base branch and the protected
 paths from `AGENTS.md`. Needs GitHub and the `gh` CLI.
 
-If the request names an issue (`#123`), skip to step 3 with it.
+If the request names an issue (`#123`, or a code the project's "Picking
+work" defines), skip to step 3 with it.
 
 ## 1. Find candidates
 
@@ -43,8 +44,10 @@ A labelled issue is a candidate unless:
   issue's data does not block. A line you cannot read blocks: list it in the
   report so the owner can fix the issue text.
 
-Before relying on these forms, look at how this project's issues really
-write their dependencies, and say in the report if they use another form.
+The project's own reference forms and milestone order, if it lists them in
+`docs/development.md` "Picking work", come first; read them before these.
+Before relying on any forms, look at how this project's issues really write
+their dependencies, and say in the report if they use another form.
 
 Issues without the agent label are not the agent's to start. Report the
 three of them that block the most labelled issues: they are what the owner

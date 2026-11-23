@@ -47,6 +47,30 @@ Each runtime calls a skill by name:
 `docket` starts only when named: its frontmatter and `agents/openai.yaml`
 turn off implicit invocation.
 
+### Dependencies and milestones
+
+The `take-case` skill reads this before its own defaults. Issues name what
+they depend on in a "Depends on" section, in these forms:
+
+| Written as | Means |
+| --- | --- |
+| `#162` | that issue |
+| `M1-04`, `UI-26`, `UI-26 (#129)` | the issue whose title starts with `[M1-04]` (the `#n`, if given, is the same issue) |
+| `M1-10 to M1-19` | every issue whose code is in that range, both ends included |
+| `#104 to #140` | every issue numbered in that range |
+| `M0`, `M4` | every issue in the pipeline milestone whose title starts with `M0 ` |
+| `UI M2` | every issue in the milestone whose title starts with `UI M2 ` |
+| `M2 to M5` | every issue in those milestones, both ends included |
+| `None.`, `Nothing.` | no dependency |
+
+A request may name an issue by its code (`M1-04`) as well as by `#n`.
+
+Milestones come in two tracks, each with its own front: the pipeline (`M0`
+to `M6`) and the site (`UI M0` to `UI M10`), ordered by the number after
+`M`, not alphabetically. A track's front is its lowest milestone that still
+has an open `owner:claude-ok` candidate. Only candidates at the front of
+their track are considered, and both fronts rank the same.
+
 On a Windows clone without symlinks enabled, `.agents/skills` is a plain
 file and Pi and Codex find no skills; Claude Code is not affected.
 
