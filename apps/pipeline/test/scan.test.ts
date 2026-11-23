@@ -443,6 +443,51 @@ describe("scan step", () => {
     expect(rows()).toHaveLength(2);
   });
 
+  test("twenty due groups fit D1's limit of 100 bound values per statement", async () => {
+    const { db } = migratedDatabase();
+    const D1_MAX_PARAMS = 100;
+    const check = (params: readonly unknown[] | undefined) => {
+      if ((params?.length ?? 0) > D1_MAX_PARAMS) throw new Error("too many SQL variables");
+    };
+    const limited: typeof db = {
+      ...db,
+      all: (sql, ...params) => (check(params), db.all(sql, ...params)),
+      values: (sql, ...params) => (check(params), db.values(sql, ...params)),
+      first: (sql, ...params) => (check(params), db.first(sql, ...params)),
+      run: (sql, ...params) => (check(params), db.run(sql, ...params)),
+      batch: (statements) => {
+        for (const st of statements) check(st.params);
+        return db.batch(statements);
+      },
+    };
+    const ids = Array.from({ length: 20 }, (_, i) => `g${String(i).padStart(2, "0")}`);
+    const answers = Object.fromEntries(
+      ids.map((id) => [`https://${id}.test/feed`, [json({ items: [1] })]]),
+    );
+    const { blobs } = memoryBlobs();
+    const out = (await scanStep({
+      blobs,
+      fetch: fakeFetch(answers).f,
+      groups: ids.map((id) => group(id)),
+      adapters: Object.fromEntries(ids.map((id) => [id, adapter(id)])),
+      sleep: noWait,
+    }).run({ slot: SLOT, db: drizzleOver(limited), now: () => NOW, outputs: new Map() })) as ScanOutput;
+    expect(out.fetched).toHaveLength(20);
+    expect(await db.all("SELECT group_id FROM scan_results WHERE slot = ?", SLOT)).toHaveLength(20);
+  });
+
+  test("a retry that finds a group missing removes the blob an earlier attempt stored", async () => {
+    const { ctx, raw, blobs } = setup();
+    const deps = { blobs, groups: [group("a")], adapters: { a: adapter("a") }, sleep: noWait };
+    const ok = { "https://a.test/feed": [json({ items: [1] })] };
+    await scanStep({ ...deps, fetch: fakeFetch(ok).f }).run(ctx());
+    expect(raw(SLOT, "a")).not.toBeNull();
+    const gone = { "https://a.test/feed": [json({}, 404), json({}, 404), json({}, 404)] };
+    const again = (await scanStep({ ...deps, fetch: fakeFetch(gone).f }).run(ctx())) as ScanOutput;
+    expect(again.missing).toEqual(["a"]);
+    expect(raw(SLOT, "a")).toBeNull();
+  });
+
   test("a blob that cannot be stored fails the step through the runner", async () => {
     const { orm } = setup();
     const { f } = fakeFetch({
