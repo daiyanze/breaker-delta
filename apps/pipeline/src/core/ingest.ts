@@ -19,8 +19,8 @@
  *    read; the others are dropped (`duplicate`). A known URL that only other
  *    groups listed this run gets no heat record: heat is each source's own
  *    count, and two sources' counts are not on one scale (`otherGroup`).
- * 4. **New or known.** A new URL becomes an echo (first seen now, in this
- *    slot, not yet assigned to a topic). Every echo kept, new or known, gets
+ * 4. **New or known.** A new URL becomes an echo (first seen when the scan
+ *    fetched it, in this slot, not yet assigned to a topic). Every echo kept, new or known, gets
  *    one `echo_metrics` row for the slot with the item's heat (0 when the
  *    source has none). So ingesting the same data again in a later run adds
  *    heat rows and no echoes.
@@ -29,10 +29,10 @@
  * `seen_at` are the scan's `fetchedAt`. All writes for the slot are one
  * batch, and each insert ignores a row that is already there (echoes) or
  * replaces it with the same values (the slot's heat), so a retried or
- * resumed attempt, at any later time, leaves the same rows as one attempt. Rows travel as one
- * JSON parameter per statement (`json_each`), in chunks: D1 binds at most
- * 100 values per statement and limits the statements per invocation, and a
- * run can have thousands of items.
+ * resumed attempt, at any later time, leaves the same rows as one attempt.
+ * Rows travel as one JSON parameter per statement (`json_each`), in chunks:
+ * D1 binds at most 100 values per statement and limits the statements per
+ * invocation, and a run can have thousands of items.
  *
  * Fetched content is data (invariant 6): titles go to the database only. The
  * step's output holds counts and group ids, and its errors hold this file's
