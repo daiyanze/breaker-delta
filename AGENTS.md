@@ -136,13 +136,13 @@ and `import.meta.require()`. When Bun cannot parse a file (an `accessor`
 field), the scanner reads it alone. Both skip comments and strings. The
 scanner guesses where a regular expression starts from the tokens before it,
 as the grammar would; it can still guess wrong after the `}` of a block that
-follows `case x:` or `export default`, and a misplaced `/` can then hide the
-scanner's forms. Neither reader sees paths built at run time, and `.tsx`
-files fail: the scanner cannot read JSX text (#212). Relative imports are
-resolved with Bun's resolver (symlinks followed); one that resolves to no
-TypeScript file and has another extension counts as data (JSON, SQL, fonts)
-and passes. It does not look at globals (`fetch`, `Date.now`, `Bun`);
-`packages/core` typechecks with Bun's types.
+follows `case x:` or a label, or of an object after `export default`, and a
+misplaced `/` can then hide the scanner's forms. Neither reader sees paths
+built at run time, and `.tsx` files fail: the scanner cannot read JSX text
+(#212). Relative imports are resolved with Bun's resolver (symlinks
+followed); one that resolves to no TypeScript file and has another extension
+counts as data (JSON, SQL, fonts) and passes. It does not look at globals
+(`fetch`, `Date.now`, `Bun`); `packages/core` typechecks with Bun's types.
 
 ## Protected paths (CODEOWNERS)
 
