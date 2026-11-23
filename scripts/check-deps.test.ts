@@ -266,7 +266,8 @@ describe("check-deps", () => {
         [
           '// import { type X } from "../local/zt.ts";',
           '/* import.meta.require("../local/zt.ts") */',
-          'const s = "import { type Y } from \'../local/zt.ts\'";',
+          "const s = \"import { type Y } from '../local/zt.ts'\";",
+          // biome-ignore lint/suspicious/noTemplateCurlyInString: source text under test
           "const t = `${s} import z from '../local/zt.ts' ${s}`;",
           "const r = /['\"]/;",
         ].join("\n"),
