@@ -301,8 +301,17 @@ describe("check-deps", () => {
       file("apps/web/src/local/hashbang.ts", '#!/usr/bin/env bun\nimport { s } from "../select";');
       file("apps/pipeline/src/core/tplmeta.ts", "const l = import.meta.require(`../local/zt.ts`);");
       file("apps/web/src/local/tplpkg.ts", "const w = import.meta.require(`wrangler`);");
+      // Imports after the #! line are still read (#218 review).
+      file(
+        "apps/pipeline/src/core/hashbang.ts",
+        '#!/usr/bin/env bun\nimport { n } from "../local/zt.ts";',
+      );
+      // A $ without { is part of the path (#218 review).
+      file("apps/pipeline/src/core/dollar.ts", "const d = import.meta.require(`../local/z$t.ts`);");
       const found = rel();
-      expect(found).not.toContain("hashbang.ts");
+      expect(found).not.toContain("web/src/local/hashbang.ts");
+      expect(found).toContain('apps/pipeline/src/core/hashbang.ts imports "../local/zt.ts"');
+      expect(found).toContain('apps/pipeline/src/core/dollar.ts imports "../local/z$t.ts"');
       expect(found).toContain('apps/pipeline/src/core/tplmeta.ts imports "../local/zt.ts"');
       const pkg = violations(root, RULES).join("\n");
       expect(pkg).toContain('web/src/local/tplpkg.ts imports "wrangler"');
@@ -333,7 +342,16 @@ describe("check-deps", () => {
       file("apps/pipeline/src/util.mts", "export const u = 1;");
       file("apps/web/src/local/y.mts", 'export { judge } from "@bd/judge";');
       file("apps/web/src/core/z.cts", 'export * from "../local/x.ts";');
-      expect(uncovered(root, RULES).join("\n")).toContain("apps/pipeline/src/util.mts is under no");
+      file("apps/pipeline/src/util2.cts", "export const u = 2;");
+      // A ruled .ts importing through a .mts (#214 review).
+      file("apps/web/src/core/via-mts.ts", 'export * from "./w.mts";');
+      file("apps/web/src/core/w.mts", 'export * from "../local/x.ts";');
+      const missing = uncovered(root, RULES).join("\n");
+      expect(missing).toContain("apps/pipeline/src/util.mts is under no");
+      expect(missing).toContain("apps/pipeline/src/util2.cts is under no");
+      expect(relativeViolations(root, RULES).join("\n")).toContain(
+        'apps/web/src/core/w.mts imports "../local/x.ts"',
+      );
       expect(violations(root, RULES).join("\n")).toContain(
         'apps/web/src/local/y.mts imports "@bd/judge"',
       );
@@ -353,6 +371,7 @@ describe("check-deps", () => {
       const found = relativeViolations(root, RULES).join("\n");
       expect(found).toContain('apps/pipeline/src/core/through.ts imports "../../test/helper.ts"');
       expect(found).toContain("which no check-deps rule covers");
+      expect(found).toContain("move it into a ruled area (#210)");
     });
   });
 });
