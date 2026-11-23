@@ -30,7 +30,7 @@ agent's proposal for `summariesPerRun`.
 | `fetchTimeoutSeconds` | 20 | agent's proposal (#26), not reviewed | Per attempt for one source URL in the scan step, body included. Long enough for a slow feed, short enough that a dead one does not hold the run. |
 | `fetchRetries` | 2 | agent's proposal (#26), not reviewed | Retries for network errors, 429 and 5xx only (`fetchSource`). Spike 2 saw intermittent 503s from `google_news`. |
 | `fetchRetryDelaySeconds` | 2 | agent's proposal (#26), not reviewed | Doubled before each next retry: 2 s, then 4 s. |
-| `echoRetentionDays` | 30 | owner, issue #38 | An echo of a topic that never became a wave is removed this many days after a source last listed it (`apps/pipeline/src/core/retention.ts`). The 30 days are the issue's; counting from the last listing rather than the first sighting is the agent's reading (#38), not reviewed. |
+| `echoRetentionDays` | 30 | owner, issue #38 | An echo of a topic that never became a wave is removed this many days after its own group last listed it (listings by other groups are not recorded) (`apps/pipeline/src/core/retention.ts`). The 30 days are the issue's; counting from the last listing rather than the first sighting is the agent's reading (#38), not reviewed. |
 | `rawRetentionDays` | 30 | owner, issue #38 | A scan's raw responses (`raw/<slot>/...` blobs) are removed this many days after the slot started. |
 
 The `fresh` fixture set is a new installation, so its settings equal these

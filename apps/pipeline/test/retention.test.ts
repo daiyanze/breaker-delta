@@ -115,6 +115,16 @@ describe("echoes", () => {
     expect(t.ids()).toEqual(["in-flat", "in-up"]);
   });
 
+  test("a topic whose state is up or flat counts as a wave without formed_at", async () => {
+    const t = setup();
+    t.topic("up", "up");
+    t.topic("flat", "flat");
+    t.echo("in-up", 400, "up");
+    t.echo("in-flat", 400, "flat");
+    await t.run();
+    expect(t.ids()).toEqual(["in-flat", "in-up"]);
+  });
+
   test("a topic that formed once counts as a wave, whatever its state says", async () => {
     const t = setup();
     t.topic("formed", "echo", NOW - 90 * DAY);
@@ -176,6 +186,12 @@ describe("echoes", () => {
     const t = setup();
     t.topic("quiet");
     t.echo("old", 400, "quiet");
+    t.echo("cited", 400, "quiet");
+    t.sqlite.run(
+      `INSERT INTO summaries (id, topic_id, version, status, reason, writer, slot, created_at)
+       VALUES ('sum1', 'quiet', 1, 'published', 'formed', 'w', 's1', 0)`,
+    );
+    t.sqlite.run("INSERT INTO summary_evidence (summary_id, echo_id) VALUES ('sum1', 'cited')");
     const tables = [
       "topics",
       "summaries",
@@ -195,7 +211,7 @@ describe("echoes", () => {
       );
     const before = counts();
     await t.run();
-    expect(t.ids()).toEqual([]);
+    expect(t.ids()).toEqual(["cited"]);
     expect(counts()).toEqual(before);
   });
 
@@ -246,6 +262,14 @@ describe("raw responses", () => {
     expect([...t.store.keys()].sort()).toEqual(
       [rawKey(young, "a"), rawKey(SLOT, "a"), "og/card.png"].sort(),
     );
+  });
+
+  test("a slot exactly 30 days old is kept; the boundary is strict", async () => {
+    const t = setup();
+    t.store.set(rawKey(slotDaysAgo(30), "a"), "{}");
+    // The clock at the top of the slot, so the cutoff equals the old slot's start.
+    const out = await t.run(Date.UTC(2026, 10, 19, 5));
+    expect(out.rawRemoved).toBe(0);
   });
 
   test("a key under raw/ that is not a slot is left alone", async () => {

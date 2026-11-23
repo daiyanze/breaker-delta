@@ -49,8 +49,9 @@ failed is picked up again next run (#32).
 Ingest (#27) creates echoes: `id` is `e` and the first 24 hex digits of the
 SHA-256 of `url`, so one URL always gets the same id, and the echo belongs to
 the group that first listed the URL.
-Retention (#38) removes an echo, with its `echo_metrics` rows, once no
-source has listed it for `echoRetentionDays`, unless its topic was ever a
+Retention (#38) removes an echo, with its `echo_metrics` rows, once its own
+group has not listed it for `echoRetentionDays` (a listing by another group
+records nothing, so that group's next scan creates the echo again), unless its topic was ever a
 wave, a summary cites it, or a topic edit names it
 (`apps/pipeline/src/core/retention.ts`). Nothing else is removed with it.
 

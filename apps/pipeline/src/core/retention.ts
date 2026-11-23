@@ -7,15 +7,18 @@
  * **Echoes.** An echo is removed, with its `echo_metrics` rows, when every
  * one of these holds:
  *
- * - No source has listed it for longer than the window: its first sighting
- *   and its latest heat record are both older than the cutoff. An echo still
- *   being listed stays, however old, so its topic does not lose it.
+ * - Its own group has not listed it for longer than the window: its first
+ *   sighting and its latest heat record are both older than the cutoff.
+ *   Ingest records a sighting only from the group the echo belongs to
+ *   (#27), so a listing by another group does not count: such an echo is
+ *   removed, and that group's next scan creates it again (same id, now
+ *   owned by that group, without a topic) for assign to place.
  * - Its topic, if it has one, never became a wave. A topic was a wave when
  *   its state is `up` or `flat`, it has a `formed_at`, a `wave_points` row
  *   says `up` or `flat`, or it has a `wave_formed` event. Any one is enough.
  * - No summary cites it (`summary_evidence`), so published evidence keeps
  *   its echo (invariant 4).
- * - No topic edit names it. A merge or a move writes one row per echo it
+ * - No topic edit names it. A merge or a split writes one row per echo it
  *   moves, so an echo that left a wave topic is kept, and the audit trail
  *   keeps pointing at a row.
  *
