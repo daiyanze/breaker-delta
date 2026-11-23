@@ -1,0 +1,351 @@
+{
+  "data": [
+    {
+      "id": "text 1",
+      "canonical_slug": "text 2",
+      "hugging_face_id": "text 3",
+      "name": "text 4",
+      "created": 1795227585,
+      "description": "text 5",
+      "context_length": 1048576,
+      "architecture": {
+        "modality": "text 6",
+        "input_modalities": ["text 7", "text 8"],
+        "output_modalities": ["text 9"],
+        "tokenizer": "text 10",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0.000000075",
+        "completion": "0.0000003",
+        "input_cache_read": "0.000000015"
+      },
+      "top_provider": {
+        "context_length": 1048576,
+        "max_completion_tokens": 65536,
+        "is_moderated": false
+      },
+      "per_request_limits": null,
+      "supported_parameters": ["text 11", "text 12", "text 13", "text 14", "text 15"],
+      "default_parameters": {},
+      "supported_voices": null,
+      "knowledge_cutoff": null,
+      "expiration_date": null,
+      "links": {
+        "details": "text 16"
+      },
+      "endpoints": ["text 17", "text 18", "text 19", "text 20"],
+      "benchmarks": {
+        "design_arena": [],
+        "artificial_analysis": {
+          "intelligence_index": 20.1,
+          "coding_index": null,
+          "agentic_index": null,
+          "finance_and_accounting_index": 35.3,
+          "strategy_and_ops_index": 35.2,
+          "legal_index": 31,
+          "healthcare_and_medical_index": null,
+          "engineering_index": 27.6,
+          "economics_index": 33,
+          "cyber_index": null,
+          "openness_index": null,
+          "multilingual_index": null,
+          "decision_index": null
+        }
+      },
+      "reasoning": {
+        "mandatory": false,
+        "default_enabled": true,
+        "supported_efforts": ["text 21", "text 22", "text 23", "text 24", "text 25"],
+        "default_effort": "text 26"
+      }
+    },
+    {
+      "id": "text 27",
+      "canonical_slug": "text 28",
+      "hugging_face_id": "text 29",
+      "name": "text 30",
+      "created": 1795222188,
+      "description": "text 31",
+      "context_length": 262144,
+      "architecture": {
+        "modality": "text 32",
+        "input_modalities": ["text 33", "text 34"],
+        "output_modalities": ["text 35"],
+        "tokenizer": "text 36",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0.00000015",
+        "completion": "0.000001875",
+        "input_cache_read": "0.0000000375"
+      },
+      "top_provider": {
+        "context_length": 262144,
+        "max_completion_tokens": 235929,
+        "is_moderated": false
+      },
+      "per_request_limits": null,
+      "supported_parameters": ["text 37", "text 38", "text 39", "text 40", "text 41"],
+      "default_parameters": {
+        "temperature": 1,
+        "top_p": 0.95,
+        "top_k": 20
+      },
+      "supported_voices": null,
+      "knowledge_cutoff": null,
+      "expiration_date": null,
+      "links": {
+        "details": "text 42"
+      },
+      "endpoints": ["text 43", "text 44", "text 45", "text 46"],
+      "reasoning": {
+        "mandatory": false,
+        "default_enabled": true,
+        "supported_efforts": ["text 47", "text 48", "text 49", "text 50"],
+        "default_effort": "text 51"
+      }
+    },
+    {
+      "id": "text 52",
+      "canonical_slug": "text 53",
+      "hugging_face_id": null,
+      "name": "text 54",
+      "created": 1795135865,
+      "description": "text 55",
+      "context_length": 128000,
+      "architecture": {
+        "modality": "text 56",
+        "input_modalities": ["text 57", "text 58"],
+        "output_modalities": ["text 59"],
+        "tokenizer": "text 60",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0.000002",
+        "completion": "0.000006"
+      },
+      "top_provider": {
+        "context_length": 128000,
+        "max_completion_tokens": 102400,
+        "is_moderated": true
+      },
+      "per_request_limits": null,
+      "supported_parameters": ["text 61", "text 62", "text 63", "text 64", "text 65"],
+      "default_parameters": {},
+      "supported_voices": null,
+      "knowledge_cutoff": null,
+      "expiration_date": null,
+      "links": {
+        "details": "text 66"
+      },
+      "endpoints": ["text 67", "text 68", "text 69", "text 70"]
+    },
+    {
+      "id": "text 71",
+      "canonical_slug": "text 72",
+      "hugging_face_id": null,
+      "name": "text 73",
+      "created": 1795006977,
+      "description": "text 74",
+      "context_length": 1048576,
+      "architecture": {
+        "modality": "text 75",
+        "input_modalities": ["text 76", "text 77", "text 78", "text 79", "text 80"],
+        "output_modalities": ["text 81"],
+        "tokenizer": "text 82",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0.000003",
+        "completion": "0.000015",
+        "image": "0.000003",
+        "audio": "0.000003",
+        "input_audio_cache": "0.00000015",
+        "web_search": "0.014",
+        "internal_reasoning": "0.000015",
+        "input_cache_read": "0.00000015",
+        "input_cache_write": "0.0000000833333333333333"
+      },
+      "top_provider": {
+        "context_length": 1048576,
+        "max_completion_tokens": 943718,
+        "is_moderated": false
+      },
+      "per_request_limits": null,
+      "supported_parameters": ["text 83", "text 84", "text 85", "text 86", "text 87"],
+      "default_parameters": {},
+      "supported_voices": null,
+      "knowledge_cutoff": null,
+      "expiration_date": null,
+      "links": {
+        "details": "text 88"
+      },
+      "endpoints": ["text 89", "text 90", "text 91", "text 92"],
+      "benchmarks": {
+        "design_arena": [
+          {
+            "arena": "text 93",
+            "category": "text 94",
+            "elo": 1111,
+            "win_rate": 41.7,
+            "rank": 43
+          },
+          {
+            "arena": "text 95",
+            "category": "text 96",
+            "elo": 1492,
+            "win_rate": 76.2,
+            "rank": 2
+          },
+          {
+            "arena": "text 97",
+            "category": "text 98",
+            "elo": 1389,
+            "win_rate": 65.4,
+            "rank": 2
+          },
+          {
+            "arena": "text 99",
+            "category": "text 100",
+            "elo": 1394,
+            "win_rate": 64.7,
+            "rank": 5
+          },
+          {
+            "arena": "text 101",
+            "category": "text 102",
+            "elo": 1339,
+            "win_rate": 56.9,
+            "rank": 10
+          }
+        ],
+        "artificial_analysis": {
+          "intelligence_index": 61.4,
+          "coding_index": null,
+          "agentic_index": null,
+          "finance_and_accounting_index": 65.1,
+          "strategy_and_ops_index": 63.8,
+          "legal_index": 63.8,
+          "healthcare_and_medical_index": 60.1,
+          "engineering_index": 66.8,
+          "economics_index": 61.9,
+          "cyber_index": null,
+          "openness_index": null,
+          "multilingual_index": null,
+          "decision_index": null
+        }
+      },
+      "reasoning": {
+        "mandatory": true,
+        "supported_efforts": ["text 103", "text 104", "text 105", "text 106"],
+        "default_effort": "text 107"
+      }
+    },
+    {
+      "id": "text 108",
+      "canonical_slug": "text 109",
+      "hugging_face_id": null,
+      "name": "text 110",
+      "created": 1795006977,
+      "description": "text 111",
+      "context_length": 1048576,
+      "architecture": {
+        "modality": "text 112",
+        "input_modalities": ["text 113", "text 114", "text 115", "text 116", "text 117"],
+        "output_modalities": ["text 118"],
+        "tokenizer": "text 119",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0.0000015",
+        "completion": "0.0000075",
+        "image": "0.0000015",
+        "audio": "0.0000015",
+        "input_audio_cache": "0.000000075",
+        "web_search": "0.014",
+        "internal_reasoning": "0.0000075",
+        "input_cache_read": "0.000000075",
+        "input_cache_write": "0.0000000833333333333333"
+      },
+      "top_provider": {
+        "context_length": 1048576,
+        "max_completion_tokens": 943718,
+        "is_moderated": false
+      },
+      "per_request_limits": null,
+      "supported_parameters": ["text 120", "text 121", "text 122", "text 123", "text 124"],
+      "default_parameters": {},
+      "supported_voices": null,
+      "knowledge_cutoff": null,
+      "expiration_date": null,
+      "links": {
+        "details": "text 125"
+      },
+      "endpoints": ["text 126"],
+      "benchmarks": {
+        "design_arena": [
+          {
+            "arena": "text 127",
+            "category": "text 128",
+            "elo": 1111,
+            "win_rate": 41.7,
+            "rank": 43
+          },
+          {
+            "arena": "text 129",
+            "category": "text 130",
+            "elo": 1492,
+            "win_rate": 76.2,
+            "rank": 2
+          },
+          {
+            "arena": "text 131",
+            "category": "text 132",
+            "elo": 1389,
+            "win_rate": 65.4,
+            "rank": 2
+          },
+          {
+            "arena": "text 133",
+            "category": "text 134",
+            "elo": 1394,
+            "win_rate": 64.7,
+            "rank": 5
+          },
+          {
+            "arena": "text 135",
+            "category": "text 136",
+            "elo": 1339,
+            "win_rate": 56.9,
+            "rank": 10
+          }
+        ],
+        "artificial_analysis": {
+          "intelligence_index": 61.4,
+          "coding_index": null,
+          "agentic_index": null,
+          "finance_and_accounting_index": 65.1,
+          "strategy_and_ops_index": 63.8,
+          "legal_index": 63.8,
+          "healthcare_and_medical_index": 60.1,
+          "engineering_index": 66.8,
+          "economics_index": 61.9,
+          "cyber_index": null,
+          "openness_index": null,
+          "multilingual_index": null,
+          "decision_index": null
+        }
+      },
+      "reasoning": {
+        "mandatory": true,
+        "supported_efforts": ["text 137", "text 138", "text 139", "text 140"],
+        "default_effort": "text 141"
+      }
+    }
+  ],
+  "total_count": 477,
+  "links": {
+    "next": null
+  }
+}

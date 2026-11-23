@@ -1,0 +1,127 @@
+{
+  "description": "text 1",
+  "count": 1363,
+  "total_pages": 69,
+  "next_page_url": "https://example.com/item/2",
+  "results": [
+    {
+      "title": "text 3",
+      "type": "text 4",
+      "abstract": "text 5",
+      "document_number": "text 6",
+      "html_url": "https://example.com/item/7",
+      "pdf_url": "https://example.com/item/8",
+      "public_inspection_pdf_url": null,
+      "publication_date": "2026-11-23",
+      "agencies": [
+        {
+          "raw_name": "text 9",
+          "name": "text 10",
+          "id": 271,
+          "url": "https://example.com/item/11",
+          "json_url": "https://example.com/item/12",
+          "parent_id": null,
+          "slug": "text 13"
+        },
+        {
+          "raw_name": "text 14",
+          "name": "text 15",
+          "id": 524,
+          "url": "https://example.com/item/16",
+          "json_url": "https://example.com/item/17",
+          "parent_id": 271,
+          "slug": "text 18"
+        }
+      ],
+      "excerpts": "text 19"
+    },
+    {
+      "title": "text 20",
+      "type": "text 21",
+      "abstract": null,
+      "document_number": "text 22",
+      "html_url": "https://example.com/item/23",
+      "pdf_url": "https://example.com/item/24",
+      "public_inspection_pdf_url": null,
+      "publication_date": "2026-11-23",
+      "agencies": [
+        {
+          "raw_name": "text 25",
+          "name": "text 26",
+          "id": 466,
+          "url": "https://example.com/item/27",
+          "json_url": "https://example.com/item/28",
+          "parent_id": null,
+          "slug": "text 29"
+        }
+      ],
+      "excerpts": "text 30"
+    },
+    {
+      "title": "text 31",
+      "type": "text 32",
+      "abstract": null,
+      "document_number": "text 33",
+      "html_url": "https://example.com/item/34",
+      "pdf_url": "https://example.com/item/35",
+      "public_inspection_pdf_url": "https://example.com/item/36",
+      "publication_date": "2026-11-20",
+      "agencies": [
+        {
+          "raw_name": "text 37",
+          "name": "text 38",
+          "id": 466,
+          "url": "https://example.com/item/39",
+          "json_url": "https://example.com/item/40",
+          "parent_id": null,
+          "slug": "text 41"
+        }
+      ],
+      "excerpts": "text 42"
+    },
+    {
+      "title": "text 43",
+      "type": "text 44",
+      "abstract": null,
+      "document_number": "text 45",
+      "html_url": "https://example.com/item/46",
+      "pdf_url": "https://example.com/item/47",
+      "public_inspection_pdf_url": "https://example.com/item/48",
+      "publication_date": "2026-11-20",
+      "agencies": [
+        {
+          "raw_name": "text 49",
+          "name": "text 50",
+          "id": 466,
+          "url": "https://example.com/item/51",
+          "json_url": "https://example.com/item/52",
+          "parent_id": null,
+          "slug": "text 53"
+        }
+      ],
+      "excerpts": "text 54"
+    },
+    {
+      "title": "text 55",
+      "type": "text 56",
+      "abstract": "text 57",
+      "document_number": "text 58",
+      "html_url": "https://example.com/item/59",
+      "pdf_url": "https://example.com/item/60",
+      "public_inspection_pdf_url": "https://example.com/item/61",
+      "publication_date": "2026-11-19",
+      "agencies": [
+        {
+          "raw_name": "text 62",
+          "name": "text 63",
+          "id": 466,
+          "url": "https://example.com/item/64",
+          "json_url": "https://example.com/item/65",
+          "parent_id": null,
+          "slug": "text 66"
+        }
+      ],
+      "excerpts": "text 67"
+    }
+  ]
+}

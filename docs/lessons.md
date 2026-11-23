@@ -4,6 +4,22 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L20 Check what a field means in a recorded response, not only that it is there
+
+- **Date:** 2026-11-23. **Status:** active.
+- **What happened:** #220 dated Daily Papers by the entry's `publishedAt`,
+  taken to be the day a paper was featured. It is the arXiv date; the
+  featured day is `paper.submittedOnDailyAt`. The fixture had a date on all
+  five items, so the check "every item has a date" passed, while all five
+  were featured on the recording day and dated 4 to 13 days earlier. The
+  review found it by comparing the two fields in the fixture.
+- **Rule:** When an adapter picks one of several candidate fields (dates,
+  counts, URLs), compare their values in the recorded fixture against what
+  the item should mean, and pin the chosen one with a test where they differ.
+- **Scope:** `apps/pipeline/src/sources/adapters`.
+- **Evidence:** fixed in #220; the Daily Papers test in
+  `json-adapters.test.ts` has an entry whose arXiv and featured dates differ.
+
 ## L19 A drift check compares values, not that a value is there
 
 - **Date:** 2026-11-23. **Status:** active.

@@ -31,7 +31,7 @@ describe("lobsters adapter", () => {
 
   test("fetches the group's hottest list", () => {
     expect(group).toBeDefined();
-    if (group) expect(lobsters.urls(group)).toEqual(["https://lobste.rs/hottest.json"]);
+    if (group) expect(lobsters.urls(group, 0)).toEqual(["https://lobste.rs/hottest.json"]);
   });
 
   test("stories without an absolute http(s) URL are skipped", () => {
