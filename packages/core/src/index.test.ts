@@ -141,11 +141,26 @@ describe("wave height properties", () => {
       for (const h of [0, 1, 24, 200]) {
         const now = T0 + h * HOUR;
         const params = { ...PARAMS, halfLifeHours };
-        expect(waveHeight(echoes, now, params)).toBeCloseTo(
-          heightBefore28(echoes, now, halfLifeHours),
-          9,
-        );
+        expect(waveHeight(echoes, now, params)).toBe(heightBefore28(echoes, now, halfLifeHours));
       }
+    }
+    // Bit for bit on many sets: the sum keeps the input order when nothing is capped.
+    let seed = 7;
+    const rand = () => {
+      seed = (seed * 1_103_515_245 + 12_345) % 2_147_483_648;
+      return seed / 2_147_483_648;
+    };
+    const groups = ["hn", "github", "lobsters", "reddit"];
+    for (let i = 0; i < 2_000; i++) {
+      const set = Array.from({ length: 1 + Math.floor(rand() * 12) }, (_, j) =>
+        echo(
+          `e${j}`,
+          groups[Math.floor(rand() * groups.length)] as string,
+          Math.floor(rand() * 50_000),
+          T0 - Math.floor(rand() * 200) * HOUR,
+        ),
+      );
+      expect(waveHeight(set, T0, PARAMS)).toBe(heightBefore28(set, T0, PARAMS.halfLifeHours));
     }
     // A fixed number, so a change to the reference function above is caught too.
     expect(waveHeight([echo("a", "hn", 9), echo("b", "github", 99)], T0, PARAMS)).toBeCloseTo(
@@ -236,6 +251,16 @@ describe("group heat references", () => {
     expect(groupHeatReferences(echoes, 50).get("hn")).toBe(50);
     expect(groupHeatReferences(echoes, 50).get("github")).toBe(0);
     expect(groupHeatReferences([], 90).size).toBe(0);
+  });
+
+  test("the nearest rank is ceil(p * n / 100), with no rounding drift", () => {
+    for (let n = 1; n <= 200; n++) {
+      const echoes = Array.from({ length: n }, (_, i) => echo(`e${i}`, "hn", i + 1));
+      for (let p = 50; p <= 100; p++) {
+        const rank = Math.max(1, Math.ceil((p * n) / 100));
+        expect([n, p, groupHeatReferences(echoes, p).get("hn")]).toEqual([n, p, rank]);
+      }
+    }
   });
 });
 
