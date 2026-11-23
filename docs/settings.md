@@ -30,6 +30,9 @@ agent's proposal for `summariesPerRun`.
 | `fetchTimeoutSeconds` | 20 | agent's proposal (#26), not reviewed | Per attempt for one source URL in the scan step, body included. Long enough for a slow feed, short enough that a dead one does not hold the run. |
 | `fetchRetries` | 2 | agent's proposal (#26), not reviewed | Retries for network errors, 429 and 5xx only (`fetchSource`). Spike 2 saw intermittent 503s from `google_news`. |
 | `fetchRetryDelaySeconds` | 2 | agent's proposal (#26), not reviewed | Doubled before each next retry: 2 s, then 4 s. |
+| `assignBatchSize` | 20 | agent's proposal (#32), not reviewed | New echoes per assign model call. Small enough that one bad answer leaves few echoes for the next run, large enough that a busy hour takes a handful of calls. |
+| `assignShortlistSize` | 30 | agent's proposal (#32), not reviewed | Existing topics offered per call, ranked by words shared with the batch's titles, then by latest activity. Keeps the prompt short. |
+| `assignActivityDays` | 7 | agent's proposal (#32), not reviewed | A topic whose latest echo is older is not offered; a returning story starts a new topic. Same as `calmAfterDays`. |
 
 The `fresh` fixture set is a new installation, so its settings equal these
 defaults; `packages/fixtures/src/settings.test.ts` checks that.

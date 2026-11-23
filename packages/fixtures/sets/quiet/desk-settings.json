@@ -34,7 +34,10 @@
     "runLeaseMinutes": 30,
     "fetchTimeoutSeconds": 20,
     "fetchRetries": 2,
-    "fetchRetryDelaySeconds": 2
+    "fetchRetryDelaySeconds": 2,
+    "assignBatchSize": 20,
+    "assignShortlistSize": 30,
+    "assignActivityDays": 7
   },
   "updatedAt": "2026-11-15T10:00:00+09:00",
   "history": [
