@@ -45,6 +45,7 @@ jobs:
           prompt: |
             Review pull request #${{ github.event.pull_request.number }} in ${{ github.repository }}.
             Follow .claude/skills/cross-examine/SKILL.md exactly. Read AGENTS.md first.
-            Post one summary comment with `gh pr comment`. Do not push commits.
+            Write the comment to a file, post it with `gh pr comment <n> --body-file <file>`,
+            and read it back with `gh pr view <n> --comments`. Do not push commits.
           claude_args: |
-            --allowedTools "Read,Grep,Glob,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
+            --allowedTools "Read,Grep,Glob,Write,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
