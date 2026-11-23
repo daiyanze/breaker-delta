@@ -49,10 +49,14 @@ jobs:
             Post it with `gh pr comment <n> --body-file /tmp/bd-review.md` and read it
             back with `gh pr view <n> --json comments --jq '.comments[-1].body'`. If it
             came back altered, fix it in place with
-            `gh pr comment <n> --edit-last --body-file /tmp/bd-review.md`. Do not push commits.
+            `gh pr comment <n> --edit-last --body-file /tmp/bd-review.md`.
+            For CI's result, use `gh pr view <n> --json statusCheckRollup`. Do not push commits.
           # The action runs in auto mode unless told otherwise, and in auto mode
-          # --allowedTools is not a limit. Default mode makes it one: the session
-          # can do only what is listed, and anything else is refused.
+          # --allowedTools is not a limit. In default mode, a call that needs
+          # approval runs only if it is listed; anything else is refused. Calls
+          # that need no approval still run: reads in the working directory and
+          # Claude Code's built-in read-only commands (ls, cat, read-only git).
+          # None of those write.
           claude_args: |
             --permission-mode default
             --allowedTools "Read,Grep,Glob,Edit(//tmp/bd-review.md),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
