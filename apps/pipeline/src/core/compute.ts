@@ -24,6 +24,11 @@
  * 5. **Write.** One batch: every point (written again with the same values on
  *    a retry), and the topics whose state or dates changed.
  *
+ * Setting `formed_at` here is not the wave forming of invariant 5: that is
+ * the commit step's batch of first summary, `wave_formed` event and
+ * prediction (#34; owner's decision, 2026-11-24). The board shows a wave
+ * before its summary exists.
+ *
  * Re-running the step for a slot, with the same settings, writes the same
  * rows and returns the same output. The output holds counts and topic ids only.
  */

@@ -129,7 +129,12 @@ the event is about; `detail` is JSON written by code.
 ## predictions
 
 The review criterion: one per topic, written in the same batch as the wave
-forming, with the SHA-256 of its text (invariant 5, #34). `summary_id` is the
+forming, with the SHA-256 of its text (invariant 5, #34). For invariant 5,
+the wave forming is recorded by that batch: the first summary, its
+`wave_formed` event and the prediction, written together by the commit step
+(#34). The compute step sets `topics.state` and `formed_at` earlier, so the
+board shows a wave whose summary is still queued (owner's decision,
+2026-11-24, #237). `summary_id` is the
 first summary, which proposed it. Never edited; it stays when its summary is
 withdrawn (ADR 0006).
 
