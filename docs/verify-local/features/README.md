@@ -3,7 +3,7 @@
 One file per thing a user can do with local mode, written from the user's
 side: what it is, how to reach it, what correct looks like, and the commands
 that check it. Keep each file true to the app; see "When the map is wrong"
-in `../SKILL.md`.
+in `../README.md`.
 
 | Feature | File | Checked in CI by |
 | --- | --- | --- |
@@ -11,7 +11,7 @@ in `../SKILL.md`.
 | Run the current slot again | `tick.md` | `verify-local-selftest.sh` (tick) |
 | Read the front page | `front-page.md` | `verify-local-selftest.sh` (get /) |
 
-Not driven by this skill, and where each is checked instead:
+Not driven by this procedure, and where each is checked instead:
 
 - The single-file executable a user downloads: `spike-local.yml`, jobs
   `local` and `downloaded`.

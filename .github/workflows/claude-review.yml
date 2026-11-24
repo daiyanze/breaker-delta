@@ -44,7 +44,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
             Review pull request #${{ github.event.pull_request.number }} in ${{ github.repository }}.
-            Follow .claude/skills/cross-examine/SKILL.md exactly. Read AGENTS.md first.
+            Follow the onus plugin's cross-examine skill (/onus:cross-examine) exactly. Read AGENTS.md first.
             Write the comment to /tmp/bd-review.md, the only file you may write.
             Post it with `gh pr comment <n> --body-file /tmp/bd-review.md` and read it
             back with `gh pr view <n> --json comments --jq '.comments[-1].body'`. If it
