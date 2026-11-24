@@ -15,6 +15,15 @@ Free tiers change often. The figures below were read on 2026-11-22, mostly
 from recent third-party readings of the providers' own pages (September to
 November 2026). Check the provider's console before relying on a number.
 
+**Until the chains are read from settings (#42).** The pipeline has no
+provider chain yet. Which driver a run uses is the `MODEL_DRIVER` variable,
+the same name in every adapter (`apps/pipeline/src/core/model.ts`, #36):
+unset means no model, so every assign and summarize call fails at once and
+the run goes on without them (echoes and waves wait for a later run); `fake`
+is the deterministic fake driver (#31), whose texts are marked `[fake]`.
+verify-local instances run with `fake`. Production sets neither, so it runs
+with no model until #42. This is the agent's proposal (#36), not reviewed.
+
 ## Chains
 
 | Mode | assign (frequent, simple) | summarize (rare, demanding; en, zh, ja) |

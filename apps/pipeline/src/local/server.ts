@@ -4,11 +4,22 @@
  * runs on Cloudflare. No wrangler, miniflare or workerd.
  */
 import { Database as SQLite } from "bun:sqlite";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import type { SiteCache } from "@bd/ports";
 import { createPipeline, type Pipeline, pipelineConfig } from "../core/app.ts";
+import { fixtureFetch } from "../core/fixture-sources.ts";
+import { directoryBlobs } from "./blobs.ts";
 import { sqliteDatabase } from "./database.ts";
 import { migrate } from "./migrate.ts";
+
+/**
+ * Options for the local HTTP server. `/__tick` answers only when the whole
+ * run is done, which can take longer than Bun's default 10-second idle
+ * timeout; that would drop the connection before the answer (review on #244).
+ * 0 turns it off. The server listens on 127.0.0.1 by default.
+ */
+export const LOCAL_SERVE_OPTIONS = { idleTimeout: 0 } as const;
 
 export interface LocalPipelineOptions {
   /** Where the database lives. Created if missing. */
@@ -19,9 +30,28 @@ export interface LocalPipelineOptions {
   hostname?: string;
   /** Seconds between ticks. The runner decides whether a slot is due. */
   tickSeconds: number;
-  /** PROBE_TOKEN, as on Cloudflare. */
+  /** PROBE_TOKEN and MODEL_DRIVER, as on Cloudflare. */
   vars: Record<string, string | undefined>;
+  /**
+   * Where scan fetches: the real sources (default), or each group's recorded
+   * fixture (`fixtureFetch`), which fetches nothing. `BD_SOURCES` in
+   * `apps/local/start.ts`.
+   */
+  sources?: "live" | "fixtures";
+  /** The local site's cache, called in process by the publish step. None: nothing to purge. */
+  site?: SiteCache;
   log?: (line: string) => void;
+}
+
+/** Fixtures as recorded by `scripts/record-fixture.ts`, next to the adapters. */
+const FIXTURES = new URL("../sources/fixtures/", import.meta.url);
+
+function readFixture(file: string): string | null {
+  try {
+    return readFileSync(new URL(file, FIXTURES), "utf8");
+  } catch {
+    return null;
+  }
 }
 
 export interface LocalPipeline {
@@ -42,12 +72,23 @@ export function startPipeline(options: LocalPipelineOptions): LocalPipeline {
   const ran = migrate(sqlite);
   if (ran.length > 0) log(`[pipeline] applied migrations: ${ran.join(", ")}`);
 
+  const clock = { now: () => Date.now() };
   const pipeline = createPipeline(
-    { db: sqliteDatabase(sqlite), clock: { now: () => Date.now() } },
-    pipelineConfig({ PROBE_TOKEN: options.vars.PROBE_TOKEN }),
+    {
+      db: sqliteDatabase(sqlite),
+      clock,
+      blobs: directoryBlobs(join(options.dataDir, "blobs")),
+      ...(options.site ? { site: options.site } : {}),
+      ...(options.sources === "fixtures" ? { fetch: fixtureFetch(readFixture, clock.now) } : {}),
+    },
+    pipelineConfig({
+      PROBE_TOKEN: options.vars.PROBE_TOKEN,
+      MODEL_DRIVER: options.vars.MODEL_DRIVER,
+    }),
   );
 
   const server = Bun.serve({
+    ...LOCAL_SERVE_OPTIONS,
     port: options.port,
     hostname: options.hostname ?? "127.0.0.1",
     fetch: (request) => pipeline.fetch(request),

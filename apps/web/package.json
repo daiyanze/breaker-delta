@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@bd/contracts": "workspace:*",
-    "@bd/fixtures": "workspace:*"
+    "@bd/fixtures": "workspace:*",
+    "@bd/ports": "workspace:*"
   },
   "exports": {
     "./local": "./src/local/index.ts"

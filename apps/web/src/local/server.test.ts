@@ -19,3 +19,18 @@ describe("the local site server", () => {
     expect((await fetch(`${fixtures.url}/health`)).status).toBe(200);
   });
 });
+
+describe("the local site's purge (#35)", () => {
+  test("receives the call in process, logs ids and counts, and has no route", async () => {
+    const lines: string[] = [];
+    const site = startSite({ port: 0, vars: {}, log: (l) => lines.push(l) });
+    try {
+      const result = await site.purge({ slot: "20261119T0500", topicIds: ["t1", "t2"] });
+      expect(result).toEqual({ purged: 0 });
+      expect(lines).toEqual(["[site] purge 20261119T0500: 2 topics, 0 dropped"]);
+      expect((await fetch(`${site.url}/__purge`, { method: "POST" })).status).toBe(404);
+    } finally {
+      await site.stop();
+    }
+  });
+});
