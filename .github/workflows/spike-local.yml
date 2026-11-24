@@ -76,8 +76,8 @@ jobs:
         if: runner.os != 'Linux'
         run: bun scripts/spike-local.ts
 
-      # The verify-local skill's harness, driven end to end against the real
-      # app with no network (.claude/skills/verify-local).
+      # The verify-local harness, driven end to end against the real
+      # app with no network (docs/verify-local).
       - name: verify-local harness, offline (Linux)
         if: runner.os == 'Linux'
         run: |

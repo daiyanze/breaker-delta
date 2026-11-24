@@ -31,25 +31,23 @@ Issues labelled `owner:agent-ok` are the agent's to do; `owner:human` and
 one with the `take-case` skill, or takes the one the owner names. Nothing on
 GitHub starts work by itself (ADR 0016).
 
-The procedures are skills in `.claude/skills/`, taken from the Onus method
-(github.com/daiyanze/Onus): `take-case` (the next issue), `docket` (a long
-run toward a goal), `cross-examine` (an independent PR review), `brief`
-(design a goal and split it into issues), and this project's
-`verify-local`. Before 2026-11-23 they were named `next`,
-`long-run` and `review`; lessons and ADRs from before keep the old names.
-Each runtime calls a skill by name:
+The procedures are the skills of the Onus method
+(github.com/daiyanze/Onus), used straight from that repository rather than
+copied here: `take-case` (the next issue), `docket` (a long run toward a
+goal), `cross-examine` (an independent PR review) and `brief` (design a goal
+and split it into issues). Install them once as a plugin:
+`/plugin install onus --marketplace daiyanze/onus`. Plugin skills carry the
+plugin's name: `/onus:take-case`, `/onus:docket <goal>`. Before 2026-11-23
+they were named `next`, `long-run` and `review`; lessons and ADRs from
+before keep the old names.
 
-| Runtime | Finds skills in | Call |
-| --- | --- | --- |
-| Claude Code | `.claude/skills/` | `/take-case`, `/docket <goal>` |
-| Pi | `.agents/skills` (a link to `.claude/skills`) | `/skill:take-case` |
-| Codex | `.agents/skills` | `$take-case`, or pick it from `/skills` |
+This project's own procedure, verify-local, is a document,
+`docs/verify-local/README.md`, with its feature files in
+`docs/verify-local/features/`. Where an Onus skill says "the project's
+verify skill", read that document.
 
-`docket` starts only when named: its frontmatter and `agents/openai.yaml`
-turn off implicit invocation.
-
-On a Windows clone without symlinks enabled, `.agents/skills` is a plain
-file and Pi and Codex find no skills; Claude Code is not affected.
+`docket` starts only when named: its frontmatter turns off implicit
+invocation.
 
 ### Dependencies and milestones
 
@@ -180,8 +178,8 @@ The owner sets this up once:
    results. If a check cannot run here (no network, no tool), say which one
    and wait for CI before calling the work done. If the change is something
    a user can see or do (a page, a route, a tick, the launcher), also drive
-   it on local mode with the `verify-local` skill
-   (`.claude/skills/verify-local/SKILL.md`) and cite its `steps.tsv`. A unit
+   it on local mode with the verify-local procedure
+   (`docs/verify-local/README.md`) and cite its `steps.tsv`. A unit
    test shows a branch works; it does not show the app does the thing.
 5. **PR.** Title: `type(scope): subject`, as in the commit log. The
    description has these headings, empty ones dropped: `## Why` (the goal,
@@ -206,7 +204,7 @@ The owner sets this up once:
 The loop above is the default. Three kinds of work add steps.
 
 **Work bigger than one issue.** A goal that needs several pull requests is
-planned with the `brief` skill (`.claude/skills/brief/SKILL.md`) before any
+planned with the `brief` skill (`/onus:brief`) before any
 of it is built: an interview while the goal is unclear, two shapes sketched
 in code, the chosen one challenged by an independent agent, recorded as an
 ADR, and split into issues with acceptance criteria and dependencies that
@@ -241,13 +239,13 @@ not this repository's `M1-04` codes.
 2. Build in small units that each end in a passing check, and commit each
    before starting the next.
 3. Verify on local mode for anything a user sees, and add or update the
-   feature file in `.claude/skills/verify-local/features/`.
+   feature file in `docs/verify-local/features/`.
 
 ## Long runs
 
 When the owner gives a goal rather than an issue ("finish UI M2", "clear
 every open M1 issue you can"), use the `docket` skill
-(`.claude/skills/docket/SKILL.md`). It loops the `take-case` skill until a stated
+(`/onus:docket`). It loops the `take-case` skill until a stated
 exit condition holds, without stopping to ask for "continue". The rules:
 
 - **Exit condition first.** Before the first issue, write it as something a
