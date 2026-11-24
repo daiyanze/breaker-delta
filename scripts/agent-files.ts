@@ -1,11 +1,12 @@
 /**
  * Checks that every agent runtime finds the same rules and skills (ADR 0016):
- * `CLAUDE.md` only imports `AGENTS.md`, nothing outranks `AGENTS.md`,
- * `.agents/skills` resolves to `.claude/skills`, and each skill has the
- * frontmatter the runtimes need. Pi does not load a skill without a
+ * `CLAUDE.md` only imports `AGENTS.md`, nothing outranks `AGENTS.md`, and
+ * no skills are copied into the repository: they come from the `onus`
+ * plugin (ADR 0016, amendment of 2026-11-24). `skillProblems` checks a
+ * skills folder has the frontmatter the runtimes need. Pi does not load a skill without a
  * description; the Agent Skills format wants the name to match the folder.
  */
-import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const NAME = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -38,6 +39,15 @@ function frontmatter(text: string): Record<string, unknown> | string {
 function isFolder(path: string): boolean {
   try {
     return statSync(path).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+/** True for a link, broken or not: `existsSync` follows links. */
+function isLink(path: string): boolean {
+  try {
+    return lstatSync(path).isSymbolicLink();
   } catch {
     return false;
   }
@@ -100,14 +110,10 @@ export function wiringProblems(root: string): string[] {
   if (lines.length > 5 || lines.some((line) => line.startsWith("#"))) {
     problems.push("CLAUDE.md must only import AGENTS.md: put rules in AGENTS.md");
   }
-  const real = join(root, ".claude", "skills");
-  const link = join(root, ".agents", "skills");
-  // A Windows clone without symlinks checks the link out as a plain file.
-  if (process.platform !== "win32") {
-    if (!existsSync(link)) {
-      problems.push(".agents/skills is missing or a broken link");
-    } else if (realpathSync(link) !== realpathSync(real)) {
-      problems.push(".agents/skills must resolve to .claude/skills");
+  // One copy of each skill: the onus plugin. A copy here would drift from it.
+  for (const copy of [".claude/skills", ".agents/skills"]) {
+    if (existsSync(join(root, copy)) || isLink(join(root, copy))) {
+      problems.push(`${copy} copies skills the onus plugin provides: remove it`);
     }
   }
   return problems;

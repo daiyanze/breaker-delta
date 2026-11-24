@@ -6,9 +6,8 @@ import { skillProblems, wiringProblems } from "./agent-files.ts";
 
 const root = join(import.meta.dir, "..");
 
-test("this repository's rules and skills are wired for every runtime", () => {
+test("this repository's rules are wired for every runtime", () => {
   expect(wiringProblems(root)).toEqual([]);
-  expect(skillProblems(join(root, ".claude", "skills"))).toEqual([]);
 });
 
 function skill(dir: string, name: string, content: string | null) {
@@ -68,9 +67,7 @@ test("each kind of broken wiring is reported", () => {
 
   const copy = mkdtempSync(join(tmpdir(), "bd-wiring-"));
   writeFileSync(join(copy, "AGENTS.md"), "# Rules\n");
-  mkdirSync(join(copy, ".claude", "skills"), { recursive: true });
   mkdirSync(join(copy, ".agents"), { recursive: true });
-  mkdirSync(join(copy, "elsewhere"));
   const onlyImport = "CLAUDE.md must only import AGENTS.md: put rules in AGENTS.md";
 
   writeFileSync(join(copy, "CLAUDE.md"), "# Rules, copied instead of imported\n");
@@ -87,8 +84,13 @@ test("each kind of broken wiring is reported", () => {
     "AGENTS.override.md outranks AGENTS.md in Pi and Codex: remove it",
   );
 
+  const copied = (dir: string) => `${dir} copies skills the onus plugin provides: remove it`;
+  expect(wiringProblems(copy)).not.toContain(copied(".claude/skills"));
+  mkdirSync(join(copy, ".claude", "skills"), { recursive: true });
+  expect(wiringProblems(copy)).toContain(copied(".claude/skills"));
+
   if (process.platform === "win32") return;
-  expect(wiringProblems(copy)).toContain(".agents/skills is missing or a broken link");
-  symlinkSync(join(copy, "elsewhere"), join(copy, ".agents", "skills"));
-  expect(wiringProblems(copy)).toContain(".agents/skills must resolve to .claude/skills");
+  // A dangling link counts too: the runtimes would still look there.
+  symlinkSync(join(copy, "nowhere"), join(copy, ".agents", "skills"));
+  expect(wiringProblems(copy)).toContain(copied(".agents/skills"));
 });

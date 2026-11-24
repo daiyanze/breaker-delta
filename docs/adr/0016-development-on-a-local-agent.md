@@ -96,6 +96,17 @@ merge to `develop` deploys both Workers, read: it queues the `production`
 deploy, which waits for the owner's approval. A merge never approves that
 deployment; that stays the owner's.
 
+## Amendment (2026-11-24): skills from Onus
+
+The skills are no longer copied into this repository. `take-case`,
+`docket`, `cross-examine` and `brief` come from the Onus repository
+(github.com/daiyanze/Onus), installed as the `onus` plugin and called as
+`/onus:<name>`. `.claude/skills/` and the `.agents/skills` link are gone.
+The project's own `verify-local` is now a document,
+`docs/verify-local/README.md`. Where this ADR or its earlier amendments
+name `.claude/skills/` or `.agents/skills`, read the plugin, and for
+`verify-local`, that document.
+
 ## Amendment (2026-11-24): label names
 
 The labels no longer name one agent runtime (the owner's decision,
