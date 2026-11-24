@@ -10,7 +10,7 @@ import {
   readSettings,
   SettingsConflictError,
 } from "../src/core/settings.ts";
-import { migratedDatabase, NOW, SLOT } from "./helpers.ts";
+import { memoryBlobs, migratedDatabase, NOW, SLOT } from "./helpers.ts";
 
 const DEFAULTS = SettingsSchema.parse({});
 
@@ -182,7 +182,7 @@ describe("tick reads the settings", () => {
     const { port, db } = setup();
     let now = NOW; // 05:07 UTC
     const pipeline = createPipeline(
-      { db: port, clock: { now: () => now } },
+      { db: port, clock: { now: () => now }, blobs: memoryBlobs().blobs },
       pipelineConfig({}),
       noop,
     );
@@ -208,7 +208,7 @@ describe("tick reads the settings", () => {
       },
     ];
     const pipeline = createPipeline(
-      { db: port, clock: { now: () => NOW } },
+      { db: port, clock: { now: () => NOW }, blobs: memoryBlobs().blobs },
       pipelineConfig({}),
       failing,
     );
@@ -223,7 +223,7 @@ describe("tick reads the settings", () => {
       NOW,
     ]);
     const pipeline = createPipeline(
-      { db: port, clock: { now: () => NOW } },
+      { db: port, clock: { now: () => NOW }, blobs: memoryBlobs().blobs },
       pipelineConfig({}),
       noop,
     );

@@ -156,6 +156,10 @@ async function up(args: string[]) {
       // One tick at start-up; later runs are started with `tick`.
       BD_TICK_SECONDS: "86400",
       PROBE_TOKEN: TOKEN,
+      // Recorded fixture sources and the fake model: driving an instance
+      // fetches nothing real and calls no provider (invariant 6), offline.
+      BD_SOURCES: "fixtures",
+      MODEL_DRIVER: "fake",
       ...(fixtures ? { READ_SOURCE: "fixtures", FIXTURE_SET: fixtures } : {}),
     },
     stdin: "ignore" as const,
