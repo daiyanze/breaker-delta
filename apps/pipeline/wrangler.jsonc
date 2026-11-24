@@ -22,6 +22,11 @@
   ],
   "r2_buckets": [{ "binding": "BLOBS", "bucket_name": "bd-blobs" }],
 
+  // The publish step's cache purge (#35): RPC to a named entrypoint of
+  // bd-web, so the site's public URL has no purge route. Previews do not bind
+  // it (no preview of bd-web to point at).
+  "services": [{ "binding": "SITE", "service": "bd-web", "entrypoint": "SiteCacheEntrypoint" }],
+
   // The run interval and the other behaviour settings are read from the
   // settings table at each tick (#19), not from vars.
 

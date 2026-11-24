@@ -16,5 +16,6 @@
   "previews": {}
 
   // M3: read-only binding to bd-content and a service binding to bd-pipeline.
-  // The web Worker never binds the private database.
+  // The web Worker never binds the private database. bd-pipeline binds this
+  // Worker's SiteCacheEntrypoint (src/cloudflare/worker.ts) for cache purges.
 }

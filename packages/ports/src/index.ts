@@ -5,11 +5,12 @@
  * on standard Web APIs (fetch, Request, Response, URL) only. Each runtime
  * provides an adapter:
  *
- * | Port     | Local (default) | Cloudflare |
- * | -------- | --------------- | ---------- |
- * | Database | bun:sqlite file | D1         |
- * | Blobs    | a directory     | R2         |
- * | Clock    | Date.now        | Date.now   |
+ * | Port      | Local (default)            | Cloudflare                 |
+ * | --------- | -------------------------- | -------------------------- |
+ * | Database  | bun:sqlite file            | D1                         |
+ * | Blobs     | a directory                | R2                         |
+ * | Clock     | Date.now                   | Date.now                   |
+ * | SiteCache | the local site, in process | RPC over a service binding |
  *
  * Running a slot is not a port either: the core's step runner does it the
  * same way on every runtime.
@@ -81,4 +82,25 @@ export interface Blobs {
 export interface Clock {
   /** Epoch milliseconds. */
   now(): number;
+}
+
+/** What the pipeline tells the site after a run's commit: ids only (invariant 6). */
+export interface PurgeRequest {
+  slot: string;
+  /** Topics whose pages the run changed (a new version or a discarded draft). */
+  topicIds: string[];
+}
+
+export interface PurgeResult {
+  /** Cached entries the site dropped. */
+  purged: number;
+}
+
+/**
+ * The site's cache, as the pipeline's publish step sees it (#35, ADR 0009:
+ * "the publish step only purges caches"). The site only reads: purging drops
+ * cached responses and never writes the content database (invariant 7).
+ */
+export interface SiteCache {
+  purge(request: PurgeRequest): Promise<PurgeResult>;
 }

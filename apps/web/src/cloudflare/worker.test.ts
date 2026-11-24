@@ -1,5 +1,18 @@
-import { describe, expect, test } from "bun:test";
-import worker from "./worker.ts";
+import { describe, expect, mock, test } from "bun:test";
+
+// `cloudflare:workers` exists only in the Workers runtime. Bun gets a
+// stand-in base class with the runtime's constructor shape (ctx, env), so the
+// adapter's own code runs here; the import is dynamic so the stand-in is in
+// place first.
+mock.module("cloudflare:workers", () => ({
+  WorkerEntrypoint: class {
+    constructor(
+      readonly ctx: unknown,
+      readonly env: unknown,
+    ) {}
+  },
+}));
+const { default: worker, SiteCacheEntrypoint } = await import("./worker.ts");
 
 const get = (path: string, env: Record<string, string> = {}) =>
   worker.fetch(new Request(`https://bd.test${path}`), env);
@@ -33,5 +46,19 @@ describe("bd-web", () => {
   test("rejects an unknown fixture set", async () => {
     const res = await get("/?set=nope", { READ_SOURCE: "fixtures" });
     expect(res.status).toBe(404);
+  });
+});
+
+describe("the SiteCache entrypoint (#35)", () => {
+  test("receives the publish step's purge and answers with the placeholder", async () => {
+    const entry = new SiteCacheEntrypoint({} as ExecutionContext, {});
+    const request = { slot: "20261119T0500", topicIds: ["t1", "t2"] };
+    expect(await entry.purge(request)).toEqual({ purged: 0 });
+  });
+
+  test("is not a route: the public URL has no purge", async () => {
+    for (const path of ["/purge", "/__purge"]) {
+      expect((await get(path)).status).toBe(404);
+    }
   });
 });
