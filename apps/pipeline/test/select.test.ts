@@ -2,7 +2,7 @@
 import { describe, expect, test } from "bun:test";
 import { slotStart } from "@bd/core";
 import { drizzleOver } from "@bd/db";
-import type { StepContext } from "../src/core/runner.ts";
+import { runSlot, type StepContext } from "../src/core/runner.ts";
 import { type SelectOutput, selectStep } from "../src/core/select.ts";
 import { changeSettings } from "../src/core/settings.ts";
 import { migratedDatabase, NOW, SLOT } from "./helpers.ts";
@@ -55,8 +55,20 @@ function setup() {
       );
     }
   };
+  /** Runs the step for `slot` through the runner, so its output is kept in `run_steps`. */
+  const runRecorded = async (slot: string) => {
+    const outcome = await runSlot(orm, () => NOW, slot, [selectStep()], {
+      maxAttempts: 1,
+      leaseMs: 60_000,
+    });
+    expect(outcome).toEqual({ status: "done", resumed: false });
+    const row = sqlite
+      .query("SELECT output FROM run_steps WHERE slot = ?1 AND step = 'select'")
+      .get(slot) as { output: string };
+    return JSON.parse(row.output) as SelectOutput;
+  };
   const ids = (o: SelectOutput) => o.selected.map((s) => s.topicId);
-  return { sqlite, orm, run, wave, summary, echoes, ids };
+  return { sqlite, orm, run, runRecorded, wave, summary, echoes, ids };
 }
 
 describe("which waves are due", () => {
@@ -177,6 +189,48 @@ describe("budget", () => {
     expect(await t.run()).toEqual({
       selected: [{ topicId: "older", reason: "formed" }],
       waiting: ["failed"],
+    });
+  });
+
+  test("a wave left waiting goes before one whose attempt in the same slot was discarded", async () => {
+    const t = setup();
+    await changeSettings(t.orm, NOW, { summariesPerRun: 1 });
+    t.wave("high", 99, [PREV, SLOT]);
+    t.wave("low", 1, [PREV, SLOT]);
+    expect(await t.runRecorded(PREV)).toEqual({
+      selected: [{ topicId: "high", reason: "formed" }],
+      waiting: ["low"],
+    });
+    t.summary("high", PREV, "discarded"); // attempted in the slot it formed
+    expect(await t.run()).toEqual({
+      selected: [{ topicId: "low", reason: "formed" }],
+      waiting: ["high"],
+    });
+  });
+
+  test("a rewrite made due by a late-assigned echo goes behind a wave already waiting", async () => {
+    const t = setup();
+    await changeSettings(t.orm, NOW, { summariesPerRun: 1, rewriteAfterNewEchoes: 1 });
+    t.wave("target", 1, ["20261119T0100", PREV, SLOT]);
+    t.summary("target", "20261119T0100");
+    // First seen at 02:00, before the other waves formed; no topic yet.
+    t.sqlite.run(
+      `INSERT INTO echoes (id, url, group_id, title, first_seen_at, first_slot, topic_id)
+       VALUES ('late', 'https://x.test/late', 'g', 't', ?1, '20261119T0200', NULL)`,
+      [slotStart("20261119T0200")],
+    );
+    t.wave("first", 50, [PREV, SLOT]);
+    t.wave("waiting", 10, [PREV, SLOT]);
+    expect(await t.runRecorded(PREV)).toEqual({
+      selected: [{ topicId: "first", reason: "formed" }],
+      waiting: ["waiting"],
+    });
+    t.summary("first", PREV);
+    // The assign step places the echo in this run, as it does for a retried echo.
+    t.sqlite.run("UPDATE echoes SET topic_id = 'target' WHERE id = 'late'");
+    expect(await t.run()).toEqual({
+      selected: [{ topicId: "waiting", reason: "formed" }],
+      waiting: ["target"],
     });
   });
 
