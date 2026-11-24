@@ -1,12 +1,7 @@
----
-name: verify-local
-description: Drive Breaker Delta's local mode (pipeline and site) the way a user does and keep the evidence. Use before calling a change to the pipeline, the site or the launcher done, when a PR claims user-visible behavior, or to reproduce a bug on the real app instead of a unit test.
----
-
 # Verify on local mode
 
 `bun run check` proves types, lint, unit tests and dependency direction. It
-does not prove that the app a user starts does the thing. This skill does:
+does not prove that the app a user starts does the thing. This procedure does:
 start an isolated instance, use it, save what it answered, stop it.
 
 Any agent can follow it (Claude Code, Pi, Codex). The harness is

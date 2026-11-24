@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs the verify-local skill's own steps end to end against the real app:
+# Runs the verify-local procedure's own steps end to end against the real app:
 # up, doctor, drive one mapped feature (the front page from fixtures, plus a
 # tick), capture evidence, down. Then checks that cleanup kept the evidence and
 # removed the instance. CI runs it in spike-local.yml; it also runs as is.
