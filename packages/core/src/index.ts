@@ -179,8 +179,9 @@ export function nextTopicStatus(
   params: StateParams,
 ): TopicStatus {
   const wasWave = prev.formedAt !== null;
-  if (!wasWave && !isWave(echoes, params))
+  if (!wasWave && countIndependentSources(echoes) < params.waveThreshold) {
     return { state: "echo", formedAt: null, wentFlatAt: null };
+  }
   const formedAt = prev.formedAt ?? nowMs;
   let lastActive = formedAt;
   for (const e of echoes) lastActive = Math.max(lastActive, e.firstSeenAt);
