@@ -1,6 +1,6 @@
 /**
  * Drive local mode the way a user does and keep the evidence. The harness
- * behind `.claude/skills/verify-local/SKILL.md`; read that first.
+ * behind `docs/verify-local/README.md`; read that first.
  *
  *   bun scripts/verify-local.ts up [--fixtures <set>]   start an isolated instance
  *   bun scripts/verify-local.ts doctor                  is it worth driving?

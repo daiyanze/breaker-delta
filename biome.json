@@ -5,8 +5,7 @@
       "**",
       "!**/*.md",
       "!design/**",
-      "!packages/fixtures/sets",
-      "!.claude/skills/brief/scripts"
+      "!packages/fixtures/sets"
     ]
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 100 },

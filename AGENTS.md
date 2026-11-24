@@ -5,8 +5,9 @@ true. If code and this file disagree, fix one of them in the same PR.
 
 Every agent runtime reads this one file: Pi and Codex read `AGENTS.md`
 directly, and `CLAUDE.md` imports it for Claude Code. The procedures are
-skills in `.claude/skills/`; `.agents/skills` links to that folder for Pi
-and Codex.
+the Onus skills (github.com/daiyanze/Onus), installed as the `onus` plugin,
+not copied into this repository. This project's verify procedure is
+`docs/verify-local/README.md`.
 
 ## What this is
 
@@ -123,7 +124,7 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 | Migrations only add | review checklist 2 | review |
 | Protected paths | CODEOWNERS requests the owner's review; the `develop` ruleset requires a PR and `check`, not the owner's approval; the owner merges. A granted `docket` run must never merge a PR that touches one: that rests on the skill alone, since the run uses the owner's account and the ruleset needs no approval | owner, instruction |
 | Lessons with a check | each lesson's `Check:` line in `docs/lessons.md` | check |
-| Every runtime finds the rules and the skills | `scripts/agent-files.test.ts`: `CLAUDE.md` only imports this file, no `AGENTS.override.md`, `.agents/skills` resolves to `.claude/skills`, each skill's frontmatter parses as YAML with a name and a description | test |
+| Every runtime finds the rules and the skills | `scripts/agent-files.test.ts`: `CLAUDE.md` only imports this file, no `AGENTS.override.md`, no `.claude/skills` or `.agents/skills` in the repository (the skills come from the `onus` plugin) | test |
 
 Rows marked review only are the next to enforce once the code they guard
 exists. Known gaps in the checks: `check-deps` checks the files its rules
@@ -162,11 +163,12 @@ before starting a task.
    one; the `docket` skill works through a whole goal). Branch from
    `develop`. Never push to `develop` directly.
 2. Implement, then run `bun run check` locally. Drive anything a user sees
-   on local mode with the `verify-local` skill.
+   on local mode with the verify-local procedure
+   (`docs/verify-local/README.md`).
 3. Push the branch and open a PR. CI runs `check`.
 4. A separate review agent, with no context from the writing session,
-   reviews the PR with the `cross-examine` skill
-   (`.claude/skills/cross-examine/SKILL.md`) and the review checklist in
+   reviews the PR with the `cross-examine` skill (`/onus:cross-examine`)
+   and the review checklist in
    `docs/development.md`. The session that wrote a PR does not review it.
 5. The owner merges, or grants a `docket` run, in its session, the right to
    merge its own PRs under that skill's conditions (ADR 0007, amendment of
