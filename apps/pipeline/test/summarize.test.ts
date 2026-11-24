@@ -254,6 +254,26 @@ describe("validateDraft", () => {
     expect(validateDraft(draft(answer, false), ref).ok).toBe(true);
   });
 
+  test("a first summary whose criterion is only whitespace is discarded", () => {
+    for (const criterion of ["   ", "\n\t", "\u3000"]) {
+      expect(validateDraft(draft({ ...good(), criterion }), ref)).toEqual({
+        ok: false,
+        check: "criterion",
+      });
+    }
+  });
+
+  test("a language repeated in settings is asked for once", () => {
+    const d = { ...draft(good()), languages: ["en", "en", "ja"] };
+    expect(validateDraft(d, ref).ok).toBe(true);
+    const [en] = good().texts;
+    if (!en) throw new Error("fixture");
+    const onlyEn = { ...draft({ ...good(), texts: [en, en] }), languages: ["en", "en"] };
+    expect(validateDraft(onlyEn, ref)).toEqual({ ok: false, check: "languages" });
+    const missing = { ...draft({ ...good(), texts: [en] }), languages: ["en", "en", "ja"] };
+    expect(validateDraft(missing, ref)).toEqual({ ok: false, check: "languages" });
+  });
+
   test("a Chinese or Japanese body of several sentences passes", () => {
     const g = good();
     const [en] = g.texts;
