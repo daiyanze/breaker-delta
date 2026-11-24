@@ -7,3 +7,6 @@ node_modules/
 /dist/
 .verify/
 .runs/
+
+# Claude Code agent worktrees: full checkouts, each with its own biome.json
+.claude/worktrees/
