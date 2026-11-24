@@ -11,6 +11,10 @@ import {
   nextTopicStatus,
   rankByHeight,
   type StateParams,
+  type SummaryCandidate,
+  type SummaryState,
+  selectForSummary,
+  summaryDue,
   slotId,
   slotStart,
   type TopicStatus,
@@ -442,6 +446,98 @@ describe("slot start", () => {
   test("refuses anything that is not a slot id", () => {
     for (const bad of ["", "20261201", "20261301T0900", "20261131T0900", "20261201T2400", "x"]) {
       expect(() => slotStart(bad)).toThrow("not a slot id");
+    }
+  });
+});
+
+describe("summary due", () => {
+  const base: SummaryState = { formedAt: T0, publishedAt: null, newEchoesAt: [], failedAt: null };
+
+  test("a wave with no published summary is due as formed, since it formed", () => {
+    expect(summaryDue(base, 5)).toEqual({ reason: "formed", dueAt: T0 });
+  });
+
+  test("after a summary, due once rewriteAfterNewEchoes echoes are new, since the last of them", () => {
+    const s = { ...base, publishedAt: T0 + HOUR };
+    const at = [5, 3, 2, 4].map((h) => T0 + h * HOUR);
+    expect(summaryDue({ ...s, newEchoesAt: at.slice(0, 3) }, 4)).toBeNull();
+    expect(summaryDue({ ...s, newEchoesAt: at }, 4)).toEqual({
+      reason: "new_echoes",
+      dueAt: T0 + 5 * HOUR,
+    });
+    // More echoes than needed: due when the fourth arrived, not the last.
+    expect(summaryDue({ ...s, newEchoesAt: [...at, T0 + 9 * HOUR] }, 4)).toEqual({
+      reason: "new_echoes",
+      dueAt: T0 + 5 * HOUR,
+    });
+    expect(summaryDue({ ...s, newEchoesAt: [] }, 1)).toBeNull();
+  });
+
+  test("a failed attempt moves the wait to that attempt, never earlier", () => {
+    expect(summaryDue({ ...base, failedAt: T0 + 2 * HOUR }, 5)).toEqual({
+      reason: "formed",
+      dueAt: T0 + 2 * HOUR,
+    });
+    expect(summaryDue({ ...base, formedAt: T0 + 3 * HOUR, failedAt: T0 }, 5)).toEqual({
+      reason: "formed",
+      dueAt: T0 + 3 * HOUR,
+    });
+  });
+});
+
+describe("select for summary", () => {
+  const c = (id: string, height: number, dueAt = T0): SummaryCandidate => ({
+    id,
+    height,
+    dueAt,
+    reason: "formed",
+  });
+
+  test("highest first among topics due in the same run, ties by id, cut at the budget", () => {
+    const all = [c("t2", 5), c("t3", 9), c("t1", 5), c("t4", 1)];
+    const expected = { selected: ["t3", "t1", "t2"], waiting: ["t4"] };
+    const ids = (r: ReturnType<typeof selectForSummary>) => ({
+      selected: r.selected.map((x) => x.id),
+      waiting: r.waiting.map((x) => x.id),
+    });
+    expect(ids(selectForSummary(all, 3))).toEqual(expected);
+    expect(ids(selectForSummary([...all].reverse(), 3))).toEqual(expected);
+    expect(ids(selectForSummary(all, 0))).toEqual({ selected: [], waiting: ["t3", "t1", "t2", "t4"] });
+    expect(ids(selectForSummary(all, 10))).toEqual({ selected: ["t3", "t1", "t2", "t4"], waiting: [] });
+  });
+
+  test("a topic that waited goes before one due later, whatever their heights", () => {
+    const r = selectForSummary([c("new", 100, T0 + HOUR), c("old", 1, T0)], 1);
+    expect(r.selected.map((x) => x.id)).toEqual(["old"]);
+  });
+
+  test("topics over budget are selected in the next run, before topics newly due then", () => {
+    const run1 = selectForSummary([c("a", 4), c("b", 3), c("c", 2), c("d", 1)], 3);
+    expect(run1.waiting.map((x) => x.id)).toEqual(["d"]);
+    const run2 = selectForSummary([...run1.waiting, c("e", 99, T0 + HOUR)], 1);
+    expect(run2.selected.map((x) => x.id)).toEqual(["d"]);
+  });
+
+  test("nothing selected was due later than a topic left waiting, whatever the input", () => {
+    const heights = [0, 1, 5, 5, 40];
+    const dues = [T0, T0 + HOUR, T0 + 2 * HOUR];
+    const all: SummaryCandidate[] = [];
+    for (const [i, h] of heights.entries()) {
+      for (const [j, d] of dues.entries()) all.push(c(`t${i}${j}`, h, d));
+    }
+    for (let shift = 0; shift < all.length; shift++) {
+      const input = [...all.slice(shift), ...all.slice(0, shift)];
+      for (const budget of [0, 1, 4, 7, 15, 20]) {
+        const r = selectForSummary(input, budget);
+        expect(r.selected.length).toBe(Math.min(budget, all.length));
+        expect(r.selected.length + r.waiting.length).toBe(all.length);
+        for (const s of r.selected) {
+          for (const w of r.waiting) {
+            expect(s.dueAt < w.dueAt || (s.dueAt === w.dueAt && s.height >= w.height)).toBe(true);
+          }
+        }
+        expect(r).toEqual(selectForSummary(all, budget));
+      }
     }
   });
 });

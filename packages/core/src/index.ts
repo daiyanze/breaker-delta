@@ -231,6 +231,78 @@ export function crossedRising(
   return reaches(now) && !reaches(previous);
 }
 
+/** Why a summary is written. `rewrite` is not decided here: no rule writes it yet. */
+export type SummaryReason = "formed" | "new_echoes";
+
+/** What `summaryDue` needs to know about one wave. Times are epoch ms of slot starts. */
+export interface SummaryState {
+  /** When the topic became a wave. */
+  formedAt: number;
+  /** The slot of its latest published summary; null when it has none. */
+  publishedAt: number | null;
+  /** The slots of its echoes first seen after that summary, in any order. */
+  newEchoesAt: readonly number[];
+  /** The slot of its latest discarded attempt after that summary; null when none. */
+  failedAt: number | null;
+}
+
+/**
+ * Whether a wave needs a summary, why, and since when (`dueAt`).
+ *
+ * - **formed:** it has no published summary; due since it formed.
+ * - **new_echoes:** at least `rewriteAfterNewEchoes` of its echoes are newer
+ *   than its latest published summary; due since the slot that brought the
+ *   one that reached the number.
+ *
+ * A discarded attempt after the latest published summary moves `dueAt` to
+ * that attempt's slot when it is later, so a topic that keeps failing waits
+ * behind the topics that were due before it failed.
+ */
+export function summaryDue(
+  s: SummaryState,
+  rewriteAfterNewEchoes: number,
+): { reason: SummaryReason; dueAt: number } | null {
+  let due: { reason: SummaryReason; dueAt: number };
+  if (s.publishedAt === null) {
+    due = { reason: "formed", dueAt: s.formedAt };
+  } else {
+    const n = Math.max(1, Math.floor(rewriteAfterNewEchoes));
+    if (s.newEchoesAt.length < n) return null;
+    const at = [...s.newEchoesAt].sort((a, b) => a - b)[n - 1] as number;
+    due = { reason: "new_echoes", dueAt: at };
+  }
+  if (s.failedAt !== null && s.failedAt > due.dueAt) due.dueAt = s.failedAt;
+  return due;
+}
+
+export interface SummaryCandidate {
+  id: string;
+  height: number;
+  /** From `summaryDue`. */
+  dueAt: number;
+  reason: SummaryReason;
+}
+
+/**
+ * The topics summarised in this run, at most `budget`, and the rest, which
+ * wait for the next run. Ordered by when each became due, earliest first,
+ * then by height, highest first, then by id, so the order never depends on
+ * input order. A topic left over budget was due earlier than any topic that
+ * becomes due later, so the next run takes it first, and no topic waits
+ * behind newer ones however high they are.
+ */
+export function selectForSummary<T extends SummaryCandidate>(
+  candidates: readonly T[],
+  budget: number,
+): { selected: T[]; waiting: T[] } {
+  const sorted = [...candidates].sort(
+    (a, b) =>
+      a.dueAt - b.dueAt || b.height - a.height || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+  );
+  const n = Math.max(0, Math.floor(budget));
+  return { selected: sorted.slice(0, n), waiting: sorted.slice(n) };
+}
+
 /** Epoch ms of the start of a slot from `slotId`; throws on anything else. */
 export function slotStart(slot: string): number {
   const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})$/.exec(slot);
