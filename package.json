@@ -16,6 +16,7 @@
     "probe": "bun scripts/probe-sources.ts",
     "record-fixture": "bun scripts/record-fixture.ts",
     "height-trial": "bun scripts/height-trial.ts",
+    "rebuild": "bun scripts/rebuild.ts",
     "local": "bun apps/local/start.ts",
     "icons": "bun scripts/build-icons.ts",
     "build:local": "bun build apps/local/start.ts --compile --outfile dist/breaker-delta"
