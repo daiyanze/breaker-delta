@@ -6,7 +6,12 @@ import {
   type HeatReference,
   isRunDue,
   isWave,
+  nextTopicStatus,
+  rankByHeight,
+  type StateParams,
   slotId,
+  slotStart,
+  type TopicStatus,
   type WaveParams,
   waveHeight,
 } from "./index.ts";
@@ -277,5 +282,130 @@ describe("run slots", () => {
     expect(isRunDue(null, T0, 60)).toBe(true);
     expect(isRunDue("20261201T0900", T0 + 30 * 60_000, 60)).toBe(false);
     expect(isRunDue("20261201T0900", T0 + 60 * 60_000, 60)).toBe(true);
+  });
+});
+
+describe("topic status", () => {
+  const DAY = 24 * HOUR;
+  const STATE: StateParams = { waveThreshold: 2, calmAfterDays: 7 };
+  const NEW: TopicStatus = { state: "echo", formedAt: null, wentFlatAt: null };
+  const two = [echo("a", "hn", 0, T0), echo("b", "github", 0, T0)];
+
+  test("one source stays an echo; a second source forms the wave at now", () => {
+    const one = [echo("a", "hn"), echo("c", "hn")];
+    expect(nextTopicStatus(NEW, one, T0, STATE)).toEqual(NEW);
+    expect(nextTopicStatus(NEW, two, T0 + HOUR, STATE)).toEqual({
+      state: "up",
+      formedAt: T0 + HOUR,
+      wentFlatAt: null,
+    });
+  });
+
+  test("the threshold comes from the parameters", () => {
+    const three = { ...STATE, waveThreshold: 3 };
+    expect(nextTopicStatus(NEW, two, T0, three).state).toBe("echo");
+    const more = [...two, echo("c", "lobsters")];
+    expect(nextTopicStatus(NEW, more, T0, three).state).toBe("up");
+  });
+
+  test("formedAt is set once", () => {
+    const up: TopicStatus = { state: "up", formedAt: T0, wentFlatAt: null };
+    const later = [...two, echo("c", "lobsters", 0, T0 + DAY)];
+    expect(nextTopicStatus(up, later, T0 + DAY, STATE).formedAt).toBe(T0);
+  });
+
+  test("a wave is never an echo again, even with fewer sources", () => {
+    const up: TopicStatus = { state: "up", formedAt: T0, wentFlatAt: null };
+    expect(nextTopicStatus(up, [echo("a", "hn", 0, T0)], T0 + HOUR, STATE)).toEqual(up);
+    expect(nextTopicStatus(up, [], T0 + HOUR, STATE)).toEqual(up);
+  });
+
+  test("a wave goes flat calmAfterDays after its latest activity", () => {
+    const up: TopicStatus = { state: "up", formedAt: T0, wentFlatAt: null };
+    const late = [...two, echo("c", "hn", 0, T0 + DAY)];
+    expect(nextTopicStatus(up, late, T0 + 8 * DAY - 1, STATE).state).toBe("up");
+    expect(nextTopicStatus(up, late, T0 + 8 * DAY, STATE)).toEqual({
+      state: "flat",
+      formedAt: T0,
+      wentFlatAt: T0 + 8 * DAY,
+    });
+  });
+
+  test("formedAt counts as activity: echoes older than the calm window form an up wave", () => {
+    const old = [echo("a", "hn", 0, T0), echo("b", "github", 0, T0)];
+    const now = T0 + 30 * DAY;
+    expect(nextTopicStatus(NEW, old, now, STATE).state).toBe("up");
+  });
+
+  test("a flat wave keeps its wentFlatAt, and a new echo brings it back up", () => {
+    const flat: TopicStatus = { state: "flat", formedAt: T0, wentFlatAt: T0 + 7 * DAY };
+    expect(nextTopicStatus(flat, two, T0 + 20 * DAY, STATE)).toEqual(flat);
+    const back = [...two, echo("c", "hn", 0, T0 + 20 * DAY)];
+    expect(nextTopicStatus(flat, back, T0 + 20 * DAY, STATE)).toEqual({
+      state: "up",
+      formedAt: T0,
+      wentFlatAt: null,
+    });
+    const again = nextTopicStatus(
+      { state: "up", formedAt: T0, wentFlatAt: null },
+      back,
+      T0 + 27 * DAY,
+      STATE,
+    );
+    expect(again).toEqual({ state: "flat", formedAt: T0, wentFlatAt: T0 + 27 * DAY });
+  });
+
+  test("applying it again at the same time changes nothing", () => {
+    const starts: TopicStatus[] = [
+      NEW,
+      { state: "up", formedAt: T0, wentFlatAt: null },
+      { state: "flat", formedAt: T0, wentFlatAt: T0 + 7 * DAY },
+    ];
+    const sets = [[], [echo("a", "hn")], two, [...two, echo("c", "hn", 0, T0 + 10 * DAY)]];
+    for (const start of starts) {
+      for (const echoes of sets) {
+        for (const now of [T0, T0 + 3 * DAY, T0 + 7 * DAY, T0 + 9 * DAY, T0 + 30 * DAY]) {
+          const once = nextTopicStatus(start, echoes, now, STATE);
+          expect(nextTopicStatus(once, echoes, now, STATE)).toEqual(once);
+        }
+      }
+    }
+  });
+});
+
+describe("rank by height", () => {
+  test("highest first, ties by id, whatever the input order", () => {
+    const topics = [
+      { id: "t2", height: 5 },
+      { id: "t3", height: 9 },
+      { id: "t1", height: 5 },
+    ];
+    const expected = new Map([
+      ["t3", 1],
+      ["t1", 2],
+      ["t2", 3],
+    ]);
+    expect(rankByHeight(topics)).toEqual(expected);
+    expect(rankByHeight([...topics].reverse())).toEqual(expected);
+    expect(rankByHeight([])).toEqual(new Map());
+  });
+});
+
+describe("slot start", () => {
+  test("is the start of the slot slotId names", () => {
+    for (const interval of [15, 60, 180]) {
+      for (const offset of [0, 7 * 60_000, 59 * 60_000, 25 * HOUR]) {
+        const slot = slotId(T0 + offset, interval);
+        expect(slotId(slotStart(slot), interval)).toBe(slot);
+        expect(slotStart(slot)).toBeLessThanOrEqual(T0 + offset);
+      }
+    }
+    expect(slotStart("20261201T0900")).toBe(T0);
+  });
+
+  test("refuses anything that is not a slot id", () => {
+    for (const bad of ["", "20261201", "20261301T0900", "20261131T0900", "20261201T2400", "x"]) {
+      expect(() => slotStart(bad)).toThrow("not a slot id");
+    }
   });
 });
