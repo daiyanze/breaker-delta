@@ -175,148 +175,164 @@ const sorted = (xs: Iterable<string>) => [...xs].sort();
 describe("two consecutive runs on fixtures (acceptance: the second processes only the increment)", () => {
   test("run 2 fetches what is due, ingests and assigns only the new echoes, and keeps run 1's rows", async () => {
     const t = setup();
-
-    // ---- Run 1: every fixture but the held-back groups.
-    expect(await t.tick()).toMatchObject({ slot: SLOT, status: "done" });
-    const steps1 = t.q<{ step: string; status: string }>(
-      "SELECT step, status FROM run_steps WHERE slot = ?",
-      SLOT,
-    );
-    expect(sorted(steps1.map((s) => s.step))).toEqual(sorted(STEP_NAMES));
-    expect(steps1.every((s) => s.status === "done")).toBe(true);
-
-    const scan1 = t.output<ScanOutput>(SLOT, "scan");
-    const withAdapter = LAUNCH_GROUPS.filter((g) => ADAPTERS[g.id]).map((g) => g.id);
-    expect(sorted(scan1.missing)).toEqual(HELD_BACK);
-    expect(sorted(scan1.fetched)).toEqual(
-      sorted(withAdapter.filter((id) => !HELD_BACK.includes(id))),
-    );
-    expect(scan1.notDue).toEqual([]);
-
-    const ingest1 = t.output<IngestOutput>(SLOT, "ingest");
-    expect(ingest1.newEchoes).toBeGreaterThan(0);
-    expect(ingest1.knownEchoes).toBe(0);
-    expect(ingest1.unreadable).toEqual([]);
-
-    const echoes1 = t.q<EchoRow>(ECHOES);
-    expect(echoes1).toHaveLength(ingest1.newEchoes);
-    expect(echoes1.every((e) => e.first_slot === SLOT)).toBe(true);
-    expect(echoes1.some((e) => HELD_BACK.includes(e.group_id))).toBe(false);
-
-    // Assign was given every new echo, each once.
-    const assigned1 = t.calls.assign.flat();
-    expect(sorted(assigned1)).toEqual(sorted(echoes1.map((e) => e.id)));
-    const assign1 = t.output<AssignOutput>(SLOT, "assign");
-    expect(assign1.echoes).toBe(echoes1.length);
-    const unplaced1 = echoes1.filter((e) => e.topic_id === null).map((e) => e.id);
-    expect(assign1.unassigned).toBe(unplaced1.length);
-
-    // One summarize call per selected wave.
-    const select1 = t.output<SelectOutput>(SLOT, "select");
-    expect(t.calls.summarize).toBe(select1.selected.length);
-    const commit1 = t.output<CommitOutput>(SLOT, "commit");
-
-    const summaries1 = t.q<{ id: string; topic_id: string }>(SUMMARIES);
-    const predictions1 = t.q<{ id: string; topic_id: string }>(PREDICTIONS);
-    const topics1 = t.q<{ id: string }>(TOPICS);
-    const metrics1 = t.q("SELECT echo_id, slot, heat, seen_at FROM echo_metrics ORDER BY echo_id");
-    expect(metrics1).toHaveLength(echoes1.length);
-    expect(t.purges).toEqual([
-      { slot: SLOT, topicIds: [...new Set([...commit1.published, ...commit1.discarded])] },
-    ]);
-
-    // ---- Run 2: one slot later, the held-back groups are back.
-    t.release();
-    t.setNow(NOW + HOUR);
-    t.fetched.length = 0;
-    t.calls.assign.length = 0;
-    t.calls.summarize = 0;
-    t.purges.length = 0;
-    expect(await t.tick()).toMatchObject({ slot: SLOT_2, status: "done" });
-
-    // Fetches: daily groups fetched well in run 1 are not due; the rest are,
-    // and only their URLs are requested.
-    const daily = LAUNCH_GROUPS.filter((g) => g.minIntervalMinutes >= 1440).map((g) => g.id);
-    expect(daily.length).toBeGreaterThan(0);
-    const scan2 = t.output<ScanOutput>(SLOT_2, "scan");
-    expect(sorted(scan2.notDue)).toEqual(sorted(daily));
-    const due2 = withAdapter.filter((id) => !daily.includes(id));
-    expect(sorted(scan2.fetched)).toEqual(sorted(due2));
-    expect(scan2.missing).toEqual([]);
-    expect(sorted(new Set(t.fetched))).toEqual(sorted(new Set(due2.flatMap(t.urlsOf))));
-    for (const id of daily) expect(t.fetched).not.toContain(t.firstUrl(id));
-
-    // Ingest: the new echoes are exactly the held-back groups' items; the
-    // groups fetched again only add heat to echoes run 1 made.
-    const ingest2 = t.output<IngestOutput>(SLOT_2, "ingest");
-    const echoes2 = t.q<EchoRow>(ECHOES);
-    const known = new Set(echoes1.map((e) => e.id));
-    const fresh = echoes2.filter((e) => !known.has(e.id));
-    expect(fresh.length).toBeGreaterThan(0);
-    expect(ingest2.newEchoes).toBe(fresh.length);
-    expect(fresh.every((e) => e.first_slot === SLOT_2)).toBe(true);
-    expect(sorted(new Set(fresh.map((e) => e.group_id)))).toEqual(HELD_BACK);
-    expect(ingest2.knownEchoes).toBeGreaterThan(0);
-    const metrics2 = t.q<{ echo_id: string }>(
-      "SELECT echo_id FROM echo_metrics WHERE slot = ?",
-      SLOT_2,
-    );
-    expect(metrics2).toHaveLength(ingest2.newEchoes + ingest2.knownEchoes);
-    // No echo of a group run 2 did not fetch got a heat record.
-    const notFetched = new Set(daily);
-    const groupOf = new Map(echoes2.map((e) => [e.id, e.group_id]));
-    expect(metrics2.some((m) => notFetched.has(groupOf.get(m.echo_id) ?? ""))).toBe(false);
-
-    // Assign: only the new echoes and the ones run 1 could not place.
-    const assigned2 = t.calls.assign.flat();
-    expect(sorted(assigned2)).toEqual(sorted([...fresh.map((e) => e.id), ...unplaced1]));
-    expect(t.output<AssignOutput>(SLOT_2, "assign").echoes).toBe(assigned2.length);
-
-    // Summarize: one call per wave select picked in run 2.
-    const select2 = t.output<SelectOutput>(SLOT_2, "select");
-    expect(t.calls.summarize).toBe(select2.selected.length);
-
-    // Writes: run 1's rows are left as they were; run 2 adds rows.
-    const placed1 = echoes1.filter((e) => e.topic_id !== null);
-    const byId = new Map(echoes2.map((e) => [e.id, e]));
-    expect(placed1.map((e) => byId.get(e.id))).toEqual(placed1);
-    // An echo run 1 could not place may get its topic now; nothing else changes.
-    const withoutTopic = ({ topic_id: _, ...rest }: EchoRow) => rest;
-    const unplacedRows1 = echoes1.filter((e) => e.topic_id === null);
-    expect(
-      unplacedRows1.map((e) => {
-        const row = byId.get(e.id);
-        return row ? withoutTopic(row) : null;
-      }),
-    ).toEqual(unplacedRows1.map(withoutTopic));
-    expect(
-      t.q(
-        "SELECT echo_id, slot, heat, seen_at FROM echo_metrics WHERE slot = ? ORDER BY echo_id",
+    try {
+      // ---- Run 1: every fixture but the held-back groups.
+      expect(await t.tick()).toMatchObject({ slot: SLOT, status: "done" });
+      const steps1 = t.q<{ step: string; status: string }>(
+        "SELECT step, status FROM run_steps WHERE slot = ?",
         SLOT,
-      ),
-    ).toEqual(metrics1);
+      );
+      expect(sorted(steps1.map((s) => s.step))).toEqual(sorted(STEP_NAMES));
+      expect(steps1.every((s) => s.status === "done")).toBe(true);
 
-    const summaries2 = t.q<{ id: string; topic_id: string }>(SUMMARIES);
-    const oldSummaries = new Set(summaries1.map((s) => s.id));
-    expect(summaries2.filter((s) => oldSummaries.has(s.id))).toEqual(summaries1);
-    const commit2 = t.output<CommitOutput>(SLOT_2, "commit");
-    expect(
-      sorted(summaries2.filter((s) => !oldSummaries.has(s.id)).map((s) => s.topic_id)),
-    ).toEqual(sorted([...commit2.published, ...commit2.discarded]));
-    const predictions2 = t.q<{ id: string; topic_id: string }>(PREDICTIONS);
-    const oldPredictions = new Set(predictions1.map((p) => p.id));
-    expect(predictions2.filter((p) => oldPredictions.has(p.id))).toEqual(predictions1);
-    expect(
-      sorted(predictions2.filter((p) => !oldPredictions.has(p.id)).map((p) => p.topic_id)),
-    ).toEqual(sorted(commit2.formed));
+      const scan1 = t.output<ScanOutput>(SLOT, "scan");
+      const withAdapter = LAUNCH_GROUPS.filter((g) => ADAPTERS[g.id]).map((g) => g.id);
+      expect(sorted(scan1.missing)).toEqual(HELD_BACK);
+      expect(sorted(scan1.fetched)).toEqual(
+        sorted(withAdapter.filter((id) => !HELD_BACK.includes(id))),
+      );
+      expect(scan1.notDue).toEqual([]);
 
-    const topics2 = new Set(t.q<{ id: string }>(TOPICS).map((r) => r.id));
-    expect(topics1.every((r) => topics2.has(r.id))).toBe(true);
-    expect(topics2.size - topics1.length).toBe(t.output<AssignOutput>(SLOT_2, "assign").newTopics);
+      const ingest1 = t.output<IngestOutput>(SLOT, "ingest");
+      expect(ingest1.newEchoes).toBeGreaterThan(0);
+      expect(ingest1.knownEchoes).toBe(0);
+      expect(ingest1.unreadable).toEqual([]);
 
-    expect(t.purges).toEqual([
-      { slot: SLOT_2, topicIds: [...new Set([...commit2.published, ...commit2.discarded])] },
-    ]);
-    t.close();
+      const echoes1 = t.q<EchoRow>(ECHOES);
+      expect(echoes1).toHaveLength(ingest1.newEchoes);
+      expect(echoes1.every((e) => e.first_slot === SLOT)).toBe(true);
+      expect(echoes1.some((e) => HELD_BACK.includes(e.group_id))).toBe(false);
+
+      // Assign was given every new echo, each once.
+      const assigned1 = t.calls.assign.flat();
+      expect(sorted(assigned1)).toEqual(sorted(echoes1.map((e) => e.id)));
+      const assign1 = t.output<AssignOutput>(SLOT, "assign");
+      expect(assign1.echoes).toBe(echoes1.length);
+      const unplaced1 = echoes1.filter((e) => e.topic_id === null).map((e) => e.id);
+      expect(assign1.unassigned).toBe(unplaced1.length);
+
+      // One summarize call per selected wave.
+      const select1 = t.output<SelectOutput>(SLOT, "select");
+      expect(t.calls.summarize).toBe(select1.selected.length);
+      const commit1 = t.output<CommitOutput>(SLOT, "commit");
+
+      const summaries1 = t.q<{ id: string; topic_id: string }>(SUMMARIES);
+      const predictions1 = t.q<{ id: string; topic_id: string }>(PREDICTIONS);
+      const topics1 = t.q<{ id: string }>(TOPICS);
+      const metrics1 = t.q(
+        "SELECT echo_id, slot, heat, seen_at FROM echo_metrics ORDER BY echo_id",
+      );
+      expect(metrics1).toHaveLength(echoes1.length);
+      expect(t.purges).toEqual([
+        { slot: SLOT, topicIds: [...new Set([...commit1.published, ...commit1.discarded])] },
+      ]);
+
+      // ---- Run 2: one slot later, the held-back groups are back.
+      t.release();
+      t.setNow(NOW + HOUR);
+      t.fetched.length = 0;
+      t.calls.assign.length = 0;
+      t.calls.summarize = 0;
+      t.purges.length = 0;
+      expect(await t.tick()).toMatchObject({ slot: SLOT_2, status: "done" });
+
+      // Fetches: daily groups fetched well in run 1 are not due; the rest are,
+      // and only their URLs are requested.
+      const daily = LAUNCH_GROUPS.filter((g) => g.minIntervalMinutes >= 1440).map((g) => g.id);
+      expect(daily.length).toBeGreaterThan(0);
+      const scan2 = t.output<ScanOutput>(SLOT_2, "scan");
+      expect(sorted(scan2.notDue)).toEqual(sorted(daily));
+      const due2 = withAdapter.filter((id) => !daily.includes(id));
+      expect(sorted(scan2.fetched)).toEqual(sorted(due2));
+      expect(scan2.missing).toEqual([]);
+      expect(sorted(new Set(t.fetched))).toEqual(sorted(new Set(due2.flatMap(t.urlsOf))));
+      for (const id of daily) expect(t.fetched).not.toContain(t.firstUrl(id));
+
+      // Ingest: the new echoes are exactly the held-back groups' items; the
+      // groups fetched again only add heat to echoes run 1 made.
+      const ingest2 = t.output<IngestOutput>(SLOT_2, "ingest");
+      const echoes2 = t.q<EchoRow>(ECHOES);
+      const known = new Set(echoes1.map((e) => e.id));
+      const fresh = echoes2.filter((e) => !known.has(e.id));
+      expect(fresh.length).toBeGreaterThan(0);
+      expect(ingest2.newEchoes).toBe(fresh.length);
+      expect(fresh.every((e) => e.first_slot === SLOT_2)).toBe(true);
+      expect(sorted(new Set(fresh.map((e) => e.group_id)))).toEqual(HELD_BACK);
+      expect(ingest2.knownEchoes).toBeGreaterThan(0);
+      const metrics2 = t.q<{ echo_id: string }>(
+        "SELECT echo_id FROM echo_metrics WHERE slot = ?",
+        SLOT_2,
+      );
+      expect(metrics2).toHaveLength(ingest2.newEchoes + ingest2.knownEchoes);
+      // No echo of a group run 2 did not fetch got a heat record.
+      const notFetched = new Set(daily);
+      const groupOf = new Map(echoes2.map((e) => [e.id, e.group_id]));
+      expect(metrics2.some((m) => notFetched.has(groupOf.get(m.echo_id) ?? ""))).toBe(false);
+
+      // Assign: only the new echoes and the ones run 1 could not place.
+      const assigned2 = t.calls.assign.flat();
+      expect(sorted(assigned2)).toEqual(sorted([...fresh.map((e) => e.id), ...unplaced1]));
+      expect(t.output<AssignOutput>(SLOT_2, "assign").echoes).toBe(assigned2.length);
+
+      // Summarize: one call per wave select picked in run 2.
+      const select2 = t.output<SelectOutput>(SLOT_2, "select");
+      expect(t.calls.summarize).toBe(select2.selected.length);
+      // A wave run 1 summarised is never due again as `formed` (review on #245).
+      const summarised1 = new Set(
+        (summaries1 as { topic_id: string; status: string }[])
+          .filter((s) => s.status === "published")
+          .map((s) => s.topic_id),
+      );
+      expect(summarised1.size).toBeGreaterThan(0);
+      expect(
+        select2.selected.filter((s) => s.reason === "formed" && summarised1.has(s.topicId)),
+      ).toEqual([]);
+
+      // Writes: run 1's rows are left as they were; run 2 adds rows.
+      const placed1 = echoes1.filter((e) => e.topic_id !== null);
+      const byId = new Map(echoes2.map((e) => [e.id, e]));
+      expect(placed1.map((e) => byId.get(e.id))).toEqual(placed1);
+      // An echo run 1 could not place may get its topic now; nothing else changes.
+      const withoutTopic = ({ topic_id: _, ...rest }: EchoRow) => rest;
+      const unplacedRows1 = echoes1.filter((e) => e.topic_id === null);
+      expect(
+        unplacedRows1.map((e) => {
+          const row = byId.get(e.id);
+          return row ? withoutTopic(row) : null;
+        }),
+      ).toEqual(unplacedRows1.map(withoutTopic));
+      expect(
+        t.q(
+          "SELECT echo_id, slot, heat, seen_at FROM echo_metrics WHERE slot = ? ORDER BY echo_id",
+          SLOT,
+        ),
+      ).toEqual(metrics1);
+
+      const summaries2 = t.q<{ id: string; topic_id: string }>(SUMMARIES);
+      const oldSummaries = new Set(summaries1.map((s) => s.id));
+      expect(summaries2.filter((s) => oldSummaries.has(s.id))).toEqual(summaries1);
+      const commit2 = t.output<CommitOutput>(SLOT_2, "commit");
+      expect(
+        sorted(summaries2.filter((s) => !oldSummaries.has(s.id)).map((s) => s.topic_id)),
+      ).toEqual(sorted([...commit2.published, ...commit2.discarded]));
+      const predictions2 = t.q<{ id: string; topic_id: string }>(PREDICTIONS);
+      const oldPredictions = new Set(predictions1.map((p) => p.id));
+      expect(predictions2.filter((p) => oldPredictions.has(p.id))).toEqual(predictions1);
+      expect(
+        sorted(predictions2.filter((p) => !oldPredictions.has(p.id)).map((p) => p.topic_id)),
+      ).toEqual(sorted(commit2.formed));
+
+      const topics2 = new Set(t.q<{ id: string }>(TOPICS).map((r) => r.id));
+      expect(topics1.every((r) => topics2.has(r.id))).toBe(true);
+      expect(topics2.size - topics1.length).toBe(
+        t.output<AssignOutput>(SLOT_2, "assign").newTopics,
+      );
+
+      expect(t.purges).toEqual([
+        { slot: SLOT_2, topicIds: [...new Set([...commit2.published, ...commit2.discarded])] },
+      ]);
+    } finally {
+      t.close();
+    }
   });
 });
