@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { startPipeline } from "../src/local/server.ts";
+import { LOCAL_SERVE_OPTIONS, startPipeline } from "../src/local/server.ts";
 
 const quiet = () => {};
 
@@ -42,6 +42,24 @@ describe("startPipeline", () => {
     });
     await second.stop();
   });
+
+  test("a request longer than Bun's 10-second idle timeout gets its answer", async () => {
+    // /__tick waits for the whole run; a run with real sources can pass 10 s.
+    const server = Bun.serve({
+      ...LOCAL_SERVE_OPTIONS,
+      port: 0,
+      hostname: "127.0.0.1",
+      fetch: async () => {
+        await Bun.sleep(13_000);
+        return new Response("done");
+      },
+    });
+    try {
+      expect(await (await fetch(`http://127.0.0.1:${server.port}/`)).text()).toBe("done");
+    } finally {
+      await server.stop(true);
+    }
+  }, 25_000);
 
   test("/__tick does not exist without a probe token", async () => {
     const dataDir = mkdtempSync(join(tmpdir(), "bd-local-"));
