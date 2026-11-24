@@ -40,3 +40,41 @@ export function memoryBlobs() {
   };
   return { blobs, store };
 }
+
+/** Cloudflare D1's limit on bound values in one statement. */
+export const D1_MAX_PARAMS = 100;
+
+/**
+ * `db` that throws, as D1 does, on a statement binding more than
+ * `D1_MAX_PARAMS` values, so a bun:sqlite test catches what only D1 refuses.
+ */
+export function d1Limited(
+  db: ReturnType<typeof sqliteDatabase>,
+): ReturnType<typeof sqliteDatabase> {
+  const check = (params: readonly unknown[] | undefined) => {
+    if ((params?.length ?? 0) > D1_MAX_PARAMS) throw new Error("too many SQL variables");
+  };
+  return {
+    ...db,
+    all: (sql, ...params) => {
+      check(params);
+      return db.all(sql, ...params);
+    },
+    values: (sql, ...params) => {
+      check(params);
+      return db.values(sql, ...params);
+    },
+    first: (sql, ...params) => {
+      check(params);
+      return db.first(sql, ...params);
+    },
+    run: (sql, ...params) => {
+      check(params);
+      return db.run(sql, ...params);
+    },
+    batch: (statements) => {
+      for (const st of statements) check(st.params);
+      return db.batch(statements);
+    },
+  };
+}

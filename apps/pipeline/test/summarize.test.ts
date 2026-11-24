@@ -16,7 +16,7 @@ import {
   summarizeStep,
 } from "../src/core/summarize.ts";
 import { type ValidateOutput, validateDraft, validateStep } from "../src/core/validate.ts";
-import { migratedDatabase, NOW, SLOT } from "./helpers.ts";
+import { d1Limited, migratedDatabase, NOW, SLOT } from "./helpers.ts";
 
 const NEXT = "20261119T0600";
 const NEXT_NOW = NOW + 3_600_000;
@@ -65,9 +65,9 @@ const failing: ModelDriver = {
   },
 };
 
-function setup(driver: ModelDriver = fakeDriver()) {
+function setup(driver: ModelDriver = fakeDriver(), { d1 = false } = {}) {
   const { db, sqlite } = migratedDatabase();
-  const orm = drizzleOver(db);
+  const orm = drizzleOver(d1 ? d1Limited(db) : db);
   const { blobs, store } = memoryBlobs();
   let n = 0;
   /** A topic up in `slot` with `count` echoes first seen there. */
@@ -254,6 +254,40 @@ describe("validateDraft", () => {
     expect(validateDraft(draft(answer, false), ref).ok).toBe(true);
   });
 
+  test("a first summary whose criterion is only whitespace is discarded", () => {
+    for (const criterion of ["   ", "\n\t", "\u3000"]) {
+      expect(validateDraft(draft({ ...good(), criterion }), ref)).toEqual({
+        ok: false,
+        check: "criterion",
+      });
+    }
+  });
+
+  test("a language repeated in settings is asked for once", () => {
+    const d = { ...draft(good()), languages: ["en", "en", "ja"] };
+    expect(validateDraft(d, ref).ok).toBe(true);
+    const [en] = good().texts;
+    if (!en) throw new Error("fixture");
+    const onlyEn = { ...draft({ ...good(), texts: [en, en] }), languages: ["en", "en"] };
+    expect(validateDraft(onlyEn, ref)).toEqual({ ok: false, check: "languages" });
+    const missing = { ...draft({ ...good(), texts: [en] }), languages: ["en", "en", "ja"] };
+    expect(validateDraft(missing, ref)).toEqual({ ok: false, check: "languages" });
+  });
+
+  test("a Chinese or Japanese body of several sentences passes", () => {
+    const g = good();
+    const [en] = g.texts;
+    if (!en) throw new Error("fixture");
+    const zh = { lang: "zh" as const, title: "Rust 2.0", body: "新功能已发布。服务将于下月推出。" };
+    const ja = {
+      lang: "ja" as const,
+      title: "Rust 2.0",
+      body: "新機能が公開された。提供は来月始まる。",
+    };
+    const d = { ...draft({ ...g, texts: [en, zh, ja] }), languages: ["en", "zh", "ja"] };
+    expect(validateDraft(d, ref).ok).toBe(true);
+  });
+
   test("an address the echoes do not have is discarded, in a title, a body or the criterion", () => {
     const g = good();
     const [en, ja] = g.texts;
@@ -349,6 +383,16 @@ describe("commit", () => {
     expect(p.hash).toMatch(/^[0-9a-f]{64}$/);
     expect(p.registered_at).toBe(slotStart(SLOT));
     expect(p.due_at).toBe(slotStart(SLOT) + 14 * DAY);
+    expectEveryFirstSummaryRegistered(t);
+  });
+
+  test("a version citing more than 50 echoes fits D1's limit of 100 bound values per statement", async () => {
+    const t = setup(fakeDriver(), { d1: true });
+    t.wave("t1", 60);
+    const { outcome, commit } = await t.run();
+    expect(outcome.status).toBe("done");
+    expect(commit).toEqual({ published: ["t1"], formed: ["t1"], discarded: [] });
+    expect(t.all("SELECT count(*) AS n FROM summary_evidence")).toEqual([{ n: 60 }]);
     expectEveryFirstSummaryRegistered(t);
   });
 

@@ -13,7 +13,7 @@ import { changeSettings } from "../src/core/settings.ts";
 import { buildSteps, STEP_NAMES } from "../src/core/steps.ts";
 import type { Adapter } from "../src/sources/adapter.ts";
 import type { LaunchGroup } from "../src/sources/launch-groups.ts";
-import { memoryBlobs, migratedDatabase, NOW, SLOT } from "./helpers.ts";
+import { d1Limited, memoryBlobs, migratedDatabase, NOW, SLOT } from "./helpers.ts";
 
 const HOUR = 3_600_000;
 const NEXT = "20261119T0600";
@@ -63,7 +63,9 @@ function switchableModel() {
 }
 
 function setup() {
-  const { db, sqlite } = migratedDatabase();
+  const { db: plain, sqlite } = migratedDatabase();
+  // Every step's statements within D1's bound-value limit, as on Cloudflare.
+  const db = d1Limited(plain);
   const orm = drizzleOver(db);
   const { blobs } = memoryBlobs();
   const model = switchableModel();
