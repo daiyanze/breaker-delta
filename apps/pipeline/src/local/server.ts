@@ -4,13 +4,14 @@
  * runs on Cloudflare. No wrangler, miniflare or workerd.
  */
 import { Database as SQLite } from "bun:sqlite";
-import { mkdirSync, readFileSync } from "node:fs";
+import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import type { SiteCache } from "@bd/ports";
 import { createPipeline, type Pipeline, pipelineConfig } from "../core/app.ts";
 import { fixtureFetch } from "../core/fixture-sources.ts";
 import { directoryBlobs } from "./blobs.ts";
 import { sqliteDatabase } from "./database.ts";
+import { FIXTURE_FILES } from "./fixtures.ts";
 import { migrate } from "./migrate.ts";
 
 export interface LocalPipelineOptions {
@@ -35,15 +36,9 @@ export interface LocalPipelineOptions {
   log?: (line: string) => void;
 }
 
-/** Fixtures as recorded by `scripts/record-fixture.ts`, next to the adapters. */
-const FIXTURES = new URL("../sources/fixtures/", import.meta.url);
-
+/** Fixtures as recorded by `scripts/record-fixture.ts`, embedded in the build. */
 function readFixture(file: string): string | null {
-  try {
-    return readFileSync(new URL(file, FIXTURES), "utf8");
-  } catch {
-    return null;
-  }
+  return FIXTURE_FILES[file] ?? null;
 }
 
 export interface LocalPipeline {
