@@ -254,6 +254,20 @@ describe("validateDraft", () => {
     expect(validateDraft(draft(answer, false), ref).ok).toBe(true);
   });
 
+  test("a Chinese or Japanese body of several sentences passes", () => {
+    const g = good();
+    const [en] = g.texts;
+    if (!en) throw new Error("fixture");
+    const zh = { lang: "zh" as const, title: "Rust 2.0", body: "新功能已发布。服务将于下月推出。" };
+    const ja = {
+      lang: "ja" as const,
+      title: "Rust 2.0",
+      body: "新機能が公開された。提供は来月始まる。",
+    };
+    const d = { ...draft({ ...g, texts: [en, zh, ja] }), languages: ["en", "zh", "ja"] };
+    expect(validateDraft(d, ref).ok).toBe(true);
+  });
+
   test("an address the echoes do not have is discarded, in a title, a body or the criterion", () => {
     const g = good();
     const [en, ja] = g.texts;
