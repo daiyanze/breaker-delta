@@ -216,7 +216,7 @@ describe("two consecutive runs on fixtures (acceptance: the second processes onl
       expect(t.calls.summarize).toBe(select1.selected.length);
       const commit1 = t.output<CommitOutput>(SLOT, "commit");
 
-      const summaries1 = t.q<{ id: string; topic_id: string }>(SUMMARIES);
+      const summaries1 = t.q<{ id: string; topic_id: string; status: string }>(SUMMARIES);
       const predictions1 = t.q<{ id: string; topic_id: string }>(PREDICTIONS);
       const topics1 = t.q<{ id: string }>(TOPICS);
       const metrics1 = t.q(
@@ -279,9 +279,7 @@ describe("two consecutive runs on fixtures (acceptance: the second processes onl
       expect(t.calls.summarize).toBe(select2.selected.length);
       // A wave run 1 summarised is never due again as `formed` (review on #245).
       const summarised1 = new Set(
-        (summaries1 as { topic_id: string; status: string }[])
-          .filter((s) => s.status === "published")
-          .map((s) => s.topic_id),
+        summaries1.filter((s) => s.status === "published").map((s) => s.topic_id),
       );
       expect(summarised1.size).toBeGreaterThan(0);
       expect(
