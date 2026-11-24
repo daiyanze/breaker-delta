@@ -4,9 +4,10 @@
  *
  * - **Published.** A valid draft becomes the topic's next version (1, 2,
  *   ...): a `summaries` row, one `summary_texts` row per language and one
- *   `summary_evidence` row per cited echo id. Code maps ids to URLs later;
- *   no model-written address is stored (invariant 2). `writer` is the
- *   provider that answered.
+ *   `summary_evidence` row per cited echo id, the ids passed as one JSON
+ *   parameter (D1 binds at most 100 values per statement). Code maps ids
+ *   to URLs later; no model-written address is stored (invariant 2).
+ *   `writer` is the provider that answered.
  * - **First version.** When the topic has no published summary yet, the
  *   same batch also writes its `wave_formed` event and its prediction: the
  *   criterion, the SHA-256 of its text, `registered_at` at the slot's start
@@ -29,9 +30,9 @@
  * slot's start. The output holds topic ids only.
  */
 import { slotStart } from "@bd/core";
-import { events, predictions, summaries, summaryEvidence, summaryTexts } from "@bd/db";
+import { events, predictions, summaries, summaryTexts } from "@bd/db";
 import type { Blobs } from "@bd/ports";
-import { and, eq, max } from "drizzle-orm";
+import { and, eq, max, sql } from "drizzle-orm";
 import type { Step } from "./runner.ts";
 import { readSettings } from "./settings.ts";
 import { outputOf } from "./summarize.ts";
@@ -52,6 +53,14 @@ export interface CommitOutput {
 }
 
 const DAY_MS = 86_400_000;
+/** Ids per `json_each` parameter, as in compute. */
+const CHUNK = 500;
+
+function chunks<T>(rows: readonly T[]): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < rows.length; i += CHUNK) out.push(rows.slice(i, i + CHUNK));
+  return out;
+}
 
 /** SHA-256 of `text` as UTF-8, lower-case hex. */
 export async function sha256(text: string): Promise<string> {
@@ -153,11 +162,12 @@ export function commitStep(deps: CommitDeps): Step {
               body: t.body,
             })),
           ),
-          ctx.db
-            .insert(summaryEvidence)
-            .values(
-              [...new Set(value.evidenceEchoIds)].map((echoId) => ({ summaryId: id, echoId })),
-            ),
+          // One JSON parameter per chunk, as in compute: D1 allows 100 bound
+          // values per statement, and a row here binds two.
+          ...chunks([...new Set(value.evidenceEchoIds)]).map((part) =>
+            ctx.db.run(sql`INSERT INTO summary_evidence (summary_id, echo_id)
+              SELECT ${id}, value FROM json_each(${JSON.stringify(part)})`),
+          ),
         ];
         if (first) {
           // validateDraft refuses a first summary without a criterion.

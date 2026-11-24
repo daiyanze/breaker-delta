@@ -7,6 +7,7 @@ import {
   type AssignOutput,
   assignStep,
   MAX_SLUG,
+  nameCitesNoAddress,
   type PoolTopic,
   shortlist,
   slugBase,
@@ -205,6 +206,38 @@ describe("validateAssignments", () => {
       "U.S. chip rules",
     ]) {
       expect([name, named(name)]).toEqual([name, 0]);
+    }
+  });
+
+  test("a Chinese or Japanese full stop ends a sentence, not a dotted word", () => {
+    for (const text of [
+      "新功能已发布。服务将于下月推出。",
+      "新機能が公開された。提供は来月始まる。",
+      // Japanese academic style uses the fullwidth full stop.
+      "新機能が公開された．提供は来月始まる．",
+      "新機能が公開された｡提供は来月始まる｡",
+      // A sentence that ends or starts with a Latin word or a number.
+      "发布了 Rust 2.0。新版本更快。",
+      "新版本已发布。Rust 团队表示将继续维护。",
+      "OpenAI 推出 GPT-5。OpenAI 表示……",
+      "Apple が発表した。iPhone の新型だ。",
+    ]) {
+      expect([text, nameCitesNoAddress(text, "")]).toEqual([text, true]);
+    }
+  });
+
+  test("a full stop between two lower-case Latin words is still a dot (invariant 2)", () => {
+    for (const text of [
+      "example。com",
+      "example．com",
+      "example｡com",
+      "ｅｘａｍｐｌｅ。ｃｏｍ",
+      "详情见 example。com。",
+      "詳細は evil。example で。",
+      "例子.com",
+      "新功能已发布。详情见 news.example。",
+    ]) {
+      expect([text, nameCitesNoAddress(text, "")]).toEqual([text, false]);
     }
   });
 

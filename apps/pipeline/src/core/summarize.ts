@@ -100,12 +100,14 @@ export function summarizeStep(deps: SummarizeDeps): Step {
           continue;
         }
         const first = reason === "formed";
+        // A language repeated in settings is asked for once.
+        const languages = [...new Set(settings.languages)];
         let answer: Awaited<ReturnType<ModelDriver["summarize"]>>;
         try {
           answer = await deps.driver.summarize({
             name: topic.name,
             echoes: cited,
-            languages: settings.languages,
+            languages,
             first,
           });
         } catch {
@@ -118,7 +120,7 @@ export function summarizeStep(deps: SummarizeDeps): Step {
           reason,
           first,
           offered: cited.map((e) => e.id),
-          languages: [...settings.languages],
+          languages,
           provider: answer.provider,
           model: answer.model,
           answer: answer.value,

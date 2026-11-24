@@ -9,9 +9,11 @@
  * - `contract`: the answer fits `SummarizeResultSchema`;
  * - `echo_id`: every cited echo id is one the model was given, so code can
  *   map each to its URL (invariant 2). One unknown id discards the version;
- * - `languages`: exactly one text per language asked for;
- * - `criterion`: a first summary has a criterion, so it can never be
- *   published without its prediction (invariant 5);
+ * - `languages`: exactly one text per language asked for (a language
+ *   repeated in settings counts once);
+ * - `criterion`: a first summary has a criterion that is not only
+ *   whitespace, so it can never be published without its prediction
+ *   (invariant 5);
  * - `address`: no title, body or criterion holds a URL scheme, `www.`, or
  *   a dotted word (`x.ai`) that none of the offered echoes' titles or
  *   excerpts has (`nameCitesNoAddress`, as for assign's topic names): the
@@ -57,14 +59,18 @@ export function validateDraft(draft: Draft, reference: string): DraftVerdict {
   const offered = new Set(draft.offered);
   if (!value.evidenceEchoIds.every((id) => offered.has(id))) return { ok: false, check: "echo_id" };
   const langs = value.texts.map((t) => t.lang);
+  // A language repeated in settings is asked for once.
+  const asked = [...new Set(draft.languages)];
   if (
-    langs.length !== draft.languages.length ||
+    langs.length !== asked.length ||
     new Set(langs).size !== langs.length ||
-    !draft.languages.every((l) => langs.includes(l as (typeof langs)[number]))
+    !asked.every((l) => langs.includes(l as (typeof langs)[number]))
   ) {
     return { ok: false, check: "languages" };
   }
-  if (draft.first && value.criterion === undefined) return { ok: false, check: "criterion" };
+  if (draft.first && (value.criterion === undefined || value.criterion.trim() === "")) {
+    return { ok: false, check: "criterion" };
+  }
   const written = value.texts.flatMap((t) => [t.title, t.body]);
   if (draft.first && value.criterion !== undefined) written.push(value.criterion);
   if (!written.every((text) => nameCitesNoAddress(text, reference))) {

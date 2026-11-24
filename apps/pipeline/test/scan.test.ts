@@ -17,7 +17,7 @@ import { changeSettings } from "../src/core/settings.ts";
 import { type Adapter, ParseError } from "../src/sources/adapter.ts";
 import { lobsters } from "../src/sources/adapters/lobsters.ts";
 import type { LaunchGroup } from "../src/sources/launch-groups.ts";
-import { migratedDatabase, NOW, SLOT } from "./helpers.ts";
+import { d1Limited, migratedDatabase, NOW, SLOT } from "./helpers.ts";
 
 const HOUR = 3_600_000;
 
@@ -445,33 +445,7 @@ describe("scan step", () => {
 
   test("twenty due groups fit D1's limit of 100 bound values per statement", async () => {
     const { db } = migratedDatabase();
-    const D1_MAX_PARAMS = 100;
-    const check = (params: readonly unknown[] | undefined) => {
-      if ((params?.length ?? 0) > D1_MAX_PARAMS) throw new Error("too many SQL variables");
-    };
-    const limited: typeof db = {
-      ...db,
-      all: (sql, ...params) => {
-        check(params);
-        return db.all(sql, ...params);
-      },
-      values: (sql, ...params) => {
-        check(params);
-        return db.values(sql, ...params);
-      },
-      first: (sql, ...params) => {
-        check(params);
-        return db.first(sql, ...params);
-      },
-      run: (sql, ...params) => {
-        check(params);
-        return db.run(sql, ...params);
-      },
-      batch: (statements) => {
-        for (const st of statements) check(st.params);
-        return db.batch(statements);
-      },
-    };
+    const limited = d1Limited(db);
     const ids = Array.from({ length: 20 }, (_, i) => `g${String(i).padStart(2, "0")}`);
     const answers = Object.fromEntries(
       ids.map((id) => [`https://${id}.test/feed`, [json({ items: [1] })]]),
