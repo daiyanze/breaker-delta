@@ -10,9 +10,10 @@
  * 2. **Topics.** Not merged away, and up, or with an echo first seen in this
  *    slot or the `calmAfterDays` before it, or already given a point in this
  *    slot. A flat wave or an echo topic with no recent echo gets no new point;
- *     its last one stands, so an echo topic whose echoes are all older never
- *    forms, even if a merge brings it to the threshold. The last clause keeps a retry's topics the same as
- *    the first attempt's, after that attempt moved a wave to flat.
+ *    its last one stands, so an echo topic whose echoes are all older never
+ *    forms, even if a merge brings it to the threshold. The last clause
+ *    keeps a retry's topics the same as the first attempt's, after that
+ *    attempt moved a wave to flat.
  * 3. **Echoes.** All of each topic's echoes from this slot or earlier, each
  *    with the heat of its latest `echo_metrics` row from this slot or
  *    earlier, 0 when it has none.

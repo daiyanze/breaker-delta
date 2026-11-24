@@ -70,7 +70,8 @@ proposal, used for the shortlist and never shown. `state` is `echo` (not a
 wave yet), `up` or `flat`, the same words as the read contracts and ADR 0014;
 `formed_at` and `went_flat_at` are set by the compute step (#29,
 `nextTopicStatus` in `@bd/core`): a topic is `up` once its echoes come from
-`waveThreshold` groups and never an echo again; it goes `flat` when its latest
+`waveThreshold` groups (unless all its echoes are older than `calmAfterDays`:
+the step does not look at it then) and never an echo again; it goes `flat` when its latest
 echo (or its forming, if later) is `calmAfterDays` old, and back `up` when its
 latest echo is inside `calmAfterDays` again (a newer echo, or a longer
 `calmAfterDays`), which clears `went_flat_at`. A merged topic keeps
@@ -92,7 +93,8 @@ A topic's `state`, `height`, `rank` (null when not up), source count and
 echo count at one run, computed by `@bd/core` at the slot's start; key
 `(slot, topic_id)`. The compute step (#29) writes one for each topic not
 merged away that is up, has an echo first seen in the last
-`calmAfterDays`, or already has a point in that slot; a flat wave's last point is the one that turned it flat. The
+`calmAfterDays`, or already has a point in that slot; a flat wave's last
+point is the one that turned it flat. The
 history chart, the newsstand's editions and the 24-hour change read it
 (ADR 0015).
 
