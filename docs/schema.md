@@ -116,6 +116,15 @@ The select step (#33, `apps/pipeline/src/core/select.ts`) reads this table
 to pick the waves due a summary: `formed` when a wave has no published row,
 `new_echoes` when enough echoes are newer than its latest published row's
 `slot`. No step writes `rewrite` yet.
+The commit step (#34, `apps/pipeline/src/core/commit.ts`) writes it: a
+published row gets the topic's next `version`, its texts and its evidence
+in one batch; a draft the validate step refused (an echo id it was not
+given, a missing language, a first summary with no criterion, an address
+the echoes do not have) gets a discarded row and nothing else. A row's id
+comes from its slot and topic, so a retried commit writes nothing twice.
+`source_text_read` is false until enrich (#45) exists. The model's drafts
+are blobs, `raw/<slot>/summarize/<topic id>.json`, removed with the scan's
+raw responses after `rawRetentionDays`; the steps pass topic ids only.
 
 ## summary_texts
 
@@ -153,6 +162,12 @@ board shows a wave whose summary is still queued (owner's decision,
 2026-11-24, #237). `summary_id` is the
 first summary, which proposed it. Never edited; it stays when its summary is
 withdrawn (ADR 0006).
+`lang` is the first of the languages the summary was asked to write. The
+summarize call does not yet ask for the criterion in a given language, so
+the criterion may be in another one; asking for it in `lang` is left to M2.
+`registered_at` is the slot's start and
+`due_at` is `reviewWindowDays` later. The commit step never writes a version 1
+without this row: both, and the `wave_formed` event, are one batch.
 
 ## verdicts
 
