@@ -4,6 +4,20 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L22 A comment's "never" or "no X when Y" needs the test for Y
+
+- **Date:** 2026-11-24. **Status:** active.
+- **What happened:** #238's changes step said a wave "back up after being
+  flat has no change yet". The code only looks at the point 24 hours back,
+  so a wave that was up then, flat in between and up now is measured, and
+  can be written as rising. The PR's own test showed that case and was named
+  for something else. Review round 1 blocked on it.
+- **Rule:** When a doc comment or a PR says when a rule does not fire, write
+  the test for that exact case, or remove the claim.
+- **Scope:** header comments of `apps/pipeline/src/core` steps and
+  `packages/core` rules, and PR descriptions.
+- **Evidence:** review rounds 1 and 2 on #238; fixed in ff46719.
+
 ## L21 A time bound must be read after the writes it is meant to include
 
 - **Date:** 2026-11-23. **Status:** active.
