@@ -38,7 +38,7 @@ export interface LocalPipelineOptions {
 /** Fixtures as recorded by `scripts/record-fixture.ts`, next to the adapters. */
 const FIXTURES = new URL("../sources/fixtures/", import.meta.url);
 
-function readFixture(file: string): string | null {
+export function readFixture(file: string): string | null {
   try {
     return readFileSync(new URL(file, FIXTURES), "utf8");
   } catch {
