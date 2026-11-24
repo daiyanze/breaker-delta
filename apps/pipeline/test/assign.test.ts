@@ -219,7 +219,6 @@ describe("validateAssignments", () => {
       // A sentence that ends or starts with a Latin word or a number.
       "发布了 Rust 2.0。新版本更快。",
       "新版本已发布。Rust 团队表示将继续维护。",
-      "OpenAI 推出 GPT-5。OpenAI 表示……",
       "Apple が発表した。iPhone の新型だ。",
     ]) {
       expect([text, nameCitesNoAddress(text, "")]).toEqual([text, true]);
@@ -236,9 +235,18 @@ describe("validateAssignments", () => {
       "詳細は evil。example で。",
       "例子.com",
       "新功能已发布。详情见 news.example。",
+      // A capital after the stop: URL parsers read these as example.com too.
+      "Example。COM/docs",
+      "Example．Com",
+      "详情见 Example｡Com",
     ]) {
       expect([text, nameCitesNoAddress(text, "")]).toEqual([text, false]);
     }
+  });
+
+  test("a stop between a Latin word or number and a capital fails closed", () => {
+    // Rare prose such as this is refused, the price of catching Example。Com.
+    expect(nameCitesNoAddress("OpenAI 推出 GPT-5。OpenAI 表示……", "")).toBe(false);
   });
 
   test("an answer that fails the contract rejects the whole batch", () => {

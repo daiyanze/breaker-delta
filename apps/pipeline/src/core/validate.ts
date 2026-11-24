@@ -68,7 +68,11 @@ export function validateDraft(draft: Draft, reference: string): DraftVerdict {
   ) {
     return { ok: false, check: "languages" };
   }
-  if (draft.first && (value.criterion === undefined || value.criterion.trim() === "")) {
+  if (
+    draft.first &&
+    (value.criterion === undefined ||
+      !/[^\s\u0085\u200b-\u200d\u2060\ufeff]/u.test(value.criterion))
+  ) {
     return { ok: false, check: "criterion" };
   }
   const written = value.texts.flatMap((t) => [t.title, t.body]);

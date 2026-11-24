@@ -255,7 +255,7 @@ describe("validateDraft", () => {
   });
 
   test("a first summary whose criterion is only whitespace is discarded", () => {
-    for (const criterion of ["   ", "\n\t", "\u3000"]) {
+    for (const criterion of ["   ", "\n\t", "\u3000", "\u0085", "\u200b"]) {
       expect(validateDraft(draft({ ...good(), criterion }), ref)).toEqual({
         ok: false,
         check: "criterion",

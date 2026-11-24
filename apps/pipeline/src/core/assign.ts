@@ -87,18 +87,19 @@ export const MAX_SLUG = 60;
  *
  * Both sides are NFKC-normalised, and an ideographic or fullwidth full stop
  * (`。`, `｡`, `．`) is read as a dot when it sits where a dot in an address
- * would, since browsers read `example．com` and `example。com` as
+ * would, since browsers read `example．com` and `Example。COM` as
  * `example.com`: after a character that is not Chinese, Japanese or Korean
- * and before a lower-case letter or a digit. Anywhere else it ends a
- * sentence, so `公開された。提供は`, `Rust 2.0。新版本` and `已发布。Rust`
- * are prose. Not caught: a CJK label before the stop (`例子。com`) or a
- * capital after it (`example。Com`); with an ASCII dot both are.
+ * and before a letter (not CJK) or a digit. Anywhere else it ends a sentence, so
+ * `公開された。提供は`, `Rust 2.0。新版本` and `已发布。Rust` are prose.
+ * Rare prose with a Latin word or number on both sides (`GPT-5。OpenAI`) is
+ * refused: it fails closed. Not caught: a CJK label before the stop
+ * (`例子。com`); with an ASCII dot it is.
  */
 const SCHEME_OR_WWW = /\p{L}[\p{L}\p{N}+.-]*:\/\/|(?:^|[^\p{L}\p{N}])www\./iu;
 const DOTTED_WORD = /[\p{L}\p{N}_-]+(?:\.[\p{L}\p{N}_-]+)+/gu;
 
-const STOP_AS_DOT =
-  /(?<![\p{scx=Han}\p{scx=Hiragana}\p{scx=Katakana}\p{scx=Hangul}])。(?=[\p{Ll}\p{Nd}])/gu;
+const CJK = "\\p{scx=Han}\\p{scx=Hiragana}\\p{scx=Katakana}\\p{scx=Hangul}";
+const STOP_AS_DOT = new RegExp(`(?<![${CJK}])。(?![${CJK}])(?=[\\p{L}\\p{Nd}])`, "gu");
 
 function plain(text: string): string {
   // `．` would become `.` under NFKC; make it `。` first so it is read the same way.
