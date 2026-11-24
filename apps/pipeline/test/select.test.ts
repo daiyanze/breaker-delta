@@ -255,6 +255,25 @@ describe("budget", () => {
     expect(t.ids(await t.run())).toEqual(["low"]);
   });
 
+  test("of two earlier finished select steps, the latest gives the waiting list", async () => {
+    const t = setup();
+    await changeSettings(t.orm, NOW, { summariesPerRun: 1 });
+    t.wave("older", 10, [EARLIER, PREV, SLOT]);
+    t.wave("latest", 20, [PREV, SLOT]);
+    t.wave("top", 99, [SLOT]);
+    for (const [slot, waiting] of [
+      [EARLIER, "older"],
+      [PREV, "latest"],
+    ] as const) {
+      t.sqlite.run(
+        `INSERT INTO run_steps (slot, step, status, attempts, output, finished_at)
+         VALUES (?1, 'select', 'done', 1, ?2, 0)`,
+        [slot, JSON.stringify({ selected: [], waiting: [waiting] })],
+      );
+    }
+    expect(t.ids(await t.run())).toEqual(["latest"]);
+  });
+
   test("a wave left waiting goes before one whose attempt in the same slot was discarded", async () => {
     const t = setup();
     await changeSettings(t.orm, NOW, { summariesPerRun: 1 });

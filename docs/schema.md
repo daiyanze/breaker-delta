@@ -34,7 +34,8 @@ group was the topic's first), and a clipping's "merged from" (the
 `scan_results`: see the comments in `schema.ts`.
 
 The select step (#33) reads the `waiting` list from the latest earlier
-slot's `select` row in `run_steps`: those waves go first in its order.
+slot whose `select` row in `run_steps` finished; a failed row is skipped.
+Those waves go first in its order.
 
 `scan_results` gets one row per fetch group the scan step tried in a slot
 (#26): `ok` is false when the group is missing. A group that was not due,
