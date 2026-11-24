@@ -10,7 +10,15 @@ const quiet = () => {};
 describe("startPipeline", () => {
   test("serves /health, ticks on start, and keeps data across a restart", async () => {
     const dataDir = mkdtempSync(join(tmpdir(), "bd-local-"));
-    const options = { dataDir, port: 0, tickSeconds: 3600, vars: {}, log: quiet };
+    // Fixture sources: the start-up tick runs every step and fetches nothing.
+    const options = {
+      dataDir,
+      port: 0,
+      tickSeconds: 3600,
+      vars: {},
+      sources: "fixtures" as const,
+      log: quiet,
+    };
 
     const first = startPipeline(options);
     expect(first.url).toStartWith("http://127.0.0.1:");
@@ -37,7 +45,14 @@ describe("startPipeline", () => {
 
   test("/__tick does not exist without a probe token", async () => {
     const dataDir = mkdtempSync(join(tmpdir(), "bd-local-"));
-    const local = startPipeline({ dataDir, port: 0, tickSeconds: 3600, vars: {}, log: quiet });
+    const local = startPipeline({
+      dataDir,
+      port: 0,
+      tickSeconds: 3600,
+      vars: {},
+      sources: "fixtures",
+      log: quiet,
+    });
     expect((await fetch(`${local.url}/__tick`)).status).toBe(404);
     await local.stop();
   });

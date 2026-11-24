@@ -382,7 +382,7 @@ async function collect(dataDir: string): Promise<string> {
       ingestStep({ blobs, adapters: ADAPTERS }),
     ];
     const pipeline = createPipeline(
-      { db: sqliteDatabase(sqlite), clock: { now: () => Date.now() } },
+      { db: sqliteDatabase(sqlite), clock: { now: () => Date.now() }, blobs },
       pipelineConfig({}),
       steps,
     );

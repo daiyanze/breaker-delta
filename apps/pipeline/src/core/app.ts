@@ -10,20 +10,34 @@
  */
 import { slotId } from "@bd/core";
 import { drizzleOver } from "@bd/db";
-import type { Clock, Database } from "@bd/ports";
+import type { Blobs, Clock, Database, SiteCache } from "@bd/ports";
+import { ADAPTERS } from "../sources/adapters/index.ts";
+import { LAUNCH_GROUPS } from "../sources/launch-groups.ts";
 import { probeAll } from "../sources/probe.ts";
 import { PROBE_TARGETS } from "../sources/probe-targets.ts";
+import { type ModelDriverName, modelDriver, parseModelDriver } from "./model.ts";
 import { runSlot, type Step } from "./runner.ts";
 import { lastRun } from "./runs.ts";
 import { readSettings } from "./settings.ts";
-import { STEPS } from "./steps.ts";
+import { buildSteps } from "./steps.ts";
 
 export interface PipelinePorts {
   db: Database;
   clock: Clock;
+  /** Raw responses and drafts (scan, ingest, summarize, validate, commit, retention). */
+  blobs: Blobs;
+  /**
+   * The site's cache, for the publish step. Absent where no site is bound
+   * (Cloudflare previews have no `SITE`): the run then purges nothing and
+   * publish still finishes (`NO_SITE`).
+   */
+  site?: SiteCache;
   /** Outbound HTTP. Defaults to the global `fetch`. */
   fetch?: typeof fetch;
 }
+
+/** The site where there is none: nothing is cached, so nothing is dropped. */
+export const NO_SITE: SiteCache = { purge: async () => ({ purged: 0 }) };
 
 /**
  * What the adapter passes in. Behaviour (the run interval, step attempts,
@@ -33,11 +47,22 @@ export interface PipelinePorts {
 export interface PipelineConfig {
   /** Guards /__probe and /__tick. Null means those routes do not exist. */
   probeToken: string | null;
+  /** The model driver (`MODEL_DRIVER`, `model.ts`). Null: no model, every call fails. */
+  model: ModelDriverName | null;
 }
 
-/** Configuration from plain string variables; the same names in every adapter. */
-export function pipelineConfig(vars: { PROBE_TOKEN?: string | undefined }): PipelineConfig {
-  return { probeToken: vars.PROBE_TOKEN ? vars.PROBE_TOKEN : null };
+/**
+ * Configuration from plain string variables; the same names in every
+ * adapter. Throws on an unknown `MODEL_DRIVER`.
+ */
+export function pipelineConfig(vars: {
+  PROBE_TOKEN?: string | undefined;
+  MODEL_DRIVER?: string | undefined;
+}): PipelineConfig {
+  return {
+    probeToken: vars.PROBE_TOKEN ? vars.PROBE_TOKEN : null,
+    model: parseModelDriver(vars.MODEL_DRIVER),
+  };
 }
 
 export interface TickResult {
@@ -59,19 +84,33 @@ export interface Pipeline {
   tick(): Promise<TickResult>;
 }
 
+/**
+ * `steps` replaces the run's steps (tests, scripts); by default they are the
+ * full run (`buildSteps`) over these ports and this config.
+ */
 export function createPipeline(
   ports: PipelinePorts,
   config: PipelineConfig,
-  steps: readonly Step[] = STEPS,
+  steps?: readonly Step[],
 ): Pipeline {
   const db = drizzleOver(ports.db);
+  const run =
+    steps ??
+    buildSteps({
+      blobs: ports.blobs,
+      fetch: ports.fetch ?? fetch,
+      driver: modelDriver(config.model),
+      site: ports.site ?? NO_SITE,
+      groups: LAUNCH_GROUPS,
+      adapters: ADAPTERS,
+    });
   const notFound = () => new Response("not found", { status: 404 });
 
   async function tick(): Promise<TickResult> {
     const now = () => ports.clock.now();
     const { settings } = await readSettings(db, now());
     const slot = slotId(now(), settings.runIntervalMinutes);
-    const outcome = await runSlot(db, now, slot, steps, {
+    const outcome = await runSlot(db, now, slot, run, {
       maxAttempts: settings.stepMaxAttempts,
       leaseMs: settings.runLeaseMinutes * 60_000,
     });

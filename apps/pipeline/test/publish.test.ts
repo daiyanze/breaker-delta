@@ -7,7 +7,7 @@ import type { CommitOutput } from "../src/core/commit.ts";
 import { publishStep } from "../src/core/publish.ts";
 import type { Step } from "../src/core/runner.ts";
 import { changeSettings } from "../src/core/settings.ts";
-import { migratedDatabase, NOW, SLOT } from "./helpers.ts";
+import { memoryBlobs, migratedDatabase, NOW, SLOT } from "./helpers.ts";
 
 /** A site that records each purge and fails the first `failures` calls. */
 function recordingSite(failures = 0, purged = 0) {
@@ -30,7 +30,11 @@ function setup(stepMaxAttempts?: number) {
   const orm = drizzleOver(db);
   const tick = async (steps: Step[]) => {
     if (stepMaxAttempts !== undefined) await changeSettings(orm, NOW, { stepMaxAttempts });
-    const pipeline = createPipeline({ db, clock: { now: () => NOW } }, pipelineConfig({}), steps);
+    const pipeline = createPipeline(
+      { db, clock: { now: () => NOW }, blobs: memoryBlobs().blobs },
+      pipelineConfig({}),
+      steps,
+    );
     return pipeline.tick();
   };
   const stepRow = () =>

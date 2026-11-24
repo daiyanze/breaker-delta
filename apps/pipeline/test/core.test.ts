@@ -1,11 +1,20 @@
 /** The app core, run on the bun:sqlite Database adapter. */
 import { describe, expect, test } from "bun:test";
 import { createPipeline, type PipelinePorts, pipelineConfig } from "../src/core/app.ts";
-import { migratedDatabase, NOW, SLOT } from "./helpers.ts";
+import { memoryBlobs, migratedDatabase, NOW, SLOT } from "./helpers.ts";
+
+/** No network in tests: every source answers 404, which is not retried. */
+const offline = (async () => new Response("", { status: 404 })) as unknown as typeof fetch;
 
 function setup(overrides: Partial<PipelinePorts> = {}) {
   const { db } = migratedDatabase();
-  const ports: PipelinePorts = { db, clock: { now: () => NOW }, ...overrides };
+  const ports: PipelinePorts = {
+    db,
+    clock: { now: () => NOW },
+    blobs: memoryBlobs().blobs,
+    fetch: offline,
+    ...overrides,
+  };
   const config = pipelineConfig({ PROBE_TOKEN: "secret" });
   return { pipeline: createPipeline(ports, config) };
 }
@@ -16,9 +25,17 @@ const get = (path: string, token?: string) =>
   });
 
 describe("pipeline config", () => {
-  test("holds only the probe token; behaviour comes from settings", () => {
-    expect(pipelineConfig({})).toEqual({ probeToken: null });
-    expect(pipelineConfig({ PROBE_TOKEN: "t" })).toEqual({ probeToken: "t" });
+  test("holds the probe token and the model driver; behaviour comes from settings", () => {
+    expect(pipelineConfig({})).toEqual({ probeToken: null, model: null });
+    expect(pipelineConfig({ PROBE_TOKEN: "t" })).toEqual({ probeToken: "t", model: null });
+    expect(pipelineConfig({ MODEL_DRIVER: "" })).toEqual({ probeToken: null, model: null });
+    expect(pipelineConfig({ MODEL_DRIVER: "fake" })).toEqual({ probeToken: null, model: "fake" });
+  });
+
+  test("an unknown MODEL_DRIVER is refused, not run without a model", () => {
+    expect(() => pipelineConfig({ MODEL_DRIVER: "fak" })).toThrow(
+      "MODEL_DRIVER must be unset or one of: fake",
+    );
   });
 });
 
