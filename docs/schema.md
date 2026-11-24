@@ -33,6 +33,9 @@ group was the topic's first), and a clipping's "merged from" (the
 `settings`, `settings_history`, `source_groups`, `runs`, `run_steps`,
 `scan_results`: see the comments in `schema.ts`.
 
+The select step (#33) reads the `waiting` list from the latest earlier
+slot's `select` row in `run_steps`: those waves go first in its order.
+
 `scan_results` gets one row per fetch group the scan step tried in a slot
 (#26): `ok` is false when the group is missing. A group that was not due,
 or has no adapter yet, gets no row. The step reads a group's last good
@@ -111,7 +114,7 @@ settings. `unverified` is the fact gate's label (ADR 0006, #47);
 The select step (#33, `apps/pipeline/src/core/select.ts`) reads this table
 to pick the waves due a summary: `formed` when a wave has no published row,
 `new_echoes` when enough echoes are newer than its latest published row's
-`slot`. Nothing in this schema writes `rewrite` yet.
+`slot`. No step writes `rewrite` yet.
 
 ## summary_texts
 

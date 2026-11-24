@@ -234,70 +234,61 @@ export function crossedRising(
 /** Why a summary is written. `rewrite` is not decided here: no rule writes it yet. */
 export type SummaryReason = "formed" | "new_echoes";
 
-/** What `summaryDue` needs to know about one wave. Times are epoch ms of slot starts. */
+/** What `summaryDue` needs to know about one wave. */
 export interface SummaryState {
-  /** When the topic became a wave. */
-  formedAt: number;
-  /** The slot of its latest published summary; null when it has none. */
-  publishedAt: number | null;
-  /** The slots of its echoes first seen after that summary, in any order. */
-  newEchoesAt: readonly number[];
-  /** The slot of its latest discarded attempt after that summary; null when none. */
-  failedAt: number | null;
+  /** Whether it has a published summary. */
+  published: boolean;
+  /** How many of its echoes were first seen after its latest published summary. */
+  newEchoes: number;
 }
 
 /**
- * Whether a wave needs a summary, why, and since when (`dueAt`).
+ * Whether a wave needs a summary, and why; null when it does not.
  *
- * - **formed:** it has no published summary; due since it formed.
+ * - **formed:** it has no published summary.
  * - **new_echoes:** at least `rewriteAfterNewEchoes` of its echoes are newer
- *   than its latest published summary; due since the slot that brought the
- *   one that reached the number.
+ *   than its latest published summary.
  *
- * A discarded attempt after the latest published summary moves `dueAt` to
- * that attempt's slot when it is later, so a topic that keeps failing waits
- * behind the topics that were due before it failed.
+ * It does not say since when: that would need the slot each echo joined the
+ * topic, which is not recorded. The order comes from `selectForSummary`.
  */
-export function summaryDue(
-  s: SummaryState,
-  rewriteAfterNewEchoes: number,
-): { reason: SummaryReason; dueAt: number } | null {
-  let due: { reason: SummaryReason; dueAt: number };
-  if (s.publishedAt === null) {
-    due = { reason: "formed", dueAt: s.formedAt };
-  } else {
-    const n = Math.max(1, Math.floor(rewriteAfterNewEchoes));
-    if (s.newEchoesAt.length < n) return null;
-    const at = [...s.newEchoesAt].sort((a, b) => a - b)[n - 1] as number;
-    due = { reason: "new_echoes", dueAt: at };
-  }
-  if (s.failedAt !== null && s.failedAt > due.dueAt) due.dueAt = s.failedAt;
-  return due;
+export function summaryDue(s: SummaryState, rewriteAfterNewEchoes: number): SummaryReason | null {
+  if (!s.published) return "formed";
+  return s.newEchoes >= Math.max(1, Math.floor(rewriteAfterNewEchoes)) ? "new_echoes" : null;
 }
 
 export interface SummaryCandidate {
   id: string;
   height: number;
-  /** From `summaryDue`. */
-  dueAt: number;
   reason: SummaryReason;
 }
 
 /**
  * The topics summarised in this run, at most `budget`, and the rest, which
- * wait for the next run. Ordered by when each became due, earliest first,
- * then by height, highest first, then by id, so the order never depends on
- * input order. A topic left over budget was due earlier than any topic that
- * becomes due later, so the next run takes it first, and no topic waits
- * behind newer ones however high they are.
+ * wait for the next run.
+ *
+ * `waitedBefore` is the previous run's `waiting` list, in its order. The
+ * candidates in it go first, in that order; then the others, highest first,
+ * then by id, so the order never depends on input order. A topic left over
+ * budget is therefore taken in the next run ahead of every topic that was
+ * not waiting, however high, and a backlog bigger than the budget drains in
+ * the order it built up. A topic that was selected and did not get a
+ * summary (its attempt was discarded) was not waiting, so it goes with the
+ * others by height, behind the topics it left waiting.
  */
 export function selectForSummary<T extends SummaryCandidate>(
   candidates: readonly T[],
   budget: number,
+  waitedBefore: readonly string[] = [],
 ): { selected: T[]; waiting: T[] } {
-  const sorted = [...candidates].sort(
-    (a, b) => a.dueAt - b.dueAt || b.height - a.height || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
-  );
+  const place = new Map<string, number>();
+  for (const [i, id] of waitedBefore.entries()) if (!place.has(id)) place.set(id, i);
+  const sorted = [...candidates].sort((a, b) => {
+    const pa = place.get(a.id) ?? Number.POSITIVE_INFINITY;
+    const pb = place.get(b.id) ?? Number.POSITIVE_INFINITY;
+    if (pa !== pb) return pa < pb ? -1 : 1;
+    return b.height - a.height || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  });
   const n = Math.max(0, Math.floor(budget));
   return { selected: sorted.slice(0, n), waiting: sorted.slice(n) };
 }

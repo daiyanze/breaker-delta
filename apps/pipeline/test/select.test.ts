@@ -123,6 +123,39 @@ describe("which waves are due", () => {
     expect(t.ids(await t.run())).toEqual([]);
   });
 
+  test("a merged topic is not selected, even with an up point in this slot", async () => {
+    const t = setup();
+    t.wave("into", 5);
+    t.wave("m", 50);
+    t.sqlite.run("UPDATE topics SET merged_into = 'into' WHERE id = 'm'");
+    expect(t.ids(await t.run())).toEqual(["into"]);
+  });
+
+  test("each wave's new echoes are counted from its own latest summary", async () => {
+    const t = setup();
+    await changeSettings(t.orm, NOW, { rewriteAfterNewEchoes: 2 });
+    t.wave("old", 10, [EARLIER, SLOT]);
+    t.wave("recent", 20, [EARLIER, SLOT]);
+    t.summary("old", EARLIER);
+    t.summary("recent", PREV);
+    t.echoes("old", PREV, 2);
+    t.echoes("recent", PREV, 2); // as old as its summary: not new
+    expect(t.ids(await t.run())).toEqual(["old"]);
+  });
+
+  test("a published summary from a later slot does not hide this slot's new echoes", async () => {
+    const t = setup();
+    await changeSettings(t.orm, NOW, { rewriteAfterNewEchoes: 2 });
+    t.wave("t1", 10, [EARLIER, SLOT]);
+    t.summary("t1", EARLIER);
+    t.echoes("t1", PREV, 2);
+    t.summary("t1", NEXT);
+    expect(await t.run()).toEqual({
+      selected: [{ topicId: "t1", reason: "new_echoes" }],
+      waiting: [],
+    });
+  });
+
   test("a summary from a later slot is not read", async () => {
     const t = setup();
     t.wave("t1", 10);
@@ -160,7 +193,7 @@ describe("budget", () => {
     ] as const) {
       t.wave(id, h, [PREV, SLOT]);
     }
-    const first = await t.run(PREV);
+    const first = await t.runRecorded(PREV);
     expect(first.waiting).toEqual(["d"]);
     // The next run: the three selected got a summary; a new, higher wave formed.
     for (const id of t.ids(first)) t.summary(id, PREV);
@@ -179,17 +212,47 @@ describe("budget", () => {
     });
   });
 
-  test("a wave whose attempt was discarded waits behind waves due before that attempt", async () => {
+  test("waves wait in the order they were left over, and only an earlier finished run counts", async () => {
     const t = setup();
-    t.wave("failed", 99, [EARLIER, SLOT]);
-    t.wave("older", 1, [EARLIER, SLOT]);
     await changeSettings(t.orm, NOW, { summariesPerRun: 1 });
-    expect(t.ids(await t.run())).toEqual(["failed"]); // same due time: higher first
-    t.summary("failed", PREV, "discarded");
-    expect(await t.run()).toEqual({
-      selected: [{ topicId: "older", reason: "formed" }],
-      waiting: ["failed"],
+    for (const [id, h] of [
+      ["a", 30],
+      ["b", 20],
+      ["c", 10],
+    ] as const) {
+      t.wave(id, h, [EARLIER, PREV, SLOT]);
+    }
+    expect((await t.runRecorded(EARLIER)).waiting).toEqual(["b", "c"]);
+    t.summary("a", EARLIER);
+    t.wave("z", 99, [PREV, SLOT]);
+    expect(await t.runRecorded(PREV)).toEqual({
+      selected: [{ topicId: "b", reason: "formed" }],
+      waiting: ["c", "z"],
     });
+    // A select output from a later slot is not read.
+    t.sqlite.run(
+      `INSERT INTO run_steps (slot, step, status, attempts, output, finished_at)
+       VALUES (?1, 'select', 'done', 1, '{"selected":[],"waiting":["z","c"]}', 0)`,
+      [NEXT],
+    );
+    t.summary("b", PREV);
+    expect(t.ids(await t.run())).toEqual(["c"]);
+  });
+
+  test("a failed select step is skipped: the latest finished one gives the waiting list", async () => {
+    const t = setup();
+    await changeSettings(t.orm, NOW, { summariesPerRun: 1 });
+    t.wave("high", 30, [EARLIER, PREV, SLOT]);
+    t.wave("low", 10, [EARLIER, PREV, SLOT]);
+    expect((await t.runRecorded(EARLIER)).waiting).toEqual(["low"]);
+    t.summary("high", EARLIER);
+    t.wave("new", 99, [PREV, SLOT]);
+    t.sqlite.run(
+      `INSERT INTO run_steps (slot, step, status, attempts, output, error, finished_at)
+       VALUES (?1, 'select', 'failed', 3, NULL, 'Error: x', 0)`,
+      [PREV],
+    );
+    expect(t.ids(await t.run())).toEqual(["low"]);
   });
 
   test("a wave left waiting goes before one whose attempt in the same slot was discarded", async () => {
@@ -234,14 +297,20 @@ describe("budget", () => {
     });
   });
 
-  test("running the step again returns the same output and writes nothing", async () => {
+  test("running the step again returns the same output and writes no row once settings exist", async () => {
     const t = setup();
+    await changeSettings(t.orm, NOW, { summariesPerRun: 1 });
     t.wave("a", 4);
     t.wave("b", 3);
-    const count = () =>
+    const tables = (
       t.sqlite
-        .query("SELECT (SELECT COUNT(*) FROM summaries) + (SELECT COUNT(*) FROM events) AS n")
-        .get();
+        .query("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")
+        .all() as { name: string }[]
+    ).map((r) => r.name);
+    const count = () =>
+      tables.map(
+        (name) => (t.sqlite.query(`SELECT COUNT(*) AS n FROM "${name}"`).get() as { n: number }).n,
+      );
     const before = count();
     const first = await t.run();
     expect(await t.run()).toEqual(first);
