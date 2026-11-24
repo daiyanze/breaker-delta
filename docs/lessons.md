@@ -4,6 +4,21 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L23 Test a tool on a database in the state the app leaves it
+
+- **Date:** 2026-11-24. **Status:** active.
+- **What happened:** #240's `rebuild` copied `content.db` into memory. Local
+  mode keeps that file in WAL mode (`server.ts`); the copy kept the WAL
+  header bytes and its first write failed with `SQLITE_CANTOPEN`. The tests
+  wrote the file with `VACUUM INTO`, which is not WAL, so they passed. Review
+  round 1 found it on a database built by `startPipeline`'s settings.
+- **Rule:** A command that reads the app's data file is tested on a file
+  opened the way the app opens it (journal mode, pragmas), not only on one a
+  test wrote another way.
+- **Scope:** commands and scripts over `content.db` or other local data.
+- **Check:** "works on a file in WAL mode" in
+  `apps/pipeline/test/rebuild.test.ts`.
+
 ## L22 A comment's "never" or "no X when Y" needs the test for Y
 
 - **Date:** 2026-11-24. **Status:** active.
