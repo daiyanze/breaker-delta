@@ -231,6 +231,68 @@ export function crossedRising(
   return reaches(now) && !reaches(previous);
 }
 
+/** Why a summary is written. `rewrite` is not decided here: no rule writes it yet. */
+export type SummaryReason = "formed" | "new_echoes";
+
+/** What `summaryDue` needs to know about one wave. */
+export interface SummaryState {
+  /** Whether it has a published summary. */
+  published: boolean;
+  /** How many of its echoes were first seen after its latest published summary. */
+  newEchoes: number;
+}
+
+/**
+ * Whether a wave needs a summary, and why; null when it does not.
+ *
+ * - **formed:** it has no published summary.
+ * - **new_echoes:** at least `rewriteAfterNewEchoes` of its echoes are newer
+ *   than its latest published summary.
+ *
+ * It does not say since when: that would need the slot each echo joined the
+ * topic, which is not recorded. The order comes from `selectForSummary`.
+ */
+export function summaryDue(s: SummaryState, rewriteAfterNewEchoes: number): SummaryReason | null {
+  if (!s.published) return "formed";
+  return s.newEchoes >= Math.max(1, Math.floor(rewriteAfterNewEchoes)) ? "new_echoes" : null;
+}
+
+export interface SummaryCandidate {
+  id: string;
+  height: number;
+  reason: SummaryReason;
+}
+
+/**
+ * The topics summarised in this run, at most `budget`, and the rest, which
+ * wait for the next run.
+ *
+ * `waitedBefore` is the previous run's `waiting` list, in its order. The
+ * candidates in it go first, in that order; then the others, highest first,
+ * then by id, so the order never depends on input order. A topic left over
+ * budget is therefore taken in the next run ahead of every topic that was
+ * not waiting, however high, and a backlog bigger than the budget drains in
+ * the order it built up. A topic that was selected and did not get a
+ * summary (its attempt was discarded) was not waiting, so it goes with the
+ * others by height, behind the topics it left waiting.
+ */
+export function selectForSummary<T extends SummaryCandidate>(
+  candidates: readonly T[],
+  budget: number,
+  waitedBefore: readonly string[] = [],
+): { selected: T[]; waiting: T[] } {
+  const place = new Map<string, number>();
+  for (const [i, id] of waitedBefore.entries()) if (!place.has(id)) place.set(id, i);
+  const sorted = [...candidates].sort((a, b) => {
+    const pa = place.get(a.id) ?? Number.POSITIVE_INFINITY;
+    const pb = place.get(b.id) ?? Number.POSITIVE_INFINITY;
+    if (pa !== pb) return pa < pb ? -1 : 1;
+    return b.height - a.height || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  });
+  const n = Math.max(0, Math.floor(budget));
+  return { selected: sorted.slice(0, n), waiting: sorted.slice(n) };
+}
+
 /** Epoch ms of the start of a slot from `slotId`; throws on anything else. */
 export function slotStart(slot: string): number {
   const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})$/.exec(slot);
