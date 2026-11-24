@@ -296,8 +296,7 @@ export function selectForSummary<T extends SummaryCandidate>(
   budget: number,
 ): { selected: T[]; waiting: T[] } {
   const sorted = [...candidates].sort(
-    (a, b) =>
-      a.dueAt - b.dueAt || b.height - a.height || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+    (a, b) => a.dueAt - b.dueAt || b.height - a.height || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
   );
   const n = Math.max(0, Math.floor(budget));
   return { selected: sorted.slice(0, n), waiting: sorted.slice(n) };

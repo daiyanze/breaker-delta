@@ -108,6 +108,10 @@ worded per language by the site. `writer` is the provider name from
 settings. `unverified` is the fact gate's label (ADR 0006, #47);
 `source_text_read` is false when enrich could not fetch the sources (#45).
 `risk_flags` is the model's flags as JSON.
+The select step (#33, `apps/pipeline/src/core/select.ts`) reads this table
+to pick the waves due a summary: `formed` when a wave has no published row,
+`new_echoes` when enough echoes are newer than its latest published row's
+`slot`. Nothing in this schema writes `rewrite` yet.
 
 ## summary_texts
 

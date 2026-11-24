@@ -14,9 +14,9 @@ import {
   type SummaryCandidate,
   type SummaryState,
   selectForSummary,
-  summaryDue,
   slotId,
   slotStart,
+  summaryDue,
   type TopicStatus,
   type WaveParams,
   waveHeight,
@@ -502,8 +502,14 @@ describe("select for summary", () => {
     });
     expect(ids(selectForSummary(all, 3))).toEqual(expected);
     expect(ids(selectForSummary([...all].reverse(), 3))).toEqual(expected);
-    expect(ids(selectForSummary(all, 0))).toEqual({ selected: [], waiting: ["t3", "t1", "t2", "t4"] });
-    expect(ids(selectForSummary(all, 10))).toEqual({ selected: ["t3", "t1", "t2", "t4"], waiting: [] });
+    expect(ids(selectForSummary(all, 0))).toEqual({
+      selected: [],
+      waiting: ["t3", "t1", "t2", "t4"],
+    });
+    expect(ids(selectForSummary(all, 10))).toEqual({
+      selected: ["t3", "t1", "t2", "t4"],
+      waiting: [],
+    });
   });
 
   test("a topic that waited goes before one due later, whatever their heights", () => {

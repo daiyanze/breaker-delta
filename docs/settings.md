@@ -21,8 +21,8 @@ agent's proposal for `summariesPerRun`.
 | `heatReferencePercentile` | 90 | agent's proposal (#28), not reviewed | Under `group`, a group's reference heat is this percentile (nearest rank) of its recent echoes' heat (`groupHeatReferences` in `packages/core`). Unused under `none`. The compute step takes "recent" as echoes first seen in the last `calmAfterDays` (agent's proposal, #29, not reviewed). |
 | `calmAfterDays` | 7 | owner, 2026-11-23 | |
 | `risingPercent24h` | 50 | owner, 2026-11-23 | The changes step (#30) writes `wave_rising` when a wave's 24-hour height change reaches this many percent and did not at the previous run (`crossedRising` in `packages/core`). The change is measured from the topic's latest point at or before 24 hours earlier, only when that point was up. The crossing and the base are the agent's proposal (#30), not reviewed. |
-| `rewriteAfterNewEchoes` | 5 | owner, 2026-11-23 | |
-| `summariesPerRun` | 3 | owner, 2026-11-23 | 72 summaries a day at hourly runs. No single free tier covers that together with assign; the three together likely do, but it is not measured (`docs/providers.md`, "Budget"). Proposed by the agent, confirmed by the owner. |
+| `rewriteAfterNewEchoes` | 5 | owner, 2026-11-23 | The select step (#33) picks a summarised wave for a new version (`new_echoes`) once this many of its echoes were first seen in a slot after its latest published summary (`summaryDue` in `packages/core`). Counting by the echo's first slot is the agent's proposal (#33), not reviewed. |
+| `summariesPerRun` | 3 | owner, 2026-11-23 | 72 summaries a day at hourly runs. No single free tier covers that together with assign; the three together likely do, but it is not measured (`docs/providers.md`, "Budget"). Proposed by the agent, confirmed by the owner. The select step (#33) takes waves earliest due first, then by height, so a wave over budget is taken in the next run (`selectForSummary`); that order is the agent's proposal (#33), not reviewed. |
 | `reviewWindowDays` | 14 | owner, 2026-11-23 | |
 | `languages` | en, zh, ja | owner, 2026-11-23 | |
 | `keywordsInclude`, `keywordsExclude` | empty | owner, 2026-11-23 | |
