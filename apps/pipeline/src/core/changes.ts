@@ -9,8 +9,12 @@
  * - **wave_rising:** the point in this slot is `up`, and its 24-hour change
  *   reaches `risingPercent24h` while the previous point's did not. A
  *   point's base is the topic's latest point at or before 24 hours before
- *   it; it counts only when that point is `up`, so a wave formed less than
- *   24 hours ago, or back up after being flat, has no change yet.
+ *   it; it counts only when that point is `up`. So a wave formed less than
+ *   24 hours ago has no change yet, and neither has one that was not up 24
+ *   hours ago (an echo then, or flat then). A wave that was up 24 hours ago
+ *   is measured whatever it was in between, so one that went flat and came
+ *   back inside 24 hours can cross. The base has no age limit: after runs
+ *   were missed it can be older than 24 hours.
  *   `detail` is `{ from, to, percent }`.
  *
  * `wave_formed` is not written here: the commit step (#34) writes it with

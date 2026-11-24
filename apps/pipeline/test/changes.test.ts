@@ -164,7 +164,7 @@ describe("rising", () => {
     expect(await t.run()).toEqual({ rising: ["t1"], wentFlat: [] });
   });
 
-  test("a previous point that was not up counts as below the line", async () => {
+  test("a previous point that was not up counts as below the line, even after going flat", async () => {
     const t = setup();
     t.point(DAY_BEFORE, "t1", "up", 100);
     t.point(PREV, "t1", "flat", 200);
