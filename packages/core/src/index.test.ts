@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import {
+  change24h,
   countIndependentSources,
+  crossedRising,
   type EchoLike,
   groupHeatReferences,
   type HeatReference,
@@ -388,6 +390,40 @@ describe("rank by height", () => {
     expect(rankByHeight(topics)).toEqual(expected);
     expect(rankByHeight([...topics].reverse())).toEqual(expected);
     expect(rankByHeight([])).toEqual(new Map());
+  });
+});
+
+describe("rising", () => {
+  test("change24h is the percent change from the base; null without a base above 0", () => {
+    expect(change24h(150, 100)).toBe(50);
+    expect(change24h(50, 100)).toBe(-50);
+    expect(change24h(100, 100)).toBe(0);
+    expect(change24h(10, null)).toBeNull();
+    expect(change24h(10, 0)).toBeNull();
+    expect(change24h(10, -5)).toBeNull();
+    expect(change24h(10, Number.NaN)).toBeNull();
+  });
+
+  test("crosses when now reaches the line and the previous run did not", () => {
+    expect(crossedRising(50, 49.9, 50)).toBe(true);
+    expect(crossedRising(80, null, 50)).toBe(true);
+    expect(crossedRising(49.9, null, 50)).toBe(false);
+    expect(crossedRising(null, null, 50)).toBe(false);
+    expect(crossedRising(80, 50, 50)).toBe(false);
+    expect(crossedRising(80, 60, 70)).toBe(true);
+  });
+
+  test("two runs in a row never both cross, whatever the values", () => {
+    const values = [null, -100, -10, 0, 10, 49, 50, 51, 100, 1000];
+    for (const line of [10, 50, 100]) {
+      for (const a of values) {
+        for (const b of values) {
+          for (const c of values) {
+            expect(crossedRising(c, b, line) && crossedRising(b, a, line)).toBe(false);
+          }
+        }
+      }
+    }
   });
 });
 

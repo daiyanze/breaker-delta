@@ -205,6 +205,32 @@ export function rankByHeight(
   return new Map(sorted.map((t, i) => [t.id, i + 1]));
 }
 
+/**
+ * A wave's height change, in percent, from `base` (its height 24 hours
+ * earlier) to `height`. Null when there is no base: the wave was not up
+ * then, or its height was not above 0.
+ */
+export function change24h(height: number, base: number | null): number | null {
+  if (base === null || !(base > 0)) return null;
+  return ((height - base) / base) * 100;
+}
+
+/**
+ * Whether a wave crossed the rising line in this run: its 24-hour change
+ * (`change24h`) reaches `risingPercent` now and did not at the previous run
+ * (null counts as not reaching it). A wave that stays above the line is not
+ * counted again until it falls below and crosses again, so two runs in a row
+ * never both cross.
+ */
+export function crossedRising(
+  now: number | null,
+  previous: number | null,
+  risingPercent: number,
+): boolean {
+  const reaches = (c: number | null) => c !== null && c >= risingPercent;
+  return reaches(now) && !reaches(previous);
+}
+
 /** Epoch ms of the start of a slot from `slotId`; throws on anything else. */
 export function slotStart(slot: string): number {
   const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})$/.exec(slot);
