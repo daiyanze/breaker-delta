@@ -11,8 +11,11 @@ import {
   nextTopicStatus,
   rankByHeight,
   type StateParams,
+  type SummaryCandidate,
+  selectForSummary,
   slotId,
   slotStart,
+  summaryDue,
   type TopicStatus,
   type WaveParams,
   waveHeight,
@@ -442,6 +445,89 @@ describe("slot start", () => {
   test("refuses anything that is not a slot id", () => {
     for (const bad of ["", "20261201", "20261301T0900", "20261131T0900", "20261201T2400", "x"]) {
       expect(() => slotStart(bad)).toThrow("not a slot id");
+    }
+  });
+});
+
+describe("summary due", () => {
+  test("a wave with no published summary is due as formed", () => {
+    expect(summaryDue({ published: false, newEchoes: 0 }, 5)).toBe("formed");
+    expect(summaryDue({ published: false, newEchoes: 9 }, 5)).toBe("formed");
+  });
+
+  test("after a summary, due as new_echoes once rewriteAfterNewEchoes echoes are new", () => {
+    expect(summaryDue({ published: true, newEchoes: 3 }, 4)).toBeNull();
+    expect(summaryDue({ published: true, newEchoes: 4 }, 4)).toBe("new_echoes");
+    expect(summaryDue({ published: true, newEchoes: 9 }, 4)).toBe("new_echoes");
+    // A threshold below 1 still needs one new echo.
+    expect(summaryDue({ published: true, newEchoes: 0 }, 0)).toBeNull();
+    expect(summaryDue({ published: true, newEchoes: 1 }, 0)).toBe("new_echoes");
+  });
+});
+
+describe("select for summary", () => {
+  const c = (id: string, height: number): SummaryCandidate => ({ id, height, reason: "formed" });
+  const ids = (r: ReturnType<typeof selectForSummary>) => ({
+    selected: r.selected.map((x) => x.id),
+    waiting: r.waiting.map((x) => x.id),
+  });
+
+  test("highest first when nothing waited, ties by id, cut at the budget", () => {
+    const all = [c("t2", 5), c("t3", 9), c("t1", 5), c("t4", 1)];
+    const expected = { selected: ["t3", "t1", "t2"], waiting: ["t4"] };
+    expect(ids(selectForSummary(all, 3))).toEqual(expected);
+    expect(ids(selectForSummary([...all].reverse(), 3))).toEqual(expected);
+    expect(ids(selectForSummary(all, 0))).toEqual({
+      selected: [],
+      waiting: ["t3", "t1", "t2", "t4"],
+    });
+    expect(ids(selectForSummary(all, 10))).toEqual({
+      selected: ["t3", "t1", "t2", "t4"],
+      waiting: [],
+    });
+  });
+
+  test("topics that waited go first, in the order they waited, whatever their heights", () => {
+    const r = selectForSummary([c("new", 100), c("b", 1), c("a", 2)], 2, ["b", "gone", "a"]);
+    expect(ids(r)).toEqual({ selected: ["b", "a"], waiting: ["new"] });
+  });
+
+  test("topics over budget are selected in the next run, before topics newly due then", () => {
+    const run1 = selectForSummary([c("a", 4), c("b", 3), c("c", 2), c("d", 1)], 3);
+    expect(ids(run1).waiting).toEqual(["d"]);
+    const run2 = selectForSummary([c("d", 1), c("e", 99)], 1, ids(run1).waiting);
+    expect(ids(run2).selected).toEqual(["d"]);
+  });
+
+  test("a topic selected last run that is due again goes with the others, by height", () => {
+    // `failed` was selected last run and its attempt was discarded; `low` waited.
+    const r = selectForSummary([c("failed", 99), c("low", 1), c("new", 50)], 2, ["low"]);
+    expect(ids(r)).toEqual({ selected: ["low", "failed"], waiting: ["new"] });
+  });
+
+  test("a backlog drains in the order it built up, ahead of higher new topics", () => {
+    // Every run, six new topics higher than every waiting one become due; five fit.
+    let waited: string[] = [];
+    for (let run = 0; run < 12; run++) {
+      const fresh = [0, 1, 2, 3, 4, 5].map((i) => c(`r${run}-${i}`, 1000 + run * 10 + i));
+      const r = ids(selectForSummary([...fresh, ...waited.map((id) => c(id, 0))], 5, waited));
+      const newOrder = fresh.map((x) => x.id).reverse();
+      const queue = [...waited, ...newOrder];
+      expect(r).toEqual({ selected: queue.slice(0, 5), waiting: queue.slice(5) });
+      waited = r.waiting;
+    }
+    expect(waited.length).toBe(12);
+  });
+
+  test("the result never depends on input order", () => {
+    const all = [c("a", 3), c("b", 3), c("c", 7), c("d", 0), c("e", 7)];
+    for (let shift = 0; shift < all.length; shift++) {
+      const input = [...all.slice(shift), ...all.slice(0, shift)];
+      for (const budget of [0, 1, 3, 5]) {
+        expect(selectForSummary(input, budget, ["d", "b"])).toEqual(
+          selectForSummary(all, budget, ["d", "b"]),
+        );
+      }
     }
   });
 });
