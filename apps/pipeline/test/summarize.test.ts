@@ -16,7 +16,7 @@ import {
   summarizeStep,
 } from "../src/core/summarize.ts";
 import { type ValidateOutput, validateDraft, validateStep } from "../src/core/validate.ts";
-import { migratedDatabase, NOW, SLOT } from "./helpers.ts";
+import { d1Limited, migratedDatabase, NOW, SLOT } from "./helpers.ts";
 
 const NEXT = "20261119T0600";
 const NEXT_NOW = NOW + 3_600_000;
@@ -65,9 +65,9 @@ const failing: ModelDriver = {
   },
 };
 
-function setup(driver: ModelDriver = fakeDriver()) {
+function setup(driver: ModelDriver = fakeDriver(), { d1 = false } = {}) {
   const { db, sqlite } = migratedDatabase();
-  const orm = drizzleOver(db);
+  const orm = drizzleOver(d1 ? d1Limited(db) : db);
   const { blobs, store } = memoryBlobs();
   let n = 0;
   /** A topic up in `slot` with `count` echoes first seen there. */
@@ -349,6 +349,16 @@ describe("commit", () => {
     expect(p.hash).toMatch(/^[0-9a-f]{64}$/);
     expect(p.registered_at).toBe(slotStart(SLOT));
     expect(p.due_at).toBe(slotStart(SLOT) + 14 * DAY);
+    expectEveryFirstSummaryRegistered(t);
+  });
+
+  test("a version citing more than 50 echoes fits D1's limit of 100 bound values per statement", async () => {
+    const t = setup(fakeDriver(), { d1: true });
+    t.wave("t1", 60);
+    const { outcome, commit } = await t.run();
+    expect(outcome.status).toBe("done");
+    expect(commit).toEqual({ published: ["t1"], formed: ["t1"], discarded: [] });
+    expect(t.all("SELECT count(*) AS n FROM summary_evidence")).toEqual([{ n: 60 }]);
     expectEveryFirstSummaryRegistered(t);
   });
 
