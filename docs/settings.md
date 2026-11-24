@@ -20,7 +20,7 @@ agent's proposal for `summariesPerRun`.
 | `heatNormalisation` | none | agent's proposal (#28), not reviewed | `none`: heat in each source's own units (HN points, GitHub stars...), the scaffold's formula. `group`: each echo's heat is divided by its group's reference heat first. |
 | `heatReferencePercentile` | 90 | agent's proposal (#28), not reviewed | Under `group`, a group's reference heat is this percentile (nearest rank) of its recent echoes' heat (`groupHeatReferences` in `packages/core`). Unused under `none`. The compute step takes "recent" as echoes first seen in the last `calmAfterDays` (agent's proposal, #29, not reviewed). |
 | `calmAfterDays` | 7 | owner, 2026-11-23 | |
-| `risingPercent24h` | 50 | owner, 2026-11-23 | |
+| `risingPercent24h` | 50 | owner, 2026-11-23 | The changes step (#30) writes `wave_rising` when a wave's 24-hour height change reaches this many percent and did not at the previous run (`crossedRising` in `packages/core`). The change is measured from the topic's latest point at or before 24 hours earlier, only when that point was up. The crossing and the base are the agent's proposal (#30), not reviewed. |
 | `rewriteAfterNewEchoes` | 5 | owner, 2026-11-23 | |
 | `summariesPerRun` | 3 | owner, 2026-11-23 | 72 summaries a day at hourly runs. No single free tier covers that together with assign; the three together likely do, but it is not measured (`docs/providers.md`, "Budget"). Proposed by the agent, confirmed by the owner. |
 | `reviewWindowDays` | 14 | owner, 2026-11-23 | |

@@ -125,6 +125,12 @@ pipeline's writes idempotent: a topic has one `wave_formed` event, one
 per summary. `corrected`, `withdrawn` and `verdict` come from the desk and
 may repeat. A flat wave can rise and go flat again (#29), so the index
 allows one `went_flat` per run, not one per topic.
+The changes step (#30, `apps/pipeline/src/core/changes.ts`) writes
+`wave_rising` and `went_flat` from `wave_points`, dated at the slot's start:
+`went_flat` when a topic's point is `flat` after an `up` one, `wave_rising`
+when its 24-hour change crosses `risingPercent24h` (`detail` is
+`{ from, to, percent }`). `wave_formed` is the commit step's (#34), see
+`predictions`.
 `summary_id`, `verdict_id` and `correction_id` point at the row
 the event is about; `detail` is JSON written by code.
 
