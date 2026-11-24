@@ -26,8 +26,8 @@ for each mistake and what enforces it).
 
 ## Picking work
 
-Issues labelled `owner:claude-ok` are the agent's to do; `owner:human` and
-`owner:human+claude` need the owner. A local session finds the next
+Issues labelled `owner:agent-ok` are the agent's to do; `owner:human` and
+`owner:human+agent` need the owner. A local session finds the next
 one with the `take-case` skill, or takes the one the owner names. Nothing on
 GitHub starts work by itself (ADR 0016).
 
@@ -72,7 +72,7 @@ A request may name an issue by its code (`M1-04`) as well as by `#n`.
 Milestones come in two tracks, each with its own front: the pipeline (`M0`
 to `M6`) and the site (`UI M0` to `UI M10`), ordered by the number after
 `M`, not alphabetically. A track's front is its lowest milestone that still
-has an open `owner:claude-ok` candidate. Only candidates at the front of
+has an open `owner:agent-ok` candidate. Only candidates at the front of
 their track are considered, and both fronts rank the same.
 
 ## Cloudflare credential
@@ -243,7 +243,7 @@ every open M1 issue you can"), use the `docket` skill
 exit condition holds, without stopping to ask for "continue". The rules:
 
 - **Exit condition first.** Before the first issue, write it as something a
-  command can check, for example "every `owner:claude-ok` issue in M1 whose
+  command can check, for example "every `owner:agent-ok` issue in M1 whose
   dependencies are merged has an open PR with green CI and an approving
   review". Never relax it to finish. A plateau is a reason to change
   approach, not to stop.

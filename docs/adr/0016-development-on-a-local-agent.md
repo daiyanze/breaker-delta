@@ -95,3 +95,11 @@ merging does, under the conditions of that skill's step 5. Where it says the
 merge to `develop` deploys both Workers, read: it queues the `production`
 deploy, which waits for the owner's approval. A merge never approves that
 deployment; that stays the owner's.
+
+## Amendment (2026-11-24): label names
+
+The labels no longer name one agent runtime (the owner's decision,
+2026-11-24): `owner:claude-ok` is now `owner:agent-ok`, and
+`owner:human+claude` is now `owner:human+agent`. `owner:human` is unchanged.
+GitHub renames a label in place, so every issue keeps its label. Text above
+keeps the old names.
