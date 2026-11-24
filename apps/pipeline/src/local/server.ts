@@ -13,6 +13,13 @@ import { directoryBlobs } from "./blobs.ts";
 import { sqliteDatabase } from "./database.ts";
 import { migrate } from "./migrate.ts";
 
+/**
+ * Options for the local HTTP server. `/__tick` answers only when the whole
+ * run is done, which can take longer than Bun's default 10-second idle
+ * timeout; that would drop the connection before the answer (review on #244).
+ */
+export const LOCAL_SERVE_OPTIONS = {};
+
 export interface LocalPipelineOptions {
   /** Where the database lives. Created if missing. */
   dataDir: string;
@@ -80,6 +87,7 @@ export function startPipeline(options: LocalPipelineOptions): LocalPipeline {
   );
 
   const server = Bun.serve({
+    ...LOCAL_SERVE_OPTIONS,
     port: options.port,
     hostname: options.hostname ?? "127.0.0.1",
     fetch: (request) => pipeline.fetch(request),
