@@ -191,7 +191,8 @@ Each rule applies only within its scope.
   parser rejects or reads differently. Before naming a skill or command, check the name against what
   each runtime already ships.
 - **Scope:** checks and scripts that read config, frontmatter or source
-  code; names of skills in `.claude/skills/`.
+  code; names of skills (since 2026-11-24 they come from the `onus`
+  plugin, not `.claude/skills/`).
 - **Check:** `scripts/agent-files.ts` parses frontmatter with `Bun.YAML` and
   refuses the reserved name `run`; `scripts/agent-files.test.ts` covers
   both. `scripts/check-deps.ts` reads relative imports with
