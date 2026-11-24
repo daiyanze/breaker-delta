@@ -10,7 +10,8 @@
  * 2. **Topics.** Not merged away, and up, or with an echo first seen in this
  *    slot or the `calmAfterDays` before it, or already given a point in this
  *    slot. A flat wave or an echo topic with no recent echo gets no new point;
- *    its last one stands. The last clause keeps a retry's topics the same as
+ *     its last one stands, so an echo topic whose echoes are all older never
+ *    forms, even if a merge brings it to the threshold. The last clause keeps a retry's topics the same as
  *    the first attempt's, after that attempt moved a wave to flat.
  * 3. **Echoes.** All of each topic's echoes from this slot or earlier, each
  *    with the heat of its latest `echo_metrics` row from this slot or
@@ -23,10 +24,11 @@
  * 5. **Write.** One batch: every point (written again with the same values on
  *    a retry), and the topics whose state or dates changed.
  *
- * Re-running the step for a slot writes the same rows and returns the same
- * output. The output holds counts and topic ids only.
+ * Re-running the step for a slot, with the same settings, writes the same
+ * rows and returns the same output. The output holds counts and topic ids only.
  */
 import {
+  countIndependentSources,
   type EchoLike,
   groupHeatReferences,
   nextTopicStatus,
@@ -167,7 +169,7 @@ export function computeStep(): Step {
           topic,
           next,
           height: waveHeight(list, nowMs, params, reference),
-          sourceCount: new Set(list.map((e) => e.groupId)).size,
+          sourceCount: countIndependentSources(list),
           echoCount: list.length,
         };
       });

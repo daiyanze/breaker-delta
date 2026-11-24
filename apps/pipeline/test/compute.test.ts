@@ -105,6 +105,7 @@ describe("state transitions", () => {
     t.topic("t1");
     t.echo("e1", "t1", "hn", T + 60_000);
     t.echo("e2", "t1", "lobsters", T + 60_000);
+    t.echo("e3", "t1", "hn", T + 60_000);
     const out = await t.run();
     expect(out).toEqual({ topics: 1, up: 0, formed: [], wentFlat: [] });
     expect(t.points()).toEqual([
@@ -114,7 +115,7 @@ describe("state transitions", () => {
         height: expect.any(Number),
         rank: null,
         source_count: 2,
-        echo_count: 2,
+        echo_count: 3,
       },
     ]);
     expect(t.topicRows()).toEqual([
@@ -208,6 +209,13 @@ describe("state transitions", () => {
 });
 
 describe("inputs", () => {
+  test("a topic whose only echo is from a later slot gets no point", async () => {
+    const t = setup();
+    t.topic("t1");
+    t.echo("future", "t1", "hn", T - HOUR, LATER);
+    expect(await t.run()).toEqual({ topics: 0, up: 0, formed: [], wentFlat: [] });
+  });
+
   test("merged topics and echoes from later slots are left out", async () => {
     const t = setup();
     t.topic("gone", { mergedInto: "t1" });
@@ -241,6 +249,8 @@ describe("inputs", () => {
     t.topic("t1");
     t.echo("a", "t1", "hn", T, SLOT, { [SLOT]: 100 });
     t.echo("b", "t1", "lobsters", T, SLOT, { [SLOT]: 10 });
+    // Outside the window: left out of the references.
+    t.echo("z", null, "hn", T - 8 * DAY, EARLIER, { [EARLIER]: 10_000 });
     // Unassigned echoes in the window count toward the references.
     t.echo("x", null, "hn", T, SLOT, { [SLOT]: 400 });
     t.echo("y", null, "lobsters", T, SLOT, { [SLOT]: 20 });
