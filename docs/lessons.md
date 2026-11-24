@@ -22,6 +22,22 @@ Each rule applies only within its scope.
   are scored" in `scripts/height-trial.test.ts` (fails with the clock read
   before collect). Fixed in #234.
 
+## L21 Before writing a field an invariant names, find the step the invariant ties it to
+
+- **Date:** 2026-11-24. **Status:** active.
+- **What happened:** #237's compute step set `topics.formed_at`, the "wave
+  forming" that invariant 5 says is written in the same batch as the
+  prediction. The prediction comes from the model in a later step (#34), so
+  the two could never share a batch, and the PR did not say so. Review
+  round 1 blocked it; the owner then decided which write counts (#237,
+  2026-11-24). The same round found three filters no test exercised.
+- **Rule:** When a step writes a column or a row that an invariant or the
+  schema docs name, search for every place that names it and check that the
+  step's batch can hold what the invariant pairs it with. If not, it is a
+  deviation to raise before building (L5).
+- **Scope:** `apps/pipeline/src/core` steps, invariants 1, 4 and 5.
+- **Evidence:** review comments on #237 (rounds 1 and 2).
+
 ## L20 Check what a field means in a recorded response, not only that it is there
 
 - **Date:** 2026-11-23. **Status:** active.

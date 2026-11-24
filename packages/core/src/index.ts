@@ -134,6 +134,90 @@ export function groupHeatReferences(
   return out;
 }
 
+/** echo: not a wave yet; up: a wave; flat: a wave that has gone flat. */
+export type TopicState = "echo" | "up" | "flat";
+
+/** What a topic carries from one run to the next. Times are epoch ms. */
+export interface TopicStatus {
+  state: TopicState;
+  /** When it first became a wave; null while it never was one. */
+  formedAt: number | null;
+  /** When it last went flat; null unless it is flat now. */
+  wentFlatAt: number | null;
+}
+
+export interface StateParams {
+  waveThreshold: number;
+  /** Days without a new echo after which a wave goes flat. */
+  calmAfterDays: number;
+}
+
+const DAY_MS = 86_400_000;
+
+/**
+ * A topic's status at `nowMs`, from its status at the previous run and all
+ * of its echoes now.
+ *
+ * - echo -> up when its echoes come from `waveThreshold` independent
+ *   sources. `formedAt` is set once and never changes after.
+ * - A topic that was ever a wave is never an echo again, even when a split
+ *   or a reassignment leaves it fewer sources: its summary and prediction
+ *   stay.
+ * - up -> flat when its latest activity (the later of its latest echo and
+ *   `formedAt`) is `calmAfterDays` or more before `nowMs`.
+ * - flat -> up when a newer echo brings its latest activity back inside
+ *   `calmAfterDays`; `wentFlatAt` is cleared, and set again if it goes flat
+ *   again.
+ *
+ * Applying it again at the same `nowMs` to its own result returns that
+ * result unchanged, so a step that is retried writes the same values.
+ */
+export function nextTopicStatus(
+  prev: TopicStatus,
+  echoes: readonly EchoLike[],
+  nowMs: number,
+  params: StateParams,
+): TopicStatus {
+  const wasWave = prev.formedAt !== null;
+  if (!wasWave && countIndependentSources(echoes) < params.waveThreshold) {
+    return { state: "echo", formedAt: null, wentFlatAt: null };
+  }
+  const formedAt = prev.formedAt ?? nowMs;
+  let lastActive = formedAt;
+  for (const e of echoes) lastActive = Math.max(lastActive, e.firstSeenAt);
+  if (nowMs - lastActive >= params.calmAfterDays * DAY_MS) {
+    const wentFlatAt = prev.state === "flat" && prev.wentFlatAt !== null ? prev.wentFlatAt : nowMs;
+    return { state: "flat", formedAt, wentFlatAt };
+  }
+  return { state: "up", formedAt, wentFlatAt: null };
+}
+
+/**
+ * Ranks 1, 2, ... by height, highest first; equal heights are ordered by id
+ * so the ranking never depends on input order.
+ */
+export function rankByHeight(
+  topics: readonly { id: string; height: number }[],
+): Map<string, number> {
+  const sorted = [...topics].sort(
+    (a, b) => b.height - a.height || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+  );
+  return new Map(sorted.map((t, i) => [t.id, i + 1]));
+}
+
+/** Epoch ms of the start of a slot from `slotId`; throws on anything else. */
+export function slotStart(slot: string): number {
+  const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})$/.exec(slot);
+  if (!m) throw new Error(`slotStart: not a slot id: ${slot}`);
+  const [y, mo, d, h, mi] = m.slice(1).map(Number) as [number, number, number, number, number];
+  const ms = Date.UTC(y, mo - 1, d, h, mi);
+  const back = new Date(ms);
+  if (back.getUTCMonth() !== mo - 1 || back.getUTCDate() !== d || h > 23 || mi > 59) {
+    throw new Error(`slotStart: not a slot id: ${slot}`);
+  }
+  return ms;
+}
+
 /**
  * Deterministic id of the run slot that contains `nowMs`, e.g. "20261201T0900".
  * Only letters, digits and "T" so it is valid as a workflow instance id.

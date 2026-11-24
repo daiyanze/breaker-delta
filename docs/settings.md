@@ -18,7 +18,7 @@ agent's proposal for `summariesPerRun`.
 | `sourceBonus` | 0.5 | inherited, unreviewed | Each independent source after the first adds this much to the height's multiplier: `1 + sourceBonus * (sources - 1)`. 0.5 is the scaffold's hard-coded value (#28). |
 | `maxEchoesPerGroup` | 0 | agent's proposal (#28), not reviewed | Per fetch group, only this many of its highest echo scores count toward the height; 0 counts all, which is the scaffold's formula. Stops one busy group adding up on its own. The owner picks a value with `height-trial`. |
 | `heatNormalisation` | none | agent's proposal (#28), not reviewed | `none`: heat in each source's own units (HN points, GitHub stars...), the scaffold's formula. `group`: each echo's heat is divided by its group's reference heat first. |
-| `heatReferencePercentile` | 90 | agent's proposal (#28), not reviewed | Under `group`, a group's reference heat is this percentile (nearest rank) of its recent echoes' heat (`groupHeatReferences` in `packages/core`). Unused under `none`. |
+| `heatReferencePercentile` | 90 | agent's proposal (#28), not reviewed | Under `group`, a group's reference heat is this percentile (nearest rank) of its recent echoes' heat (`groupHeatReferences` in `packages/core`). Unused under `none`. The compute step takes "recent" as echoes first seen in the last `calmAfterDays` (agent's proposal, #29, not reviewed). |
 | `calmAfterDays` | 7 | owner, 2026-11-23 | |
 | `risingPercent24h` | 50 | owner, 2026-11-23 | |
 | `rewriteAfterNewEchoes` | 5 | owner, 2026-11-23 | |

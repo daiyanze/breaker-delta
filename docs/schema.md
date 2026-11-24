@@ -68,7 +68,13 @@ Ingest adds a row for a known echo instead of a new echo (#27); there is one row
 A set of echoes. `slug` is unique and stable. `name` is the assign model's
 proposal, used for the shortlist and never shown. `state` is `echo` (not a
 wave yet), `up` or `flat`, the same words as the read contracts and ADR 0014;
-`formed_at` and `went_flat_at` are set by code (#29). A merged topic keeps
+`formed_at` and `went_flat_at` are set by the compute step (#29,
+`nextTopicStatus` in `@bd/core`): a topic is `up` once its echoes come from
+`waveThreshold` groups (unless all its echoes are older than `calmAfterDays`:
+the step does not look at it then) and never an echo again; it goes `flat` when its latest
+echo (or its forming, if later) is `calmAfterDays` old, and back `up` when its
+latest echo is inside `calmAfterDays` again (a newer echo, or a longer
+`calmAfterDays`), which clears `went_flat_at`. A merged topic keeps
 its row with `merged_into` and `merged_at`, so its slug redirects (#77).
 
 ## topic_aliases
@@ -84,7 +90,11 @@ The audit trail of topic corrections: `merge`, `split`, `rename`,
 ## wave_points
 
 A topic's `state`, `height`, `rank` (null when not up), source count and
-echo count at one run, computed by `@bd/core`; key `(slot, topic_id)`. The
+echo count at one run, computed by `@bd/core` at the slot's start; key
+`(slot, topic_id)`. The compute step (#29) writes one for each topic not
+merged away that is up, has an echo first seen in the last
+`calmAfterDays`, or already has a point in that slot; a flat wave's last
+point is the one that turned it flat. The
 history chart, the newsstand's editions and the 24-hour change read it
 (ADR 0015).
 
@@ -113,15 +123,20 @@ The change feed, seven types (ADR 0014). Partial unique indexes make the
 pipeline's writes idempotent: a topic has one `wave_formed` event, one
 `wave_rising` or `went_flat` event per run, and one `summary_updated` event
 per summary. `corrected`, `withdrawn` and `verdict` come from the desk and
-may repeat. Whether a flat wave can rise and go flat again is open (for
-#29 and #30): the index allows one `went_flat` per run, not one per topic.
+may repeat. A flat wave can rise and go flat again (#29), so the index
+allows one `went_flat` per run, not one per topic.
 `summary_id`, `verdict_id` and `correction_id` point at the row
 the event is about; `detail` is JSON written by code.
 
 ## predictions
 
 The review criterion: one per topic, written in the same batch as the wave
-forming, with the SHA-256 of its text (invariant 5, #34). `summary_id` is the
+forming, with the SHA-256 of its text (invariant 5, #34). For invariant 5,
+the wave forming is recorded by that batch: the first summary, its
+`wave_formed` event and the prediction, written together by the commit step
+(#34). The compute step sets `topics.state` and `formed_at` earlier, so the
+board shows a wave whose summary is still queued (owner's decision,
+2026-11-24, #237). `summary_id` is the
 first summary, which proposed it. Never edited; it stays when its summary is
 withdrawn (ADR 0006).
 
