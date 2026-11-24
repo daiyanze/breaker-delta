@@ -344,6 +344,18 @@ describe("the command", () => {
     expect(lines[1]).toBe(`topic b went_flat_at: stored 1, rebuilt ${T0 + 2 * DAY}`);
   });
 
+  test("works on a file in WAL mode, as local mode leaves it", async () => {
+    // startPipeline (src/local/server.ts) sets journal_mode = WAL; VACUUM INTO
+    // does not, so the tests above alone would miss a WAL-only failure (L9).
+    const { dir, file, lines, io } = await onFile();
+    expect(file.query("PRAGMA journal_mode = WAL").get()).toEqual({ journal_mode: "wal" });
+    const before = state(file);
+    expect(await main(["--data-dir", dir], io)).toBe(0);
+    expect(lines).toEqual(["rebuild matches: 6 slots, 10 points, 2 topics"]);
+    expect(state(file)).toEqual(before);
+    file.close();
+  });
+
   test("exits 2 when there is no database", async () => {
     const lines: string[] = [];
     const dir = mkdtempSync(join(tmpdir(), "bd-rebuild-none-"));
