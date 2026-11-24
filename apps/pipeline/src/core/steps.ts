@@ -10,8 +10,9 @@
  *
  * A model failure does not fail a step: assign leaves the echoes of a failed
  * batch without a topic, and summarize leaves a wave whose call failed
- * without a draft. Both are picked up by the next run (assign takes every
- * echo with no topic; select finds the wave still due). So compute, which
+ * without a draft. Neither is lost: assign takes every echo with no topic
+ * next run, and select finds the wave still due, though under a full
+ * budget it can wait behind other waves (`selectForSummary`). So compute, which
  * writes the board (`wave_points`, topic states), runs whatever the model
  * does, and the run goes on to publish and retention.
  */

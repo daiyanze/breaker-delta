@@ -17,8 +17,9 @@ import { migrate } from "./migrate.ts";
  * Options for the local HTTP server. `/__tick` answers only when the whole
  * run is done, which can take longer than Bun's default 10-second idle
  * timeout; that would drop the connection before the answer (review on #244).
+ * 0 turns it off. The server listens on 127.0.0.1 by default.
  */
-export const LOCAL_SERVE_OPTIONS = {};
+export const LOCAL_SERVE_OPTIONS = { idleTimeout: 0 } as const;
 
 export interface LocalPipelineOptions {
   /** Where the database lives. Created if missing. */
