@@ -65,6 +65,17 @@ describe("htmlText", () => {
     ).toBe("Article text");
   });
 
+  test("a `<body>` inside a head's script or style does not end the head", () => {
+    expect(
+      htmlText(
+        '<html><head><script>document.write("<body>"); hiddenCall()</script></head><body><p>A</p></body></html>',
+      ),
+    ).toBe("A");
+    expect(htmlText("<head><style>/* <body> */ a{}</style><title>T</title><body><p>B</p>")).toBe(
+      "B",
+    );
+  });
+
   test("an apostrophe in an unquoted attribute value does not open a quote", () => {
     expect(htmlText("<p>Before</p><img alt=it's src=x.png><p>After text</p>")).toBe(
       "Before\nAfter text",
@@ -159,6 +170,16 @@ describe("isPublicHost", () => {
       "http://[ff02::1]/",
       "http://[::ffff:127.0.0.1]/",
       "http://[::ffff:192.168.0.1]/",
+      "http://[::127.0.0.1]/", // IPv4-compatible, ::/96
+      "http://[::8.8.8.8]/",
+      "http://[::ffff:0:127.0.0.1]/", // IPv4-translated
+      "http://[::ffff:0:8.8.8.8]/",
+      "http://[64:ff9b::127.0.0.1]/", // NAT64
+      "http://[64:ff9b::8.8.8.8]/",
+      "http://[64:ff9b:1::1]/", // local-use NAT64, /48
+      "http://[64:ff9b:1:ffff::1]/",
+      "http://[fec0::1]/", // deprecated site-local
+      "http://[feff::1]/",
     ]) {
       expect([url, isPublicHost(new URL(url))]).toEqual([url, false]);
     }

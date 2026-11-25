@@ -22,8 +22,10 @@
  * decision. It runs in linear time, drops the head, scripts, styles,
  * comments, navigation, asides and footers, puts block elements on lines of
  * their own and decodes character references. A comment, tag or skipped
- * element that is never closed ends the text; a `<head>` with no end tag
- * ends at `<body>`. The charset is the one the
+ * element that is never closed ends the text. The head's text is dropped
+ * until `</head>` or a `<body>` tag; its scripts, styles and title are
+ * skipped as elements first, so a `<body>` written inside them does not end
+ * it. The charset is the one the
  * `content-type` header names, else UTF-8; a `<meta charset>` is not read.
  */
 import { USER_AGENT } from "./http.ts";
@@ -43,7 +45,7 @@ export type PageResult = { ok: true; text: string } | { ok: false; error: string
 
 /** Elements whose content is not the page's text. */
 const SKIP = new Set([
-  "head",
+  "title",
   "script",
   "style",
   "noscript",
@@ -143,9 +145,7 @@ function tidy(text: string): string {
 
 /** The index of `</name` from `from`, any case, or -1. */
 function closingTag(html: string, name: string, from: number): number {
-  // `</head>` may be left out (HTML); then the head ends where the body starts.
-  const body = name === "head" ? "|<body(?=[\\s/>])" : "";
-  const re = new RegExp(`</${name}(?=[\\s/>])${body}`, "gi");
+  const re = new RegExp(`</${name}(?=[\\s/>])`, "gi");
   re.lastIndex = from;
   return re.exec(html)?.index ?? -1;
 }
@@ -181,14 +181,17 @@ export function htmlText(html: string): string {
     text = "";
     if (newline) out.push("\n");
   };
+  // Inside the head, text is dropped; `</head>` may be left out (HTML), so a
+  // `<body>` tag ends it too.
+  let inHead = false;
   let i = 0;
   while (i < html.length) {
     const lt = html.indexOf("<", i);
     if (lt === -1) {
-      text += html.slice(i);
+      if (!inHead) text += html.slice(i);
       break;
     }
-    text += html.slice(i, lt);
+    if (!inHead) text += html.slice(i, lt);
     const next = html[lt + 1] ?? "";
     if (html.startsWith("<!--", lt)) {
       const end = html.indexOf("-->", lt + 4);
@@ -197,7 +200,7 @@ export function htmlText(html: string): string {
       continue;
     }
     if (!/[a-zA-Z/!?]/.test(next)) {
-      text += "<";
+      if (!inHead) text += "<";
       i = lt + 1;
       continue;
     }
@@ -208,6 +211,8 @@ export function htmlText(html: string): string {
       /^<\/?([a-zA-Z][a-zA-Z0-9-]*)/.exec(html.slice(lt, lt + 40))?.[1] ?? ""
     ).toLowerCase();
     i = end;
+    if (name === "head") inHead = !closing;
+    else if (name === "body" && !closing) inHead = false;
     if (!closing && SKIP.has(name) && html[end - 2] !== "/") {
       const close = closingTag(html, name, end);
       if (close === -1) break;
@@ -336,8 +341,13 @@ function ipv6(host: string): number[] | null {
 }
 
 function publicIpv6(g: number[]): boolean {
-  const [g0 = 0, , , , , g5 = 0, g6 = 0, g7 = 0] = g;
-  if (g.every((x, i) => (i === 7 ? x <= 1 : x === 0))) return false; // :: and ::1
+  const [g0 = 0, g1 = 0, g2 = 0, , g4 = 0, g5 = 0, g6 = 0, g7 = 0] = g;
+  const zero = (from: number, to: number) => g.slice(from, to).every((x) => x === 0);
+  // Forms that embed an IPv4 address, refused outright rather than read:
+  if (zero(0, 6)) return false; // ::/96: ::, ::1 and IPv4-compatible ::a.b.c.d
+  if (zero(0, 4) && g4 === 0xffff && g5 === 0) return false; // IPv4-translated ::ffff:0:a.b.c.d
+  if (g0 === 0x64 && g1 === 0xff9b && (g2 === 1 || zero(2, 6))) return false; // NAT64 /96, local-use /48
+  if ((g0 & 0xffc0) === 0xfec0) return false; // deprecated site-local
   if ((g0 & 0xfe00) === 0xfc00) return false; // unique local
   if ((g0 & 0xffc0) === 0xfe80) return false; // link-local
   if ((g0 & 0xff00) === 0xff00) return false; // multicast
