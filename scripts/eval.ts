@@ -225,6 +225,8 @@ async function evalSummarize(
         provider: answer.provider,
         model: answer.model,
         answer: answer.value,
+        // A case holds no enrich pages, so the draft read no source text.
+        sourceTextRead: false,
       },
       c.input.echoes.flatMap((e) => [e.title, e.summary ?? ""]).join("\n"),
     );
