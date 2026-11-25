@@ -26,7 +26,7 @@
  * printed or written.
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { validateAssignments } from "../apps/pipeline/src/core/assign.ts";
 import { resolveProviders, stringVars } from "../apps/pipeline/src/core/model.ts";
@@ -152,7 +152,7 @@ async function evalAssign(
 ): Promise<Metrics> {
   const driver = chainDriver(
     chain,
-    { assign: (i) => prompt.messages(i), summarize: unused },
+    { assign: (i) => prompt.messages(i), summarize: unused, versions: { assign: prompt.version } },
     fetchImpl ? { fetch: fetchImpl } : {},
   );
   const answers: (ChainResult<AssignResult> | null)[] = [];
@@ -194,7 +194,11 @@ async function evalSummarize(
 ): Promise<Metrics> {
   const driver = chainDriver(
     chain,
-    { assign: unused, summarize: (i) => prompt.messages(i) },
+    {
+      assign: unused,
+      summarize: (i) => prompt.messages(i),
+      versions: { summarize: prompt.version },
+    },
     fetchImpl ? { fetch: fetchImpl } : {},
   );
   const answers: (ChainResult<SummarizeResult> | null)[] = [];
@@ -383,8 +387,8 @@ export async function main(argv: readonly string[], io: Io = defaultIo): Promise
   const { values } = parseArgs({
     args: [...argv],
     options: {
-      cases: { type: "string", default: "evals/cases" },
-      providers: { type: "string", default: "evals/providers.json" },
+      cases: { type: "string", default: COMMITTED_CASES },
+      providers: { type: "string", default: join(COMMITTED_CASES, "..", "providers.json") },
       report: { type: "string" },
       json: { type: "string" },
       sha: { type: "string" },

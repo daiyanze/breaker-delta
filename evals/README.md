@@ -57,7 +57,8 @@ plus its origin. The file name is the case id.
 }
 ```
 
-A case has exactly one of `"synthetic": true` and `"frozenFrom"`. A
+A case has exactly one of `"synthetic": true` and `"frozenFrom"`. Biome
+lints JSON, so run `bun run format` after writing a committed case. A
 summarize case's `input` is `{ "name", "echoes", "languages", "first" }`
 (`SummarizeInput`). `labels` (assign only) is the owner's own assignment for
 some echoes: a shortlisted topic id or `new`, written by hand.

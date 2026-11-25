@@ -483,3 +483,21 @@ describe("isCommitted", () => {
     expect(isCommitted(".bd-data/eval-cases")).toBe(false);
   });
 });
+
+describe("the defaults", () => {
+  test("read the committed cases and providers file from any working directory", async () => {
+    const elsewhere = mkdtempSync(join(tmpdir(), "bd-eval-cwd-"));
+    const before = process.cwd();
+    const lines: string[] = [];
+    try {
+      process.chdir(elsewhere);
+      // Files at the relative paths, which a cwd-relative default would read.
+      mkdirSync(join(elsewhere, "evals", "cases", "assign"), { recursive: true });
+      writeFileSync(join(elsewhere, "evals", "cases", "assign", "bad.json"), "not json");
+      writeFileSync(join(elsewhere, "evals", "providers.json"), "not json");
+      expect(await main([], { out: (l) => lines.push(l), env: {}, prompts: {} })).toBe(0);
+    } finally {
+      process.chdir(before);
+    }
+  });
+});
