@@ -42,6 +42,8 @@ curl -s -X POST http://127.0.0.1:<port>/v1/chat/completions \
 bun scripts/verify-local.ts down
 ```
 
-**Edges.** A tick does not call the bridge yet: verify-local runs with the
-fake model (the assign prompt ships since #43; summarize waits for #44). A run through the bridge
-is shown by `scripts/local-bridge.test.ts` with stand-in prompts.
+**Edges.** A verify-local tick does not call the bridge: verify-local runs
+with the fake model. Outside it, the assign prompt has shipped since #43,
+so a bridge in the assign chain is called; summarize waits for #44. A run
+through the bridge is shown by `scripts/local-bridge.test.ts` with stand-in
+prompts.

@@ -7,9 +7,10 @@
  * - **Instructions** are the system message. They hold no input text.
  * - **Data** is the user message: the shortlist and the echoes as JSON,
  *   each inside its own marker pair. Fetched titles and excerpts are data,
- *   never instructions (invariant 6), and the message says so. `<`, `>` and
- *   `&` in the JSON are written as `<`, `>` and `&` (the same
- *   JSON value), so no title can close a marker or open a new one.
+ *   never instructions (invariant 6), and the message says so. In the JSON,
+ *   every `<`, `>` and `&` is written as a JSON unicode escape (a backslash,
+ *   `u`, then `003c`, `003e` or `0026`; see `inertJson`). It parses to the
+ *   same value, and no title can close a marker or open a new one.
  * - **Output** cites echoes and topics by id only (invariant 2). It has no
  *   wave, height or rank (invariant 1): the contract has no field for them.
  *
