@@ -349,7 +349,14 @@ describe("main", () => {
   test("the shipped cases and providers file read", async () => {
     const lines: string[] = [];
     // Cases from the repository; a prompt-less run makes no call.
-    expect(await main([], { out: (l) => lines.push(l), env: {} })).toBe(0);
+    expect(await main([], { out: (l) => lines.push(l), env: {}, prompts: {} })).toBe(0);
+  });
+
+  test("the shipped assign prompt with no key is not evaluated, so the run fails", async () => {
+    const lines: string[] = [];
+    // The shipped prompts and cases; no key, so no call is made.
+    expect(await main([], { out: (l) => lines.push(l), env: {} })).toBe(1);
+    expect(lines.join("\n")).toContain("assign-v1");
   });
 });
 

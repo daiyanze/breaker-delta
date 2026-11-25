@@ -209,14 +209,14 @@ async function complete(
 }
 
 /**
- * The messages a chain sends for each task. No prompt ships with this
- * package yet: the assign prompt is #43 (M2-02) and the summarize prompt
- * #44 (M2-03), each with an eval. Fetched text goes into these tool-less
- * calls only as data (invariant 6).
+ * The messages a chain sends for each task (`driverPrompts` makes them from
+ * the shipped `PROMPTS`). A task without one has no model: the pipeline
+ * skips its step (`runModel`), and a driver asked for it fails. Fetched
+ * text goes into these tool-less calls only as data (invariant 6).
  */
 export interface DriverPrompts {
-  assign(input: AssignInput): ChatMessage[];
-  summarize(input: SummarizeInput): ChatMessage[];
+  assign?: (input: AssignInput) => ChatMessage[];
+  summarize?: (input: SummarizeInput) => ChatMessage[];
   /**
    * Each task's prompt version, recorded with every call and summary (ADR
    * 0005, #48). A task without one is recorded as unversioned (null).
@@ -265,16 +265,22 @@ export function chainDriver(
 ): ModelDriver {
   const versioned = (version: string | undefined): ChainOptions =>
     version === undefined ? options : { ...options, promptVersion: version };
+  const none = (task: string) => Promise.reject(new Error(`no ${task} prompt`));
+  const { assign, summarize } = prompts;
   return {
     assign: (input) =>
-      callChain(providers, prompts.assign(input), validAssign, versioned(prompts.versions?.assign)),
+      assign
+        ? callChain(providers, assign(input), validAssign, versioned(prompts.versions?.assign))
+        : none("assign"),
     summarize: (input) =>
-      callChain(
-        providers,
-        prompts.summarize(input),
-        validSummarize,
-        versioned(prompts.versions?.summarize),
-      ),
+      summarize
+        ? callChain(
+            providers,
+            summarize(input),
+            validSummarize,
+            versioned(prompts.versions?.summarize),
+          )
+        : none("summarize"),
   };
 }
 

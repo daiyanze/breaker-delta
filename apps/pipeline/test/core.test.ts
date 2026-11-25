@@ -26,10 +26,24 @@ const get = (path: string, token?: string) =>
 
 describe("pipeline config", () => {
   test("holds the probe token and the model driver; behaviour comes from settings", () => {
-    expect(pipelineConfig({})).toEqual({ probeToken: null, model: null });
-    expect(pipelineConfig({ PROBE_TOKEN: "t" })).toEqual({ probeToken: "t", model: null });
-    expect(pipelineConfig({ MODEL_DRIVER: "" })).toEqual({ probeToken: null, model: null });
-    expect(pipelineConfig({ MODEL_DRIVER: "fake" })).toEqual({ probeToken: null, model: "fake" });
+    const pick = (c: ReturnType<typeof pipelineConfig>) => ({
+      probeToken: c.probeToken,
+      model: c.model,
+    });
+    expect(pick(pipelineConfig({}))).toEqual({ probeToken: null, model: null });
+    expect(pick(pipelineConfig({ PROBE_TOKEN: "t" }))).toEqual({ probeToken: "t", model: null });
+    expect(pick(pipelineConfig({ MODEL_DRIVER: "" }))).toEqual({ probeToken: null, model: null });
+    expect(pick(pipelineConfig({ MODEL_DRIVER: "fake" }))).toEqual({
+      probeToken: null,
+      model: "fake",
+    });
+  });
+
+  test("sends the shipped prompts: assign at its version, no summarize yet (#43, #44)", () => {
+    const { prompts } = pipelineConfig({});
+    expect(prompts?.versions).toEqual({ assign: "assign-v1" });
+    expect(prompts?.assign?.({ echoes: [], topics: [] })[0]?.role).toBe("system");
+    expect(prompts?.summarize).toBeUndefined();
   });
 
   test("an unknown MODEL_DRIVER is refused, not run without a model", () => {

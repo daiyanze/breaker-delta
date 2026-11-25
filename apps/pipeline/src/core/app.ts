@@ -11,7 +11,7 @@
 import type { Settings } from "@bd/contracts";
 import { slotId } from "@bd/core";
 import { drizzleOver } from "@bd/db";
-import type { DriverPrompts } from "@bd/judge";
+import { type DriverPrompts, driverPrompts, PROMPTS } from "@bd/judge";
 import type { Blobs, Clock, Database, SiteCache } from "@bd/ports";
 import { ADAPTERS } from "../sources/adapters/index.ts";
 import { LAUNCH_GROUPS } from "../sources/launch-groups.ts";
@@ -63,9 +63,9 @@ export interface PipelineConfig {
   /** The model driver (`MODEL_DRIVER`, `model.ts`). Null: the chains from settings. */
   model: ModelDriverName | null;
   /**
-   * The messages the chains send (`model.ts`). None ship yet: #43 and #44
-   * add them, each with an eval. Absent: no chain is called, so the model
-   * steps are skipped. Tests pass their own.
+   * The messages the chains send (`model.ts`): the shipped `PROMPTS` of
+   * `@bd/judge` (assign since #43; summarize is #44). A task with no prompt
+   * is skipped; absent, no chain is called. Tests pass their own.
    */
   prompts?: DriverPrompts;
 }
@@ -81,6 +81,7 @@ export function pipelineConfig(vars: {
   return {
     probeToken: vars.PROBE_TOKEN ? vars.PROBE_TOKEN : null,
     model: parseModelDriver(vars.MODEL_DRIVER),
+    prompts: driverPrompts(PROMPTS),
   };
 }
 

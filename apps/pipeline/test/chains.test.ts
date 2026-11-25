@@ -4,8 +4,9 @@
  * and summarize use their own chains; a task with an empty chain, or any
  * task while no prompts are given, is skipped and the board still updates.
  *
- * No prompt ships yet (#43, #44), so these tests inject `PROMPTS`: the input
- * as JSON, which the stand-in endpoint reads back. It is not a real prompt.
+ * These tests inject `PROMPTS`: the input as JSON, which the stand-in
+ * endpoint reads back. It is not the shipped prompt (#43); one test runs
+ * with the shipped prompts as `pipelineConfig` gives them.
  *
  * The runs use the recorded fixture sources and a stand-in model endpoint
  * that answers with the fake driver's output. Assertions compare ids,
@@ -125,6 +126,15 @@ describe("runModel", () => {
     expect(runModel(null, chains, none, fetch)).toEqual({ assign: null, summarize: null });
   });
 
+  test("a task with no prompt gets no model, whatever its chain holds", () => {
+    const chains = { assignProviders: [provider("a")], summarizeProviders: [provider("b")] };
+    const m = runModel(null, chains, none, fetch, {
+      assign: (input) => [{ role: "user", content: JSON.stringify(input) }],
+    });
+    expect(m.assign).not.toBeNull();
+    expect(m.summarize).toBeNull();
+  });
+
   test("each task gets a model only when its own chain has providers", () => {
     const m = runModel(
       null,
@@ -164,7 +174,13 @@ function modelEndpoint() {
     const url = new URL(String(input));
     calls.push({ host: url.host, auth: new Headers(init?.headers).get("authorization") });
     const body = JSON.parse(String(init?.body)) as { messages: { content: string }[] };
-    const data = JSON.parse(body.messages.at(-1)?.content ?? "null");
+    const content = body.messages.at(-1)?.content ?? "null";
+    // The shipped assign prompt puts the input between markers; the test prompts send it bare.
+    const block = (name: string) =>
+      JSON.parse(content.match(new RegExp(`<${name}>\\n(.*)\\n</${name}>`, "s"))?.[1] ?? "null");
+    const data = content.includes("<echoes>")
+      ? { echoes: block("echoes"), topics: block("topics") }
+      : JSON.parse(content);
     const answer = url.host.startsWith("assign")
       ? fakeAssign(data as AssignInput)
       : fakeSummarize(data as SummarizeInput);
@@ -193,11 +209,13 @@ function setup() {
     modelFetch: model.fetch,
     secret: stringVars({ ASSIGN_KEY, SUMMARIZE_KEY }),
   };
-  const pipeline = (driver?: string, prompts: DriverPrompts | null = PROMPTS) =>
-    createPipeline(ports, {
-      ...pipelineConfig(driver ? { MODEL_DRIVER: driver } : {}),
-      ...(prompts ? { prompts } : {}),
-    });
+  /** `prompts`: the test's own (default), none (null), or the shipped ones ("shipped"). */
+  const pipeline = (driver?: string, prompts: DriverPrompts | null | "shipped" = PROMPTS) => {
+    const config = pipelineConfig(driver ? { MODEL_DRIVER: driver } : {});
+    if (prompts === null) delete config.prompts;
+    else if (prompts !== "shipped") config.prompts = prompts;
+    return createPipeline(ports, config);
+  };
   const output = <T>(slot: string, step: string): T => {
     const row = sqlite
       .query("SELECT output FROM run_steps WHERE slot = ? AND step = ?")
@@ -288,7 +306,28 @@ describe("a run with chains from settings", () => {
     expect(t.count("SELECT count(*) AS n FROM wave_points WHERE slot = ?", SLOT_2)).toBe(points1);
   });
 
-  test("with chains set but no prompts (as shipped until #43, #44) no provider is called", async () => {
+  test("with the shipped prompts assign calls its chain at assign-v1; summarize, with no prompt yet, is skipped", async () => {
+    const t = setup();
+    await changeSettings(t.orm, NOW - 1, {
+      assignProviders: [provider("assign", "ASSIGN_KEY")],
+      summarizeProviders: [provider("summarize", "SUMMARIZE_KEY")],
+    });
+    expect(await t.pipeline(undefined, "shipped").tick()).toMatchObject({
+      slot: SLOT,
+      status: "done",
+    });
+    const hosts = new Set(t.model.calls.map((c) => c.host));
+    expect([...hosts]).toEqual(["assign.test"]);
+    const assign = t.output<AssignOutput>(SLOT, "assign");
+    expect(assign.failedBatches).toBe(0);
+    expect(assign.assigned).toBeGreaterThan(0);
+    expect(t.output<SummarizeOutput>(SLOT, "summarize").skipped).toBe(true);
+    expect(
+      t.count("SELECT count(*) AS n FROM model_calls WHERE prompt_version = 'assign-v1'"),
+    ).toBe(t.model.calls.length);
+  });
+
+  test("with chains set but no prompts no provider is called", async () => {
     const t = setup();
     await changeSettings(t.orm, NOW - 1, {
       assignProviders: [provider("assign", "ASSIGN_KEY")],
