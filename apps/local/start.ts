@@ -13,7 +13,7 @@
  *   BD_SOURCES        live (default): scan fetches the real sources;
  *                     fixtures: each group's recorded fixture, no network
  *   PROBE_TOKEN       as on Cloudflare
- *   MODEL_DRIVER      as on Cloudflare: unset = no model, fake = the fake driver
+ *   MODEL_DRIVER      as on Cloudflare: unset = the provider chains from settings, fake = the fake driver
  *   READ_SOURCE, FIXTURE_SET            what the site reads (see apps/web)
  */
 import { resolve } from "node:path";

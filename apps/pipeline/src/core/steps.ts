@@ -14,9 +14,10 @@
  * next run, and select finds the wave still due, though under a full
  * budget it can wait behind other waves (`selectForSummary`). So compute, which
  * writes the board (`wave_points`, topic states), runs whatever the model
- * does, and the run goes on to publish and retention.
+ * does, and the run goes on to publish and retention. With no model for a
+ * task (its chain in settings is empty, #42) its step is skipped the same
+ * way, without a call.
  */
-import type { ModelDriver } from "@bd/judge";
 import type { Blobs, SiteCache } from "@bd/ports";
 import type { Adapter } from "../sources/adapter.ts";
 import type { LaunchGroup } from "../sources/launch-groups.ts";
@@ -25,6 +26,7 @@ import { changesStep } from "./changes.ts";
 import { commitStep } from "./commit.ts";
 import { computeStep } from "./compute.ts";
 import { ingestStep } from "./ingest.ts";
+import type { RunModel } from "./model.ts";
 import { publishStep } from "./publish.ts";
 import { retentionStep } from "./retention.ts";
 import type { Step } from "./runner.ts";
@@ -52,7 +54,8 @@ export const STEP_NAMES = [
 export interface StepDeps {
   blobs: Blobs;
   fetch: typeof fetch;
-  driver: ModelDriver;
+  /** The model per task; null skips that step (`model.ts`). */
+  model: RunModel;
   site: SiteCache;
   groups: readonly LaunchGroup[];
   adapters: Readonly<Record<string, Adapter>>;
@@ -63,11 +66,11 @@ export function buildSteps(deps: StepDeps): Step[] {
   return [
     scanStep({ blobs, fetch: deps.fetch, groups: deps.groups, adapters }),
     ingestStep({ blobs, adapters }),
-    assignStep({ driver: deps.driver }),
+    assignStep({ driver: deps.model.assign }),
     computeStep(),
     changesStep(),
     selectStep(),
-    summarizeStep({ driver: deps.driver, blobs }),
+    summarizeStep({ driver: deps.model.summarize, blobs }),
     validateStep({ blobs }),
     commitStep({ blobs }),
     publishStep({ site: deps.site }),
