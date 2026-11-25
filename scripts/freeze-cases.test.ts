@@ -1,13 +1,22 @@
 import { Database as SQLite } from "bun:sqlite";
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { seedRun } from "../apps/pipeline/src/local/seed.ts";
 import { type ChatMessage, fakeAssign, fakeSummarize } from "../packages/judge/src/index.ts";
 import { runEval } from "./eval.ts";
 import { loadCases } from "./eval-cases.ts";
-import { main } from "./freeze-cases.ts";
+import { gitTracks, main } from "./freeze-cases.ts";
 
 /**
  * Fixtures only (invariant 6): three local runs over the scrubbed fixture
@@ -214,36 +223,79 @@ describe("freeze-cases", () => {
     expect(readdirSync(join(dir, "eval-cases", "assign")).length).toBeGreaterThan(0);
   });
 
-  test("refuses to write where git would commit the cases", async () => {
-    const repo = join(import.meta.dir, "..");
-    const targets = [
-      join(repo, "evals", "cases"),
-      join(repo, "evals", "frozen"),
-      join(repo, "scripts", "frozen-cases"),
-    ];
-    for (const target of targets) {
-      const lines: string[] = [];
-      const code = await main(["--slot", slots[0] ?? "", "--data-dir", dir, "--out", target], {
-        out: (l) => lines.push(l),
-        env: {},
-      });
-      expect(code).toBe(2);
-      expect(lines[0]).toContain("not git-ignored");
-      expect(existsSync(target)).toBe(false);
+  /**
+   * A throwaway git repository with its own .gitignore, so the guard is
+   * exercised without the real tree: a broken guard writes there, never into
+   * the repository's evals/cases/, and committed cases there cannot break it.
+   */
+  function tempRepo(): string {
+    const repo = mkdtempSync(join(tmpdir(), "bd-freeze-repo-"));
+    const init = spawnSync("git", ["init", "-q", repo]);
+    expect(init.status).toBe(0);
+    writeFileSync(join(repo, ".gitignore"), ".bd-data/\n");
+    // A committed case, as #43 and #44 will add.
+    mkdirSync(join(repo, "evals", "cases", "assign"), { recursive: true });
+    writeFileSync(join(repo, "evals", "cases", "assign", "synthetic.json"), "{}\n");
+    return repo;
+  }
+
+  function files(root: string): string[] {
+    return existsSync(root) ? readdirSync(root, { recursive: true }).map(String).sort() : [];
+  }
+
+  test("refuses to write where git would commit the cases, and writes nothing there", async () => {
+    const repo = tempRepo();
+    try {
+      for (const target of [
+        join(repo, "evals", "cases"),
+        join(repo, "evals", "frozen"),
+        join(repo, "scripts", "frozen-cases"),
+        join(repo, ".bd-data", "..", "evals", "cases"),
+      ]) {
+        const before = files(repo);
+        const lines: string[] = [];
+        const code = await main(["--slot", slots[0] ?? "", "--data-dir", dir, "--out", target], {
+          out: (l) => lines.push(l),
+          env: {},
+        });
+        expect(code).toBe(2);
+        expect(lines[0]).toContain("not git-ignored");
+        expect(files(repo)).toEqual(before);
+      }
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
     }
   });
 
-  test("writes inside the repository only to a git-ignored folder", async () => {
-    const target = join(import.meta.dir, "..", ".bd-data", `freeze-test-${process.pid}`);
+  test("writes inside a repository only to a git-ignored folder", async () => {
+    const repo = tempRepo();
     try {
+      const target = join(repo, ".bd-data", "eval-cases");
       const code = await main(["--slot", slots[0] ?? "", "--data-dir", dir, "--out", target], {
         out: () => {},
         env: {},
       });
       expect(code).toBe(0);
       expect(readdirSync(join(target, "assign")).length).toBeGreaterThan(0);
+      expect(files(join(repo, "evals"))).toEqual([
+        "cases",
+        "cases/assign",
+        "cases/assign/synthetic.json",
+      ]);
     } finally {
-      rmSync(target, { recursive: true, force: true });
+      rmSync(repo, { recursive: true, force: true });
+    }
+  });
+
+  test("gitTracks fails closed when git cannot run, and allows a folder outside any repository", () => {
+    const repo = tempRepo();
+    try {
+      expect(gitTracks(join(repo, ".bd-data", "x"))).toBe(false);
+      expect(gitTracks(join(repo, ".bd-data", "x"), "/nonexistent/git-for-this-test")).toBe(true);
+      expect(gitTracks(join(dir, "anywhere"))).toBe(false);
+      expect(gitTracks(join(dir, "anywhere"), "/nonexistent/git-for-this-test")).toBe(true);
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
     }
   });
 

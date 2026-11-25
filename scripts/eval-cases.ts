@@ -25,7 +25,7 @@
  * Errors name the file and the path, never the value.
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { basename, join } from "node:path";
+import { basename, join, relative, sep } from "node:path";
 import { LanguageSchema } from "../packages/contracts/src/index.ts";
 import type {
   AssignInput,
@@ -312,7 +312,35 @@ export function loadTaskCases(
     });
 }
 
+/**
+ * Every file under a committed folder, at any depth and of any name. Each
+ * must be a case at `<task>/<id>.json`; anything else is refused, so a stray
+ * or copied file cannot sit next to the cases unchecked.
+ */
+function checkCommittedLayout(dir: string): void {
+  if (!existsSync(dir)) return;
+  for (const entry of readdirSync(dir, { recursive: true, withFileTypes: true })) {
+    if (entry.isDirectory()) continue;
+    const file = relative(dir, join(entry.parentPath, entry.name)).split(sep).join("/");
+    const [task, name, ...rest] = file.split("/");
+    const isCase =
+      rest.length === 0 &&
+      (TASKS as readonly string[]).includes(task ?? "") &&
+      name?.endsWith(".json") &&
+      ID.test(basename(name, ".json")) &&
+      entry.isFile();
+    if (!isCase) {
+      throw new CaseError(
+        file,
+        "",
+        "is not a case: a committed folder holds only <task>/<id>.json",
+      );
+    }
+  }
+}
+
 export function loadCases(dir: string, options: LoadOptions = {}): Cases {
+  if (options.committed) checkCommittedLayout(dir);
   return {
     assign: loadTaskCases(dir, "assign", options),
     summarize: loadTaskCases(dir, "summarize", options),

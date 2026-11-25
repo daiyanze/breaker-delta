@@ -187,15 +187,23 @@ export function freeze(
  * Whether git would track files written under `dir`: it is in a working tree
  * and not ignored. Asked of the nearest folder that exists, so it holds for
  * a folder not made yet, and of a file inside, since an ignored folder
- * ignores its files. Not in a git working tree: false.
+ * ignores its files. Fails closed: when git cannot run or answers anything
+ * else, the folder counts as tracked and the write is refused. Only a folder
+ * git says is in no repository at all is allowed without being ignored.
  */
-export function gitTracks(dir: string): boolean {
+export function gitTracks(dir: string, git = "git"): boolean {
   let at = resolve(dir);
   while (!existsSync(at) && dirname(at) !== at) at = dirname(at);
+  const inside = spawnSync(git, ["-C", at, "rev-parse", "--is-inside-work-tree"], {
+    encoding: "utf8",
+  });
+  if (inside.error || inside.status === null) return true;
+  if (inside.status !== 0) return !/not a git repository/i.test(inside.stderr ?? "");
+  if (inside.stdout.trim() !== "true") return true;
   const probe = join(resolve(dir), "assign", "case.json");
-  const r = spawnSync("git", ["-C", at, "check-ignore", "-q", "--no-index", probe]);
-  // 0: ignored. 1: not ignored, so git would track it. 128: not a working tree.
-  return r.status === 1;
+  const r = spawnSync(git, ["-C", at, "check-ignore", "-q", "--no-index", probe]);
+  // 0: ignored. Anything else (1: not ignored, or an error): tracked.
+  return r.status !== 0;
 }
 
 export interface Io {

@@ -32,10 +32,14 @@ pipeline's `PipelineConfig.prompts` is theirs too.
   review reads a PR's diff. So they live in a git-ignored folder on the
   owner's machine, and the owner runs them there.
 
-What enforces it: `loadCases(..., { committed: true })` refuses a frozen
-case, and `eval.ts` uses it whenever `--cases` is `evals/cases`; the test
-"the committed cases" in `scripts/eval-cases.test.ts` runs it in `check`;
-`freeze-cases` refuses an output folder git would track.
+What enforces it: `loadCases(..., { committed: true })` walks every file
+under the folder, at any depth, refuses anything that is not a case at
+`<task>/<id>.json` (a subfolder, another extension, a `.gitkeep`, a copied
+`eval-cases/` folder), and refuses a frozen case. `eval.ts` uses it whenever
+`--cases` is `evals/cases`, and the test "the committed cases" in
+`scripts/eval-cases.test.ts` runs it in `check`. `freeze-cases` refuses an
+output folder git would track, and fails closed: when git cannot run, or
+answers anything but "ignored" or "in no repository", it does not write.
 
 ## Case format
 
@@ -87,7 +91,7 @@ case file that exists is kept, so a case is frozen once. It prints file
 names and counts, never fetched text.
 
 The output defaults to `<data-dir>/eval-cases`; a folder git would track
-(`git check-ignore`) is refused. Only the owner runs it on real data,
+(`git check-ignore`) is refused, and so is any folder when git cannot run. Only the owner runs it on real data,
 outside a coding session. Tests freeze from the scrubbed fixture sources
 only (`scripts/freeze-cases.test.ts`).
 

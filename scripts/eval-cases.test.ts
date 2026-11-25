@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { CaseError, COMMITTED_CASES, loadCases, parseCase } from "./eval-cases.ts";
 
 /**
@@ -15,8 +15,7 @@ const input = { echoes: [{ id: "e1", title: "Rust 2.0 compiler" }], topics: [] }
 function dir(files: Record<string, unknown>): string {
   const d = mkdtempSync(join(tmpdir(), "bd-cases-"));
   for (const [path, json] of Object.entries(files)) {
-    const [task] = path.split("/");
-    mkdirSync(join(d, task ?? ""), { recursive: true });
+    mkdirSync(dirname(join(d, path)), { recursive: true });
     writeFileSync(join(d, path), JSON.stringify(json));
   }
   return d;
@@ -52,6 +51,42 @@ describe("a case's origin", () => {
       "assign/real.json: frozenFrom: a case frozen from a run is never committed",
     );
     expect(loadCases(d).assign.map((c) => c.id)).toEqual(["real"]);
+  });
+});
+
+describe("the committed folder holds only cases", () => {
+  const valid = { synthetic: true, input };
+  const strays: [string, string][] = [
+    ["a case in a subfolder", "assign/sub/x.json"],
+    ["an upper-case extension", "assign/y.JSON"],
+    ["a file at the top", "notes.json"],
+    ["a folder that is not a task", "frozen/s1-01.json"],
+    ["a copied local folder", "eval-cases/assign/s1-01.json"],
+    ["a non-JSON file", "assign/README.md"],
+    ["a hidden file", "assign/.gitkeep"],
+    ["a file with no extension", "summarize/case"],
+  ];
+  for (const [what, path] of strays) {
+    test(`refuses ${what}`, () => {
+      const d = dir({ "assign/ok.json": valid, [path]: valid });
+      expect(() => loadCases(d, { committed: true })).toThrow(CaseError);
+      expect(() => loadCases(d, { committed: true })).toThrow(`${path}: (root): is not a case`);
+      // A local folder is read as before: only <task>/<id>.json.
+      expect(loadCases(d).assign.map((c) => c.id)).toEqual(["ok"]);
+    });
+  }
+
+  test("reads a folder of valid synthetic cases", () => {
+    const d = dir({
+      "assign/a.json": valid,
+      "summarize/s.json": {
+        synthetic: true,
+        input: { name: "n", echoes: [{ id: "e1", title: "x" }], languages: ["en"], first: false },
+      },
+    });
+    const cases = loadCases(d, { committed: true });
+    expect(cases.assign.map((c) => c.id)).toEqual(["a"]);
+    expect(cases.summarize.map((c) => c.id)).toEqual(["s"]);
   });
 });
 
