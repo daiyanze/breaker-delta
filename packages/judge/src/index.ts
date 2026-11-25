@@ -187,3 +187,4 @@ export function parseJson(text: string): unknown {
 
 export * from "./driver.ts";
 export * from "./fake.ts";
+export * from "./prompts.ts";
