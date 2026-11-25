@@ -153,8 +153,28 @@ export function fakeSummarize(input: SummarizeInput): SummarizeResult {
   });
 }
 
+/**
+ * A fake answer, recorded as one call to the fake provider with no token
+ * counts, so a local run's usage records show what the fake did (#48).
+ */
 function result<T>(value: T): ChainResult<T> {
-  return { value, provider: FAKE_PROVIDER, model: FAKE_MODEL, repaired: false };
+  return {
+    value,
+    provider: FAKE_PROVIDER,
+    model: FAKE_MODEL,
+    promptVersion: null,
+    repaired: false,
+    calls: [
+      {
+        provider: FAKE_PROVIDER,
+        model: FAKE_MODEL,
+        promptVersion: null,
+        outcome: "ok",
+        fallback: false,
+        usage: {},
+      },
+    ],
+  };
 }
 
 /** The fake as a `ModelDriver`, for a step that takes either driver. */

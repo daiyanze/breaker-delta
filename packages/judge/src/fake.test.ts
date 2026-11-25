@@ -164,7 +164,18 @@ describe("fakeDriver", () => {
       value: fakeAssign(assignInput),
       provider: FAKE_PROVIDER,
       model: FAKE_MODEL,
+      promptVersion: null,
       repaired: false,
+      calls: [
+        {
+          provider: FAKE_PROVIDER,
+          model: FAKE_MODEL,
+          promptVersion: null,
+          outcome: "ok",
+          fallback: false,
+          usage: {},
+        },
+      ],
     });
     const s = await driver.summarize(summarizeInput);
     expect(s.value).toEqual(fakeSummarize(summarizeInput));

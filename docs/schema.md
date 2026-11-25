@@ -109,7 +109,12 @@ validation, #34; the topic page then says `failed_checks`). A published row
 has a `version` unique per topic and is never edited (invariant 4); a
 discarded one has none (a CHECK holds both). `reason` is `formed`, `new_echoes` or `rewrite`,
 worded per language by the site. `writer` is the provider name from
-settings. `unverified` is the fact gate's label (ADR 0006, #47);
+settings; `model` is that provider's model and `prompt_version` the
+version of the summarize prompt it was sent (ADR 0005, #48), so a summary
+can be traced to its origin. Both are null on rows written before #48, and
+`prompt_version` is null while the prompt has no version (none ships yet,
+#44). The commit step copies all three from the draft, for discarded rows
+too. `unverified` is the fact gate's label (ADR 0006, #47);
 `source_text_read` is false when enrich could not fetch the sources (#45).
 `risk_flags` is the model's flags as JSON.
 The select step (#33, `apps/pipeline/src/core/select.ts`) reads this table
@@ -183,6 +188,25 @@ A correction or a withdrawal of one summary version (ADR 0006, #78).
 ## correction_texts
 
 A correction's note to readers in one language; key `(correction_id, lang)`.
+
+## model_calls
+
+One HTTP call a model step (assign or summarize) made in a run (#48): `slot`,
+`task`, the `provider` name from settings, its `model`, the
+`prompt_version` (null while unversioned), and `outcome`: `ok` (a valid
+answer), `invalid` (an answer that failed the contract, repaired or not) or
+`error` (no answer: transport, HTTP or empty completion). `fallback` is true
+when an earlier provider of the same chain call had failed, so a run's
+provider fallbacks are the rows with it set. `prompt_tokens`,
+`completion_tokens` and `total_tokens` come from the response's `usage`, each
+null when the response did not give it. `at` is when the step recorded it.
+A failed chain call's calls are recorded too, and a retried step attempt's
+calls are new rows: each was a real call. The row holds no key, no message
+and no error text (`apps/pipeline/src/core/usage.ts`). The fake driver
+records one `ok` call per answer with no tokens.
+Totals per day group by the slot's day, UTC (`usageByDay` in `usage.ts`);
+tokens are summed over the calls that reported them. Nothing removes these
+rows yet.
 
 ## Not in this schema
 

@@ -36,14 +36,16 @@
  * tool-less model call. The model refers to echoes and topics by ID; it never
  * writes a URL or a source (invariant 2). The step's output holds counts, and
  * a failed model call's error is not kept, since it may quote the model's
- * answer.
+ * answer. Every HTTP call a batch made, answered or not, is a `model_calls`
+ * row (`usage.ts`, #48).
  */
 import { AssignResultSchema } from "@bd/contracts";
 import { type Db, echoes, topicAliases, topics } from "@bd/db";
-import { type DriverEcho, type DriverTopic, type ModelDriver, words } from "@bd/judge";
+import { callsOf, type DriverEcho, type DriverTopic, type ModelDriver, words } from "@bd/judge";
 import { asc, eq, isNull, sql } from "drizzle-orm";
 import type { Step, StepContext } from "./runner.ts";
 import { readSettings } from "./settings.ts";
+import { recordCalls } from "./usage.ts";
 
 export interface AssignDeps {
   /** Null: no assign model this run (an empty chain, #42); the step is skipped. */
@@ -295,14 +297,20 @@ export function assignStep(deps: AssignDeps): Step {
             }),
           ),
         };
-        let answer: unknown;
+        let result: Awaited<ReturnType<ModelDriver["assign"]>>;
         try {
-          answer = (await driver.assign(input)).value;
-        } catch {
-          // The error may quote the model's answer: count it, keep nothing.
+          result = await driver.assign(input);
+        } catch (err) {
+          // The error may quote the model's answer: count it and record its
+          // calls (no text in them, #48), keep nothing else.
+          await recordCalls(ctx, "assign", callsOf(err));
           output.failedBatches++;
           continue;
         }
+        // Outside the try: a usage row that cannot be written fails the step
+        // (L6), it is not a failed model call.
+        await recordCalls(ctx, "assign", result.calls);
+        const answer: unknown = result.value;
         const { placements, rejected } = validateAssignments(
           batch,
           offered.map((t) => t.id),

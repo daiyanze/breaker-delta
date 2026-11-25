@@ -71,7 +71,14 @@ function scripted(answer: (input: AssignInput) => AssignResult | Promise<AssignR
   const driver: ModelDriver = {
     async assign(input) {
       inputs.push(structuredClone(input));
-      return { value: await answer(input), provider: "test", model: "test", repaired: false };
+      return {
+        value: await answer(input),
+        provider: "test",
+        model: "test",
+        promptVersion: null,
+        repaired: false,
+        calls: [],
+      };
     },
     summarize: () => Promise.reject(new Error("not used")),
   };
