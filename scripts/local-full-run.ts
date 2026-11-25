@@ -16,6 +16,7 @@ import { Database as SQLite } from "bun:sqlite";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { STEP_NAMES } from "../apps/pipeline/src/core/steps.ts";
 
 /** The tables the acceptance criterion names (#40). */
 export const FULL_RUN_TABLES = ["echoes", "topics", "wave_points", "events"] as const;
@@ -152,6 +153,8 @@ export function fullRunProblem(result: FullRunResult): string | null {
   if (result.steps.length === 0 || notDone.length > 0) {
     return `steps not done: ${JSON.stringify(result.steps)}`;
   }
+  const ran = result.steps.map((s) => s.step).join(",");
+  if (ran !== STEP_NAMES.join(",")) return `steps ran ${ran}, not ${STEP_NAMES.join(",")}`;
   const empty = FULL_RUN_TABLES.filter((t) => result.counts[t] === 0);
   if (empty.length > 0) return `no rows in ${empty.join(", ")}`;
   return null;

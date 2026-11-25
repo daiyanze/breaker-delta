@@ -8,7 +8,7 @@
 import { expect, test } from "bun:test";
 import { join } from "node:path";
 import { STEP_NAMES } from "../apps/pipeline/src/core/steps.ts";
-import { FULL_RUN_TABLES, fullRun, fullRunProblem } from "./local-full-run.ts";
+import { FULL_RUN_TABLES, type FullRunResult, fullRun, fullRunProblem } from "./local-full-run.ts";
 
 const root = join(import.meta.dir, "..");
 
@@ -24,3 +24,12 @@ test("bun run local completes one full run and fills the database", async () => 
   // The fake model's topics form waves from the fixtures, so the run records them.
   expect(result.events.wave_formed).toBeGreaterThan(0);
 }, 90_000);
+
+test("fullRunProblem names a run that skipped a step", () => {
+  const done = STEP_NAMES.map((step) => ({ step, status: "done" }));
+  const counts = Object.fromEntries(FULL_RUN_TABLES.map((t) => [t, 1])) as FullRunResult["counts"];
+  const full: FullRunResult = { status: "done", steps: done, counts, events: {} };
+  expect(fullRunProblem(full)).toBeNull();
+  const skipped = { ...full, steps: done.filter((s) => s.step !== "select") };
+  expect(fullRunProblem(skipped)).toContain("steps ran");
+});
