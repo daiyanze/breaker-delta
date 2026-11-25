@@ -42,6 +42,94 @@ machine. It costs the user no API quota and needs no key. Hosted providers
 are a fallback, used only if the user configured them. Fetched content
 reaches that agent only as data in a tool-less call (invariant 6).
 
+## Local bridge
+
+How the bridge works is the agent's proposal (#49), not reviewed.
+
+`apps/local/bridge.ts` is a small HTTP service that the launcher starts
+when `BD_BRIDGE_COMMAND` is set. It answers `POST /v1/chat/completions`, the
+request the judge sends, by running the command once per request: the
+conversation goes to the command's stdin (one user message as it is,
+anything else as a transcript in role tags), and its stdout is the answer.
+The command is configured, not built in; nothing is put in its arguments.
+
+```sh
+BD_BRIDGE_COMMAND='["claude","--print","--tools","","--strict-mcp-config","--setting-sources","","--disable-slash-commands","--no-session-persistence"]' bun run local
+```
+
+Then put the bridge in a chain in settings, with no `apiKeyRef`:
+`{"name": "bridge", "baseUrl": "http://127.0.0.1:8789/v1", "model": "local-agent"}`.
+The bridge does not read `model`; it echoes it back. Until #43 and #44 add
+the prompts, no chain is called, the bridge included.
+
+**Why that command makes a tool-less call (invariant 6).** For Claude Code
+2.1.323, checked on 2026-11-25 on a harmless prompt ("Reply with the single
+word OK."), never on fetched text, with the agent's reduced environment
+below: its `stream-json` start-up record listed `tools: []`,
+`mcp_servers: []`, `skills: []` and `slash_commands: []`, and the bridge
+answered `OK`.
+
+| Flag | What it removes |
+| --- | --- |
+| `--print` | the interactive session: one answer, then the process exits |
+| `--tools ""` | every built-in tool (Bash, file edits, web fetch, sub-agents) |
+| `--strict-mcp-config` with no `--mcp-config` | every MCP server, so no tool from one |
+| `--setting-sources ""` | the user, project and local settings, so their hooks, plugins and permission rules (managed settings still apply) |
+| `--disable-slash-commands` | skills and commands |
+| `--no-session-persistence` | the saved transcript, which would hold fetched text |
+
+For a `claude` command the launcher accepts exactly these six flags, each
+once, in any order, plus `--model <name>` once. `--print` may be `-p`;
+`--tools ""` and `--setting-sources ""` may be written `--tools=` and
+`--setting-sources=`, and take no other value. Any other flag, a repeated
+one (a second `--tools Bash`), or a value for `--tools` or
+`--setting-sources` stops the launcher with exit 2 (`toollessProblem` in
+`apps/local/bridge.ts`). That check reads the arguments; it is not a
+sandbox. Another CLI is not checked: the launcher warns, and making it
+tool-less is the user's job. No other CLI's flags have been checked yet.
+
+The bridge adds guards of its own:
+
+- Each call runs in a new empty folder that is deleted afterwards, so there
+  is no project to read or change even if a tool were left on.
+- The agent gets a reduced environment, not the launcher's: what a program
+  needs to run and Claude Code's own sign-in (`AGENT_ENV` in
+  `apps/local/bridge.ts`): `PATH`, `HOME`, `USER`, `LOGNAME`, `SHELL`,
+  `TMPDIR`, `LANG`, `LC_ALL`, `LC_CTYPE`, `TZ`, the `XDG_*` folders, the
+  Windows system and profile folders (`Path`, `PATHEXT`, `SystemRoot`,
+  `windir`, `ComSpec`, `USERPROFILE`, `USERNAME`, `HOMEDRIVE`, `HOMEPATH`,
+  `APPDATA`, `LOCALAPPDATA`, `PROGRAMDATA`, `TEMP`, `TMP`), the proxy and
+  certificate variables (`HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY`, their
+  lower-case forms, `NODE_EXTRA_CA_CERTS`, `SSL_CERT_FILE`), and
+  `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL`,
+  `CLAUDE_CODE_OAUTH_TOKEN`, `CLAUDE_CONFIG_DIR`. `BD_BRIDGE_ENV` adds more
+  names, comma-separated, for another CLI's sign-in; it may not name the
+  app's own (`BD_*`, `PROBE_TOKEN`, `MODEL_DRIVER`, `CF_AI_TOKEN`,
+  `GROQ_API_KEY`, `GEMINI_API_KEY`, `CLOUDFLARE_*`). So `PROBE_TOKEN` and
+  the provider keys never reach a process that reads fetched text.
+- A request that offers tools (`tools`, `functions`) or asks to stream is
+  refused before the command runs.
+- It listens on 127.0.0.1 only, and answers only requests addressed to
+  `127.0.0.1` or `localhost` on its port with no `Origin` header, so a web
+  page open in a browser cannot use it.
+
+The command's stderr is neither logged nor returned, since it may repeat
+the prompt; a failure is reported by exit code (HTTP 502). A call past
+`BD_BRIDGE_TIMEOUT_SECONDS` (default 120, 1 to 86400) answers 504 at once,
+and a call whose client hung up ends too: in both cases, and after every
+answer, the agent and every process it started are killed. On macOS and
+Linux the agent leads its own process group and the group gets SIGKILL. On
+Windows `taskkill /T /F` ends the tree under the agent; a process that
+already left that tree (its parent exited first) is not reached, and the
+Windows path is not tested in CI. Port: `BD_BRIDGE_PORT`, default 8789, 0
+for a free one. A value the launcher cannot use for any of these stops it
+with exit 2. They are launcher variables like `BD_PORT`, not settings: the
+bridge is a separate service that does not read the database.
+
+The judge waits 60 seconds per call (`packages/judge`), less than the
+bridge's default, so a slower agent answer is cut off by the judge first and
+the chain moves on. Measuring how long a real agent takes is for #43 and #44.
+
 ## Comparison
 
 | Provider | Free allowance | Terms and risks | Use |

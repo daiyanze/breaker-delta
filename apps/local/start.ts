@@ -14,11 +14,16 @@
  *                     fixtures: each group's recorded fixture, no network
  *   PROBE_TOKEN       as on Cloudflare
  *   MODEL_DRIVER      as on Cloudflare: unset = the provider chains from settings, fake = the fake driver
+ *   BD_BRIDGE_COMMAND the agent CLI the model bridge runs, as a JSON array (bridge.ts); unset = no bridge
+ *   BD_BRIDGE_PORT    bridge port, on 127.0.0.1 only (default 8789)
+ *   BD_BRIDGE_TIMEOUT_SECONDS  a bridge call running longer is killed (default 120)
+ *   BD_BRIDGE_ENV     more variable names the agent gets, comma-separated (bridge.ts `AGENT_ENV`)
  *   READ_SOURCE, FIXTURE_SET            what the site reads (see apps/web)
  */
 import { resolve } from "node:path";
 import { startPipeline } from "@bd/pipeline/local";
 import { startSite } from "@bd/web/local";
+import { agentEnv, type Bridge, bridgeConfig, isClaudeCommand, startBridge } from "./bridge.ts";
 
 const env = process.env;
 // The current folder, not this file's: in the executable, files live in a
@@ -29,6 +34,34 @@ const sources = env.BD_SOURCES ?? "live";
 if (sources !== "live" && sources !== "fixtures") {
   console.error(`[local] BD_SOURCES must be "live" or "fixtures", not "${sources}"`);
   process.exit(2);
+}
+
+// The model bridge first, so the first tick can reach it (docs/providers.md,
+// "Local bridge"). It runs only when a command is configured; a value it
+// cannot use stops the launcher before anything starts.
+let bridge: Bridge | null = null;
+let config: ReturnType<typeof bridgeConfig>;
+let agentVars: Record<string, string> = {};
+try {
+  config = bridgeConfig(env);
+  if (config) agentVars = agentEnv(env, config.passEnv);
+} catch (err) {
+  console.error(`[local] not starting: ${err instanceof Error ? err.message : String(err)}`);
+  process.exit(2);
+}
+if (config) {
+  if (!isClaudeCommand(config.command)) {
+    console.warn(
+      "[local] the bridge cannot check that this command runs without tools; make sure it does",
+    );
+  }
+  bridge = startBridge({
+    command: config.command,
+    port: config.port,
+    timeoutMs: config.timeoutMs,
+    env: agentVars,
+  });
+  console.log(`[local] model bridge ${bridge.url}/v1 (a provider's baseUrl in settings)`);
 }
 
 // The site first: the pipeline's first tick runs at start and its publish
@@ -58,6 +91,7 @@ async function stop() {
   // The pipeline first: a tick that is finishing may still purge the site.
   await pipeline.stop();
   await site.stop();
+  await bridge?.stop();
   process.exit(0);
 }
 process.on("SIGINT", stop);

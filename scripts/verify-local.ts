@@ -153,6 +153,8 @@ async function up(args: string[]) {
       BD_DATA_DIR: dataDir,
       BD_PORT: "0",
       BD_WEB_PORT: "0",
+      // The model bridge runs only if BD_BRIDGE_COMMAND is set; never on a fixed port.
+      BD_BRIDGE_PORT: "0",
       // One tick at start-up; later runs are started with `tick`.
       BD_TICK_SECONDS: "86400",
       PROBE_TOKEN: TOKEN,
