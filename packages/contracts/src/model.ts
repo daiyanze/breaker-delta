@@ -73,7 +73,7 @@ export const SettingsSchema = z.object({
   stepMaxAttempts: z.number().int().min(1).max(10).default(3),
   /** How long a runner holds a run; it renews after each step. Longer than the slowest step. */
   runLeaseMinutes: z.number().int().min(1).default(30),
-  /** Per attempt to fetch one source URL in the scan step, reading the body included. */
+  /** Per attempt to fetch one source URL in the scan step, or one page in enrich, reading the body included. */
   fetchTimeoutSeconds: z.number().int().min(1).max(120).default(20),
   /** Attempts after the first for a source URL that may answer next time (network error, 429, 5xx). */
   fetchRetries: z.number().int().min(0).max(5).default(2),
@@ -89,6 +89,14 @@ export const SettingsSchema = z.object({
   echoRetentionDays: z.number().int().min(1).default(30),
   /** Days after its slot that a scan's raw responses are removed from blob storage. */
   rawRetentionDays: z.number().int().min(1).default(30),
+  /** Enrich: evidence pages fetched per selected wave at most. 0: none (#45). */
+  enrichPagesPerTopic: z.number().int().min(0).max(10).default(3),
+  /** Enrich: evidence pages fetched per run at most, over every selected wave (#45). */
+  enrichPagesPerRun: z.number().int().min(0).max(100).default(9),
+  /** Enrich: characters of text kept per page (#45). */
+  enrichPageMaxChars: z.number().int().min(200).max(20000).default(4000),
+  /** Enrich: kilobytes of a page's body read at most; the rest is not downloaded (#45). */
+  enrichPageMaxKB: z.number().int().min(16).max(10240).default(1024),
 });
 export type Settings = z.infer<typeof SettingsSchema>;
 

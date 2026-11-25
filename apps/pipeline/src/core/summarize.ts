@@ -7,7 +7,11 @@
  * 2. **Input.** The topic's name and its echoes first seen in this slot or
  *    earlier (id, title, excerpt), oldest first; the languages from
  *    settings; `first` when the reason is `formed`, so the model proposes
- *    the review criterion.
+ *    the review criterion. An echo whose page the enrich step read (#45)
+ *    has that text after its excerpt, in the same `summary` field. The
+ *    draft records whether any did (`sourceTextRead`); a wave enrich left
+ *    unread, or a run with no enrich output (one started before the step
+ *    existed), is written from titles and excerpts only.
  * 3. **Draft.** The model's answer, with what the step asked for (the echo
  *    ids it offered, the languages, `first`) and who answered, goes to the
  *    blob `draftKey(slot, topicId)`. The model's text is data, kept out of
@@ -31,6 +35,7 @@ import { type Db, echoes, topics } from "@bd/db";
 import { callsOf, type DriverEcho, type ModelDriver } from "@bd/judge";
 import type { Blobs } from "@bd/ports";
 import { and, asc, eq, lte } from "drizzle-orm";
+import { type EnrichOutput, readEnriched } from "./enrich.ts";
 import type { Step, StepContext } from "./runner.ts";
 import type { SelectOutput } from "./select.ts";
 import { readSettings } from "./settings.ts";
@@ -62,6 +67,8 @@ export interface Draft {
   offered: string[];
   /** The languages it was asked to write, in order. */
   languages: string[];
+  /** True when at least one offered echo came with its page's text (enrich, #45). */
+  sourceTextRead: boolean;
   /** Who answered (ADR 0005). */
   provider: string;
   model: string;
@@ -85,16 +92,25 @@ export function outputOf<T>(ctx: StepContext, step: string): T {
   return out as T;
 }
 
-/** A topic's echoes first seen in `slot` or earlier, oldest first. */
-async function topicEchoes(db: Db, topicId: string, slot: string): Promise<DriverEcho[]> {
+/**
+ * A topic's echoes first seen in `slot` or earlier, oldest first. An echo in
+ * `pages` has its page text after its excerpt.
+ */
+async function topicEchoes(
+  db: Db,
+  topicId: string,
+  slot: string,
+  pages: ReadonlyMap<string, string>,
+): Promise<DriverEcho[]> {
   const rows = await db
     .select({ id: echoes.id, title: echoes.title, excerpt: echoes.excerpt })
     .from(echoes)
     .where(and(eq(echoes.topicId, topicId), lte(echoes.firstSlot, slot)))
     .orderBy(asc(echoes.firstSeenAt), asc(echoes.id));
-  return rows.map((e) =>
-    e.excerpt ? { id: e.id, title: e.title, summary: e.excerpt } : { id: e.id, title: e.title },
-  );
+  return rows.map((e) => {
+    const summary = [e.excerpt, pages.get(e.id)].filter((t) => t).join("\n\n");
+    return summary ? { id: e.id, title: e.title, summary } : { id: e.id, title: e.title };
+  });
 }
 
 export function summarizeStep(deps: SummarizeDeps): Step {
@@ -105,13 +121,18 @@ export function summarizeStep(deps: SummarizeDeps): Step {
       const output: SummarizeOutput = { drafted: [], failed: [] };
       const driver = deps.driver;
       if (driver === null) return { ...output, skipped: true };
+      const enrich = ctx.outputs.get("enrich") as EnrichOutput | null | undefined;
+      const enriched = new Set((enrich?.read ?? []).map((r) => r.topicId));
       for (const { topicId, reason } of outputOf<SelectOutput>(ctx, "select").selected) {
         const topic = await ctx.db
           .select({ name: topics.name })
           .from(topics)
           .where(eq(topics.id, topicId))
           .get();
-        const cited = topic ? await topicEchoes(ctx.db, topicId, ctx.slot) : [];
+        const pages = enriched.has(topicId)
+          ? await readEnriched(deps.blobs, ctx.slot, topicId)
+          : new Map<string, string>();
+        const cited = topic ? await topicEchoes(ctx.db, topicId, ctx.slot, pages) : [];
         if (!topic || cited.length === 0) {
           output.failed.push(topicId);
           continue;
@@ -141,6 +162,7 @@ export function summarizeStep(deps: SummarizeDeps): Step {
           first,
           offered: cited.map((e) => e.id),
           languages,
+          sourceTextRead: cited.some((e) => pages.has(e.id)),
           provider: answer.provider,
           model: answer.model,
           promptVersion: answer.promptVersion,
