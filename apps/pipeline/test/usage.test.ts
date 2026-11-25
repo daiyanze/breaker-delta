@@ -93,6 +93,7 @@ function setup() {
     orm: drizzleOver(db),
     pipeline,
     rows,
+    exec: (sql: string) => sqlite.exec(sql),
   };
 }
 
@@ -241,4 +242,49 @@ describe("model usage records", () => {
       ["summarize", "fake", 0, true],
     ]);
   });
+
+  test("a summarize chain that fails records the calls it made, and the wave waits", async () => {
+    const t = setup();
+    await changeSettings(t.orm, NOW - 1, {
+      assignProviders: [provider("assign")],
+      summarizeProviders: [provider("down")],
+    });
+    expect(await t.pipeline().tick()).toMatchObject({ slot: SLOT, status: "done" });
+    const { failed } = JSON.parse(
+      t.rows<{ output: string }>(
+        "SELECT output FROM run_steps WHERE slot = ? AND step = 'summarize'",
+        SLOT,
+      )[0]?.output ?? "null",
+    ) as { failed: string[] };
+    expect(failed.length).toBeGreaterThan(0);
+    const calls = t.rows<CallRow>(CALLS, SLOT).filter((c) => c.task === "summarize");
+    expect(calls.map((c) => [c.provider, c.outcome, c.fallback])).toEqual(
+      failed.map(() => ["down", "error", 0]),
+    );
+    expect(t.rows("SELECT id FROM summaries")).toEqual([]);
+  });
+
+  for (const task of ["assign", "summarize"] as const) {
+    test(`a usage row that cannot be written fails the ${task} step, not the model call (L6)`, async () => {
+      const t = setup();
+      await changeSettings(t.orm, NOW - 1, {
+        assignProviders: [provider("assign")],
+        summarizeProviders: [provider("summarize")],
+      });
+      t.exec(`CREATE TRIGGER no_usage BEFORE INSERT ON model_calls WHEN NEW.task = '${task}'
+        BEGIN SELECT RAISE(ABORT, 'db down'); END`);
+      expect(await t.pipeline().tick()).toMatchObject({
+        slot: SLOT,
+        status: "failed",
+        reason: expect.stringContaining(`step ${task} failed`),
+      });
+      expect(
+        t.rows<{ status: string }>(
+          "SELECT status FROM run_steps WHERE slot = ? AND step = ?",
+          SLOT,
+          task,
+        ),
+      ).toEqual([{ status: "failed" }]);
+    });
+  }
 });

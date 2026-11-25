@@ -297,11 +297,9 @@ export function assignStep(deps: AssignDeps): Step {
             }),
           ),
         };
-        let answer: unknown;
+        let result: Awaited<ReturnType<ModelDriver["assign"]>>;
         try {
-          const result = await driver.assign(input);
-          await recordCalls(ctx, "assign", result.calls);
-          answer = result.value;
+          result = await driver.assign(input);
         } catch (err) {
           // The error may quote the model's answer: count it and record its
           // calls (no text in them, #48), keep nothing else.
@@ -309,6 +307,10 @@ export function assignStep(deps: AssignDeps): Step {
           output.failedBatches++;
           continue;
         }
+        // Outside the try: a usage row that cannot be written fails the step
+        // (L6), it is not a failed model call.
+        await recordCalls(ctx, "assign", result.calls);
+        const answer: unknown = result.value;
         const { placements, rejected } = validateAssignments(
           batch,
           offered.map((t) => t.id),
