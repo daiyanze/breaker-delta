@@ -8,14 +8,16 @@
  * APIs only (lib WebWorker, no `types`), so using a Bun or Cloudflare API
  * here is a compile error. `scripts/check-deps.ts` rejects the imports.
  */
+import type { Settings } from "@bd/contracts";
 import { slotId } from "@bd/core";
 import { drizzleOver } from "@bd/db";
+import type { DriverPrompts } from "@bd/judge";
 import type { Blobs, Clock, Database, SiteCache } from "@bd/ports";
 import { ADAPTERS } from "../sources/adapters/index.ts";
 import { LAUNCH_GROUPS } from "../sources/launch-groups.ts";
 import { probeAll } from "../sources/probe.ts";
 import { PROBE_TARGETS } from "../sources/probe-targets.ts";
-import { type ModelDriverName, modelDriver, parseModelDriver } from "./model.ts";
+import { type ModelDriverName, parseModelDriver, runModel, type SecretReader } from "./model.ts";
 import { runSlot, type Step } from "./runner.ts";
 import { lastRun } from "./runs.ts";
 import { readSettings } from "./settings.ts";
@@ -32,8 +34,19 @@ export interface PipelinePorts {
    * publish still finishes (`NO_SITE`).
    */
   site?: SiteCache;
-  /** Outbound HTTP. Defaults to the global `fetch`. */
+  /** Outbound HTTP for the scan step. Defaults to the global `fetch`. */
   fetch?: typeof fetch;
+  /**
+   * Outbound HTTP for model calls. Defaults to the global `fetch`, not to
+   * `fetch` above, which local mode may point at recorded source fixtures.
+   */
+  modelFetch?: typeof fetch;
+  /**
+   * Reads the secret a provider's `apiKeyRef` names (`model.ts`): an
+   * environment variable locally, a Worker secret on Cloudflare. Absent: no
+   * secret is set, so only providers without a key are called.
+   */
+  secret?: SecretReader;
 }
 
 /** The site where there is none: nothing is cached, so nothing is dropped. */
@@ -47,8 +60,14 @@ export const NO_SITE: SiteCache = { purge: async () => ({ purged: 0 }) };
 export interface PipelineConfig {
   /** Guards /__probe and /__tick. Null means those routes do not exist. */
   probeToken: string | null;
-  /** The model driver (`MODEL_DRIVER`, `model.ts`). Null: no model, every call fails. */
+  /** The model driver (`MODEL_DRIVER`, `model.ts`). Null: the chains from settings. */
   model: ModelDriverName | null;
+  /**
+   * The messages the chains send (`model.ts`). None ship yet: #43 and #44
+   * add them, each with an eval. Absent: no chain is called, so the model
+   * steps are skipped. Tests pass their own.
+   */
+  prompts?: DriverPrompts;
 }
 
 /**
@@ -86,7 +105,8 @@ export interface Pipeline {
 
 /**
  * `steps` replaces the run's steps (tests, scripts); by default they are the
- * full run (`buildSteps`) over these ports and this config.
+ * full run (`buildSteps`) over these ports and this config, built at each
+ * tick with that tick's settings, which hold the provider chains.
  */
 export function createPipeline(
   ports: PipelinePorts,
@@ -94,12 +114,19 @@ export function createPipeline(
   steps?: readonly Step[],
 ): Pipeline {
   const db = drizzleOver(ports.db);
-  const run =
+  const secret: SecretReader = ports.secret ?? (() => undefined);
+  const stepsFor = (settings: Settings): readonly Step[] =>
     steps ??
     buildSteps({
       blobs: ports.blobs,
       fetch: ports.fetch ?? fetch,
-      driver: modelDriver(config.model),
+      model: runModel(
+        config.model,
+        settings,
+        secret,
+        ports.modelFetch ?? fetch,
+        config.prompts ?? null,
+      ),
       site: ports.site ?? NO_SITE,
       groups: LAUNCH_GROUPS,
       adapters: ADAPTERS,
@@ -110,7 +137,7 @@ export function createPipeline(
     const now = () => ports.clock.now();
     const { settings } = await readSettings(db, now());
     const slot = slotId(now(), settings.runIntervalMinutes);
-    const outcome = await runSlot(db, now, slot, run, {
+    const outcome = await runSlot(db, now, slot, stepsFor(settings), {
       maxAttempts: settings.stepMaxAttempts,
       leaseMs: settings.runLeaseMinutes * 60_000,
     });

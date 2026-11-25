@@ -3,6 +3,13 @@
  * Calls have no tools. Output is JSON that the caller validates.
  * See docs/adr/0005-model-provider-chain.md.
  */
+import {
+  type AssignResult,
+  AssignResultSchema,
+  type SummarizeResult,
+  SummarizeResultSchema,
+} from "@bd/contracts";
+import type { AssignInput, ModelDriver, SummarizeInput } from "./driver.ts";
 
 export interface ResolvedProvider {
   name: string;
@@ -109,6 +116,62 @@ async function complete(
   const content = data.choices?.[0]?.message?.content;
   if (typeof content !== "string" || content.length === 0) throw new Error("empty completion");
   return content;
+}
+
+/**
+ * The messages a chain sends for each task. No prompt ships with this
+ * package yet: the assign prompt is #43 (M2-02) and the summarize prompt
+ * #44 (M2-03), each with an eval. Fetched text goes into these tool-less
+ * calls only as data (invariant 6).
+ */
+export interface DriverPrompts {
+  assign(input: AssignInput): ChatMessage[];
+  summarize(input: SummarizeInput): ChatMessage[];
+}
+
+/** A `Validate` from a zod schema's `safeParse`; the error lists each issue's path. */
+function contract<T>(
+  safeParse: (
+    raw: unknown,
+  ) =>
+    | { success: true; data: T }
+    | { success: false; error: { issues: { path: PropertyKey[]; message: string }[] } },
+): Validate<T> {
+  return (raw) => {
+    const parsed = safeParse(raw);
+    return parsed.success
+      ? { ok: true, value: parsed.data }
+      : {
+          ok: false,
+          error: parsed.error.issues
+            .map((i) => `${i.path.map(String).join(".") || "(root)"}: ${i.message}`)
+            .join("; "),
+        };
+  };
+}
+
+const validAssign: Validate<AssignResult> = contract((raw) => AssignResultSchema.safeParse(raw));
+const validSummarize: Validate<SummarizeResult> = contract((raw) =>
+  SummarizeResultSchema.safeParse(raw),
+);
+
+/**
+ * The chain as a `ModelDriver` (#42): every call goes through `callChain`
+ * over these providers with the given prompts, and each answer is checked
+ * against its model contract. Assign and summarize have separate chains
+ * (ADR 0005), so a caller makes one driver per chain. An empty chain fails
+ * every call (`ChainExhaustedError`); a caller that wants to skip a step
+ * checks for an empty chain first.
+ */
+export function chainDriver(
+  providers: readonly ResolvedProvider[],
+  prompts: DriverPrompts,
+  options: ChainOptions = {},
+): ModelDriver {
+  return {
+    assign: (input) => callChain(providers, prompts.assign(input), validAssign, options),
+    summarize: (input) => callChain(providers, prompts.summarize(input), validSummarize, options),
+  };
 }
 
 /** Accepts bare JSON or JSON wrapped in a Markdown code fence. */

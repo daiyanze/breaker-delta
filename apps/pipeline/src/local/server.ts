@@ -9,6 +9,7 @@ import { join } from "node:path";
 import type { SiteCache } from "@bd/ports";
 import { createPipeline, type Pipeline, pipelineConfig } from "../core/app.ts";
 import { fixtureFetch } from "../core/fixture-sources.ts";
+import { stringVars } from "../core/model.ts";
 import { directoryBlobs } from "./blobs.ts";
 import { sqliteDatabase } from "./database.ts";
 import { FIXTURE_FILES } from "./fixtures.ts";
@@ -33,6 +34,11 @@ export interface LocalPipelineOptions {
   tickSeconds: number;
   /** PROBE_TOKEN and MODEL_DRIVER, as on Cloudflare. */
   vars: Record<string, string | undefined>;
+  /**
+   * Reads the secret a provider's `apiKeyRef` names (#42). Default: the
+   * process environment. Keys are read per run and never stored.
+   */
+  secret?: (name: string) => string | undefined;
   /**
    * Where scan fetches: the real sources (default), or each group's recorded
    * fixture (`fixtureFetch`), which fetches nothing. `BD_SOURCES` in
@@ -75,6 +81,7 @@ export function startPipeline(options: LocalPipelineOptions): LocalPipeline {
       blobs: directoryBlobs(join(options.dataDir, "blobs")),
       ...(options.site ? { site: options.site } : {}),
       ...(options.sources === "fixtures" ? { fetch: fixtureFetch(readFixture, clock.now) } : {}),
+      secret: options.secret ?? stringVars(process.env),
     },
     pipelineConfig({
       PROBE_TOKEN: options.vars.PROBE_TOKEN,
