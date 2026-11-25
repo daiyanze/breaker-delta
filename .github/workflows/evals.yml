@@ -1,8 +1,8 @@
 name: evals
 
-# The eval (#50): run every shipped prompt over its cases in evals/cases/
-# through the provider chains in evals/providers.json, and post the result on
-# the PR. See evals/README.md.
+# The eval (#50): run every shipped prompt over the committed cases in
+# evals/cases/ (synthetic only: no fetched text) through the provider chains
+# in evals/providers.json, and post the result on the PR. See evals/README.md.
 #
 # - When: a PR that changes a prompt, the judge, the eval, its cases or
 #   providers, the pipeline's checks it scores with, or this file.
@@ -66,9 +66,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
         run: |
-          # Update this job's own comment (found by its marker), not another workflow's.
+          # Update this job's own comment: the marker, posted by this workflow's
+          # bot. Anyone can post a comment that starts with the marker.
           id="$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
-            --jq '.[] | select(.body | startswith("<!-- bd-evals -->")) | .id' | tail -n 1)"
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- bd-evals -->"))) | .id' | tail -n 1)"
           if [ -n "$id" ]; then
             gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F body=@eval.md >/dev/null
           else
