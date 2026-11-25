@@ -25,6 +25,11 @@ provider and fetches nothing real. By hand:
   recorded fixtures with the fake model: 70 echoes, 57 topics, 57 wave
   points (2 `up`), 2 `wave_formed` events, 2 published summaries. Counts
   move when fixtures are re-recorded; zero in any of the four is a failure.
+- Each summary names where it came from: `writer`, `model` (`fake` and
+  `fake` with the fake model) and `prompt_version` (null until a prompt
+  ships with a version). `model_calls` has one `ok` row per model answer,
+  `assign` and `summarize` (4 and 2 on the recorded fixtures), with no
+  token counts from the fake (#48).
 
 **Check it** (ids, counts and statuses only: never select titles, bodies or
 URLs):
@@ -37,6 +42,8 @@ bun scripts/verify-local.ts sql "SELECT slot, status, started_at, finished_at FR
 bun scripts/verify-local.ts sql "SELECT step, status, attempts FROM run_steps ORDER BY rowid"
 bun scripts/verify-local.ts sql "SELECT (SELECT COUNT(*) FROM echoes) AS echoes, (SELECT COUNT(*) FROM topics) AS topics, (SELECT COUNT(*) FROM wave_points) AS wave_points, (SELECT COUNT(*) FROM events) AS events"
 bun scripts/verify-local.ts sql "SELECT type, COUNT(*) AS n FROM events GROUP BY type"
+bun scripts/verify-local.ts sql "SELECT status, writer, model, prompt_version, COUNT(*) AS n FROM summaries GROUP BY 1, 2, 3, 4"
+bun scripts/verify-local.ts sql "SELECT substr(slot, 1, 8) AS day, task, provider, outcome, fallback, COUNT(*) AS calls FROM model_calls GROUP BY 1, 2, 3, 4, 5"
 bun scripts/verify-local.ts down
 ```
 
