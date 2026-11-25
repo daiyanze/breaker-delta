@@ -137,7 +137,29 @@ Automatic, per task. Each is printed as a count out of a total:
 | fallback | answers from a provider other than the chain's first, of answers | same |
 | agreement | labelled echoes placed as labelled, when cases have labels | - |
 
-The result holds numbers, prompt versions and provider names only. A model
+**Unanswered cases** (contract misses), per task, are listed by why the
+chain's last provider failed, one kind from a fixed list (`FAILURE_KINDS`
+in `packages/judge/src/index.ts`), with the ids of the cases:
+
+| kind | the last provider |
+| --- | --- |
+| `http-429` | answered HTTP 429 (rate limit) |
+| `http-4xx` | answered another 4xx |
+| `http-5xx` | answered a 5xx |
+| `timeout` | gave no response within the timeout |
+| `network` | failed before any response |
+| `empty` | answered with no completion text |
+| `not-json` | answered, and after the one repair still not JSON |
+| `schema` | answered JSON, and after the one repair still off the contract |
+| `other` | failed some other way |
+
+The HTTP kinds, `timeout`, `network` and `empty` are provider errors;
+`not-json` and `schema` are the prompt's or the model's. Only the kind
+and the case id are kept: case ids are file names (hand-written for
+committed cases, slot and topic id for frozen ones), never fetched text.
+
+The result holds numbers, kinds, case ids, prompt versions and provider
+names only. A model
 answer can quote fetched text and the comment is read by coding sessions,
 so no answer, case text or chain error is printed.
 

@@ -300,6 +300,46 @@ describe("freeze-cases", () => {
     }
   });
 
+  test("a summary written with page text whose stored pages match no offered echo is skipped, not frozen without them", async () => {
+    const copy = mkdtempSync(join(tmpdir(), "bd-freeze-nomatch-"));
+    try {
+      writeFileSync(join(copy, "content.db"), db.serialize());
+      const c = new SQLite(join(copy, "content.db"));
+      const one = c
+        .query("SELECT slot, topic_id AS topicId FROM summaries ORDER BY slot, topic_id LIMIT 1")
+        .get() as { slot: string; topicId: string };
+      c.query("UPDATE summaries SET source_text_read = 0").run();
+      c.query("UPDATE summaries SET source_text_read = 1 WHERE slot = ? AND topic_id = ?").run(
+        one.slot,
+        one.topicId,
+      );
+      c.close();
+      // A blob is there, but its only page is of an echo the step did not offer.
+      const blob = join(copy, "blobs", ...enrichKey(one.slot, one.topicId).split("/"));
+      mkdirSync(join(blob, ".."), { recursive: true });
+      writeFileSync(
+        blob,
+        JSON.stringify({
+          topicId: one.topicId,
+          pages: [{ echoId: "not-offered", text: "Synthetic page." }],
+        }),
+      );
+      const lines: string[] = [];
+      const out = join(copy, "out");
+      const code = await main(
+        ["--slot", one.slot, "--data-dir", copy, "--out", out, "--task", "summarize"],
+        { out: (l) => lines.push(l), env: {} },
+      );
+      expect(code).toBe(0);
+      expect(lines.at(-1)).toBe(
+        "skipped 1 summarize cases whose page text is not stored for their echoes (removed after rawRetentionDays?)",
+      );
+      expect(loadCases(out).summarize.some((x) => x.id.endsWith(one.topicId))).toBe(false);
+    } finally {
+      rmSync(copy, { recursive: true, force: true });
+    }
+  });
+
   test("a summary written with page text is frozen with the pages enrich gave the model; one whose pages are gone is skipped", async () => {
     const copy = mkdtempSync(join(tmpdir(), "bd-freeze-pages-"));
     try {
@@ -357,7 +397,7 @@ describe("freeze-cases", () => {
       );
       expect(code).toBe(0);
       expect(lines.at(-1)).toBe(
-        "skipped 1 summarize cases whose page text is no longer stored (rawRetentionDays)",
+        "skipped 1 summarize cases whose page text is not stored for their echoes (removed after rawRetentionDays?)",
       );
       expect(lines.join("\n")).not.toContain("Synthetic page text");
       const cases = loadCases(out).summarize;
@@ -440,6 +480,7 @@ describe("freeze-cases", () => {
         citations: { n: echoes, of: echoes },
         repaired: { n: 0, of: cases.assign.length },
         fallback: { n: 0, of: cases.assign.length },
+        unanswered: {},
       },
       expect.objectContaining({
         contract: { n: cases.summarize.length, of: cases.summarize.length },

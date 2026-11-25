@@ -322,7 +322,7 @@ export async function main(argv: readonly string[], io: Io = defaultIo): Promise
     for (const f of r.written) io.out(`  ${f}`);
     if (r.missingPages.length > 0) {
       io.out(
-        `skipped ${r.missingPages.length} summarize cases whose page text is no longer stored (rawRetentionDays)`,
+        `skipped ${r.missingPages.length} summarize cases whose page text is not stored for their echoes (removed after rawRetentionDays?)`,
       );
     }
     return 0;

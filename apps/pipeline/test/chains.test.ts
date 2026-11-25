@@ -22,6 +22,7 @@ import {
   type DriverPrompts,
   fakeAssign,
   fakeSummarize,
+  PROMPTS as SHIPPED,
   type SummarizeInput,
 } from "@bd/judge";
 import { createPipeline, pipelineConfig } from "../src/core/app.ts";
@@ -124,6 +125,24 @@ describe("runModel", () => {
   test("without prompts no chain is used, whatever the chains hold", () => {
     const chains = { assignProviders: [provider("a")], summarizeProviders: [provider("b")] };
     expect(runModel(null, chains, none, fetch)).toEqual({ assign: null, summarize: null });
+  });
+
+  test("each task gets a model only when it has its own prompt, whatever the other has", () => {
+    const chains = { assignProviders: [provider("a")], summarizeProviders: [provider("b")] };
+    const asJson = (input: unknown) => [{ role: "user" as const, content: JSON.stringify(input) }];
+    const summarizeOnly = runModel(null, chains, none, fetch, { summarize: asJson });
+    expect(summarizeOnly.assign).toBeNull();
+    expect(summarizeOnly.summarize).not.toBeNull();
+    const assignOnly = runModel(null, chains, none, fetch, { assign: asJson });
+    expect(assignOnly.assign).not.toBeNull();
+    expect(assignOnly.summarize).toBeNull();
+  });
+
+  test("with the shipped prompts summarize gets a model, and assign only once its prompt ships", () => {
+    const chains = { assignProviders: [provider("a")], summarizeProviders: [provider("b")] };
+    const m = runModel(null, chains, none, fetch, pipelineConfig({}).prompts ?? null);
+    expect(m.summarize).not.toBeNull();
+    expect(m.assign === null).toBe(SHIPPED.assign === undefined);
   });
 
   test("each task gets a model only when its own chain has providers", () => {

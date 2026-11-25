@@ -135,6 +135,7 @@ describe("runEval", () => {
         citations: { n: 6, of: 6 },
         repaired: { n: 1, of: 3 },
         fallback: { n: 1, of: 3 },
+        unanswered: {},
       },
     });
     expect(model.keys).toEqual([
@@ -165,6 +166,7 @@ describe("runEval", () => {
       contract: { n: 1, of: 2 },
       citations: { n: 0, of: 4 },
       repaired: { n: 0, of: 1 },
+      unanswered: { "http-5xx": ["c2"] },
     });
   });
 
@@ -220,6 +222,82 @@ describe("runEval", () => {
       publishable: { n: 2, of: 5 },
       repaired: { n: 0, of: 5 },
       fallback: { n: 0, of: 5 },
+      unanswered: {},
+    });
+  });
+
+  test("an unanswered case is counted under why the chain's last provider failed; no error text reaches the result", async () => {
+    const badFlag = (input: SummarizeInput) => ({
+      ...fakeSummarize(input),
+      riskFlags: ["LEAK-MARKER"],
+    });
+    // Per case, provider a then b (an invalid answer gets one repair):
+    // k1: a 429, b 429. k2: a 503, b 400. k3: a not JSON twice, b off-contract twice.
+    // k4: a 500, b not JSON twice. k5: a times out, b's fetch fails. k6: a and b empty.
+    const queues: Record<string, unknown[]> = {
+      "a.test": [429, 503, "garbage", "garbage", 500, "timeout", "empty"],
+      "b.test": [429, 400, badFlag, badFlag, "garbage", "garbage", "network", "empty"],
+    };
+    const fetchImpl = (async (url: string | URL | Request, init?: RequestInit) => {
+      const host = new URL(String(url)).host;
+      const turn = queues[host]?.[0];
+      if (typeof turn === "string") {
+        queues[host]?.shift();
+        if (turn === "timeout") throw new DOMException("LEAK-MARKER timed out", "TimeoutError");
+        if (turn === "network") throw new TypeError("LEAK-MARKER fetch failed");
+        const content = turn === "empty" ? "" : "LEAK-MARKER, not JSON";
+        return Response.json({ choices: [{ message: { content } }] });
+      }
+      return standInModel(queues as Record<string, Turn[]>).fetch(url, init);
+    }) as typeof fetch;
+    const tasks = await runEval({
+      prompts: { summarize: standIn.summarize },
+      cases: {
+        assign: [],
+        summarize: ["k1", "k2", "k3", "k4", "k5", "k6"].map((id) => summarizeCase(id)),
+      },
+      providers: {
+        assign: [],
+        summarize: [
+          { name: "a", baseUrl: "https://a.test/v1", model: "m-a" },
+          { name: "b", baseUrl: "https://b.test/v1", model: "m-b" },
+        ],
+      },
+      secret: () => undefined,
+      fetch: fetchImpl,
+    });
+    const [, summarize] = tasks;
+    expect(summarize?.status === "ran" && summarize.metrics.unanswered).toEqual({
+      "http-429": ["k1"],
+      "http-4xx": ["k2"],
+      network: ["k5"],
+      empty: ["k6"],
+      "not-json": ["k4"],
+      schema: ["k3"],
+    });
+    expect(summarize?.status === "ran" && summarize.metrics.contract).toEqual({ n: 0, of: 6 });
+    const md = report({ tasks });
+    expect(md).toContain(
+      "- summarize unanswered, by why the last provider failed: `http-429` 1 (`k1`); `http-4xx` 1 (`k2`); `network` 1 (`k5`); `empty` 1 (`k6`); `not-json` 1 (`k4`); `schema` 1 (`k3`)",
+    );
+    // The errors held the marker (zod quotes an invalid enum value); none reaches the result.
+    expect(md.includes("LEAK-MARKER")).toBe(false);
+    expect(JSON.stringify(tasks).includes("LEAK-MARKER")).toBe(false);
+  });
+
+  test("a chain that times out is counted as timeout", async () => {
+    const fetchImpl = (async () => {
+      throw new DOMException("LEAK-MARKER", "TimeoutError");
+    }) as unknown as typeof fetch;
+    const [, summarize] = await runEval({
+      prompts: { summarize: standIn.summarize },
+      cases: { assign: [], summarize: [summarizeCase("t1")] },
+      providers,
+      secret,
+      fetch: fetchImpl,
+    });
+    expect(summarize?.status === "ran" && summarize.metrics.unanswered).toEqual({
+      timeout: ["t1"],
     });
   });
 
