@@ -125,7 +125,8 @@ comes from its slot and topic, so a retried commit writes nothing twice.
 `source_text_read` is true when the enrich step (#45,
 `apps/pipeline/src/core/enrich.ts`) read at least one of the wave's
 evidence pages and summarize gave it to the model; false when every fetch
-failed, the run's page budget was spent, or the draft predates enrich. The
+failed, the run's page budget was spent, `enrichPagesPerTopic` is 0, or the
+draft predates enrich. The
 model's drafts are blobs, `raw/<slot>/summarize/<topic id>.json`, and
 enrich's page texts are `raw/<slot>/enrich/<topic id>.json`, both removed
 with the scan's raw responses after `rawRetentionDays`; the steps pass

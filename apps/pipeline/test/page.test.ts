@@ -1,6 +1,6 @@
 /** Reading one evidence page for the enrich step (#45): fetch with caps, extract its text. */
 import { describe, expect, test } from "bun:test";
-import { fetchPage, htmlText, pageText } from "../src/sources/page.ts";
+import { fetchPage, htmlText, isPublicHost, pageText } from "../src/sources/page.ts";
 
 /** Hand-written markup in the shapes real pages use; no fetched text (invariant 6). */
 const ARTICLE = `<!doctype html>
@@ -57,6 +57,20 @@ describe("htmlText", () => {
     expect(htmlText("a&#0;b&#xD800;c&#x110000;d")).toBe("a�b�c�d");
   });
 
+  test("a head whose end tag is left out ends at <body>", () => {
+    expect(
+      htmlText(
+        "<!doctype html><html><head><title>T</title><body><p>Article text</p></body></html>",
+      ),
+    ).toBe("Article text");
+  });
+
+  test("an apostrophe in an unquoted attribute value does not open a quote", () => {
+    expect(htmlText("<p>Before</p><img alt=it's src=x.png><p>After text</p>")).toBe(
+      "Before\nAfter text",
+    );
+  });
+
   test("a long run of markup is read in linear time", () => {
     const html = `${"<div a='1'>".repeat(50_000)}x${"<!-".repeat(50_000)}`;
     const started = performance.now();
@@ -100,6 +114,57 @@ function fakeFetch(respond: (url: string, init?: RequestInit) => Response | Prom
 
 const OPTS = { timeoutMs: 1000, maxBytes: 1024 * 1024, maxChars: 4000 };
 
+describe("isPublicHost", () => {
+  test("public names and addresses pass", () => {
+    for (const url of [
+      "https://example.com/a",
+      "http://news.example.co.uk/",
+      "https://93.184.216.34/",
+      "https://[2606:2800:220:1:248:1893:25c8:1946]/",
+      "https://172.32.0.1/",
+      "https://100.128.0.1/",
+    ]) {
+      expect([url, isPublicHost(new URL(url))]).toEqual([url, true]);
+    }
+  });
+
+  test("loopback, private, link-local, unspecified and local names are refused", () => {
+    for (const url of [
+      "http://localhost/",
+      "http://LOCALHOST:8080/",
+      "http://app.localhost/",
+      "http://router/",
+      "http://printer.local/",
+      "http://db.internal/",
+      "http://nas.lan/",
+      "http://x.home.arpa/",
+      "http://127.0.0.1/",
+      "http://127.1.2.3/",
+      "http://2130706433/", // 127.0.0.1 as one number; the URL parser normalises it
+      "http://0x7f.1/",
+      "http://0.0.0.0/",
+      "http://10.0.0.1/",
+      "http://172.16.0.1/",
+      "http://172.31.255.255/",
+      "http://192.168.1.1/",
+      "http://169.254.169.254/",
+      "http://100.64.0.1/",
+      "http://224.0.0.1/",
+      "http://255.255.255.255/",
+      "http://[::1]/",
+      "http://[::]/",
+      "http://[fe80::1]/",
+      "http://[fc00::1]/",
+      "http://[fd12:3456::1]/",
+      "http://[ff02::1]/",
+      "http://[::ffff:127.0.0.1]/",
+      "http://[::ffff:192.168.0.1]/",
+    ]) {
+      expect([url, isPublicHost(new URL(url))]).toEqual([url, false]);
+    }
+  });
+});
+
 describe("fetchPage", () => {
   test("returns the page's text", async () => {
     const f = fakeFetch(
@@ -121,6 +186,71 @@ describe("fetchPage", () => {
       });
     }
     expect(f.calls).toEqual([]);
+  });
+
+  test("a non-public host is not fetched", async () => {
+    const f = fakeFetch(() => new Response("<p>local only</p>"));
+    for (const url of ["http://127.0.0.1:8080/admin", "http://localhost/", "http://[::1]/"]) {
+      expect(await fetchPage(url, { ...OPTS, fetch: f.fetch })).toEqual({
+        ok: false,
+        error: "not a public host",
+      });
+    }
+    expect(f.calls).toEqual([]);
+  });
+
+  test("follows redirects itself, checking every hop", async () => {
+    const hops: Record<string, Response> = {};
+    const f = fakeFetch((url, init) => {
+      expect(init?.redirect).toBe("manual");
+      return hops[url] ?? new Response("gone", { status: 404 });
+    });
+    const redirect = (to: string, status = 302) =>
+      new Response(null, { status, headers: { location: to } });
+    hops["https://x.test/a"] = redirect("/b", 301);
+    hops["https://x.test/b"] = redirect("https://y.test/c", 307);
+    hops["https://y.test/c"] = new Response("<p>Landed</p>", {
+      headers: { "content-type": "text/html" },
+    });
+    expect(await fetchPage("https://x.test/a", { ...OPTS, fetch: f.fetch })).toEqual({
+      ok: true,
+      text: "Landed",
+    });
+    expect(f.calls).toEqual(["https://x.test/a", "https://x.test/b", "https://y.test/c"]);
+  });
+
+  test("a redirect to a non-public host or another scheme is refused before it is fetched", async () => {
+    for (const to of [
+      "http://127.0.0.1/admin",
+      "http://169.254.169.254/latest",
+      "file:///etc/passwd",
+    ]) {
+      const f = fakeFetch((url) =>
+        url === "https://x.test/a"
+          ? new Response(null, { status: 302, headers: { location: to } })
+          : new Response("<p>secret</p>"),
+      );
+      const result = await fetchPage("https://x.test/a", { ...OPTS, fetch: f.fetch });
+      expect([to, result.ok]).toEqual([to, false]);
+      expect(f.calls).toEqual(["https://x.test/a"]);
+    }
+  });
+
+  test("a redirect without a location, or too many redirects, is a failure", async () => {
+    const none = fakeFetch(() => new Response(null, { status: 302 }));
+    expect(await fetchPage("https://x.test/a", { ...OPTS, fetch: none.fetch })).toEqual({
+      ok: false,
+      error: "redirect without a location",
+    });
+    let n = 0;
+    const loop = fakeFetch(
+      () => new Response(null, { status: 302, headers: { location: `/r${++n}` } }),
+    );
+    expect(await fetchPage("https://x.test/a", { ...OPTS, fetch: loop.fetch })).toEqual({
+      ok: false,
+      error: "too many redirects",
+    });
+    expect(loop.calls.length).toBe(6);
   });
 
   test("a failed status, a network error, a timeout or another type is a failure in its own words", async () => {

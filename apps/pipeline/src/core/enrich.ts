@@ -64,10 +64,6 @@ export function enrichKey(slot: string, topicId: string): string {
   return `raw/${slot}/enrich/${topicId}.json`;
 }
 
-/**
- * Which echoes' pages to fetch, at most `max`: the oldest echo of each fetch
- * group first, in the order given, then the others in the order given. Pure.
- */
 /** A wave's stored page texts by echo id; empty when it has none. */
 export async function readEnriched(
   blobs: Blobs,
@@ -80,6 +76,10 @@ export async function readEnriched(
   return new Map(stored.pages.map((p) => [p.echoId, p.text]));
 }
 
+/**
+ * Which echoes' pages to fetch, at most `max`: the oldest echo of each fetch
+ * group first, in the order given, then the others in the order given. Pure.
+ */
 export function pickPages(list: readonly { id: string; groupId: string }[], max: number): string[] {
   const seen = new Set<string>();
   const firsts: string[] = [];
