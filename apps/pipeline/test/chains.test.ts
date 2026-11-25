@@ -1,8 +1,11 @@
 /**
  * Provider chains from settings (#42): keys are read through the adapter's
  * secret reader and reach only the request's authorization header; assign
- * and summarize use their own chains; a task with an empty chain is skipped
- * and the board still updates.
+ * and summarize use their own chains; a task with an empty chain, or any
+ * task while no prompts are given, is skipped and the board still updates.
+ *
+ * No prompt ships yet (#43, #44), so these tests inject `PROMPTS`: the input
+ * as JSON, which the stand-in endpoint reads back. It is not a real prompt.
  *
  * The runs use the recorded fixture sources and a stand-in model endpoint
  * that answers with the fake driver's output. Assertions compare ids,
@@ -13,7 +16,13 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Provider } from "@bd/contracts";
 import { drizzleOver } from "@bd/db";
-import { type AssignInput, fakeAssign, fakeSummarize, type SummarizeInput } from "@bd/judge";
+import {
+  type AssignInput,
+  type DriverPrompts,
+  fakeAssign,
+  fakeSummarize,
+  type SummarizeInput,
+} from "@bd/judge";
 import { createPipeline, pipelineConfig } from "../src/core/app.ts";
 import type { AssignOutput } from "../src/core/assign.ts";
 import { fixtureFetch } from "../src/core/fixture-sources.ts";
@@ -28,6 +37,12 @@ const FIXTURES = join(import.meta.dir, "../src/sources/fixtures");
 
 const ASSIGN_KEY = "test-assign-key-0001";
 const SUMMARIZE_KEY = "test-summarize-key-0002";
+
+/** Test-only prompts: the input as JSON. */
+const PROMPTS: DriverPrompts = {
+  assign: (input) => [{ role: "user", content: JSON.stringify(input) }],
+  summarize: (input) => [{ role: "user", content: JSON.stringify(input) }],
+};
 
 const provider = (name: string, apiKeyRef?: string): Provider => ({
   name,
@@ -53,6 +68,35 @@ describe("resolveProviders", () => {
     );
     expect(out.map((p) => p.name)).toEqual(["c"]);
   });
+
+  test("a key is trimmed, and one with a control character inside is left out", () => {
+    const read = stringVars({
+      TRAILING: "k2\n",
+      CRLF: "k3\r\nX-Injected: y",
+      NUL: "k4\u0000z",
+      TAB: "k5\tz",
+    });
+    const out = resolveProviders(
+      ["TRAILING", "CRLF", "NUL", "TAB"].map((ref) => provider(ref.toLowerCase(), ref)),
+      read,
+    );
+    expect(out.map((p) => [p.name, p.apiKey])).toEqual([["trailing", "k2"]]);
+  });
+
+  test("a key with CR/LF or NUL never reaches the chain's error", async () => {
+    const key = "test-key-0003";
+    const read = stringVars({ CRLF: `${key}\r\nX: y`, NUL: `${key}\u0000z` });
+    const m = runModel(
+      null,
+      { assignProviders: [provider("a", "CRLF"), provider("b", "NUL")], summarizeProviders: [] },
+      read,
+      (async () => Response.json({})) as unknown as typeof fetch,
+      PROMPTS,
+    );
+    const err = await m.assign?.assign({ echoes: [], topics: [] }).catch((e: Error) => e);
+    expect(err instanceof Error).toBe(true);
+    expect(String((err as Error).message).includes(key)).toBe(false);
+  });
 });
 
 describe("stringVars", () => {
@@ -70,8 +114,13 @@ describe("runModel", () => {
   const none = () => undefined;
 
   test("an empty chain gives no model for that task", () => {
-    const m = runModel(null, { assignProviders: [], summarizeProviders: [] }, none, fetch);
+    const m = runModel(null, { assignProviders: [], summarizeProviders: [] }, none, fetch, PROMPTS);
     expect(m).toEqual({ assign: null, summarize: null });
+  });
+
+  test("without prompts no chain is used, whatever the chains hold", () => {
+    const chains = { assignProviders: [provider("a")], summarizeProviders: [provider("b")] };
+    expect(runModel(null, chains, none, fetch)).toEqual({ assign: null, summarize: null });
   });
 
   test("each task gets a model only when its own chain has providers", () => {
@@ -80,6 +129,7 @@ describe("runModel", () => {
       { assignProviders: [provider("a")], summarizeProviders: [] },
       none,
       fetch,
+      PROMPTS,
     );
     expect(m.assign).not.toBeNull();
     expect(m.summarize).toBeNull();
@@ -91,6 +141,7 @@ describe("runModel", () => {
       { assignProviders: [provider("a", "UNSET")], summarizeProviders: [] },
       none,
       fetch,
+      PROMPTS,
     );
     await expect(m.assign?.assign({ echoes: [], topics: [] }) ?? null).rejects.toThrow(
       "all providers failed",
@@ -140,8 +191,11 @@ function setup() {
     modelFetch: model.fetch,
     secret: stringVars({ ASSIGN_KEY, SUMMARIZE_KEY }),
   };
-  const pipeline = (driver?: string) =>
-    createPipeline(ports, pipelineConfig(driver ? { MODEL_DRIVER: driver } : {}));
+  const pipeline = (driver?: string, prompts: DriverPrompts | null = PROMPTS) =>
+    createPipeline(ports, {
+      ...pipelineConfig(driver ? { MODEL_DRIVER: driver } : {}),
+      ...(prompts ? { prompts } : {}),
+    });
   const output = <T>(slot: string, step: string): T => {
     const row = sqlite
       .query("SELECT output FROM run_steps WHERE slot = ? AND step = ?")
@@ -228,5 +282,20 @@ describe("a run with chains from settings", () => {
     );
     expect(steps).toBe(11);
     expect(t.count("SELECT count(*) AS n FROM wave_points WHERE slot = ?", SLOT_2)).toBe(points1);
+  });
+
+  test("with chains set but no prompts (as shipped until #43, #44) no provider is called", async () => {
+    const t = setup();
+    await changeSettings(t.orm, NOW - 1, {
+      assignProviders: [provider("assign", "ASSIGN_KEY")],
+      summarizeProviders: [provider("summarize", "SUMMARIZE_KEY")],
+    });
+    expect(await t.pipeline(undefined, null).tick()).toMatchObject({ slot: SLOT, status: "done" });
+    expect(t.model.calls).toEqual([]);
+    expect(t.output<AssignOutput>(SLOT, "assign").skipped).toBe(true);
+    expect(t.output<SummarizeOutput>(SLOT, "summarize").skipped).toBe(true);
+    expect(
+      t.count("SELECT count(*) AS n FROM run_steps WHERE slot = ? AND status = 'done'", SLOT),
+    ).toBe(11);
   });
 });

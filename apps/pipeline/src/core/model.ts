@@ -5,9 +5,12 @@
  *
  * - unset or empty: the provider chains from settings (ADR 0005, 0008),
  *   `assignProviders` for assign and `summarizeProviders` for summarize, each
- *   its own chain. A task whose chain is empty has no model: its step is
- *   skipped (no call is made) and the rest of the run goes on, so compute
- *   still writes the board. The defaults are empty.
+ *   its own chain, sent the prompts in `PipelineConfig.prompts`. A task has
+ *   no model when its chain is empty or when there are no prompts: its step
+ *   is skipped (no call is made) and the rest of the run goes on, so compute
+ *   still writes the board. The chains default to empty, and no prompts
+ *   ship yet (#43, #44 add them, each with an eval), so until then no
+ *   provider is ever called.
  * - `fake`: the deterministic fake from `@bd/judge` (#31) for both tasks,
  *   whatever the chains say, for local mode, verify-local and previews. Its
  *   texts are marked as fake.
@@ -19,10 +22,18 @@
  * (`apiKeyRef`); the adapter's `secret` reads it when a run starts (an
  * environment variable locally, a Worker secret or variable on Cloudflare).
  * The key goes only into the request's authorization header: it is not in
- * a step's output, a draft or an error the chain throws.
+ * a step's output, a draft or an error the chain throws. A key with a
+ * control character inside it (CR, LF, NUL, ...) is refused, since an
+ * invalid header value would be quoted in the fetch error.
  */
 import type { Provider, Settings } from "@bd/contracts";
-import { chainDriver, fakeDriver, type ModelDriver, type ResolvedProvider } from "@bd/judge";
+import {
+  chainDriver,
+  type DriverPrompts,
+  fakeDriver,
+  type ModelDriver,
+  type ResolvedProvider,
+} from "@bd/judge";
 
 export const MODEL_DRIVERS = ["fake"] as const;
 export type ModelDriverName = (typeof MODEL_DRIVERS)[number];
@@ -64,11 +75,15 @@ export function noModelDriver(): ModelDriver {
 }
 
 /**
- * A chain's providers with their keys read through `secret`. A provider
- * whose `apiKeyRef` names a secret that is not set (or is empty) is left
- * out rather than called without its key; the rest of the chain is tried.
+ * A chain's providers with their keys read through `secret`, trimmed. A
+ * provider whose `apiKeyRef` names a secret that is not set, is empty, or
+ * holds a control character after trimming is left out rather than called
+ * without its key; the rest of the chain is tried.
  * A provider with no `apiKeyRef` needs no key (a local model, the bridge).
  */
+// biome-ignore lint/suspicious/noControlCharactersInRegex: matching them is the point.
+const CONTROL = /[\u0000-\u001f\u007f]/;
+
 export function resolveProviders(
   providers: readonly Provider[],
   secret: SecretReader,
@@ -80,15 +95,15 @@ export function resolveProviders(
       out.push(base);
       continue;
     }
-    const apiKey = secret(p.apiKeyRef);
-    if (apiKey) out.push({ ...base, apiKey });
+    const apiKey = secret(p.apiKeyRef)?.trim();
+    if (apiKey && !CONTROL.test(apiKey)) out.push({ ...base, apiKey });
   }
   return out;
 }
 
 /**
  * The model for one run. With chains, a task whose chain in settings is
- * empty gets null (skipped). One whose providers all lack their key gets a
+ * empty gets null (skipped), and so does every task while `prompts` is null. One whose providers all lack their key gets a
  * driver over an empty chain, so its calls fail and its echoes or waves wait
  * for a later run: it was configured, so it is not skipped.
  */
@@ -97,12 +112,15 @@ export function runModel(
   settings: Pick<Settings, "assignProviders" | "summarizeProviders">,
   secret: SecretReader,
   fetch: typeof globalThis.fetch,
+  prompts: DriverPrompts | null = null,
 ): RunModel {
   if (name === "fake") {
     const fake = fakeDriver();
     return { assign: fake, summarize: fake };
   }
   const chain = (providers: readonly Provider[]) =>
-    providers.length === 0 ? null : chainDriver(resolveProviders(providers, secret), { fetch });
+    prompts === null || providers.length === 0
+      ? null
+      : chainDriver(resolveProviders(providers, secret), prompts, { fetch });
   return { assign: chain(settings.assignProviders), summarize: chain(settings.summarizeProviders) };
 }

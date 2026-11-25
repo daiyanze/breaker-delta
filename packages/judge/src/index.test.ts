@@ -3,6 +3,7 @@ import {
   ChainExhaustedError,
   callChain,
   chainDriver,
+  type DriverPrompts,
   parseJson,
   type ResolvedProvider,
   type Validate,
@@ -89,11 +90,16 @@ describe("parseJson", () => {
 
 describe("chainDriver", () => {
   const input = { echoes: [{ id: "e1", title: "Rocket ships" }], topics: [] };
+  /** Test prompts: the input as JSON. Not a real prompt (#43, #44). */
+  const prompts: DriverPrompts = {
+    assign: (i) => [{ role: "user", content: JSON.stringify(i) }],
+    summarize: (i) => [{ role: "user", content: JSON.stringify(i) }],
+  };
 
   test("asks the chain and returns an answer that passes the assign contract", async () => {
     const answer = { assignments: [{ echoId: "e1", newTopic: { name: "Rocket" } }] };
     const f = fakeFetch({ "a.test": [JSON.stringify(answer)] });
-    const r = await chainDriver([A], { fetch: f.fetch }).assign(input);
+    const r = await chainDriver([A], prompts, { fetch: f.fetch }).assign(input);
     expect(r).toEqual({ value: answer, provider: "a", model: "m-a", repaired: false });
     expect(f.calls[0]?.auth).toBe("Bearer k");
   });
@@ -104,14 +110,14 @@ describe("chainDriver", () => {
       "a.test": ['{"assignments":"x"}', "{}"],
       "b.test": [JSON.stringify(answer)],
     });
-    const r = await chainDriver([A, B], { fetch: f.fetch }).assign(input);
+    const r = await chainDriver([A, B], prompts, { fetch: f.fetch }).assign(input);
     expect(r.provider).toBe("b");
     expect(f.calls).toHaveLength(3);
   });
 
   test("summarize checks the summarize contract", async () => {
     const f = fakeFetch({ "a.test": ['{"texts":[]}', '{"texts":[]}'] });
-    const err = await chainDriver([A], { fetch: f.fetch })
+    const err = await chainDriver([A], prompts, { fetch: f.fetch })
       .summarize({ name: "Rocket", echoes: input.echoes, languages: ["en"], first: false })
       .catch((e) => e);
     expect(err).toBeInstanceOf(ChainExhaustedError);
@@ -121,7 +127,7 @@ describe("chainDriver", () => {
   test("the key is in no error the chain throws", async () => {
     const key = "sk-test-not-a-real-key";
     const f = fakeFetch({ "a.test": [401] });
-    const err = await chainDriver([{ ...A, apiKey: key }], { fetch: f.fetch })
+    const err = await chainDriver([{ ...A, apiKey: key }], prompts, { fetch: f.fetch })
       .assign(input)
       .catch((e) => e);
     expect(err).toBeInstanceOf(ChainExhaustedError);
@@ -129,7 +135,20 @@ describe("chainDriver", () => {
     expect(JSON.stringify({ message: err.message, attempts: err.attempts })).not.toContain(key);
   });
 
+  test("sends the messages the injected prompts give", async () => {
+    const answer = { assignments: [{ echoId: "e1", topicId: "t1" }] };
+    const sent: unknown[] = [];
+    const f = (async (_url: string | URL | Request, init?: RequestInit) => {
+      sent.push(JSON.parse(String(init?.body)).messages);
+      return Response.json({ choices: [{ message: { content: JSON.stringify(answer) } }] });
+    }) as typeof fetch;
+    await chainDriver([A], prompts, { fetch: f }).assign(input);
+    expect(sent).toEqual([[{ role: "user", content: JSON.stringify(input) }]]);
+  });
+
   test("an empty chain fails every call", async () => {
-    await expect(chainDriver([]).assign(input)).rejects.toBeInstanceOf(ChainExhaustedError);
+    await expect(chainDriver([], prompts).assign(input)).rejects.toBeInstanceOf(
+      ChainExhaustedError,
+    );
   });
 });

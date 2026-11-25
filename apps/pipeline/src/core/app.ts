@@ -11,6 +11,7 @@
 import type { Settings } from "@bd/contracts";
 import { slotId } from "@bd/core";
 import { drizzleOver } from "@bd/db";
+import type { DriverPrompts } from "@bd/judge";
 import type { Blobs, Clock, Database, SiteCache } from "@bd/ports";
 import { ADAPTERS } from "../sources/adapters/index.ts";
 import { LAUNCH_GROUPS } from "../sources/launch-groups.ts";
@@ -61,6 +62,12 @@ export interface PipelineConfig {
   probeToken: string | null;
   /** The model driver (`MODEL_DRIVER`, `model.ts`). Null: the chains from settings. */
   model: ModelDriverName | null;
+  /**
+   * The messages the chains send (`model.ts`). None ship yet: #43 and #44
+   * add them, each with an eval. Absent: no chain is called, so the model
+   * steps are skipped. Tests pass their own.
+   */
+  prompts?: DriverPrompts;
 }
 
 /**
@@ -113,7 +120,13 @@ export function createPipeline(
     buildSteps({
       blobs: ports.blobs,
       fetch: ports.fetch ?? fetch,
-      model: runModel(config.model, settings, secret, ports.modelFetch ?? fetch),
+      model: runModel(
+        config.model,
+        settings,
+        secret,
+        ports.modelFetch ?? fetch,
+        config.prompts ?? null,
+      ),
       site: ports.site ?? NO_SITE,
       groups: LAUNCH_GROUPS,
       adapters: ADAPTERS,

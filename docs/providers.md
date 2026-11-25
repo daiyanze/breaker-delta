@@ -18,15 +18,16 @@ November 2026). Check the provider's console before relying on a number.
 **How a run picks its model (#42).** The `MODEL_DRIVER` variable, the same
 name in every adapter (`apps/pipeline/src/core/model.ts`): unset means the
 chains from settings, `assignProviders` for assign and `summarizeProviders`
-for summarize, read at the start of each run. A task whose chain is empty
-is skipped: no call is made, its echoes or waves wait for a later run, and
-the rest of the run (compute, the board, publish) goes on. Both chains are
-empty by default, so production runs without a model until the owner sets
-them. `fake` is the deterministic fake driver (#31) for both tasks, whatever
-the chains say; its texts are marked `[fake]`. verify-local instances run
-with `fake`. The prompts the chains are sent are a placeholder (`v0`,
-`packages/judge/src/prompts.ts`) until #43 and #44. This is the agent's
-proposal (#36, #42), not reviewed.
+for summarize, read at the start of each run. A task has no model when its
+chain is empty or when there are no prompts to send: its step is skipped, no
+call is made, its echoes or waves wait for a later run, and the rest of the
+run (compute, the board, publish) goes on. No prompt ships yet: the chain
+driver takes its prompts as an input, and #43 (assign) and #44 (summarize)
+add them, each with an eval. Until then no provider is called, whatever the
+chains hold. Both chains are also empty by default. `fake` is the
+deterministic fake driver (#31) for both tasks, whatever the chains say; its
+texts are marked `[fake]`. verify-local instances run with `fake`. This is
+the agent's proposal (#36, #42), not reviewed.
 
 ## Chains
 
@@ -74,12 +75,17 @@ lowered without a release once real usage is known.
 ## Keys
 
 Keys are never stored in settings: a provider names the secret or
-environment variable that holds its key (`apiKeyRef`). Each run reads it
-through the adapter (#42): the process environment in local mode, a Worker
-secret on Cloudflare (`wrangler secret put GROQ_API_KEY`). The key goes only
-into the request's authorization header. A provider whose secret is not set
-is left out of the chain, not called without its key. The names and the
-arrangement below were confirmed by the owner on 2026-11-23.
+environment variable that holds its key (`apiKeyRef`).
+
+How a key is read is the agent's proposal (#42), not reviewed: each run
+reads it through the adapter, from the process environment in local mode
+and from a Worker secret on Cloudflare (`wrangler secret put GROQ_API_KEY`).
+The key is trimmed and goes only into the request's authorization header. A
+provider whose secret is not set, is empty, or holds a control character
+(CR, LF, NUL) is left out of the chain, not called without its key.
+
+The key names and the arrangement in the table below were confirmed by the
+owner on 2026-11-23.
 
 | Provider | Key | Where it comes from |
 | --- | --- | --- |
