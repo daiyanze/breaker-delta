@@ -25,11 +25,14 @@ const get = (path: string, token?: string) =>
   });
 
 describe("pipeline config", () => {
-  test("holds the probe token and the model driver; behaviour comes from settings", () => {
-    expect(pipelineConfig({})).toEqual({ probeToken: null, model: null });
-    expect(pipelineConfig({ PROBE_TOKEN: "t" })).toEqual({ probeToken: "t", model: null });
-    expect(pipelineConfig({ MODEL_DRIVER: "" })).toEqual({ probeToken: null, model: null });
-    expect(pipelineConfig({ MODEL_DRIVER: "fake" })).toEqual({ probeToken: null, model: "fake" });
+  test("holds the tokens and the model driver; behaviour comes from settings", () => {
+    const none = { probeToken: null, reportToken: null, model: null };
+    expect(pipelineConfig({})).toEqual(none);
+    expect(pipelineConfig({ PROBE_TOKEN: "t" })).toEqual({ ...none, probeToken: "t" });
+    expect(pipelineConfig({ REPORT_TOKEN: "r" })).toEqual({ ...none, reportToken: "r" });
+    expect(pipelineConfig({ REPORT_TOKEN: "" })).toEqual(none);
+    expect(pipelineConfig({ MODEL_DRIVER: "" })).toEqual(none);
+    expect(pipelineConfig({ MODEL_DRIVER: "fake" })).toEqual({ ...none, model: "fake" });
   });
 
   test("an unknown MODEL_DRIVER is refused, not run without a model", () => {
