@@ -1,0 +1,159 @@
+/**
+ * Seed data for previews (#41): the content of full local runs, as SQL that
+ * loads into an empty preview database.
+ *
+ * - **No fetched content.** The runs read the repository's scrubbed fixture
+ *   sources (`fixtureFetch`, `src/sources/fixtures`) with the fake model, so
+ *   every title is a placeholder and every summary is marked as fake. A real
+ *   run's data never goes into a seed: it holds fetched text, which must not
+ *   enter a coding session or the repository (invariant 6).
+ * - **Fixed clock.** The runs start at `SEED_START` and tick `SEED_RUNS`
+ *   times, one run interval apart, so a seed always has the same slots,
+ *   counts and heights. Topic and summary ids are random (`assign`), so two
+ *   seeds differ in their ids only.
+ * - **Empty databases only.** Every statement inserts only while `runs` is
+ *   empty, and the `runs` rows come last, so loading a seed into a database
+ *   that already ran (or was seeded) changes nothing. Previews never run the
+ *   pipeline themselves (no cron, no `/__tick`), so the shared preview
+ *   database is seeded once.
+ * - **Content only.** `settings` and its history are left out: each
+ *   deployment reads its own, with defaults from `@bd/contracts`
+ *   (invariant 9). Raw responses and drafts are blobs, not rows, and are not
+ *   part of a seed.
+ */
+import { Database as SQLite } from "bun:sqlite";
+import type { Blobs } from "@bd/ports";
+import { createPipeline, pipelineConfig, type TickResult } from "../core/app.ts";
+import { fixtureFetch } from "../core/fixture-sources.ts";
+import { sqliteDatabase } from "./database.ts";
+import { migrate } from "./migrate.ts";
+import { readFixture } from "./server.ts";
+
+/** 14:07 JST on Nov 20, 2026: the first seeded run's clock. */
+export const SEED_START = Date.UTC(2026, 10, 20, 5, 7);
+/** Runs per seed: enough for a wave's height to have a history. */
+export const SEED_RUNS = 3;
+
+/** Tables a seed leaves out (see the file comment), and the guard table, written last. */
+const SKIPPED = new Set(["_migrations", "settings", "settings_history"]);
+const GUARD = "runs";
+/** Rows per statement, well inside D1's statement size limit. */
+const CHUNK = 20;
+
+function memoryBlobs(): Blobs {
+  const store = new Map<string, Uint8Array>();
+  return {
+    async get(key) {
+      return store.get(key) ?? null;
+    },
+    async put(key, body) {
+      store.set(key, typeof body === "string" ? new TextEncoder().encode(body) : body);
+    },
+    async delete(key) {
+      store.delete(key);
+    },
+    async list(prefix) {
+      return [...store.keys()].filter((k) => k.startsWith(prefix)).sort();
+    },
+  };
+}
+
+export interface SeedRun {
+  /** A migrated in-memory database holding the runs' content. The caller closes it. */
+  sqlite: SQLite;
+  ticks: TickResult[];
+}
+
+/** Run the pipeline `runs` times over the fixture sources with the fake model. */
+export async function seedRun(options: { start?: number; runs?: number } = {}): Promise<SeedRun> {
+  const sqlite = new SQLite(":memory:");
+  migrate(sqlite);
+  let now = options.start ?? SEED_START;
+  const clock = { now: () => now };
+  const pipeline = createPipeline(
+    {
+      db: sqliteDatabase(sqlite),
+      clock,
+      blobs: memoryBlobs(),
+      fetch: fixtureFetch(readFixture, clock.now),
+    },
+    pipelineConfig({ MODEL_DRIVER: "fake" }),
+  );
+  const ticks: TickResult[] = [];
+  for (let i = 0; i < (options.runs ?? SEED_RUNS); i++) {
+    const tick = await pipeline.tick();
+    if (tick.status !== "done")
+      throw new Error(`seed run ${tick.slot}: ${tick.reason ?? "not run"}`);
+    ticks.push(tick);
+    now += 60 * 60_000;
+  }
+  return { sqlite, ticks };
+}
+
+const ident = (name: string) => `"${name.replaceAll('"', '""')}"`;
+
+/** One SQLite value as a literal. */
+export function sqlLiteral(value: unknown): string {
+  if (value === null || value === undefined) return "NULL";
+  if (typeof value === "number") {
+    if (!Number.isFinite(value)) throw new Error(`not a finite number: ${value}`);
+    return String(value);
+  }
+  if (typeof value === "bigint") return String(value);
+  if (typeof value === "string") return `'${value.replaceAll("'", "''")}'`;
+  if (value instanceof Uint8Array) return `X'${Buffer.from(value).toString("hex")}'`;
+  throw new Error(`no SQL literal for ${typeof value}`);
+}
+
+/** The content of `sqlite` as guarded INSERT statements (see the file comment). */
+export function seedSql(sqlite: SQLite): string {
+  const tables = (
+    sqlite
+      .query(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name",
+      )
+      .all() as { name: string }[]
+  )
+    .map((t) => t.name)
+    .filter((name) => !SKIPPED.has(name));
+  if (!tables.includes(GUARD)) throw new Error(`no ${GUARD} table`);
+  const ordered = [...tables.filter((t) => t !== GUARD), GUARD];
+  const guard = `WHERE NOT EXISTS (SELECT 1 FROM ${ident(GUARD)})`;
+  const lines = [
+    "-- Breaker Delta preview seed (#41). Generated by `bun scripts/seed-preview.ts`;",
+    "-- scrubbed fixture sources and the fake model only, no fetched content.",
+    "-- Loads into an empty database only: every insert is skipped once `runs` has a row.",
+  ];
+  for (const table of ordered) {
+    const columns = (
+      sqlite.query(`PRAGMA table_info(${ident(table)})`).all() as { name: string }[]
+    ).map((c) => c.name);
+    const list = columns.map(ident).join(", ");
+    const rows = sqlite
+      .query(`SELECT ${list} FROM ${ident(table)} ORDER BY rowid`)
+      .values() as unknown[][];
+    // The guard's own rows go in one statement: SQLite reads its SELECT in
+    // full before inserting, so the guard holds for all of them.
+    const size = table === GUARD ? Math.max(rows.length, 1) : CHUNK;
+    for (let i = 0; i < rows.length; i += size) {
+      const values = rows
+        .slice(i, i + size)
+        .map((row) => `(${row.map(sqlLiteral).join(", ")})`)
+        .join(",\n  ");
+      lines.push(
+        `INSERT INTO ${ident(table)} (${list})\nSELECT * FROM (VALUES\n  ${values}) ${guard};`,
+      );
+    }
+  }
+  return `${lines.join("\n")}\n`;
+}
+
+/** A seed: run, export, close. */
+export async function buildSeed(options: { start?: number; runs?: number } = {}): Promise<string> {
+  const { sqlite } = await seedRun(options);
+  try {
+    return seedSql(sqlite);
+  } finally {
+    sqlite.close();
+  }
+}

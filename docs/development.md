@@ -130,6 +130,14 @@ no cron and no secrets, and is deleted when the PR closes. Preview
 migrations are applied to the shared preview database with
 `apps/pipeline/wrangler.preview-db.jsonc`.
 
+The preview database is then seeded (#41) with `bun scripts/seed-preview.ts`:
+three local runs over the scrubbed fixture sources with the fake model,
+exported as SQL (`apps/pipeline/src/local/seed.ts`). It never holds a real
+run's data, which has fetched text (invariant 6). Every insert is skipped
+once the database has a run, so the shared database is seeded once; to
+reseed it after a schema change, empty it first. `apps/pipeline/test/seed.test.ts`
+checks that the seed loads into a fresh database with waves and echoes.
+
 The owner sets this up once:
 
 1. **Token.** An account API token only for previews, separate from the
