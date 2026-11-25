@@ -53,7 +53,9 @@ function editedDriver(edit: (r: SummarizeResult, input: SummarizeInput) => unkno
       value: edit(fakeSummarize(input), input) as SummarizeResult,
       provider: "edited",
       model: "m",
+      promptVersion: null,
       repaired: false,
+      calls: [],
     }),
   };
 }
