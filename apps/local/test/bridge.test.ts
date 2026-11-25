@@ -7,13 +7,17 @@ import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { networkInterfaces, tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  AGENT_ENV,
+  agentEnv,
   BRIDGE_HOST,
   type Bridge,
+  bridgeConfig,
   type ChatMessage,
   CLAUDE_TOOLLESS,
   parseChatRequest,
   parseCommand,
   renderPrompt,
+  runAgent,
   startBridge,
   toollessProblem,
 } from "../bridge.ts";
@@ -28,8 +32,8 @@ afterEach(async () => {
   running = [];
 });
 
-function bridge(command: string[], timeoutMs = 10_000) {
-  const b = startBridge({ command, port: 0, timeoutMs, log: quiet });
+function bridge(command: string[], timeoutMs = 10_000, env?: Record<string, string>) {
+  const b = startBridge({ command, port: 0, timeoutMs, log: quiet, ...(env ? { env } : {}) });
   running.push(b);
   return b;
 }
@@ -61,32 +65,75 @@ describe("parseCommand", () => {
 });
 
 describe("toollessProblem", () => {
-  test("the documented claude command passes", () => {
+  const args = CLAUDE_TOOLLESS.slice(1);
+
+  test("the documented claude command passes, in any order and either spelling", () => {
     expect(toollessProblem(CLAUDE_TOOLLESS)).toBeNull();
-    expect(toollessProblem(["/opt/bin/claude.exe", ...CLAUDE_TOOLLESS.slice(1)])).toBeNull();
-    const equals = ["claude", "-p", "--tools=", "--strict-mcp-config", "--setting-sources="];
-    expect(toollessProblem([...equals, "--disable-slash-commands"])).toBeNull();
+    expect(toollessProblem(["/opt/bin/claude.exe", ...args])).toBeNull();
+    const equals = [
+      "-p",
+      "--no-session-persistence",
+      "--tools=",
+      "--disable-slash-commands",
+      "--setting-sources=",
+      "--strict-mcp-config",
+    ];
+    expect(toollessProblem(["claude", ...equals])).toBeNull();
+  });
+
+  test("--model with a name is the one other flag allowed", () => {
+    expect(toollessProblem([...CLAUDE_TOOLLESS, "--model", "sonnet"])).toBeNull();
+    expect(toollessProblem([...CLAUDE_TOOLLESS, "--model=sonnet"])).toBeNull();
+    for (const bad of [["--model"], ["--model", ""], ["--model", "--tools"], ["--model="]]) {
+      expect(toollessProblem([...CLAUDE_TOOLLESS, ...bad])).not.toBeNull();
+    }
+    const twice = [...CLAUDE_TOOLLESS, "--model", "a", "--model", "b"];
+    expect(toollessProblem(twice)).toContain("more than once");
   });
 
   test("a claude command missing any required flag is refused, by name", () => {
-    const args = CLAUDE_TOOLLESS.slice(1);
-    const cases: [string[], string][] = [
-      [args.filter((a) => a !== "--print"), "-p/--print"],
-      [args.filter((a) => a !== "--strict-mcp-config"), "--strict-mcp-config"],
-      [args.filter((a) => a !== "--disable-slash-commands"), "--disable-slash-commands"],
-      [["--print", "--strict-mcp-config", "--disable-slash-commands"], '--tools ""'],
+    const cases: [string, string][] = [
+      ["--print", "-p/--print"],
+      ["--strict-mcp-config", "--strict-mcp-config"],
+      ["--disable-slash-commands", "--disable-slash-commands"],
+      ["--no-session-persistence", "--no-session-persistence"],
     ];
-    for (const [a, name] of cases) expect(toollessProblem(["claude", ...a])).toContain(name);
+    for (const [drop, name] of cases) {
+      expect(toollessProblem(["claude", ...args.filter((a) => a !== drop)])).toContain(name);
+    }
+    expect(toollessProblem(["claude", "--print", "--strict-mcp-config"])).toContain('--tools ""');
   });
 
-  test("tools named after --tools are not tool-less", () => {
+  test("tools or settings named a second time, or with a value, are refused", () => {
+    for (const extra of [
+      ["--tools", "Bash,Edit"],
+      ["--tools=Bash"],
+      ["--tools", ""],
+      ["--tools="],
+      ["--setting-sources", "user,project"],
+      ["--setting-sources=user"],
+      ["--setting-sources", ""],
+      ["--print"],
+      ["-p"],
+      ["--strict-mcp-config"],
+    ]) {
+      expect({ extra, problem: toollessProblem([...CLAUDE_TOOLLESS, ...extra]) }).toEqual({
+        extra,
+        problem: expect.any(String),
+      });
+    }
+    // A value in place of the empty one.
     const named = CLAUDE_TOOLLESS.map((a, i) => (i === 3 ? "Bash,Edit" : a));
-    expect(toollessProblem(named)).toContain('--tools ""');
+    expect(toollessProblem(named)).not.toBeNull();
     const settings = CLAUDE_TOOLLESS.map((a, i) => (i === 6 ? "user" : a));
-    expect(toollessProblem(settings)).toContain('--setting-sources ""');
+    expect(toollessProblem(settings)).not.toBeNull();
+    // --tools as the last argument, with no value at all.
+    expect(
+      toollessProblem(["claude", ...args.slice(0, 1), ...args.slice(3), "--tools"]),
+    ).not.toBeNull();
   });
 
-  test("flags that bring tools, folders or settings back are refused", () => {
+  test("any flag not in the documented list is refused", () => {
     for (const extra of [
       ["--mcp-config", "x.json"],
       ["--mcp-config=x.json"],
@@ -94,8 +141,16 @@ describe("toollessProblem", () => {
       ["--add-dir", "/"],
       ["--dangerously-skip-permissions"],
       ["--settings", "{}"],
+      ["--agents", "{}"],
+      ["--permission-mode", "bypassPermissions"],
+      ["--append-system-prompt", "x"],
+      ["--verbose"],
+      ["Bash"],
     ]) {
-      expect(toollessProblem([...CLAUDE_TOOLLESS, ...extra])).toContain("must not have");
+      expect({ extra, problem: toollessProblem([...CLAUDE_TOOLLESS, ...extra]) }).toEqual({
+        extra,
+        problem: expect.stringContaining("only the flags"),
+      });
     }
   });
 
@@ -106,6 +161,89 @@ describe("toollessProblem", () => {
   test("docs/providers.md gives the same claude command", () => {
     const doc = readFileSync(join(import.meta.dir, "../../../docs/providers.md"), "utf8");
     expect(doc.includes(`BD_BRIDGE_COMMAND='${JSON.stringify(CLAUDE_TOOLLESS)}'`)).toBe(true);
+  });
+});
+
+describe("bridgeConfig", () => {
+  const command = JSON.stringify(CLAUDE_TOOLLESS);
+
+  test("no command, no bridge", () => {
+    expect(bridgeConfig({})).toBeNull();
+    expect(bridgeConfig({ BD_BRIDGE_COMMAND: "" })).toBeNull();
+  });
+
+  test("defaults: port 8789, 120 seconds", () => {
+    expect(bridgeConfig({ BD_BRIDGE_COMMAND: command })).toEqual({
+      command: [...CLAUDE_TOOLLESS],
+      port: 8789,
+      timeoutMs: 120_000,
+      passEnv: [],
+    });
+    const set = bridgeConfig({
+      BD_BRIDGE_COMMAND: command,
+      BD_BRIDGE_PORT: "0",
+      BD_BRIDGE_TIMEOUT_SECONDS: "30",
+      BD_BRIDGE_ENV: "FOO, BAR_2",
+    });
+    expect(set).toMatchObject({ port: 0, timeoutMs: 30_000, passEnv: ["FOO", "BAR_2"] });
+  });
+
+  test("a bad port, timeout, variable list or command is refused, naming the variable", () => {
+    for (const [name, value] of [
+      ["BD_BRIDGE_PORT", "abc"],
+      ["BD_BRIDGE_PORT", "-1"],
+      ["BD_BRIDGE_PORT", "65536"],
+      ["BD_BRIDGE_PORT", "1.5"],
+      ["BD_BRIDGE_PORT", ""],
+      ["BD_BRIDGE_TIMEOUT_SECONDS", "abc"],
+      ["BD_BRIDGE_TIMEOUT_SECONDS", "0"],
+      ["BD_BRIDGE_TIMEOUT_SECONDS", "-5"],
+      ["BD_BRIDGE_TIMEOUT_SECONDS", "1e9"],
+      ["BD_BRIDGE_ENV", "FOO BAR"],
+      ["BD_BRIDGE_ENV", "A=B"],
+    ] as const) {
+      expect(() => bridgeConfig({ BD_BRIDGE_COMMAND: command, [name]: value })).toThrow(name);
+    }
+    expect(() => bridgeConfig({ BD_BRIDGE_COMMAND: '["claude", "-p"]' })).toThrow("lacks");
+    expect(() => bridgeConfig({ BD_BRIDGE_COMMAND: "claude -p" })).toThrow("BD_BRIDGE_COMMAND");
+  });
+});
+
+describe("agentEnv", () => {
+  const launcher = {
+    PATH: "/usr/bin",
+    HOME: "/home/u",
+    PROBE_TOKEN: "probe-secret",
+    GROQ_API_KEY: "groq-secret",
+    CF_AI_TOKEN: "cf-secret",
+    BD_BRIDGE_COMMAND: "[]",
+    ANTHROPIC_API_KEY: "the-cli-s-own",
+    FOO: "foo",
+  };
+
+  test("passes the system variables and the CLI's own sign-in, nothing of the app", () => {
+    expect(agentEnv(launcher)).toEqual({
+      PATH: "/usr/bin",
+      HOME: "/home/u",
+      ANTHROPIC_API_KEY: "the-cli-s-own",
+    });
+  });
+
+  test("docs/providers.md lists every variable the agent gets", () => {
+    const doc = readFileSync(join(import.meta.dir, "../../../docs/providers.md"), "utf8");
+    const listed = (name: string) =>
+      doc.includes(`\`${name}\``) ||
+      (name.startsWith("XDG_") && doc.includes("`XDG_*`")) ||
+      (/^[a-z_]+$/.test(name) && doc.includes("lower-case forms")) ||
+      name === "SYSTEMROOT" ||
+      name === "COMSPEC";
+    expect(AGENT_ENV.filter((n) => !listed(n))).toEqual([]);
+  });
+
+  test("BD_BRIDGE_ENV adds names, never an app secret", () => {
+    expect(agentEnv(launcher, ["FOO", "MISSING"])).toMatchObject({ FOO: "foo" });
+    expect(() => agentEnv(launcher, ["PROBE_TOKEN"])).toThrow("PROBE_TOKEN");
+    expect(() => agentEnv(launcher, ["GROQ_API_KEY"])).toThrow("GROQ_API_KEY");
   });
 });
 
@@ -299,6 +437,66 @@ describe("startBridge", () => {
     const child = Number(readFileSync(pid, "utf8"));
     for (let i = 0; i < 100 && alive(child); i++) await Bun.sleep(50);
     expect(alive(child)).toBe(false);
+  });
+
+  const posix = process.platform !== "win32";
+
+  test.if(posix)(
+    "a timeout kills the whole process tree and answers within the timeout",
+    async () => {
+      const pid = join(scratch(), "sleeper");
+      // sh forks a sleeper that holds stdout open; killing sh alone would leave it.
+      const command = ["sh", "-c", `cat >/dev/null; sleep 30 & echo $! > ${pid}; wait`];
+      const started = Date.now();
+      const result = await runAgent(command, "x", { timeoutMs: 1000, env: agentEnv(process.env) });
+      expect(result).toMatchObject({ ok: false, status: 504 });
+      expect(Date.now() - started).toBeLessThan(5000);
+      const sleeper = Number(readFileSync(pid, "utf8"));
+      for (let i = 0; i < 40 && alive(sleeper); i++) await Bun.sleep(50);
+      expect(alive(sleeper)).toBe(false);
+    },
+  );
+
+  test.if(posix)("a client that hangs up kills the whole process tree", async () => {
+    const pid = join(scratch(), "sleeper");
+    const command = ["sh", "-c", `cat >/dev/null; sleep 30 & echo $! > ${pid}; wait`];
+    const b = bridge(command, 60_000);
+    const controller = new AbortController();
+    const pending = chat(b, user("x"), {
+      headers: { "content-type": "application/json" },
+      signal: controller.signal,
+    }).catch(() => "aborted");
+    while (!existsSync(pid) || readFileSync(pid, "utf8").trim() === "") await Bun.sleep(20);
+    controller.abort();
+    expect(await pending).toBe("aborted");
+    const sleeper = Number(readFileSync(pid, "utf8"));
+    for (let i = 0; i < 100 && alive(sleeper); i++) await Bun.sleep(50);
+    expect(alive(sleeper)).toBe(false);
+  });
+
+  test.if(posix)("a process the agent leaves behind after answering is killed too", async () => {
+    const pid = join(scratch(), "straggler");
+    const command = [
+      "sh",
+      "-c",
+      `cat >/dev/null; (sleep 30 >/dev/null 2>&1 & echo $! > ${pid}); echo done`,
+    ];
+    const result = await runAgent(command, "x", { timeoutMs: 10_000, env: agentEnv(process.env) });
+    expect(result).toEqual({ ok: true, text: "done" });
+    const straggler = Number(readFileSync(pid, "utf8"));
+    for (let i = 0; i < 40 && alive(straggler); i++) await Bun.sleep(50);
+    expect(alive(straggler)).toBe(false);
+  });
+
+  test.if(posix)("the agent sees only the variables agentEnv passes", async () => {
+    const env = agentEnv({ ...process.env, PROBE_TOKEN: "probe-value-123" });
+    const b = bridge(["sh", "-c", "cat >/dev/null; env"], 10_000, env);
+    const body = (await (await chat(b, user("x"))).json()) as {
+      choices: { message: { content: string } }[];
+    };
+    const names = (body.choices[0]?.message.content ?? "").split("\n").map((l) => l.split("=")[0]);
+    expect(names.includes("PROBE_TOKEN")).toBe(false);
+    expect(names.includes("PATH")).toBe(true);
   });
 
   test("a call longer than Bun's 10-second idle timeout gets its answer", async () => {
