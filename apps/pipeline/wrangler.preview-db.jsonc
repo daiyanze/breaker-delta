@@ -2,7 +2,8 @@
 //   wrangler d1 migrations apply bd-content-preview --remote -c wrangler.preview-db.jsonc
 // `d1 migrations` reads the top-level d1_databases, not the `previews` block,
 // so the preview database needs its own entry. Never deploy with this file:
-// it has no `main`, so `wrangler deploy` refuses it.
+// it has no `main`, so `wrangler deploy` refuses it. The preview workflow also
+// loads the seed (#41) through it: `wrangler d1 execute ... --file seed.sql`.
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "bd-pipeline",

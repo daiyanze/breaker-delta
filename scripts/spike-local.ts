@@ -7,12 +7,16 @@
  * With BD_EXECUTABLE=<path>, it runs the built executable instead of
  * `apps/local/start.ts`: from a fresh folder outside the repository, with
  * no `bun` on PATH, as a user who downloaded one file would.
+ * Last, it checks one full run (#40): the same launcher on a fresh data
+ * folder with fixture sources and the fake model, which must fill echoes,
+ * topics, wave points and events (`local-full-run.ts`).
  * Prints one line per criterion and exits non-zero if any fails.
  */
 import { Database as SQLite } from "bun:sqlite";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { delimiter, join, resolve } from "node:path";
+import { fullRun, fullRunProblem } from "./local-full-run.ts";
 
 const root = join(import.meta.dir, "..");
 const port = Number(process.env.BD_PORT ?? 8799);
@@ -174,6 +178,27 @@ try {
   } catch {
     // A file may still be held on Windows; the temp dir is cleaned by the OS.
   }
+}
+
+// One full run on fixtures with the fake model, after the launcher above has
+// stopped. It uses its own data folder and free ports.
+try {
+  const command = executable
+    ? [executable]
+    : [process.execPath, join(root, "apps", "local", "start.ts")];
+  const full = await fullRun({
+    command,
+    cwd: executable ? workDir : root,
+    ...(executable ? { env: { PATH: pathWithoutBun } } : {}),
+  });
+  const problem = fullRunProblem(full);
+  record(
+    "one full run on fixtures with the fake model fills the database",
+    problem === null,
+    problem ?? `${full.steps.length} steps done, ${JSON.stringify(full.counts)}`,
+  );
+} catch (err) {
+  record("full run ran to the end", false, err instanceof Error ? err.message : String(err));
 }
 
 const failed = results.filter((r) => !r.ok);

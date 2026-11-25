@@ -65,8 +65,9 @@ lines that show the behavior. Proof standards:
 
 ## Fetched content stays out of the session (invariant 6)
 
-Up to M0 a tick fetches nothing, and fixtures hold no fetched text. Once
-steps scan real sources:
+Since M1 a tick scans sources: the recorded fixtures with
+`BD_SOURCES=fixtures`, real sources otherwise. Fixtures are scrubbed and hold
+no fetched text; real sources do:
 
 - `get` prints a page only when the instance reads fixtures. It saves real
   pages to the run folder without printing them. Do not open those files in

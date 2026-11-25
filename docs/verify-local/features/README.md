@@ -7,7 +7,7 @@ in `../README.md`.
 
 | Feature | File | Checked in CI by |
 | --- | --- | --- |
-| Start local mode and get a first run | `first-run.md` | `verify-local-selftest.sh` (up, doctor, sql) |
+| Start local mode and get a first run | `first-run.md` | `verify-local-selftest.sh` (up, doctor, sql); the full run's tables: `scripts/local-full-run.test.ts` (`bun run check`) and `spike-local.ts` (executable) |
 | Run the current slot again | `tick.md` | `verify-local-selftest.sh` (tick) |
 | Read the front page | `front-page.md` | `verify-local-selftest.sh` (get /) |
 
