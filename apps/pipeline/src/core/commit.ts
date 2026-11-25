@@ -7,7 +7,9 @@
  *   `summary_evidence` row per cited echo id, the ids passed as one JSON
  *   parameter (D1 binds at most 100 values per statement). Code maps ids
  *   to URLs later; no model-written address is stored (invariant 2).
- *   `writer` is the provider that answered.
+ *   `writer` is the provider that answered, `model` its model and
+ *   `prompt_version` the prompt's version (null while unversioned), so a
+ *   summary can be traced to its origin (ADR 0005, #48).
  * - **First version.** When the topic has no published summary yet, the
  *   same batch also writes its `wave_formed` event and its prediction: the
  *   criterion, the SHA-256 of its text, `registered_at` at the slot's start
@@ -101,6 +103,8 @@ export function commitStep(deps: CommitDeps): Step {
             status: "discarded",
             reason: draft.reason,
             writer: draft.provider,
+            model: draft.model,
+            promptVersion: draft.promptVersion ?? null,
             sourceTextRead: false,
             slot: ctx.slot,
             createdAt: nowMs,
@@ -148,6 +152,8 @@ export function commitStep(deps: CommitDeps): Step {
             status: "published",
             reason: draft.reason,
             writer: draft.provider,
+            model: draft.model,
+            promptVersion: draft.promptVersion ?? null,
             riskFlags: JSON.stringify(value.riskFlags),
             // No enrich step yet (#45): the model read titles and excerpts only.
             sourceTextRead: false,
