@@ -19,12 +19,13 @@ November 2026). Check the provider's console before relying on a number.
 name in every adapter (`apps/pipeline/src/core/model.ts`): unset means the
 chains from settings, `assignProviders` for assign and `summarizeProviders`
 for summarize, read at the start of each run. A task has no model when its
-chain is empty or when there are no prompts to send: its step is skipped, no
+chain is empty or when it has no prompt to send: its step is skipped, no
 call is made, its echoes or waves wait for a later run, and the rest of the
-run (compute, the board, publish) goes on. No prompt ships yet: the chain
-driver takes its prompts as an input, and #43 (assign) and #44 (summarize)
-add them, each with an eval. Until then no provider is called, whatever the
-chains hold. Both chains are also empty by default. `fake` is the
+run (compute, the board, publish) goes on. The chain driver sends the
+prompts in `PROMPTS` (`packages/judge/src/prompts.ts`): assign since #43
+(`assign-v1`); summarize comes with #44, so until then the summarize chain
+is never called, whatever it holds. Both chains are also empty by default,
+so no provider is called until one is configured. `fake` is the
 deterministic fake driver (#31) for both tasks, whatever the chains say; its
 texts are marked `[fake]`. verify-local instances run with `fake`. This is
 the agent's proposal (#36, #42), not reviewed.
@@ -59,8 +60,9 @@ BD_BRIDGE_COMMAND='["claude","--print","--tools","","--strict-mcp-config","--set
 
 Then put the bridge in a chain in settings, with no `apiKeyRef`:
 `{"name": "bridge", "baseUrl": "http://127.0.0.1:8789/v1", "model": "local-agent"}`.
-The bridge does not read `model`; it echoes it back. Until #43 and #44 add
-the prompts, no chain is called, the bridge included.
+The bridge does not read `model`; it echoes it back. In the assign chain it
+is sent the assign prompt (#43); in the summarize chain it is not called
+until #44 adds that prompt.
 
 **Why that command makes a tool-less call (invariant 6).** For Claude Code
 2.1.323, checked on 2026-11-25 on a harmless prompt ("Reply with the single

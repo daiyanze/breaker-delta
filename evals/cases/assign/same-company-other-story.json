@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "input": {
+    "echoes": [
+      {
+        "id": "e1",
+        "title": "Kestrel Labs recalls Finch sensor kits over a battery fault",
+        "summary": "The fictional company asks buyers to stop using the kits."
+      },
+      { "id": "e2", "title": "Kestrel Labs closes its Series C round, investors say" },
+      { "id": "e3", "title": "Brightwater Robotics opens a second factory in Lowmarsh" }
+    ],
+    "topics": [
+      { "id": "t1", "name": "Kestrel Labs raises Series C funding" },
+      { "id": "t2", "name": "Kestrel Labs releases Finch 3 compiler", "aliases": ["Finch 3"] },
+      { "id": "t3", "name": "Brightwater Robotics layoffs" }
+    ]
+  },
+  "labels": { "e1": "new", "e2": "t1", "e3": "new" }
+}
