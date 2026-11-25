@@ -134,7 +134,7 @@ function setup() {
 type StepRow = { step: string; status: string };
 
 describe("the wired run", () => {
-  test("runs every step in order: scan to retention, no enrich yet", () => {
+  test("runs every step in order: scan to retention, enrich between select and summarize", () => {
     const names = buildSteps({
       blobs: memoryBlobs().blobs,
       fetch: fetch,
@@ -151,6 +151,7 @@ describe("the wired run", () => {
       "compute",
       "changes",
       "select",
+      "enrich",
       "summarize",
       "validate",
       "commit",

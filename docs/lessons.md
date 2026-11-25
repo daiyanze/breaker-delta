@@ -4,6 +4,24 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L25 Say what a change does under the default run, not only under verify-local
+
+- **Date:** 2026-11-25. **Status:** active.
+- **What happened:** #250's description said "local mode and verify-local
+  fetch nothing real". Only verify-local forces `BD_SOURCES=fixtures`; a
+  default `bun run local` scans real sources, so the new enrich step fetches
+  real evidence pages there and stores their text in local blobs. The same
+  PR's fetcher also accepted loopback and private hosts. Review round 1
+  blocked on the sentence and flagged the hosts.
+- **Rule:** When a step makes a new kind of outbound request, state what it
+  does under each way the app runs (`bun run local` with its defaults,
+  verify-local, Cloudflare), from the adapter's code, and check which hosts
+  it can reach.
+- **Scope:** pipeline steps that fetch, and PR descriptions that describe
+  local mode.
+- **Check:** `isPublicHost` tests in `apps/pipeline/test/page.test.ts`
+  refuse loopback, private and link-local hosts and redirects to them.
+
 ## L24 A try that guards a model call holds only the model call
 
 - **Date:** 2026-11-25. **Status:** active.

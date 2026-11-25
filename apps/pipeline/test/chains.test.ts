@@ -25,9 +25,11 @@ import {
 } from "@bd/judge";
 import { createPipeline, pipelineConfig } from "../src/core/app.ts";
 import type { AssignOutput } from "../src/core/assign.ts";
+import type { EnrichOutput } from "../src/core/enrich.ts";
 import { fixtureFetch } from "../src/core/fixture-sources.ts";
 import { resolveProviders, runModel, stringVars } from "../src/core/model.ts";
 import { changeSettings } from "../src/core/settings.ts";
+import { STEP_NAMES } from "../src/core/steps.ts";
 import type { SummarizeOutput } from "../src/core/summarize.ts";
 import { memoryBlobs, migratedDatabase, NOW, SLOT } from "./helpers.ts";
 
@@ -276,11 +278,13 @@ describe("a run with chains from settings", () => {
       failed: [],
       skipped: true,
     });
+    // No summarize model, so enrich fetches no page either.
+    expect(t.output<EnrichOutput>(SLOT_2, "enrich").skipped).toBe(true);
     const steps = t.count(
       "SELECT count(*) AS n FROM run_steps WHERE slot = ? AND status = 'done'",
       SLOT_2,
     );
-    expect(steps).toBe(11);
+    expect(steps).toBe(STEP_NAMES.length);
     expect(t.count("SELECT count(*) AS n FROM wave_points WHERE slot = ?", SLOT_2)).toBe(points1);
   });
 
@@ -296,6 +300,6 @@ describe("a run with chains from settings", () => {
     expect(t.output<SummarizeOutput>(SLOT, "summarize").skipped).toBe(true);
     expect(
       t.count("SELECT count(*) AS n FROM run_steps WHERE slot = ? AND status = 'done'", SLOT),
-    ).toBe(11);
+    ).toBe(STEP_NAMES.length);
   });
 });

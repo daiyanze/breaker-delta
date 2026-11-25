@@ -105,7 +105,7 @@ export function commitStep(deps: CommitDeps): Step {
             writer: draft.provider,
             model: draft.model,
             promptVersion: draft.promptVersion ?? null,
-            sourceTextRead: false,
+            sourceTextRead: draft.sourceTextRead === true,
             slot: ctx.slot,
             createdAt: nowMs,
           });
@@ -155,8 +155,8 @@ export function commitStep(deps: CommitDeps): Step {
             model: draft.model,
             promptVersion: draft.promptVersion ?? null,
             riskFlags: JSON.stringify(value.riskFlags),
-            // No enrich step yet (#45): the model read titles and excerpts only.
-            sourceTextRead: false,
+            // False when enrich read no page for it (#45), or for a draft from before it.
+            sourceTextRead: draft.sourceTextRead === true,
             slot: ctx.slot,
             createdAt: nowMs,
           }),

@@ -26,7 +26,7 @@ import { buildSteps } from "./steps.ts";
 export interface PipelinePorts {
   db: Database;
   clock: Clock;
-  /** Raw responses and drafts (scan, ingest, summarize, validate, commit, retention). */
+  /** Raw responses, page texts and drafts (scan, ingest, enrich, summarize, validate, commit, retention). */
   blobs: Blobs;
   /**
    * The site's cache, for the publish step. Absent where no site is bound

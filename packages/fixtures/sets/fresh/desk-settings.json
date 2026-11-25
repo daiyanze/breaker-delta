@@ -34,7 +34,11 @@
     "assignShortlistSize": 30,
     "assignActivityDays": 7,
     "echoRetentionDays": 30,
-    "rawRetentionDays": 30
+    "rawRetentionDays": 30,
+    "enrichPagesPerTopic": 3,
+    "enrichPagesPerRun": 9,
+    "enrichPageMaxChars": 4000,
+    "enrichPageMaxKB": 1024
   },
   "updatedAt": null,
   "history": []
