@@ -3,8 +3,14 @@
  * and summarize steps gave the model in one slot, from the local-mode
  * database, and write them as case files (`scripts/eval-cases.ts`).
  *
- *   bun scripts/freeze-cases.ts --slot <slot> [--data-dir .bd-data] [--out evals/cases]
+ *   bun scripts/freeze-cases.ts --slot <slot> [--data-dir .bd-data] [--out <dir>]
  *                               [--task assign|summarize]
+ *
+ * Frozen cases hold fetched titles and excerpts, so they never go into git
+ * (owner, #253): the output folder defaults to `<data-dir>/eval-cases`, and
+ * a folder git would track is refused (`git check-ignore`). Committed cases
+ * in `evals/cases/` are synthetic only (`scripts/eval-cases.ts`). Evaluate
+ * frozen cases locally with `bun scripts/eval.ts --cases <dir>`.
  *
  * - **assign:** the echoes first seen in the slot, in the order and batch
  *   size the step uses, each batch with the shortlist the step would build
@@ -22,12 +28,13 @@
  *
  * The database is opened query-only: it is never written. A case file that exists is left as it
  * is, so a case is frozen once. The output names files and counts only, never
- * fetched text (invariant 6): run this on real data yourself, not in a
- * session that can write code, and review the cases before committing them.
+ * fetched text (invariant 6). Only the owner runs this on real data, on
+ * their own machine, outside a session that can write code.
  */
 import { Database as SQLite } from "bun:sqlite";
+import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { type PoolTopic, shortlist } from "../apps/pipeline/src/core/assign.ts";
 import { type Settings, SettingsSchema } from "../packages/contracts/src/index.ts";
@@ -176,6 +183,21 @@ export function freeze(
   return result;
 }
 
+/**
+ * Whether git would track files written under `dir`: it is in a working tree
+ * and not ignored. Asked of the nearest folder that exists, so it holds for
+ * a folder not made yet, and of a file inside, since an ignored folder
+ * ignores its files. Not in a git working tree: false.
+ */
+export function gitTracks(dir: string): boolean {
+  let at = resolve(dir);
+  while (!existsSync(at) && dirname(at) !== at) at = dirname(at);
+  const probe = join(resolve(dir), "assign", "case.json");
+  const r = spawnSync("git", ["-C", at, "check-ignore", "-q", "--no-index", probe]);
+  // 0: ignored. 1: not ignored, so git would track it. 128: not a working tree.
+  return r.status === 1;
+}
+
 export interface Io {
   out(line: string): void;
   env: Record<string, string | undefined>;
@@ -189,14 +211,14 @@ export async function main(argv: readonly string[], io: Io = defaultIo): Promise
     options: {
       slot: { type: "string" },
       "data-dir": { type: "string" },
-      out: { type: "string", default: "evals/cases" },
+      out: { type: "string" },
       task: { type: "string" },
       help: { type: "boolean" },
     },
   });
   if (values.help || !values.slot) {
     io.out(
-      "usage: bun scripts/freeze-cases.ts --slot <slot> [--data-dir <dir>] [--out evals/cases] [--task assign|summarize]",
+      "usage: bun scripts/freeze-cases.ts --slot <slot> [--data-dir <dir>] [--out <dir>] [--task assign|summarize]",
     );
     return values.help ? 0 : 2;
   }
@@ -204,7 +226,15 @@ export async function main(argv: readonly string[], io: Io = defaultIo): Promise
     io.out("--task must be assign or summarize");
     return 2;
   }
-  const path = join(resolve(values["data-dir"] ?? io.env.BD_DATA_DIR ?? ".bd-data"), "content.db");
+  const dataDir = resolve(values["data-dir"] ?? io.env.BD_DATA_DIR ?? ".bd-data");
+  const path = join(dataDir, "content.db");
+  const out = resolve(values.out ?? join(dataDir, "eval-cases"));
+  if (gitTracks(out)) {
+    io.out(
+      `${out} is not git-ignored: frozen cases hold fetched text and never go into git; use a folder under .bd-data/`,
+    );
+    return 2;
+  }
   if (!existsSync(path)) {
     io.out(`no database at ${path}`);
     return 2;
@@ -215,7 +245,7 @@ export async function main(argv: readonly string[], io: Io = defaultIo): Promise
   const db = new SQLite(path, { readwrite: true, create: false });
   db.exec("PRAGMA query_only = ON");
   try {
-    const r = freeze(db, values.slot, values.out, values.task ? [values.task] : undefined);
+    const r = freeze(db, values.slot, out, values.task ? [values.task] : undefined);
     io.out(`wrote ${r.written.length} cases, kept ${r.kept.length} that exist`);
     for (const f of r.written) io.out(`  ${f}`);
     return 0;

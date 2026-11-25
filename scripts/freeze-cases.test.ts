@@ -1,6 +1,6 @@
 import { Database as SQLite } from "bun:sqlite";
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { seedRun } from "../apps/pipeline/src/local/seed.ts";
@@ -200,6 +200,50 @@ describe("freeze-cases", () => {
       expect(readFileSync(join(copy, "content.db")).equals(before)).toBe(true);
     } finally {
       rmSync(copy, { recursive: true, force: true });
+    }
+  });
+
+  test("writes to <data-dir>/eval-cases by default, which local mode's .bd-data keeps out of git", async () => {
+    const lines: string[] = [];
+    const code = await main(["--slot", slots[0] ?? "", "--data-dir", dir], {
+      out: (l) => lines.push(l),
+      env: {},
+    });
+    expect(code).toBe(0);
+    expect(lines.slice(1).every((l) => l.trim().startsWith(join(dir, "eval-cases")))).toBe(true);
+    expect(readdirSync(join(dir, "eval-cases", "assign")).length).toBeGreaterThan(0);
+  });
+
+  test("refuses to write where git would commit the cases", async () => {
+    const repo = join(import.meta.dir, "..");
+    const targets = [
+      join(repo, "evals", "cases"),
+      join(repo, "evals", "frozen"),
+      join(repo, "scripts", "frozen-cases"),
+    ];
+    for (const target of targets) {
+      const lines: string[] = [];
+      const code = await main(["--slot", slots[0] ?? "", "--data-dir", dir, "--out", target], {
+        out: (l) => lines.push(l),
+        env: {},
+      });
+      expect(code).toBe(2);
+      expect(lines[0]).toContain("not git-ignored");
+      expect(existsSync(target)).toBe(false);
+    }
+  });
+
+  test("writes inside the repository only to a git-ignored folder", async () => {
+    const target = join(import.meta.dir, "..", ".bd-data", `freeze-test-${process.pid}`);
+    try {
+      const code = await main(["--slot", slots[0] ?? "", "--data-dir", dir, "--out", target], {
+        out: () => {},
+        env: {},
+      });
+      expect(code).toBe(0);
+      expect(readdirSync(join(target, "assign")).length).toBeGreaterThan(0);
+    } finally {
+      rmSync(target, { recursive: true, force: true });
     }
   });
 

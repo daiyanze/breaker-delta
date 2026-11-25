@@ -10,7 +10,8 @@ PR. This directory is a protected path.
 | Piece | Where |
 | --- | --- |
 | Prompts, one per task, each with a version | `PROMPTS` in `packages/judge/src/prompts.ts` |
-| Cases, one JSON file each | `evals/cases/assign/`, `evals/cases/summarize/` |
+| Committed cases, synthetic only | `evals/cases/assign/`, `evals/cases/summarize/` |
+| Cases frozen from real runs, local only | `.bd-data/eval-cases/` (git-ignored) |
 | The chains the eval calls | `evals/providers.json` |
 | Case format | `scripts/eval-cases.ts` |
 | Runner and metrics | `scripts/eval.ts` |
@@ -21,14 +22,29 @@ No prompt ships yet: #43 (assign) and #44 (summarize) each add a prompt
 file, its entry in `PROMPTS`, and its cases. Wiring the prompts into the
 pipeline's `PipelineConfig.prompts` is theirs too.
 
+## Two kinds of case (owner, #253)
+
+- **Synthetic, committed.** Written by hand, with no fetched text, marked
+  `"synthetic": true`, in `evals/cases/`. CI runs these and posts the result.
+- **Frozen from a real run, local only.** Made by `freeze-cases`, marked
+  `"frozenFrom": "<slot>"`. They hold fetched titles and excerpts, which
+  must never reach a session that can write code (invariant 6), and a
+  review reads a PR's diff. So they live in a git-ignored folder on the
+  owner's machine, and the owner runs them there.
+
+What enforces it: `loadCases(..., { committed: true })` refuses a frozen
+case, and `eval.ts` uses it whenever `--cases` is `evals/cases`; the test
+"the committed cases" in `scripts/eval-cases.test.ts` runs it in `check`;
+`freeze-cases` refuses an output folder git would track.
+
 ## Case format
 
 One case is the input of one model call, exactly as the step builds it,
-plus where it came from. The file name is the case id.
+plus its origin. The file name is the case id.
 
 ```json
 {
-  "frozenFrom": "20261120T0500",
+  "synthetic": true,
   "input": {
     "echoes": [{ "id": "e1", "title": "...", "summary": "..." }],
     "topics": [{ "id": "t1", "name": "...", "aliases": ["..."] }]
@@ -37,19 +53,30 @@ plus where it came from. The file name is the case id.
 }
 ```
 
-A summarize case's `input` is `{ "name", "echoes", "languages", "first" }`
+A case has exactly one of `"synthetic": true` and `"frozenFrom"`. A
+summarize case's `input` is `{ "name", "echoes", "languages", "first" }`
 (`SummarizeInput`). `labels` (assign only) is the owner's own assignment for
-some echoes: a shortlisted topic id or `new`. It is written by hand.
+some echoes: a shortlisted topic id or `new`, written by hand.
 
-The parser refuses any key the format does not name, at any depth. So a
-case holds only what the model sees: echo ids, titles and excerpts, topic
-ids, names and aliases. Never a URL, a source name, a secret or subscriber
-data.
+What the parser checks (`scripts/eval-cases.ts`):
 
-## Freezing cases from a run
+- **Keys, every case:** a key the format does not name is refused, at any
+  depth, so a case has no URL field, source name or other column.
+- **Values, synthetic cases only:** a string that looks like a URL (a
+  scheme or `www.`), an email address, or a key or token (`sk-...`,
+  `gsk_...`, `AIza...`, `ghp_...`, `xox?-...`, `AKIA...`, `cfat_...`, a
+  JWT, `Bearer ...`) is refused. These are patterns: a secret of another
+  shape passes, so a synthetic case is still reviewed.
+- Frozen cases' values are not checked: real titles hold URLs, and those
+  cases never leave the owner's machine.
+
+Errors name the file and the path, never the value.
+
+## Freezing cases from a run (owner only)
 
 ```sh
-bun scripts/freeze-cases.ts --slot <slot> [--data-dir .bd-data] [--out evals/cases] [--task assign|summarize]
+bun scripts/freeze-cases.ts --slot <slot> [--data-dir .bd-data] [--out <dir>] [--task assign|summarize]
+bun scripts/eval.ts --cases .bd-data/eval-cases
 ```
 
 It reads the local-mode database without writing it and rebuilds what the
@@ -59,15 +86,19 @@ the slot summarised. Settings are the ones in force when the run started. A
 case file that exists is kept, so a case is frozen once. It prints file
 names and counts, never fetched text.
 
-Cases from a real run hold fetched titles and excerpts. They are data
-(invariant 6): the owner freezes and reviews them outside a coding session,
-and an agent working here does not open them. Tests freeze from the
-scrubbed fixture sources only (`scripts/freeze-cases.test.ts`).
+The output defaults to `<data-dir>/eval-cases`; a folder git would track
+(`git check-ignore`) is refused. Only the owner runs it on real data,
+outside a coding session. Tests freeze from the scrubbed fixture sources
+only (`scripts/freeze-cases.test.ts`).
+
+Known gap: the assign step takes every echo still without a topic, and
+freeze takes the echoes first seen in the slot. Echoes an earlier slot
+could not place are left out, and batch boundaries can shift.
 
 ## Running
 
 ```sh
-bun scripts/eval.ts [--report eval.md] [--json eval.json]
+bun scripts/eval.ts [--cases evals/cases] [--report eval.md] [--json eval.json]
 ```
 
 Keys come from the environment by the names in `providers.json`
@@ -97,11 +128,11 @@ Still by hand: spot checks of Chinese and Japanese readability.
 
 ## The workflow
 
-`.github/workflows/evals.yml` runs on PRs that change a prompt, the judge,
-the eval or its cases, or the pipeline checks it scores with. It runs only
-for the owner's same-repository PRs, in the `evals` environment, and
-updates one comment on the PR. A shipped prompt it could not evaluate fails
-the job.
+`.github/workflows/evals.yml` runs the committed cases on PRs that change a
+prompt, the judge, the eval or its cases, or the pipeline checks it scores
+with. It runs only for the owner's same-repository PRs, in the `evals`
+environment, and updates one comment on the PR (its bot's, found by a
+marker). A shipped prompt it could not evaluate fails the job.
 
 The owner sets up once: in the GitHub environment `evals`, the secrets
 `GROQ_API_KEY` and `GEMINI_API_KEY` (the keys in `docs/providers.md`; one is

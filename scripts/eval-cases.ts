@@ -1,16 +1,28 @@
 /**
  * The eval case format (#50). One case is one JSON file under
- * `evals/cases/<task>/<id>.json`, the input of one model call exactly as the
+ * `<dir>/<task>/<id>.json`, the input of one model call exactly as the
  * pipeline's step builds it (`AssignInput`, `SummarizeInput` from
- * `@bd/judge`), plus where it came from and, for assign, the owner's labels:
+ * `@bd/judge`), its origin, and, for assign, the owner's labels:
  *
- *   { "frozenFrom": "<slot>", "input": { ... }, "labels": { "<echo id>": "<topic id>" | "new" } }
+ *   { "synthetic": true, "input": { ... }, "labels": { "<echo id>": "<topic id>" | "new" } }
+ *   { "frozenFrom": "<slot>", "input": { ... } }
  *
- * The parser is strict: a key the format does not name is refused, at any
- * depth. So a case holds only what the model sees (echo ids, titles and
- * excerpts, topic ids, names and aliases), never a URL, a source name or
- * other fetched text (AGENTS.md: no fetched article text beyond that, no
- * secrets, no subscriber data).
+ * Every case says where it came from: `synthetic: true` (written by hand,
+ * no fetched text) or `frozenFrom` (made by `freeze-cases` from a stored
+ * run, so it holds fetched titles and excerpts).
+ *
+ * - **Only synthetic cases are committed** (`evals/cases/`, owner, #253):
+ *   fetched text must never reach a session that can write code (invariant
+ *   6), and a review reads the diff. `loadCases(..., { committed: true })`
+ *   refuses a frozen case, and the test over `evals/cases/` runs it.
+ * - **A synthetic case's strings are value-checked:** one that looks like a
+ *   URL, an email or a key (`sk-...`, `ghp_...`, a JWT, `Bearer ...`) is
+ *   refused. A frozen case is not: real titles hold URLs, and it stays in a
+ *   git-ignored folder on the owner's machine.
+ * - **Keys are strict:** a key the format does not name is refused, at any
+ *   depth, so a case holds no URL field, source name or other row data.
+ *
+ * Errors name the file and the path, never the value.
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
@@ -27,6 +39,8 @@ export type Task = (typeof TASKS)[number];
 
 export interface AssignCase {
   id: string;
+  /** Written by hand, with no fetched text. Exactly one of this and `frozenFrom`. */
+  synthetic?: true;
   /** The slot it was frozen from, when it was. */
   frozenFrom?: string;
   input: AssignInput;
@@ -39,6 +53,7 @@ export interface AssignCase {
 
 export interface SummarizeCase {
   id: string;
+  synthetic?: true;
   frozenFrom?: string;
   input: SummarizeInput;
 }
@@ -56,6 +71,28 @@ export class CaseError extends Error {
   }
 }
 
+/** Where committed cases live. Synthetic only. */
+export const COMMITTED_CASES = join(import.meta.dir, "..", "evals", "cases");
+
+/**
+ * Strings a synthetic case must not hold: a URL (a scheme or `www.`), an
+ * email address, or a key or token shape (OpenAI-style `sk-`, Groq `gsk_`,
+ * Google `AIza`, GitHub `ghp_` and kin, Slack `xox?-`, AWS `AKIA`,
+ * Cloudflare `cfat_`, a JWT, a bearer header).
+ */
+const UNSAFE = [
+  /\p{L}[\p{L}\p{N}+.-]*:\/\/|(?:^|[^\p{L}\p{N}])www\./iu,
+  /[\p{L}\p{N}._%+-]+@[\p{L}\p{N}-]+(?:\.[\p{L}\p{N}-]+)+/u,
+  /(?:^|[^A-Za-z0-9])(?:sk|pk|rk)-[A-Za-z0-9_-]{8,}/,
+  /\b(?:gsk_|cfat_)[A-Za-z0-9_]{8,}/,
+  /\bAIza[0-9A-Za-z_-]{20,}/,
+  /\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_\w{20,})/,
+  /\bxox[abprs]-[A-Za-z0-9-]{8,}/,
+  /\bAKIA[0-9A-Z]{16}\b/,
+  /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/,
+  /\bBearer\s+\S{8,}/i,
+];
+
 /** A case id is its file name: letters, digits, `.`, `_` and `-`. */
 const ID = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 
@@ -70,9 +107,16 @@ function record(v: unknown, path: string, keys: readonly string[], fail: Fail) {
   return o;
 }
 
+/** The current case's rule for strings; set per case by `parseCase`. */
+let checkValues = false;
+
 function text(v: unknown, path: string, fail: Fail): string {
   if (typeof v !== "string" || v.trim() === "") fail(path, "must be a non-empty string");
-  return v as string;
+  const s = v as string;
+  if (checkValues && UNSAFE.some((re) => re.test(s))) {
+    fail(path, "looks like a URL, an email or a key; a synthetic case holds none");
+  }
+  return s;
 }
 
 function list(v: unknown, path: string, fail: Fail): unknown[] {
@@ -136,9 +180,32 @@ export function parseCase(
     throw new CaseError(file, path, problem);
   };
   if (!ID.test(id)) fail("", `case id ${JSON.stringify(id)} must match ${ID}`);
-  const root = record(json, "", ["frozenFrom", "input", "labels"], fail);
-  const frozenFrom =
-    root.frozenFrom === undefined ? {} : { frozenFrom: text(root.frozenFrom, "frozenFrom", fail) };
+  const root = record(json, "", ["synthetic", "frozenFrom", "input", "labels"], fail);
+  const synthetic = root.synthetic === true;
+  if (
+    synthetic === (root.frozenFrom !== undefined) ||
+    (root.synthetic !== undefined && !synthetic)
+  ) {
+    fail("", "must have exactly one of synthetic: true or frozenFrom");
+  }
+  checkValues = synthetic;
+  try {
+    return parseBody(task, id, root, synthetic, fail);
+  } finally {
+    checkValues = false;
+  }
+}
+
+function parseBody(
+  task: Task,
+  id: string,
+  root: Record<string, unknown>,
+  synthetic: boolean,
+  fail: Fail,
+): AssignCase | SummarizeCase {
+  const frozenFrom = synthetic
+    ? { synthetic: true as const }
+    : { frozenFrom: text(root.frozenFrom, "frozenFrom", fail) };
 
   if (task === "assign") {
     if (root.input === undefined) fail("input", "is required");
@@ -203,10 +270,23 @@ export function parseCase(
   };
 }
 
+export interface LoadOptions {
+  /** The folder is committed: a case frozen from a run is refused. */
+  committed?: boolean;
+}
+
 /** Every case of `task` under `dir/<task>/`, by file name. A missing folder has none. */
-export function loadTaskCases(dir: string, task: "assign"): AssignCase[];
-export function loadTaskCases(dir: string, task: "summarize"): SummarizeCase[];
-export function loadTaskCases(dir: string, task: Task): (AssignCase | SummarizeCase)[] {
+export function loadTaskCases(dir: string, task: "assign", options?: LoadOptions): AssignCase[];
+export function loadTaskCases(
+  dir: string,
+  task: "summarize",
+  options?: LoadOptions,
+): SummarizeCase[];
+export function loadTaskCases(
+  dir: string,
+  task: Task,
+  options: LoadOptions = {},
+): (AssignCase | SummarizeCase)[] {
   const folder = join(dir, task);
   if (!existsSync(folder)) return [];
   return readdirSync(folder)
@@ -220,10 +300,21 @@ export function loadTaskCases(dir: string, task: Task): (AssignCase | SummarizeC
       } catch {
         throw new CaseError(file, "", "is not JSON");
       }
-      return parseCase(task, basename(f, ".json"), json, file);
+      const c = parseCase(task, basename(f, ".json"), json, file);
+      if (options.committed && c.frozenFrom !== undefined) {
+        throw new CaseError(
+          file,
+          "frozenFrom",
+          "a case frozen from a run is never committed; keep it in a git-ignored folder",
+        );
+      }
+      return c;
     });
 }
 
-export function loadCases(dir: string): Cases {
-  return { assign: loadTaskCases(dir, "assign"), summarize: loadTaskCases(dir, "summarize") };
+export function loadCases(dir: string, options: LoadOptions = {}): Cases {
+  return {
+    assign: loadTaskCases(dir, "assign", options),
+    summarize: loadTaskCases(dir, "summarize", options),
+  };
 }

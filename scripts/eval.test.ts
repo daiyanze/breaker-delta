@@ -10,7 +10,15 @@ import {
   type Prompts,
   type SummarizeInput,
 } from "../packages/judge/src/index.ts";
-import { type EvalOptions, MARKER, main, parseProviders, report, runEval } from "./eval.ts";
+import {
+  type EvalOptions,
+  isCommitted,
+  MARKER,
+  main,
+  parseProviders,
+  report,
+  runEval,
+} from "./eval.ts";
 import { type AssignCase, CaseError, parseCase, type SummarizeCase } from "./eval-cases.ts";
 
 /**
@@ -269,7 +277,10 @@ describe("main", () => {
     const cases = join(dir, "cases");
     mkdirSync(join(cases, "assign"), { recursive: true });
     const { id, ...body } = assignCase("c1");
-    writeFileSync(join(cases, "assign", `${id}.json`), JSON.stringify(body));
+    writeFileSync(
+      join(cases, "assign", `${id}.json`),
+      JSON.stringify({ synthetic: true, ...body }),
+    );
     writeFileSync(
       join(dir, "providers.json"),
       JSON.stringify({ assign: providers.assign.slice(0, 1) }),
@@ -324,6 +335,7 @@ describe("main", () => {
     writeFileSync(
       join(w.cases, "assign", "bad.json"),
       JSON.stringify({
+        synthetic: true,
         input: { echoes: [{ id: "e1", title: "CASE-TEXT", url: "https://x.test/a" }], topics: [] },
       }),
     );
@@ -342,15 +354,20 @@ describe("main", () => {
 });
 
 describe("parseCase", () => {
-  const ok = { input: { echoes: [{ id: "e1", title: "x" }], topics: [{ id: "t1", name: "y" }] } };
+  const ok = {
+    synthetic: true as const,
+    input: { echoes: [{ id: "e1", title: "x" }], topics: [{ id: "t1", name: "y" }] },
+  };
 
   test("reads an assign case with labels", () => {
-    expect(parseCase("assign", "c1", { ...ok, frozenFrom: "s", labels: { e1: "t1" } })).toEqual({
+    expect(parseCase("assign", "c1", { ...ok, labels: { e1: "t1" } })).toEqual({
       id: "c1",
-      frozenFrom: "s",
       ...ok,
       labels: { e1: "t1" },
     });
+    expect(
+      parseCase("assign", "c1", { frozenFrom: "s", input: ok.input, labels: { e1: "new" } }),
+    ).toEqual({ id: "c1", frozenFrom: "s", input: ok.input, labels: { e1: "new" } });
   });
 
   const refused: [string, "assign" | "summarize", unknown, string][] = [
@@ -358,13 +375,14 @@ describe("parseCase", () => {
     [
       "a URL on an echo",
       "assign",
-      { input: { echoes: [{ id: "e1", title: "x", url: "u" }], topics: [] } },
+      { synthetic: true, input: { echoes: [{ id: "e1", title: "x", url: "u" }], topics: [] } },
       "input.echoes.0.url",
     ],
     [
       "a source on a topic",
       "assign",
       {
+        synthetic: true,
         input: {
           echoes: [{ id: "e1", title: "x" }],
           topics: [{ id: "t", name: "n", source: "s" }],
@@ -372,11 +390,17 @@ describe("parseCase", () => {
       },
       "input.topics.0.source",
     ],
-    ["no echoes", "assign", { input: { echoes: [], topics: [] } }, "at least one echo"],
+    [
+      "no echoes",
+      "assign",
+      { synthetic: true, input: { echoes: [], topics: [] } },
+      "at least one echo",
+    ],
     [
       "an echo twice",
       "assign",
       {
+        synthetic: true,
         input: {
           echoes: [
             { id: "e1", title: "x" },
@@ -394,23 +418,29 @@ describe("parseCase", () => {
       { ...ok, labels: { e9: "new" } },
       "labels.e9",
     ],
-    ["labels on summarize", "summarize", { labels: {} }, "only assign"],
+    ["labels on summarize", "summarize", { synthetic: true, labels: {} }, "only assign"],
     [
       "a language not enabled",
       "summarize",
-      { input: { name: "n", echoes: [{ id: "e1", title: "x" }], languages: ["fr"], first: true } },
+      {
+        synthetic: true,
+        input: { name: "n", echoes: [{ id: "e1", title: "x" }], languages: ["fr"], first: true },
+      },
       "input.languages.0",
     ],
     [
       "first missing",
       "summarize",
-      { input: { name: "n", echoes: [{ id: "e1", title: "x" }], languages: ["en"] } },
+      {
+        synthetic: true,
+        input: { name: "n", echoes: [{ id: "e1", title: "x" }], languages: ["en"] },
+      },
       "input.first",
     ],
     [
       "a blank title",
       "assign",
-      { input: { echoes: [{ id: "e1", title: " " }], topics: [] } },
+      { synthetic: true, input: { echoes: [{ id: "e1", title: " " }], topics: [] } },
       "title",
     ],
   ];
@@ -443,5 +473,13 @@ describe("parseProviders", () => {
   test("the shipped file reads, and names its keys by reference only", () => {
     const file = parseProviders(JSON.parse(readFileSync("evals/providers.json", "utf8")));
     for (const p of [...file.assign, ...file.summarize]) expect(p.apiKeyRef).toMatch(/^[A-Z_]+$/);
+  });
+});
+
+describe("isCommitted", () => {
+  test("is the repository's evals/cases folder, however it is named", () => {
+    expect(isCommitted("evals/cases")).toBe(true);
+    expect(isCommitted(join(import.meta.dir, "..", "evals", "cases", "."))).toBe(true);
+    expect(isCommitted(".bd-data/eval-cases")).toBe(false);
   });
 });

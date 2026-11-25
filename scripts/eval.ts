@@ -6,6 +6,11 @@
  *   bun scripts/eval.ts [--cases evals/cases] [--providers evals/providers.json]
  *                       [--report report.md] [--json result.json] [--sha <commit>]
  *
+ * `--cases` defaults to the committed, synthetic cases (CI runs those). The
+ * owner can name a local, git-ignored folder of cases frozen from real runs
+ * (`scripts/freeze-cases.ts`, default `.bd-data/eval-cases`); a frozen case
+ * in `evals/cases/` is refused.
+ *
  * Keys are read from the environment by the names in the providers file
  * (`apiKeyRef`), as the pipeline reads them (`resolveProviders`). A provider
  * whose key is not set is left out.
@@ -21,6 +26,7 @@
  * printed or written.
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { validateAssignments } from "../apps/pipeline/src/core/assign.ts";
 import { resolveProviders, stringVars } from "../apps/pipeline/src/core/model.ts";
@@ -38,6 +44,7 @@ import {
   type AssignCase,
   CaseError,
   type Cases,
+  COMMITTED_CASES,
   loadCases,
   type SummarizeCase,
   TASKS,
@@ -357,6 +364,11 @@ export function parseProviders(json: unknown): ProviderFile {
   return out;
 }
 
+/** Whether `dir` is the committed cases folder, where a frozen case is refused. */
+export function isCommitted(dir: string): boolean {
+  return resolve(dir) === resolve(COMMITTED_CASES);
+}
+
 export interface Io {
   out(line: string): void;
   env: Record<string, string | undefined>;
@@ -388,7 +400,7 @@ export async function main(argv: readonly string[], io: Io = defaultIo): Promise
   let cases: Cases;
   let providers: ProviderFile;
   try {
-    cases = loadCases(values.cases);
+    cases = loadCases(values.cases, { committed: isCommitted(values.cases) });
     providers = existsSync(values.providers)
       ? parseProviders(JSON.parse(readFileSync(values.providers, "utf8")))
       : { assign: [], summarize: [] };
