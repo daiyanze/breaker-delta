@@ -3,6 +3,8 @@
  * Calls have no tools. Output is JSON that the caller validates.
  * See docs/adr/0005-model-provider-chain.md.
  */
+import type { ModelDriver } from "./driver.ts";
+import { assignMessages, summarizeMessages, validAssign, validSummarize } from "./prompts.ts";
 
 export interface ResolvedProvider {
   name: string;
@@ -111,6 +113,24 @@ async function complete(
   return content;
 }
 
+/**
+ * The chain as a `ModelDriver` (#42): every call goes through `callChain`
+ * over these providers, with the prompts and contract checks of
+ * `prompts.ts`. Assign and summarize have separate chains (ADR 0005), so a
+ * caller makes one driver per chain. An empty chain fails every call
+ * (`ChainExhaustedError`); a caller that wants to skip a step checks for an
+ * empty chain first.
+ */
+export function chainDriver(
+  providers: readonly ResolvedProvider[],
+  options: ChainOptions = {},
+): ModelDriver {
+  return {
+    assign: (input) => callChain(providers, assignMessages(input), validAssign, options),
+    summarize: (input) => callChain(providers, summarizeMessages(input), validSummarize, options),
+  };
+}
+
 /** Accepts bare JSON or JSON wrapped in a Markdown code fence. */
 export function parseJson(text: string): unknown {
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -124,3 +144,4 @@ export function parseJson(text: string): unknown {
 
 export * from "./driver.ts";
 export * from "./fake.ts";
+export { PROMPT_VERSION } from "./prompts.ts";

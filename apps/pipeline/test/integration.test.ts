@@ -110,7 +110,7 @@ function setup() {
     buildSteps({
       blobs,
       fetch: recordingFetch,
-      driver,
+      model: { assign: driver, summarize: driver },
       site,
       groups: LAUNCH_GROUPS,
       adapters: ADAPTERS,

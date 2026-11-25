@@ -18,6 +18,10 @@
  *    summary row; it is due again next run. The error is not kept, since it
  *    may quote the model's answer.
  *
+ * With no summarize model (an empty `summarizeProviders` chain, #42) the
+ * step makes no call, writes no draft and marks its output `skipped`; the
+ * selected waves stay due for a later run.
+ *
  * A retried or resumed attempt asks again and replaces the drafts.
  */
 import type { SummaryReason } from "@bd/core";
@@ -30,7 +34,8 @@ import type { SelectOutput } from "./select.ts";
 import { readSettings } from "./settings.ts";
 
 export interface SummarizeDeps {
-  driver: ModelDriver;
+  /** Null: no summarize model this run (an empty chain, #42); the step is skipped. */
+  driver: ModelDriver | null;
   blobs: Blobs;
 }
 
@@ -40,6 +45,8 @@ export interface SummarizeOutput {
   drafted: { topicId: string; reason: SummaryReason }[];
   /** Waves whose model call failed, or that have no echo to cite. */
   failed: string[];
+  /** Set when there was no summarize model: no call was made, no draft written. */
+  skipped?: true;
 }
 
 /** One draft as stored in the blob. Written by code except `answer`. */
@@ -88,6 +95,8 @@ export function summarizeStep(deps: SummarizeDeps): Step {
     async run(ctx): Promise<SummarizeOutput> {
       const { settings } = await readSettings(ctx.db, ctx.now());
       const output: SummarizeOutput = { drafted: [], failed: [] };
+      const driver = deps.driver;
+      if (driver === null) return { ...output, skipped: true };
       for (const { topicId, reason } of outputOf<SelectOutput>(ctx, "select").selected) {
         const topic = await ctx.db
           .select({ name: topics.name })
@@ -104,7 +113,7 @@ export function summarizeStep(deps: SummarizeDeps): Step {
         const languages = [...new Set(settings.languages)];
         let answer: Awaited<ReturnType<ModelDriver["summarize"]>>;
         try {
-          answer = await deps.driver.summarize({
+          answer = await driver.summarize({
             name: topic.name,
             echoes: cited,
             languages,

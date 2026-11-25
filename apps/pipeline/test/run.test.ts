@@ -94,7 +94,7 @@ function setup() {
   const steps: Step[] = buildSteps({
     blobs,
     fetch: fetchStub,
-    driver: model.driver,
+    model: { assign: model.driver, summarize: model.driver },
     site,
     groups: GROUPS,
     adapters: ADAPTERS,
@@ -138,7 +138,7 @@ describe("the wired run", () => {
     const names = buildSteps({
       blobs: memoryBlobs().blobs,
       fetch: fetch,
-      driver: fakeDriver(),
+      model: { assign: fakeDriver(), summarize: fakeDriver() },
       site: { purge: async () => ({ purged: 0 }) },
       groups: [],
       adapters: {},

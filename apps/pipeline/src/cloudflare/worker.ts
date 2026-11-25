@@ -5,6 +5,7 @@
  */
 import type { SiteCache } from "@bd/ports";
 import { createPipeline, type Pipeline, pipelineConfig } from "../core/app.ts";
+import { stringVars } from "../core/model.ts";
 import { d1Database } from "./d1.ts";
 import { r2Blobs } from "./r2.ts";
 
@@ -19,7 +20,7 @@ export interface Env {
   SITE?: SiteCache;
   /** Guards /__probe and /__tick. Unset = those routes do not exist. */
   PROBE_TOKEN?: string;
-  /** The model driver (`src/core/model.ts`). Unset = no model. */
+  /** The model driver (`src/core/model.ts`). Unset = the provider chains from settings. */
   MODEL_DRIVER?: string;
 }
 
@@ -30,6 +31,8 @@ function pipeline(env: Env): Pipeline {
       clock: { now: () => Date.now() },
       blobs: r2Blobs(env.BLOBS),
       ...(env.SITE ? { site: env.SITE } : {}),
+      // A provider key is the Worker secret its `apiKeyRef` names (#42).
+      secret: stringVars(env as unknown as Record<string, unknown>),
     },
     pipelineConfig(env),
   );

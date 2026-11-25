@@ -43,5 +43,6 @@ bun scripts/verify-local.ts down
 **Edges.** A restart keeps the data; `spike-local.ts` checks that. A slot is
 `runIntervalMinutes` long (a setting, default 60), so a first run near the top of the
 hour may be followed by a second slot soon after. With no `MODEL_DRIVER`
-(the default for `bun run local`), assign's model calls fail and the run
-still ends `done`: echoes, but no topics, wave points or events.
+(the default for `bun run local`) the run uses the provider chains from
+settings; both are empty by default, so assign and summarize are skipped
+and the run still ends `done`: echoes, but no topics, wave points or events.

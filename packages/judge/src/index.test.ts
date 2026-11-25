@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   ChainExhaustedError,
   callChain,
+  chainDriver,
   parseJson,
   type ResolvedProvider,
   type Validate,
@@ -83,5 +84,52 @@ describe("parseJson", () => {
     expect(parseJson('{"a":1}')).toEqual({ a: 1 });
     expect(parseJson('text\n```\n{"a":2}\n```')).toEqual({ a: 2 });
     expect(parseJson("not json")).toBeUndefined();
+  });
+});
+
+describe("chainDriver", () => {
+  const input = { echoes: [{ id: "e1", title: "Rocket ships" }], topics: [] };
+
+  test("asks the chain and returns an answer that passes the assign contract", async () => {
+    const answer = { assignments: [{ echoId: "e1", newTopic: { name: "Rocket" } }] };
+    const f = fakeFetch({ "a.test": [JSON.stringify(answer)] });
+    const r = await chainDriver([A], { fetch: f.fetch }).assign(input);
+    expect(r).toEqual({ value: answer, provider: "a", model: "m-a", repaired: false });
+    expect(f.calls[0]?.auth).toBe("Bearer k");
+  });
+
+  test("an answer the contract refuses is repaired once, then the next provider is asked", async () => {
+    const answer = { assignments: [{ echoId: "e1", topicId: "t1" }] };
+    const f = fakeFetch({
+      "a.test": ['{"assignments":"x"}', "{}"],
+      "b.test": [JSON.stringify(answer)],
+    });
+    const r = await chainDriver([A, B], { fetch: f.fetch }).assign(input);
+    expect(r.provider).toBe("b");
+    expect(f.calls).toHaveLength(3);
+  });
+
+  test("summarize checks the summarize contract", async () => {
+    const f = fakeFetch({ "a.test": ['{"texts":[]}', '{"texts":[]}'] });
+    const err = await chainDriver([A], { fetch: f.fetch })
+      .summarize({ name: "Rocket", echoes: input.echoes, languages: ["en"], first: false })
+      .catch((e) => e);
+    expect(err).toBeInstanceOf(ChainExhaustedError);
+    expect(String(err.message)).toContain("evidenceEchoIds");
+  });
+
+  test("the key is in no error the chain throws", async () => {
+    const key = "sk-test-not-a-real-key";
+    const f = fakeFetch({ "a.test": [401] });
+    const err = await chainDriver([{ ...A, apiKey: key }], { fetch: f.fetch })
+      .assign(input)
+      .catch((e) => e);
+    expect(err).toBeInstanceOf(ChainExhaustedError);
+    expect(f.calls[0]?.auth).toBe(`Bearer ${key}`);
+    expect(JSON.stringify({ message: err.message, attempts: err.attempts })).not.toContain(key);
+  });
+
+  test("an empty chain fails every call", async () => {
+    await expect(chainDriver([]).assign(input)).rejects.toBeInstanceOf(ChainExhaustedError);
   });
 });

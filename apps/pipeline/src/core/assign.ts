@@ -26,6 +26,9 @@
  *    taken), then the echoes' topic. An echo's topic is only set while it is
  *    still empty, so an echo never gets a second assignment.
  *
+ * With no assign model (an empty `assignProviders` chain, #42) the step makes
+ * no call and marks its output `skipped`; the echoes wait without a topic.
+ *
  * A retried or resumed attempt starts again from the echoes still without a
  * topic, so it never assigns an echo twice.
  *
@@ -43,7 +46,8 @@ import type { Step, StepContext } from "./runner.ts";
 import { readSettings } from "./settings.ts";
 
 export interface AssignDeps {
-  driver: ModelDriver;
+  /** Null: no assign model this run (an empty chain, #42); the step is skipped. */
+  driver: ModelDriver | null;
 }
 
 /** What the step returns; the runner stores it in `run_steps.output`. Counts only. */
@@ -60,6 +64,8 @@ export interface AssignOutput {
   failedBatches: number;
   /** Echoes still without a topic when the step ended. */
   unassigned: number;
+  /** Set when there was no assign model: no call was made, every echo waits. */
+  skipped?: true;
 }
 
 /** A topic that can be shortlisted. */
@@ -255,6 +261,7 @@ export function assignStep(deps: AssignDeps): Step {
         .orderBy(asc(echoes.firstSeenAt), asc(echoes.id));
       const pool = await loadPool(ctx.db, nowMs - settings.assignActivityDays * 86_400_000);
       const takenSlugs = new Set<string>();
+      const driver = deps.driver;
 
       const output: AssignOutput = {
         echoes: pending.length,
@@ -264,6 +271,7 @@ export function assignStep(deps: AssignDeps): Step {
         failedBatches: 0,
         unassigned: pending.length,
       };
+      if (driver === null) return { ...output, skipped: true };
 
       for (let i = 0; i < pending.length; i += settings.assignBatchSize) {
         const batch = pending.slice(i, i + settings.assignBatchSize);
@@ -289,7 +297,7 @@ export function assignStep(deps: AssignDeps): Step {
         };
         let answer: unknown;
         try {
-          answer = (await deps.driver.assign(input)).value;
+          answer = (await driver.assign(input)).value;
         } catch {
           // The error may quote the model's answer: count it, keep nothing.
           output.failedBatches++;
