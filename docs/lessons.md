@@ -83,9 +83,11 @@ Each rule applies only within its scope.
   are scored" in `scripts/height-trial.test.ts` (fails with the clock read
   before collect). Fixed in #234.
 
-## L21 Before writing a field an invariant names, find the step the invariant ties it to
+## L26 Before writing a field an invariant names, find the step the invariant ties it to
 
-- **Date:** 2026-11-24. **Status:** active.
+- **Date:** 2026-11-24. **Status:** active. Numbered L21 until 2026-11-25,
+  when the lessons refresh found two entries with that id; this, the newer,
+  was renumbered.
 - **What happened:** #237's compute step set `topics.formed_at`, the "wave
   forming" that invariant 5 says is written in the same batch as the
   prediction. The prediction comes from the model in a later step (#34), so
@@ -169,7 +171,9 @@ Each rule applies only within its scope.
   elements from other namespaces next to the ones read. It extends L14.
 - **Scope:** `apps/pipeline/src/sources` and any code that reads XML,
   HTML or feeds.
-- **Evidence:** fixed in #206, tests in `parse.test.ts`.
+- **Evidence:** fixed in #206, tests in
+  `apps/pipeline/src/sources/parse.test.ts`; the `&#8217;` cases are in the
+  adapters' tests (`feed-adapters.test.ts`, `remaining-adapters.test.ts`).
 
 ## L16 Write down who decided each value
 
@@ -200,7 +204,8 @@ Each rule applies only within its scope.
 - **Rule:** Before calling a PR done, read every failed job, not only the
   required ones. A failure that predates the PR is named in its report with
   the first run that failed.
-- **Scope:** every PR, `take-case` and `docket` reports (`/next` and `/run` when written).
+- **Scope:** every PR, and the `take-case` and `docket` reports (the `onus`
+  plugin's skills, which replaced `/next` and `/run`).
 - **Evidence:** fixed in this PR; `verify-local get` now prints from `<body>`.
 
 ## L14 Read a standard format with its parser, and check names against the runtime's own
