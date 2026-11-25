@@ -26,8 +26,10 @@
  * call. The output holds topic ids and counts, never URLs, text or fetch
  * errors.
  *
- * With no summarize model (an empty chain in settings, #42) the step is
- * skipped, as summarize is: no page is fetched that nothing would read.
+ * With no summarize model the step is skipped, as summarize is: no page is
+ * fetched that nothing would read. A run has none when the summarize chain
+ * in settings is empty, or when there are no prompts (`model.ts`, #42;
+ * none ship until #43, #44), unless `MODEL_DRIVER=fake`.
  *
  * A retried or resumed attempt fetches again and replaces the blobs; a wave
  * it leaves unread loses the blob an earlier attempt stored.
@@ -43,7 +45,7 @@ import { readSettings } from "./settings.ts";
 export interface EnrichDeps {
   blobs: Blobs;
   fetch: typeof fetch;
-  /** True when the run has no summarize model (#42): nothing would read the pages. */
+  /** True when the run has no summarize model (empty chain or no prompts, #42): nothing would read the pages. */
   skip?: boolean;
 }
 
@@ -57,7 +59,7 @@ export interface EnrichOutput {
   fetched: number;
   /** Of those, the ones that gave no text. */
   failed: number;
-  /** Set when the run has no summarize model: no page is fetched. */
+  /** Set when the run has no summarize model (empty chain or no prompts): no page is fetched. */
   skipped?: true;
 }
 
