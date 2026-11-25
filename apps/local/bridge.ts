@@ -40,6 +40,8 @@ export interface BridgeOptions {
   port: number;
   /** A call still running after this long is killed and answered with 504. */
   timeoutMs: number;
+  /** The agent's whole environment. Default: `agentEnv(process.env)`. */
+  env?: Record<string, string>;
   log?: (line: string) => void;
 }
 
@@ -100,27 +102,21 @@ export const CLAUDE_TOOLLESS: readonly string[] = [
   "--no-session-persistence",
 ];
 
-/** Flags a `claude` command must have: print mode, no tools, no MCP, no settings, no skills. */
-const CLAUDE_REQUIRED: readonly (readonly string[])[] = [
-  ["-p", "--print"],
-  ["--tools="],
-  ["--strict-mcp-config"],
-  ["--setting-sources="],
-  ["--disable-slash-commands"],
+/**
+ * The flags a `claude` command may have: exactly the documented ones, each
+ * once, plus `--model <name>`. `--tools` and `--setting-sources` take the
+ * empty value only, written `--flag ""` or `--flag=`.
+ */
+const CLAUDE_FLAGS: readonly { names: readonly string[]; empty?: true; required: boolean }[] = [
+  { names: ["-p", "--print"], required: true },
+  { names: ["--tools"], empty: true, required: true },
+  { names: ["--strict-mcp-config"], required: true },
+  { names: ["--setting-sources"], empty: true, required: true },
+  { names: ["--disable-slash-commands"], required: true },
+  { names: ["--no-session-persistence"], required: true },
 ];
 
-/** Flags that would give a `claude` command tools, folders or settings back. */
-const CLAUDE_FORBIDDEN = [
-  "--mcp-config",
-  "--allowedTools",
-  "--allowed-tools",
-  "--add-dir",
-  "--settings",
-  "--agents",
-  "--plugin-dir",
-  "--dangerously-skip-permissions",
-  "--allow-dangerously-skip-permissions",
-];
+const ONLY = 'the claude command may have only the flags in docs/providers.md ("Local bridge")';
 
 /** Whether `toollessProblem` can check this command: Claude Code, by its executable's name. */
 export function isClaudeCommand(command: readonly string[]): boolean {
@@ -128,34 +124,181 @@ export function isClaudeCommand(command: readonly string[]): boolean {
 }
 
 /**
- * Why `command` is not a tool-less call, or null. Checks Claude Code's
- * flags only (`docs/providers.md`); for any other CLI it returns null and
- * the launcher warns that it cannot tell. A guard against a missing flag,
- * not a sandbox: it reads the argv, not what the CLI does.
+ * Why `command` is not a tool-less call, or null. For Claude Code the argv
+ * must be exactly the documented flags (`CLAUDE_TOOLLESS`), in any order,
+ * each once, plus an optional `--model <name>`; anything else is refused,
+ * since a second `--tools Bash` or `--setting-sources user` could give
+ * tools or settings back. Any other CLI returns null, and the launcher
+ * warns that it cannot tell. It reads the argv, not what the CLI does.
  */
 export function toollessProblem(command: readonly string[]): string | null {
   if (!isClaudeCommand(command)) return null;
   const args = command.slice(1);
-  // `--flag ""` and `--flag=` are the same; compare them in one form.
-  const flags: string[] = [];
+  const seen = new Set<string>();
+  const once = (key: string, shown: string): string | null => {
+    if (seen.has(key)) return `the claude command has ${shown} more than once`;
+    seen.add(key);
+    return null;
+  };
   for (let i = 0; i < args.length; i++) {
-    const a = args[i] ?? "";
-    const next = args[i + 1];
-    if ((a === "--tools" || a === "--setting-sources") && next !== undefined) {
-      flags.push(`${a}=${next}`);
-      i++;
-    } else flags.push(a);
+    const arg = args[i] ?? "";
+    const eq = arg.indexOf("=");
+    const name = arg.startsWith("--") && eq > 0 ? arg.slice(0, eq) : arg;
+    const inline = name === arg ? undefined : arg.slice(eq + 1);
+    if (name === "--model") {
+      const value = inline ?? args[++i];
+      if (value === undefined || value === "" || value.startsWith("-")) {
+        return "the claude command's --model needs a model name";
+      }
+      const twice = once("--model", "--model");
+      if (twice) return twice;
+      continue;
+    }
+    const flag = CLAUDE_FLAGS.find((f) => f.names.includes(name));
+    if (!flag) return `${ONLY}, not ${arg}`;
+    if (flag.empty) {
+      const value = inline ?? args[++i];
+      if (value !== "") return `the claude command's ${name} must be "", not ${value ?? "missing"}`;
+    } else if (inline !== undefined) return `${ONLY}, not ${arg}`;
+    const twice = once(flag.names.join("/"), flag.names.join("/"));
+    if (twice) return twice;
   }
-  const missing = CLAUDE_REQUIRED.filter((any) => !any.some((f) => flags.includes(f)));
+  const missing = CLAUDE_FLAGS.filter((f) => f.required && !seen.has(f.names.join("/")));
   if (missing.length > 0) {
-    const names = missing.map((any) =>
-      any.map((f) => (f.endsWith("=") ? `${f.slice(0, -1)} ""` : f)).join("/"),
-    );
+    const names = missing.map((f) => (f.empty ? `${f.names[0]} ""` : f.names.join("/")));
     return `the claude command lacks ${names.join(", ")} (docs/providers.md, "Local bridge")`;
   }
-  const extra = flags.filter((f) => CLAUDE_FORBIDDEN.some((x) => f === x || f.startsWith(`${x}=`)));
-  if (extra.length > 0) return `the claude command must not have ${extra.join(", ")}`;
   return null;
+}
+
+/** What the launcher reads for the bridge (`apps/local/start.ts`). */
+export interface BridgeConfig {
+  command: string[];
+  port: number;
+  timeoutMs: number;
+  /** Extra variable names the agent gets (`BD_BRIDGE_ENV`), on top of `agentEnv`'s. */
+  passEnv: string[];
+}
+
+const VAR_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+/**
+ * The bridge's configuration from the launcher's environment, or null when
+ * `BD_BRIDGE_COMMAND` is unset. Throws, naming the variable, on a value it
+ * cannot use, so the launcher stops instead of starting a broken bridge.
+ */
+export function bridgeConfig(
+  env: Readonly<Record<string, string | undefined>>,
+): BridgeConfig | null {
+  if (!env.BD_BRIDGE_COMMAND) return null;
+  const command = parseCommand(env.BD_BRIDGE_COMMAND);
+  const problem = toollessProblem(command);
+  if (problem) throw new Error(problem);
+  const int = (name: string, fallback: number, min: number, max: number) => {
+    const raw = env[name];
+    if (raw === undefined) return fallback;
+    const n = /^\d+$/.test(raw) ? Number(raw) : Number.NaN;
+    if (!Number.isSafeInteger(n) || n < min || n > max) {
+      throw new Error(`${name} must be a whole number from ${min} to ${max}, not "${raw}"`);
+    }
+    return n;
+  };
+  const port = int("BD_BRIDGE_PORT", 8789, 0, 65535);
+  // A day at most: AbortSignal.timeout takes milliseconds up to 2^32 - 1.
+  const timeoutMs = int("BD_BRIDGE_TIMEOUT_SECONDS", 120, 1, 86_400) * 1000;
+  const passEnv = (env.BD_BRIDGE_ENV ?? "")
+    .split(",")
+    .map((n) => n.trim())
+    .filter((n) => n !== "");
+  const bad = passEnv.find((n) => !VAR_NAME.test(n));
+  if (bad !== undefined) {
+    throw new Error(`BD_BRIDGE_ENV must be variable names separated by commas, not "${bad}"`);
+  }
+  return { command, port, timeoutMs, passEnv };
+}
+
+/**
+ * Variables the agent gets from the launcher's environment: what a program
+ * needs to run (paths, home, locale, temp folder, proxy and certificates)
+ * and Claude Code's own sign-in. Nothing of the app: no `PROBE_TOKEN`, no
+ * provider key, no `BD_*`.
+ */
+export const AGENT_ENV: readonly string[] = [
+  // POSIX
+  "PATH",
+  "HOME",
+  "USER",
+  "LOGNAME",
+  "SHELL",
+  "TMPDIR",
+  "LANG",
+  "LC_ALL",
+  "LC_CTYPE",
+  "TZ",
+  "XDG_CONFIG_HOME",
+  "XDG_DATA_HOME",
+  "XDG_CACHE_HOME",
+  "XDG_RUNTIME_DIR",
+  // Windows
+  "Path",
+  "PATHEXT",
+  "SystemRoot",
+  "SYSTEMROOT",
+  "windir",
+  "ComSpec",
+  "COMSPEC",
+  "USERPROFILE",
+  "USERNAME",
+  "HOMEDRIVE",
+  "HOMEPATH",
+  "APPDATA",
+  "LOCALAPPDATA",
+  "PROGRAMDATA",
+  "TEMP",
+  "TMP",
+  // Network
+  "HTTP_PROXY",
+  "HTTPS_PROXY",
+  "NO_PROXY",
+  "http_proxy",
+  "https_proxy",
+  "no_proxy",
+  "NODE_EXTRA_CA_CERTS",
+  "SSL_CERT_FILE",
+  // Claude Code's own sign-in and configuration
+  "ANTHROPIC_API_KEY",
+  "ANTHROPIC_AUTH_TOKEN",
+  "ANTHROPIC_BASE_URL",
+  "CLAUDE_CODE_OAUTH_TOKEN",
+  "CLAUDE_CONFIG_DIR",
+];
+
+/** Names `BD_BRIDGE_ENV` may not pass: the app's own secrets and settings. */
+const APP_SECRETS = [
+  /^BD_/,
+  /^PROBE_TOKEN$/,
+  /^MODEL_DRIVER$/,
+  /^CF_AI_TOKEN$/,
+  /^GROQ_API_KEY$/,
+  /^GEMINI_API_KEY$/,
+  /^CLOUDFLARE_/,
+];
+
+/** The agent's environment: `AGENT_ENV` and `extra`, the set ones only. */
+export function agentEnv(
+  env: Readonly<Record<string, string | undefined>>,
+  extra: readonly string[] = [],
+): Record<string, string> {
+  const refused = extra.find((n) => APP_SECRETS.some((re) => re.test(n)));
+  if (refused !== undefined) {
+    throw new Error(`BD_BRIDGE_ENV must not pass ${refused} to the agent: it is the app's own`);
+  }
+  const out: Record<string, string> = {};
+  for (const name of [...AGENT_ENV, ...extra]) {
+    const value = env[name];
+    if (value !== undefined) out[name] = value;
+  }
+  return out;
 }
 
 type Parsed<T> = { ok: true; value: T } | { ok: false; error: string };
@@ -204,30 +347,66 @@ export type AgentResult =
   | { ok: false; status: 502 | 504; error: string };
 
 /**
+ * Kills the agent and every process it started. POSIX: the agent leads its
+ * own process group (`detached`), and the group gets SIGKILL. Windows:
+ * `taskkill /T /F` ends the tree under the agent's pid; a process already
+ * moved out of that tree (re-parented after its parent exited) is not
+ * reached there.
+ */
+function killTree(pid: number): void {
+  if (process.platform === "win32") {
+    Bun.spawnSync(["taskkill", "/pid", String(pid), "/T", "/F"], {
+      stdout: "ignore",
+      stderr: "ignore",
+    });
+    return;
+  }
+  try {
+    process.kill(-pid, "SIGKILL");
+  } catch {
+    // The group is already gone.
+  }
+}
+
+/**
  * One call of the CLI: `prompt` on stdin, the answer on stdout, in a new
- * empty folder that is deleted afterwards. Killed when `timeoutMs` passes or
- * `signal` aborts (the client hung up).
+ * empty folder that is deleted afterwards, with only the variables in
+ * `env`. When `timeoutMs` passes or `signal` aborts (the client hung up),
+ * the whole process tree is killed and the call ends at once, without
+ * waiting for its output. After an answer, anything the agent left running
+ * is killed too.
  */
 export async function runAgent(
   command: readonly string[],
   prompt: string,
-  options: { timeoutMs: number; signal?: AbortSignal },
+  options: { timeoutMs: number; env: Record<string, string>; signal?: AbortSignal },
 ): Promise<AgentResult> {
-  const cwd = mkdtempSync(join(tmpdir(), "bd-bridge-"));
   const timeout = AbortSignal.timeout(options.timeoutMs);
   const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
+  let cwd: string | null = null;
+  let proc: Bun.Subprocess | null = null;
   try {
-    const proc = Bun.spawn([...command], {
+    cwd = mkdtempSync(join(tmpdir(), "bd-bridge-"));
+    const child = Bun.spawn([...command], {
       cwd,
+      env: options.env,
       stdin: new TextEncoder().encode(prompt),
       stdout: "pipe",
       stderr: "ignore",
-      signal,
-      killSignal: "SIGKILL",
+      detached: true,
     });
-    const [text, code] = await Promise.all([new Response(proc.stdout).text(), proc.exited]);
-    if (timeout.aborted) return { ok: false, status: 504, error: "the agent timed out" };
-    if (signal.aborted) return { ok: false, status: 502, error: "the request was cancelled" };
+    proc = child;
+    const stopped = new Promise<"stopped">((resolve) => {
+      if (signal.aborted) resolve("stopped");
+      signal.addEventListener("abort", () => resolve("stopped"), { once: true });
+    });
+    const finished = Promise.all([new Response(child.stdout).text(), child.exited]);
+    const outcome = await Promise.race([finished, stopped]);
+    if (outcome === "stopped") {
+      if (timeout.aborted) return { ok: false, status: 504, error: "the agent timed out" };
+      return { ok: false, status: 502, error: "the request was cancelled" };
+    }
+    const [text, code] = outcome;
     if (code !== 0) return { ok: false, status: 502, error: `the agent exited with code ${code}` };
     const answer = text.trim();
     if (answer === "") return { ok: false, status: 502, error: "the agent printed nothing" };
@@ -237,7 +416,12 @@ export async function runAgent(
     const message = err instanceof Error ? err.message : String(err);
     return { ok: false, status: 502, error: `the agent could not start: ${message}` };
   } finally {
-    rmSync(cwd, { recursive: true, force: true });
+    if (proc !== null) {
+      killTree(proc.pid);
+      // The agent itself ends at once after SIGKILL; reap it so it leaves no zombie.
+      await Promise.race([proc.exited, Bun.sleep(2000)]);
+    }
+    if (cwd !== null) rmSync(cwd, { recursive: true, force: true });
   }
 }
 
@@ -247,6 +431,7 @@ const fail = (status: number, message: string) => Response.json({ error: { messa
 export function startBridge(options: BridgeOptions): Bridge {
   const log = options.log ?? ((line: string) => console.log(line));
   const command = [...options.command];
+  const env = options.env ?? agentEnv(process.env);
   const server = Bun.serve({
     hostname: BRIDGE_HOST,
     port: options.port,
@@ -280,6 +465,7 @@ export function startBridge(options: BridgeOptions): Bridge {
       const started = Date.now();
       const result = await runAgent(command, renderPrompt(parsed.value.messages), {
         timeoutMs: options.timeoutMs,
+        env,
         signal: request.signal,
       });
       const ms = Date.now() - started;
