@@ -53,6 +53,13 @@ jobs:
       - name: Apply migrations to the preview database
         working-directory: apps/pipeline
         run: bun x --bun wrangler d1 migrations apply bd-content-preview --remote -c wrangler.preview-db.jsonc
+      # Seed data (#41): fixture sources and the fake model, no fetched content.
+      # It inserts only while the database has no run, so it loads once.
+      - name: Seed the preview database
+        working-directory: apps/pipeline
+        run: |
+          bun ../../scripts/seed-preview.ts ../../seed.sql
+          bun x --bun wrangler d1 execute bd-content-preview --remote -c wrangler.preview-db.jsonc --file ../../seed.sql --yes
       # --ignore-base-config: no bindings from the dashboard's Preview base config.
       - name: Preview pipeline
         working-directory: apps/pipeline

@@ -45,7 +45,7 @@ export interface LocalPipelineOptions {
 }
 
 /** Fixtures as recorded by `scripts/record-fixture.ts`, embedded in the build. */
-function readFixture(file: string): string | null {
+export function readFixture(file: string): string | null {
   return FIXTURE_FILES[file] ?? null;
 }
 
