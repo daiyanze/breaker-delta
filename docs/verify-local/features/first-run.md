@@ -19,8 +19,13 @@ provider and fetches nothing real. By hand:
 - The pipeline's `/health` returns `ok: true` and a `lastRun` whose status
   is `done` once the first tick ends.
 - The `runs` table has one row for the current slot, status `done`, and
-  `run_steps` has 11 rows for it (scan, ingest, assign, compute, changes,
-  select, summarize, validate, commit, publish, retention), all `done`.
+  `run_steps` has 12 rows for it (scan, ingest, assign, compute, changes,
+  select, enrich, summarize, validate, commit, publish, retention), all
+  `done`.
+- Enrich (#45) tries the selected waves' pages. The fixture `fetch`
+  answers echo URLs with 404, so every page fails: its output has `read`
+  empty and `fetched` equal to `failed`, and every summary has
+  `source_text_read = 0`. That is the "fetch failed" path, offline.
 - The database holds echoes, topics, wave points and events. On the
   recorded fixtures with the fake model: 70 echoes, 57 topics, 57 wave
   points (2 `up`), 2 `wave_formed` events, 2 published summaries. Counts
@@ -37,6 +42,8 @@ bun scripts/verify-local.ts sql "SELECT slot, status, started_at, finished_at FR
 bun scripts/verify-local.ts sql "SELECT step, status, attempts FROM run_steps ORDER BY rowid"
 bun scripts/verify-local.ts sql "SELECT (SELECT COUNT(*) FROM echoes) AS echoes, (SELECT COUNT(*) FROM topics) AS topics, (SELECT COUNT(*) FROM wave_points) AS wave_points, (SELECT COUNT(*) FROM events) AS events"
 bun scripts/verify-local.ts sql "SELECT type, COUNT(*) AS n FROM events GROUP BY type"
+bun scripts/verify-local.ts sql "SELECT output FROM run_steps WHERE step = 'enrich'"
+bun scripts/verify-local.ts sql "SELECT status, source_text_read, COUNT(*) AS n FROM summaries GROUP BY 1, 2"
 bun scripts/verify-local.ts down
 ```
 

@@ -101,7 +101,7 @@ export function commitStep(deps: CommitDeps): Step {
             status: "discarded",
             reason: draft.reason,
             writer: draft.provider,
-            sourceTextRead: false,
+            sourceTextRead: draft.sourceTextRead === true,
             slot: ctx.slot,
             createdAt: nowMs,
           });
@@ -149,8 +149,8 @@ export function commitStep(deps: CommitDeps): Step {
             reason: draft.reason,
             writer: draft.provider,
             riskFlags: JSON.stringify(value.riskFlags),
-            // No enrich step yet (#45): the model read titles and excerpts only.
-            sourceTextRead: false,
+            // False when enrich read no page for it (#45), or for a draft from before it.
+            sourceTextRead: draft.sourceTextRead === true,
             slot: ctx.slot,
             createdAt: nowMs,
           }),

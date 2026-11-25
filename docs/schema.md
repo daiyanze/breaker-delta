@@ -122,9 +122,14 @@ in one batch; a draft the validate step refused (an echo id it was not
 given, a missing language, a first summary with no criterion, an address
 the echoes do not have) gets a discarded row and nothing else. A row's id
 comes from its slot and topic, so a retried commit writes nothing twice.
-`source_text_read` is false until enrich (#45) exists. The model's drafts
-are blobs, `raw/<slot>/summarize/<topic id>.json`, removed with the scan's
-raw responses after `rawRetentionDays`; the steps pass topic ids only.
+`source_text_read` is true when the enrich step (#45,
+`apps/pipeline/src/core/enrich.ts`) read at least one of the wave's
+evidence pages and summarize gave it to the model; false when every fetch
+failed, the run's page budget was spent, or the draft predates enrich. The
+model's drafts are blobs, `raw/<slot>/summarize/<topic id>.json`, and
+enrich's page texts are `raw/<slot>/enrich/<topic id>.json`, both removed
+with the scan's raw responses after `rawRetentionDays`; the steps pass
+topic ids only.
 
 ## summary_texts
 
@@ -190,8 +195,8 @@ A correction's note to readers in one language; key `(correction_id, lang)`.
   summarize contract has no such field yet (#44).
 - Outside evidence for verdicts (#79), and editors (desk sign-in, #74).
 - Subscriber data: the private database, below.
-- Fetched page text for enrich (#45) and raw responses (#26, removed by
-  #38): blob storage.
+- Fetched page text for enrich (#45, `raw/<slot>/enrich/`) and raw
+  responses (#26), both removed by retention (#38): blob storage.
 
 # Private database schema
 

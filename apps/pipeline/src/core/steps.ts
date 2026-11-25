@@ -1,8 +1,8 @@
 /**
  * The steps of one run, in order (#36): scan -> ingest -> assign -> compute
- * -> changes -> select -> summarize -> validate -> commit -> publish ->
- * retention. The enrich step (#45, M2) is not built yet; it goes between
- * select and summarize when it is.
+ * -> changes -> select -> enrich -> summarize -> validate -> commit ->
+ * publish -> retention. Enrich (#45) fetches evidence pages for the waves
+ * select chose; a page it cannot fetch does not fail it.
  *
  * Each step reads ids and counts from the outputs of the steps before it
  * (`run_steps`, kept by the runner) and the rows they wrote, never fetched
@@ -24,6 +24,7 @@ import { assignStep } from "./assign.ts";
 import { changesStep } from "./changes.ts";
 import { commitStep } from "./commit.ts";
 import { computeStep } from "./compute.ts";
+import { enrichStep } from "./enrich.ts";
 import { ingestStep } from "./ingest.ts";
 import { publishStep } from "./publish.ts";
 import { retentionStep } from "./retention.ts";
@@ -41,6 +42,7 @@ export const STEP_NAMES = [
   "compute",
   "changes",
   "select",
+  "enrich",
   "summarize",
   "validate",
   "commit",
@@ -67,6 +69,7 @@ export function buildSteps(deps: StepDeps): Step[] {
     computeStep(),
     changesStep(),
     selectStep(),
+    enrichStep({ blobs, fetch: deps.fetch }),
     summarizeStep({ driver: deps.driver, blobs }),
     validateStep({ blobs }),
     commitStep({ blobs }),
