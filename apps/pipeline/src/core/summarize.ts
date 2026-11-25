@@ -21,6 +21,8 @@
  * 4. **Failures.** A wave whose model call fails gets no draft and no
  *    summary row; it is due again next run. The error is not kept, since it
  *    may quote the model's answer.
+ * 5. **Usage.** Every HTTP call the driver made for a wave, answered or
+ *    not, is a `model_calls` row (`usage.ts`, #48).
  *
  * With no summarize model (an empty `summarizeProviders` chain, #42) the
  * step makes no call, writes no draft and marks its output `skipped`; the
@@ -30,13 +32,14 @@
  */
 import type { SummaryReason } from "@bd/core";
 import { type Db, echoes, topics } from "@bd/db";
-import type { DriverEcho, ModelDriver } from "@bd/judge";
+import { callsOf, type DriverEcho, type ModelDriver } from "@bd/judge";
 import type { Blobs } from "@bd/ports";
 import { and, asc, eq, lte } from "drizzle-orm";
 import { type EnrichOutput, readEnriched } from "./enrich.ts";
 import type { Step, StepContext } from "./runner.ts";
 import type { SelectOutput } from "./select.ts";
 import { readSettings } from "./settings.ts";
+import { recordCalls } from "./usage.ts";
 
 export interface SummarizeDeps {
   /** Null: no summarize model this run (an empty chain, #42); the step is skipped. */
@@ -69,6 +72,11 @@ export interface Draft {
   /** Who answered (ADR 0005). */
   provider: string;
   model: string;
+  /**
+   * The version of the prompt it was sent (#48); null while unversioned.
+   * Absent in drafts written before #48.
+   */
+  promptVersion?: string | null;
   /** The model's answer, unvalidated beyond the driver's own contract check. */
   answer: unknown;
 }
@@ -140,11 +148,14 @@ export function summarizeStep(deps: SummarizeDeps): Step {
             languages,
             first,
           });
-        } catch {
-          // The error may quote the model's answer: count it, keep nothing.
+        } catch (err) {
+          // The error may quote the model's answer: count it and record its
+          // calls (no text in them, #48), keep nothing else.
+          await recordCalls(ctx, "summarize", callsOf(err));
           output.failed.push(topicId);
           continue;
         }
+        await recordCalls(ctx, "summarize", answer.calls);
         const draft: Draft = {
           topicId,
           reason,
@@ -154,6 +165,7 @@ export function summarizeStep(deps: SummarizeDeps): Step {
           sourceTextRead: cited.some((e) => pages.has(e.id)),
           provider: answer.provider,
           model: answer.model,
+          promptVersion: answer.promptVersion,
           answer: answer.value,
         };
         await deps.blobs.put(

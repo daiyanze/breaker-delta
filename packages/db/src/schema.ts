@@ -240,6 +240,10 @@ export const summaries = sqliteTable(
     riskFlags: text("risk_flags").notNull().default("[]"),
     slot: text("slot").notNull(),
     createdAt: integer("created_at").notNull(),
+    /** The model that wrote it (#48). Null on rows written before #48. */
+    model: text("model"),
+    /** The version of the prompt it was sent (#48); null while unversioned. */
+    promptVersion: text("prompt_version"),
   },
   (t) => [
     uniqueIndex("summaries_version").on(t.topicId, t.version),
@@ -382,4 +386,40 @@ export const correctionTexts = sqliteTable(
     text: text("text").notNull(),
   },
   (t) => [primaryKey({ columns: [t.correctionId, t.lang] })],
+);
+
+// ------------------------------------------------------- model usage (#48)
+
+export const MODEL_TASKS = ["assign", "summarize"] as const;
+export const MODEL_CALL_OUTCOMES = ["ok", "invalid", "error"] as const;
+
+/**
+ * One HTTP call a model step made in a run (#48). No key, no messages and
+ * no error text. Totals per day group by the slot's day.
+ */
+export const modelCalls = sqliteTable(
+  "model_calls",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    slot: text("slot").notNull(),
+    task: text("task", { enum: MODEL_TASKS }).notNull(),
+    /** The provider name from settings. */
+    provider: text("provider").notNull(),
+    model: text("model").notNull(),
+    promptVersion: text("prompt_version"),
+    /** ok: a valid answer; invalid: an answer that failed checks; error: none. */
+    outcome: text("outcome", { enum: MODEL_CALL_OUTCOMES }).notNull(),
+    /** True when an earlier provider of the same chain call had failed. */
+    fallback: integer("fallback", { mode: "boolean" }).notNull().default(false),
+    /** From the response's `usage`; null when it did not say. */
+    promptTokens: integer("prompt_tokens"),
+    completionTokens: integer("completion_tokens"),
+    totalTokens: integer("total_tokens"),
+    at: integer("at").notNull(),
+  },
+  (t) => [
+    index("model_calls_slot").on(t.slot),
+    check("model_calls_task", oneOf("task", MODEL_TASKS)),
+    check("model_calls_outcome", oneOf("outcome", MODEL_CALL_OUTCOMES)),
+  ],
 );

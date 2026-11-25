@@ -45,7 +45,14 @@ function setup(fetcher = pageFetch()) {
     assign: fake.assign,
     summarize: async (input) => {
       inputs.push(input);
-      return { value: fakeSummarize(input), provider: "fake", model: "m", repaired: false };
+      return {
+        value: fakeSummarize(input),
+        provider: "fake",
+        model: "m",
+        promptVersion: null,
+        repaired: false,
+        calls: [],
+      };
     },
   };
   /** A topic up in `slot` with `count` echoes in groups g0, g1, ... (or `groups`). */

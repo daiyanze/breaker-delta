@@ -4,7 +4,7 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
-## L24 Say what a change does under the default run, not only under verify-local
+## L25 Say what a change does under the default run, not only under verify-local
 
 - **Date:** 2026-11-25. **Status:** active.
 - **What happened:** #250's description said "local mode and verify-local
@@ -21,6 +21,20 @@ Each rule applies only within its scope.
   local mode.
 - **Check:** `isPublicHost` tests in `apps/pipeline/test/page.test.ts`
   refuse loopback, private and link-local hosts and redirects to them.
+
+## L24 A try that guards a model call holds only the model call
+
+- **Date:** 2026-11-25. **Status:** active.
+- **What happened:** #251 wrote the assign step's usage rows inside the
+  `try` around `driver.assign`. A database error there was counted as a
+  failed model batch: the valid answer was dropped and the step ended
+  `done`. Review round 1 found it with a trigger that refuses the insert.
+- **Rule:** A `catch` that turns a model failure into "try again next run"
+  wraps the model call alone; database writes go after it, so their errors
+  fail the step (L6).
+- **Scope:** model steps in `apps/pipeline/src/core` (assign, summarize).
+- **Check:** "a usage row that cannot be written fails the assign step" in
+  `apps/pipeline/test/usage.test.ts`.
 
 ## L23 Test a tool on a database in the state the app leaves it
 
