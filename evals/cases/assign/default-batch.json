@@ -1,0 +1,68 @@
+{
+  "synthetic": true,
+  "input": {
+    "echoes": [
+      { "id": "e01", "title": "Harbor City port expansion: first new berth opens to ships" },
+      {
+        "id": "e02",
+        "title": "Elmbrook Health says patient records were exposed in the breach",
+        "summary": "The fictional provider is writing to affected patients this week."
+      },
+      { "id": "e03", "title": "Solace browser 39.1 fixes the security flaw found last week" },
+      { "id": "e04", "title": "Ferrow FC lifts the regional cup after a penalty shootout" },
+      { "id": "e05", "title": "Lowmarsh flood defences hold during the weekend storm" },
+      { "id": "e06", "title": "Tidewell editor 2.0 adds a plugin store" },
+      {
+        "id": "e07",
+        "title": "Ashgrove University opens a quantum computing lab",
+        "summary": "The fictional university says the lab will take its first students next year."
+      },
+      { "id": "e08", "title": "Ashgrove's new quantum lab: what researchers plan to build first" },
+      { "id": "e09", "title": "Grainfield freight rail strike ends after a pay deal" },
+      { "id": "e10", "title": "Copperline Bank quarterly profit rises a tenth" }
+    ],
+    "topics": [
+      { "id": "t01", "name": "Kestrel Labs releases Finch 3 compiler", "aliases": ["Finch 3"] },
+      { "id": "t02", "name": "Harbor City transit strike" },
+      { "id": "t03", "name": "Quill database 9.0 release", "aliases": ["Quill 9"] },
+      { "id": "t04", "name": "Mount Orrin eruption disrupts Vell Islands flights" },
+      { "id": "t05", "name": "Northmere council approves dockside tram line" },
+      { "id": "t06", "name": "Brightwater Robotics layoffs" },
+      { "id": "t07", "name": "Vell Islands general election" },
+      { "id": "t08", "name": "Copperline Bank fraud reporting fine" },
+      { "id": "t09", "name": "Solace browser 39 security fix" },
+      { "id": "t10", "name": "Kestrel Labs raises Series C funding" },
+      { "id": "t11", "name": "Brightwater Robotics opens Lowmarsh factory" },
+      { "id": "t12", "name": "Grainfield drought emergency declared" },
+      { "id": "t13", "name": "Ferrow FC stadium expansion plan" },
+      { "id": "t14", "name": "Marrow Pharma merger with Elmbrook Health" },
+      { "id": "t15", "name": "Saltmere ferry timetable changes" },
+      { "id": "t16", "name": "Lantern Maze release date announced" },
+      { "id": "t17", "name": "Pell-1 lander mission ends" },
+      { "id": "t18", "name": "Northmere mayoral race" },
+      { "id": "t19", "name": "Harbor City port expansion approved" },
+      { "id": "t20", "name": "Quill cloud outage" },
+      { "id": "t21", "name": "Tidewell editor 2.0 release" },
+      { "id": "t22", "name": "Vell Islands new public library opens" },
+      { "id": "t23", "name": "Copperline Bank quarterly results" },
+      { "id": "t24", "name": "Solace browser drops old extension format" },
+      { "id": "t25", "name": "Mount Orrin volcano monitoring funding" },
+      { "id": "t26", "name": "Ferrow FC wins regional cup" },
+      { "id": "t27", "name": "Grainfield rail freight strike" },
+      { "id": "t28", "name": "Finch sensor kit battery recall" },
+      { "id": "t29", "name": "Lowmarsh flood defences completed" },
+      { "id": "t30", "name": "Elmbrook Health data breach" }
+    ]
+  },
+  "labels": {
+    "e01": "t19",
+    "e02": "t30",
+    "e03": "t09",
+    "e04": "t26",
+    "e06": "t21",
+    "e07": "new",
+    "e08": "new",
+    "e09": "t27",
+    "e10": "t23"
+  }
+}

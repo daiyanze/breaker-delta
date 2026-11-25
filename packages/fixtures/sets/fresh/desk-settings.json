@@ -30,7 +30,7 @@
     "fetchTimeoutSeconds": 20,
     "fetchRetries": 2,
     "fetchRetryDelaySeconds": 2,
-    "assignBatchSize": 20,
+    "assignBatchSize": 10,
     "assignShortlistSize": 30,
     "assignActivityDays": 7,
     "echoRetentionDays": 30,

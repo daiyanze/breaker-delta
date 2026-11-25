@@ -108,7 +108,7 @@ test("a local run assigns and summarizes through the bridge", async () => {
       .trim()
       .split("\n")
       .map((l) => JSON.parse(l) as { argv: string[]; cwd: string; cwdEntries: number });
-    const batches = Math.ceil(assign.echoes / 20); // assignBatchSize's default
+    const batches = Math.ceil(assign.echoes / 10); // assignBatchSize's default
     expect(calls.length).toBe(batches + summarize.drafted.length);
     expect(new Set(calls.map((c) => c.cwd)).size).toBe(calls.length);
     for (const c of calls) {
