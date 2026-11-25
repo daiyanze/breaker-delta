@@ -258,6 +258,17 @@ describe("enrich", () => {
     expect(t.calls).toEqual(["https://x.test/1"]);
   });
 
+  test("with no summarize model the step is skipped and fetches nothing", async () => {
+    const t = setup();
+    t.wave("t1");
+    const step = enrichStep({ blobs: memoryBlobs().blobs, fetch: fetch, skip: true });
+    const outputs = new Map<string, unknown>([
+      ["select", { selected: [{ topicId: "t1", reason: "formed" }], waiting: [] }],
+    ]);
+    const out = await step.run({ slot: SLOT, db: t.orm, now: () => NOW, outputs });
+    expect(out).toEqual({ read: [], unread: [], fetched: 0, failed: 0, skipped: true });
+  });
+
   test("enrichPagesPerTopic 0 fetches nothing", async () => {
     const t = setup();
     await changeSettings(t.orm, NOW, { enrichPagesPerTopic: 0 });

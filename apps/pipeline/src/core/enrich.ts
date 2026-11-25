@@ -26,6 +26,9 @@
  * call. The output holds topic ids and counts, never URLs, text or fetch
  * errors.
  *
+ * With no summarize model (an empty chain in settings, #42) the step is
+ * skipped, as summarize is: no page is fetched that nothing would read.
+ *
  * A retried or resumed attempt fetches again and replaces the blobs; a wave
  * it leaves unread loses the blob an earlier attempt stored.
  */
@@ -40,6 +43,8 @@ import { readSettings } from "./settings.ts";
 export interface EnrichDeps {
   blobs: Blobs;
   fetch: typeof fetch;
+  /** True when the run has no summarize model (#42): nothing would read the pages. */
+  skip?: boolean;
 }
 
 /** What the step returns; the runner stores it in `run_steps.output`. Ids and counts only. */
@@ -52,6 +57,8 @@ export interface EnrichOutput {
   fetched: number;
   /** Of those, the ones that gave no text. */
   failed: number;
+  /** Set when the run has no summarize model: no page is fetched. */
+  skipped?: true;
 }
 
 /** One wave's page texts as stored in the blob. */
@@ -100,6 +107,7 @@ export function enrichStep(deps: EnrichDeps): Step {
     async run(ctx): Promise<EnrichOutput> {
       const { settings } = await readSettings(ctx.db, ctx.now());
       const output: EnrichOutput = { read: [], unread: [], fetched: 0, failed: 0 };
+      if (deps.skip) return { ...output, skipped: true };
       const options = {
         timeoutMs: settings.fetchTimeoutSeconds * 1000,
         maxBytes: settings.enrichPageMaxKB * 1024,

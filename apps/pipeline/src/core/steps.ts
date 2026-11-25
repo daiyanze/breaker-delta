@@ -72,7 +72,7 @@ export function buildSteps(deps: StepDeps): Step[] {
     computeStep(),
     changesStep(),
     selectStep(),
-    enrichStep({ blobs, fetch: deps.fetch }),
+    enrichStep({ blobs, fetch: deps.fetch, skip: deps.model.summarize === null }),
     summarizeStep({ driver: deps.model.summarize, blobs }),
     validateStep({ blobs }),
     commitStep({ blobs }),
