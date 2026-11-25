@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "input": {
+    "name": "Fictional lab Norwind releases open model Arda 2",
+    "echoes": [
+      {
+        "id": "e1",
+        "title": "Norwind releases Arda 2 with open weights",
+        "summary": "The fictional lab Norwind published the weights of Arda 2, a 70-billion-parameter model, under a permissive license."
+      },
+      {
+        "id": "e2",
+        "title": "Arda 2 tops two coding benchmarks, Norwind says",
+        "summary": "Norwind's own report claims Arda 2 beats its predecessor on two coding benchmarks.",
+        "page": "Norwind's technical report lists results on two coding benchmarks and one reasoning benchmark. The lab says a smaller 8-billion-parameter version will follow next month, and that an API for the large model is planned but has no date. Independent evaluations have not been published yet."
+      },
+      {
+        "id": "e3",
+        "title": "Developers try Norwind's Arda 2 on a single GPU",
+        "summary": "Early users report the quantised model runs on one consumer GPU, slowly."
+      }
+    ],
+    "languages": ["en", "zh", "ja"],
+    "first": true
+  }
+}

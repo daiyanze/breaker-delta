@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "input": {
+    "name": "Chief scientist leaves fictional startup Quillon",
+    "echoes": [
+      {
+        "id": "a1",
+        "title": "Quillon's chief scientist Mara Venn steps down",
+        "summary": "Mara Venn, a fictional researcher, announced she is leaving the fictional startup Quillon after three years."
+      },
+      {
+        "id": "a2",
+        "title": "Quillon names interim research lead",
+        "summary": "The company said its head of infrastructure will lead research until a successor is hired."
+      },
+      {
+        "id": "a3",
+        "title": "Venn hints at a new company",
+        "summary": "In a post, Venn said she will share what she is building next in the coming weeks."
+      }
+    ],
+    "languages": ["en", "zh", "ja"],
+    "first": true
+  }
+}

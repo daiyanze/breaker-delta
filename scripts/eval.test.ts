@@ -223,6 +223,47 @@ describe("runEval", () => {
     });
   });
 
+  test("a page in a case reaches the model, and its words count as the validate step counts them", async () => {
+    const paged: SummarizeCase = {
+      id: "p1",
+      input: {
+        ...summarizeCase("p1").input,
+        echoes: [
+          {
+            id: "e1",
+            title: "CASE-TEXT title",
+            summary: "CASE-TEXT excerpt",
+            page: "see beta.example",
+          },
+        ],
+      },
+    };
+    // An address from the page only: the validate step checks against titles
+    // and excerpts (`referenceText`), so it is discarded there and here.
+    const fromPage = (input: SummarizeInput) => {
+      const r = fakeSummarize(input);
+      return { ...r, texts: r.texts.map((t) => ({ ...t, body: `${t.body} beta.example` })) };
+    };
+    const seen: unknown[] = [];
+    const model = standInModel({
+      "a.test": [
+        (input: SummarizeInput) => {
+          seen.push(input);
+          return fromPage(input);
+        },
+      ],
+    });
+    const [, summarize] = await runEval({
+      prompts: { summarize: standIn.summarize },
+      cases: { assign: [], summarize: [paged] },
+      providers,
+      secret,
+      fetch: model.fetch,
+    });
+    expect(seen).toEqual([paged.input]);
+    expect(summarize?.status === "ran" && summarize.metrics.publishable).toEqual({ n: 0, of: 1 });
+  });
+
   test("a prompt with no cases, or with no provider key, is not evaluated", async () => {
     const tasks = await runEval({
       prompts: standIn,
@@ -348,8 +389,22 @@ describe("main", () => {
 
   test("the shipped cases and providers file read", async () => {
     const lines: string[] = [];
-    // Cases from the repository; a prompt-less run makes no call.
-    expect(await main([], { out: (l) => lines.push(l), env: {} })).toBe(0);
+    // Cases from the repository and the shipped prompts; with no key set no
+    // provider is left, so no call is made and the run is not evaluated.
+    let called = false;
+    const code = await main([], {
+      out: (l) => lines.push(l),
+      env: {},
+      fetch: (async () => {
+        called = true;
+        return Response.json({});
+      }) as unknown as typeof fetch,
+    });
+    expect(called).toBe(false);
+    expect(code).toBe(1);
+    expect(lines.join("\n")).toMatch(
+      /summarize: prompt `summarize-v1`, \d+ cases, but no provider/,
+    );
   });
 });
 

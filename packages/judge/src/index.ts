@@ -10,6 +10,7 @@ import {
   SummarizeResultSchema,
 } from "@bd/contracts";
 import type { AssignInput, ModelDriver, SummarizeInput } from "./driver.ts";
+import type { Prompts } from "./prompts.ts";
 
 export interface ResolvedProvider {
   name: string;
@@ -209,14 +210,14 @@ async function complete(
 }
 
 /**
- * The messages a chain sends for each task. No prompt ships with this
- * package yet: the assign prompt is #43 (M2-02) and the summarize prompt
- * #44 (M2-03), each with an eval. Fetched text goes into these tool-less
- * calls only as data (invariant 6).
+ * The messages a chain sends for each task; the shipped ones are `PROMPTS`
+ * (`prompts.ts`). A task without one has no prompt: a driver over it fails
+ * that task's calls, and the pipeline skips its step (`runModel`). Fetched
+ * text goes into these tool-less calls only as data (invariant 6).
  */
 export interface DriverPrompts {
-  assign(input: AssignInput): ChatMessage[];
-  summarize(input: SummarizeInput): ChatMessage[];
+  assign?(input: AssignInput): ChatMessage[];
+  summarize?(input: SummarizeInput): ChatMessage[];
   /**
    * Each task's prompt version, recorded with every call and summary (ADR
    * 0005, #48). A task without one is recorded as unversioned (null).
@@ -265,17 +266,44 @@ export function chainDriver(
 ): ModelDriver {
   const versioned = (version: string | undefined): ChainOptions =>
     version === undefined ? options : { ...options, promptVersion: version };
+  const missing = (task: string) => Promise.reject(new Error(`no ${task} prompt`));
   return {
     assign: (input) =>
-      callChain(providers, prompts.assign(input), validAssign, versioned(prompts.versions?.assign)),
+      prompts.assign
+        ? callChain(
+            providers,
+            prompts.assign(input),
+            validAssign,
+            versioned(prompts.versions?.assign),
+          )
+        : missing("assign"),
     summarize: (input) =>
-      callChain(
-        providers,
-        prompts.summarize(input),
-        validSummarize,
-        versioned(prompts.versions?.summarize),
-      ),
+      prompts.summarize
+        ? callChain(
+            providers,
+            prompts.summarize(input),
+            validSummarize,
+            versioned(prompts.versions?.summarize),
+          )
+        : missing("summarize"),
   };
+}
+
+/** `Prompts` (one per task, each with its version) as a chain driver's prompts. */
+export function driverPrompts(prompts: Prompts): DriverPrompts {
+  const versions: NonNullable<DriverPrompts["versions"]> = {};
+  const out: DriverPrompts = { versions };
+  if (prompts.assign) {
+    const p = prompts.assign;
+    out.assign = (input) => p.messages(input);
+    versions.assign = p.version;
+  }
+  if (prompts.summarize) {
+    const p = prompts.summarize;
+    out.summarize = (input) => p.messages(input);
+    versions.summarize = p.version;
+  }
+  return out;
 }
 
 /** Accepts bare JSON or JSON wrapped in a Markdown code fence. */
@@ -292,3 +320,4 @@ export function parseJson(text: string): unknown {
 export * from "./driver.ts";
 export * from "./fake.ts";
 export * from "./prompts.ts";
+export * from "./summarize-prompt.ts";

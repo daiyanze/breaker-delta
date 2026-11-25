@@ -4,8 +4,9 @@
  * and summarize use their own chains; a task with an empty chain, or any
  * task while no prompts are given, is skipped and the board still updates.
  *
- * No prompt ships yet (#43, #44), so these tests inject `PROMPTS`: the input
- * as JSON, which the stand-in endpoint reads back. It is not a real prompt.
+ * These tests inject `PROMPTS`: the input as JSON, which the stand-in
+ * endpoint reads back. It is not a real prompt; `summarize-v1` is tested in
+ * `packages/judge/src/summarize-prompt.test.ts`.
  *
  * The runs use the recorded fixture sources and a stand-in model endpoint
  * that answers with the fake driver's output. Assertions compare ids,
@@ -288,13 +289,13 @@ describe("a run with chains from settings", () => {
     expect(t.count("SELECT count(*) AS n FROM wave_points WHERE slot = ?", SLOT_2)).toBe(points1);
   });
 
-  test("with chains set but no prompts (as shipped until #43, #44) no provider is called", async () => {
+  test("with chains set but no prompts no provider is called", async () => {
     const t = setup();
     await changeSettings(t.orm, NOW - 1, {
       assignProviders: [provider("assign", "ASSIGN_KEY")],
       summarizeProviders: [provider("summarize", "SUMMARIZE_KEY")],
     });
-    expect(await t.pipeline(undefined, null).tick()).toMatchObject({ slot: SLOT, status: "done" });
+    expect(await t.pipeline(undefined, {}).tick()).toMatchObject({ slot: SLOT, status: "done" });
     expect(t.model.calls).toEqual([]);
     expect(t.output<AssignOutput>(SLOT, "assign").skipped).toBe(true);
     expect(t.output<SummarizeOutput>(SLOT, "summarize").skipped).toBe(true);

@@ -225,9 +225,10 @@ async function evalSummarize(
         provider: answer.provider,
         model: answer.model,
         answer: answer.value,
-        // A case holds no enrich pages, so the draft read no source text.
-        sourceTextRead: false,
+        // As the summarize step sets it: an offered echo came with its page.
+        sourceTextRead: c.input.echoes.some((e) => e.page !== undefined),
       },
+      // As the validate step's `referenceText`: titles and excerpts, not pages.
       c.input.echoes.flatMap((e) => [e.title, e.summary ?? ""]).join("\n"),
     );
     if (verdict.ok) publishable++;

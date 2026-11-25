@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "input": {
+    "name": "Fictional cloud Tessaly has a multi-hour outage",
+    "echoes": [
+      {
+        "id": "o1",
+        "title": "Tessaly cloud outage takes down hosted model APIs",
+        "summary": "The fictional cloud provider Tessaly had an outage of about five hours in one region; several AI services built on it were unavailable."
+      },
+      {
+        "id": "o2",
+        "title": "架空のクラウド Tessaly で大規模障害",
+        "summary": "Tessaly の一部リージョンで約5時間の障害が発生し、AI サービスが停止した。"
+      },
+      {
+        "id": "o3",
+        "title": "Tessaly promises a public incident report",
+        "summary": "Tessaly said it will publish a full incident report and offer service credits."
+      }
+    ],
+    "languages": ["ja", "en"],
+    "first": true
+  }
+}

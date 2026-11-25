@@ -1,5 +1,6 @@
 /** The app core, run on the bun:sqlite Database adapter. */
 import { describe, expect, test } from "bun:test";
+import { PROMPTS, SUMMARIZE_PROMPT } from "@bd/judge";
 import { createPipeline, type PipelinePorts, pipelineConfig } from "../src/core/app.ts";
 import { memoryBlobs, migratedDatabase, NOW, SLOT } from "./helpers.ts";
 
@@ -26,10 +27,30 @@ const get = (path: string, token?: string) =>
 
 describe("pipeline config", () => {
   test("holds the probe token and the model driver; behaviour comes from settings", () => {
-    expect(pipelineConfig({})).toEqual({ probeToken: null, model: null });
-    expect(pipelineConfig({ PROBE_TOKEN: "t" })).toEqual({ probeToken: "t", model: null });
-    expect(pipelineConfig({ MODEL_DRIVER: "" })).toEqual({ probeToken: null, model: null });
-    expect(pipelineConfig({ MODEL_DRIVER: "fake" })).toEqual({ probeToken: null, model: "fake" });
+    const without = (vars: Parameters<typeof pipelineConfig>[0]) => {
+      const { prompts: _, ...rest } = pipelineConfig(vars);
+      return rest;
+    };
+    expect(without({})).toEqual({ probeToken: null, model: null });
+    expect(without({ PROBE_TOKEN: "t" })).toEqual({ probeToken: "t", model: null });
+    expect(without({ MODEL_DRIVER: "" })).toEqual({ probeToken: null, model: null });
+    expect(without({ MODEL_DRIVER: "fake" })).toEqual({ probeToken: null, model: "fake" });
+  });
+
+  test("hands the shipped prompts to the chains: summarize-v1, and assign only once it ships", () => {
+    const { prompts } = pipelineConfig({});
+    expect(prompts?.versions).toEqual({
+      ...(PROMPTS.assign ? { assign: PROMPTS.assign.version } : {}),
+      summarize: "summarize-v1",
+    });
+    expect(prompts?.assign === undefined).toBe(PROMPTS.assign === undefined);
+    const input = {
+      name: "n",
+      echoes: [{ id: "e1", title: "t" }],
+      languages: ["en" as const],
+      first: true,
+    };
+    expect(prompts?.summarize?.(input)).toEqual(SUMMARIZE_PROMPT.messages(input));
   });
 
   test("an unknown MODEL_DRIVER is refused, not run without a model", () => {
