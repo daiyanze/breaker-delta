@@ -42,6 +42,69 @@ machine. It costs the user no API quota and needs no key. Hosted providers
 are a fallback, used only if the user configured them. Fetched content
 reaches that agent only as data in a tool-less call (invariant 6).
 
+## Local bridge
+
+How the bridge works is the agent's proposal (#49), not reviewed.
+
+`apps/local/bridge.ts` is a small HTTP service that the launcher starts
+when `BD_BRIDGE_COMMAND` is set. It answers `POST /v1/chat/completions`, the
+request the judge sends, by running the command once per request: the
+conversation goes to the command's stdin (one user message as it is,
+anything else as a transcript in role tags), and its stdout is the answer.
+The command is configured, not built in; nothing is put in its arguments.
+
+```sh
+BD_BRIDGE_COMMAND='["claude","--print","--tools","","--strict-mcp-config","--setting-sources","","--disable-slash-commands","--no-session-persistence"]' bun run local
+```
+
+Then put the bridge in a chain in settings, with no `apiKeyRef`:
+`{"name": "bridge", "baseUrl": "http://127.0.0.1:8789/v1", "model": "local-agent"}`.
+The bridge does not read `model`; it echoes it back. Until #43 and #44 add
+the prompts, no chain is called, the bridge included.
+
+**Why that command makes a tool-less call (invariant 6).** For Claude Code
+2.1.323, checked on 2026-11-25 with one call on a harmless prompt, not on
+fetched text: its `stream-json` start-up record listed `tools: []`,
+`mcp_servers: []`, `skills: []` and `slash_commands: []`.
+
+| Flag | What it removes |
+| --- | --- |
+| `--print` | the interactive session: one answer, then the process exits |
+| `--tools ""` | every built-in tool (Bash, file edits, web fetch, sub-agents) |
+| `--strict-mcp-config` with no `--mcp-config` | every MCP server, so no tool from one |
+| `--setting-sources ""` | the user, project and local settings, so their hooks, plugins and permission rules (managed settings still apply) |
+| `--disable-slash-commands` | skills and commands |
+| `--no-session-persistence` | the saved transcript, which would hold fetched text |
+
+The launcher refuses to start a `claude` command that lacks one of these
+(`--print` may be `-p`) or has a flag that gives tools, folders or settings
+back (`--mcp-config`, `--allowedTools`, `--add-dir`, `--settings`,
+`--agents`, `--plugin-dir`, `--dangerously-skip-permissions`). That check
+reads the arguments; it is not a sandbox. Another CLI is not checked: the
+launcher warns, and making it tool-less is the user's job. No other CLI's
+flags have been checked yet.
+
+The bridge adds three guards of its own:
+
+- Each call runs in a new empty folder that is deleted afterwards, so there
+  is no project to read or change even if a tool were left on.
+- A request that offers tools (`tools`, `functions`) or asks to stream is
+  refused before the command runs.
+- It listens on 127.0.0.1 only, and answers only requests addressed to
+  `127.0.0.1` or `localhost` on its port with no `Origin` header, so a web
+  page open in a browser cannot use it.
+
+The command's stderr is neither logged nor returned, since it may repeat
+the prompt; a failure is reported by exit code (HTTP 502), a call past
+`BD_BRIDGE_TIMEOUT_SECONDS` (default 120) is killed (504), and so is a call
+whose client hung up. Port: `BD_BRIDGE_PORT`, default 8789. These three are
+launcher variables like `BD_PORT`, not settings: the bridge is a separate
+service that does not read the database.
+
+The judge waits 60 seconds per call (`packages/judge`), less than the
+bridge's default, so a slower agent answer is cut off by the judge first and
+the chain moves on. Measuring how long a real agent takes is for #43 and #44.
+
 ## Comparison
 
 | Provider | Free allowance | Terms and risks | Use |

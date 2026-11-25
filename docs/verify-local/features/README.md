@@ -10,6 +10,7 @@ in `../README.md`.
 | Start local mode and get a first run | `first-run.md` | `verify-local-selftest.sh` (up, doctor, sql); the full run's tables: `scripts/local-full-run.test.ts` (`bun run check`) and `spike-local.ts` (executable) |
 | Run the current slot again | `tick.md` | `verify-local-selftest.sh` (tick) |
 | Read the front page | `front-page.md` | `verify-local-selftest.sh` (get /) |
+| Answer model calls through the local bridge | `model-bridge.md` | not driven in CI; the bridge's behaviour: `apps/local/test/bridge.test.ts`, a run through it: `scripts/local-bridge.test.ts` (`bun run check`) |
 
 Not driven by this procedure, and where each is checked instead:
 
