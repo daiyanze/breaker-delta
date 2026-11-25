@@ -173,7 +173,7 @@ describe("freeze-cases", () => {
     );
   });
 
-  test("opens a WAL file whose app is stopped (no -shm file) and does not write it", async () => {
+  test("opens a WAL file whose app is stopped (no -wal or -shm file) and does not write it", async () => {
     const copy = mkdtempSync(join(tmpdir(), "bd-freeze-stopped-"));
     try {
       writeFileSync(join(copy, "content.db"), db.serialize());
@@ -181,18 +181,11 @@ describe("freeze-cases", () => {
       wal.exec("PRAGMA journal_mode = WAL");
       wal.exec("PRAGMA wal_checkpoint(TRUNCATE)");
       wal.close();
-      // What a stopped app leaves on Linux: the WAL is checkpointed and its
-      // -wal and -shm files are gone. A read-only handle cannot open that.
+      // A stopped app's file: the WAL checkpointed, its -wal and -shm files
+      // gone. On macOS a read-only bun:sqlite handle cannot read that file
+      // (on Linux it can), which is why freeze opens it query-only instead.
       rmSync(join(copy, "content.db-wal"), { force: true });
       rmSync(join(copy, "content.db-shm"), { force: true });
-      expect(() => {
-        const ro = new SQLite(join(copy, "content.db"), { readonly: true });
-        try {
-          ro.query("SELECT count(*) FROM runs").get();
-        } finally {
-          ro.close();
-        }
-      }).toThrow();
       const before = readFileSync(join(copy, "content.db"));
       const lines: string[] = [];
       const code = await main(

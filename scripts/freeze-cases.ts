@@ -209,9 +209,9 @@ export async function main(argv: readonly string[], io: Io = defaultIo): Promise
     io.out(`no database at ${path}`);
     return 2;
   }
-  // Not `readonly`: on a WAL file whose app is stopped, a read-only handle
-  // cannot create the `-shm` file and fails to open. `query_only` refuses
-  // every write instead.
+  // Not `readonly`: on macOS a read-only handle cannot read a WAL file whose
+  // app is stopped (no -shm file), "unable to open database file".
+  // `query_only` refuses every write instead.
   const db = new SQLite(path, { readwrite: true, create: false });
   db.exec("PRAGMA query_only = ON");
   try {
