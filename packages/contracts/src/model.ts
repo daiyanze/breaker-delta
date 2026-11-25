@@ -80,7 +80,7 @@ export const SettingsSchema = z.object({
   /** Wait before a source URL's first retry; doubled before each next one. */
   fetchRetryDelaySeconds: z.number().min(0).max(60).default(2),
   /** New echoes per assign model call. */
-  assignBatchSize: z.number().int().min(1).max(100).default(10),
+  assignBatchSize: z.number().int().min(1).max(100).default(20),
   /** Most existing topics offered to the assign model per call. 0: every echo starts a new topic. */
   assignShortlistSize: z.number().int().min(0).max(200).default(30),
   /** A topic can be shortlisted while its latest activity (the later of its latest echo and its creation) is at most this old. */
