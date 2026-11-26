@@ -8,7 +8,8 @@
  *    earlier (id, title, excerpt), oldest first; the languages from
  *    settings; `first` when the reason is `formed`, so the model proposes
  *    the review criterion. An echo whose page the enrich step read (#45)
- *    has that text after its excerpt, in the same `summary` field. The
+ *    has that text in its own `page` field, apart from its excerpt, so the
+ *    prompt (`summarize-prompt.ts` in `@bd/judge`) passes it as data. The
  *    draft records whether any did (`sourceTextRead`); a wave enrich left
  *    unread, or a run with no enrich output (one started before the step
  *    existed), is written from titles and excerpts only.
@@ -94,7 +95,7 @@ export function outputOf<T>(ctx: StepContext, step: string): T {
 
 /**
  * A topic's echoes first seen in `slot` or earlier, oldest first. An echo in
- * `pages` has its page text after its excerpt.
+ * `pages` has its page text as `page`.
  */
 async function topicEchoes(
   db: Db,
@@ -108,8 +109,11 @@ async function topicEchoes(
     .where(and(eq(echoes.topicId, topicId), lte(echoes.firstSlot, slot)))
     .orderBy(asc(echoes.firstSeenAt), asc(echoes.id));
   return rows.map((e) => {
-    const summary = [e.excerpt, pages.get(e.id)].filter((t) => t).join("\n\n");
-    return summary ? { id: e.id, title: e.title, summary } : { id: e.id, title: e.title };
+    const echo: DriverEcho = { id: e.id, title: e.title };
+    if (e.excerpt) echo.summary = e.excerpt;
+    const page = pages.get(e.id);
+    if (page) echo.page = page;
+    return echo;
   });
 }
 

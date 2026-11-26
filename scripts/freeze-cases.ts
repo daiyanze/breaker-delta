@@ -19,11 +19,18 @@
  *   are not in it, so a later batch's shortlist can be shorter than it was.
  * - **summarize:** one case per topic the slot wrote a summary for (published
  *   or discarded), with the topic's name, its echoes first seen in the slot
- *   or earlier, the languages, and `first` for a forming wave.
+ *   or earlier, the languages, and `first` for a forming wave. When the
+ *   summary was written with source text (`summaries.source_text_read`),
+ *   each echo whose page the enrich step read gets that text as `page`,
+ *   from the slot's enrich blob (`enrichKey`) under `<data-dir>/blobs`, as
+ *   the step gave it to the model (#45). Retention removes those blobs
+ *   after `rawRetentionDays`; a summary whose pages are gone cannot be
+ *   rebuilt as the model saw it, so it is skipped and counted, never frozen
+ *   without its pages.
  *
  * Settings are the ones in force when the run started (`settings_history`).
- * A case holds only what the model sees: echo ids, titles and excerpts,
- * topic ids, names and aliases. No URL, no source, nothing else from the
+ * A case holds only what the model sees: echo ids, titles, excerpts and page
+ * texts, topic ids, names and aliases. No URL, no source, nothing else from the
  * database. Labels are never written: they are the owner's.
  *
  * The database is opened query-only: it is never written. A case file that exists is left as it
@@ -33,10 +40,11 @@
  */
 import { Database as SQLite } from "bun:sqlite";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { type PoolTopic, shortlist } from "../apps/pipeline/src/core/assign.ts";
+import { type Enriched, enrichKey } from "../apps/pipeline/src/core/enrich.ts";
 import { type Settings, SettingsSchema } from "../packages/contracts/src/index.ts";
 import type { DriverEcho } from "../packages/judge/src/index.ts";
 import { type AssignCase, parseCase, type SummarizeCase, type Task } from "./eval-cases.ts";
@@ -113,24 +121,65 @@ export function assignCases(db: SQLite, slot: string, startedAt: number): Assign
   return out;
 }
 
-export function summarizeCases(db: SQLite, slot: string, startedAt: number): SummarizeCase[] {
+/**
+ * A wave's page texts by echo id, as the enrich step stored them for `slot`
+ * under `blobsDir` (a local-mode `directoryBlobs` root); null when the blob
+ * is gone.
+ */
+export function readPages(
+  blobsDir: string,
+  slot: string,
+  topicId: string,
+): Map<string, string> | null {
+  const file = join(blobsDir, ...enrichKey(slot, topicId).split("/"));
+  if (!existsSync(file)) return null;
+  const stored = JSON.parse(readFileSync(file, "utf8")) as Enriched;
+  return new Map(stored.pages.map((p) => [p.echoId, p.text]));
+}
+
+export interface SummarizeFreeze {
+  cases: SummarizeCase[];
+  /** Ids of cases not frozen: written with page text that is no longer stored. */
+  missingPages: string[];
+}
+
+export function summarizeCases(
+  db: SQLite,
+  slot: string,
+  startedAt: number,
+  blobsDir: string,
+): SummarizeFreeze {
   const languages = [...new Set(settingsAt(db, startedAt).languages)];
   const rows = db
     .query(
-      `SELECT s.topic_id AS topicId, t.name, max(s.reason = 'formed') AS first
+      `SELECT s.topic_id AS topicId, t.name, max(s.reason = 'formed') AS first,
+              max(s.source_text_read) AS withPages
        FROM summaries s JOIN topics t ON t.id = s.topic_id
        WHERE s.slot = ? GROUP BY s.topic_id ORDER BY min(s.created_at), s.topic_id`,
     )
-    .all(slot) as { topicId: string; name: string; first: number }[];
+    .all(slot) as { topicId: string; name: string; first: number; withPages: number }[];
   const echoes = db.query(
     "SELECT id, title, excerpt FROM echoes WHERE topic_id = ? AND first_slot <= ? ORDER BY first_seen_at, id",
   );
-  const out: SummarizeCase[] = [];
+  const out: SummarizeFreeze = { cases: [], missingPages: [] };
   for (const r of rows) {
+    const id = `${slug(slot)}-${r.topicId}`;
     const cited = (echoes.all(r.topicId, slot) as EchoRow[]).map(driverEcho);
     if (cited.length === 0) continue;
-    out.push({
-      id: `${slug(slot)}-${r.topicId}`,
+    if (r.withPages === 1) {
+      const pages = readPages(blobsDir, slot, r.topicId);
+      // The summarize step marks a draft as read only when an offered echo had a page.
+      if (pages === null || !cited.some((e) => pages.has(e.id))) {
+        out.missingPages.push(id);
+        continue;
+      }
+      for (const e of cited) {
+        const page = pages.get(e.id);
+        if (page) e.page = page;
+      }
+    }
+    out.cases.push({
+      id,
       frozenFrom: slot,
       input: { name: r.name, echoes: cited, languages, first: r.first === 1 },
     });
@@ -146,25 +195,34 @@ function slug(slot: string): string {
 export interface FreezeResult {
   written: string[];
   kept: string[];
+  /** Summarize cases not frozen because their page text is gone (`summarizeCases`). */
+  missingPages: string[];
 }
 
-/** Write the slot's cases under `out/<task>/`; a file that exists is kept. */
+/**
+ * Write the slot's cases under `out/<task>/`; a file that exists is kept.
+ * `blobsDir` is where the run's blobs are (local mode: `<data-dir>/blobs`).
+ */
 export function freeze(
   db: SQLite,
   slot: string,
   out: string,
+  blobsDir: string,
   tasks: readonly Task[] = ["assign", "summarize"],
 ): FreezeResult {
   const run = db.query("SELECT started_at FROM runs WHERE slot = ?").get(slot) as {
     started_at: number;
   } | null;
   if (!run) throw new Error(`no run for slot ${slot}`);
-  const result: FreezeResult = { written: [], kept: [] };
+  const result: FreezeResult = { written: [], kept: [], missingPages: [] };
   for (const task of tasks) {
-    const cases =
-      task === "assign"
-        ? assignCases(db, slot, run.started_at)
-        : summarizeCases(db, slot, run.started_at);
+    let cases: (AssignCase | SummarizeCase)[];
+    if (task === "assign") cases = assignCases(db, slot, run.started_at);
+    else {
+      const s = summarizeCases(db, slot, run.started_at, blobsDir);
+      cases = s.cases;
+      result.missingPages.push(...s.missingPages);
+    }
     if (cases.length === 0) continue;
     mkdirSync(join(out, task), { recursive: true });
     for (const c of cases) {
@@ -253,9 +311,20 @@ export async function main(argv: readonly string[], io: Io = defaultIo): Promise
   const db = new SQLite(path, { readwrite: true, create: false });
   db.exec("PRAGMA query_only = ON");
   try {
-    const r = freeze(db, values.slot, out, values.task ? [values.task] : undefined);
+    const r = freeze(
+      db,
+      values.slot,
+      out,
+      join(dataDir, "blobs"),
+      values.task ? [values.task] : undefined,
+    );
     io.out(`wrote ${r.written.length} cases, kept ${r.kept.length} that exist`);
     for (const f of r.written) io.out(`  ${f}`);
+    if (r.missingPages.length > 0) {
+      io.out(
+        `skipped ${r.missingPages.length} summarize cases whose page text is not stored for their echoes (removed after rawRetentionDays?)`,
+      );
+    }
     return 0;
   } catch (err) {
     io.out(err instanceof Error ? err.message : String(err));

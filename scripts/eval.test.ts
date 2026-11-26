@@ -11,19 +11,26 @@ import {
   type SummarizeInput,
 } from "../packages/judge/src/index.ts";
 import {
+  belowFloor,
+  DEFAULT_MIN_CONTRACT,
   type EvalOptions,
+  evaluated,
   isCommitted,
   MARKER,
   main,
+  needed,
+  parseMinContract,
   parseProviders,
+  passed,
   report,
   runEval,
+  type TaskResult,
 } from "./eval.ts";
 import { type AssignCase, CaseError, parseCase, type SummarizeCase } from "./eval-cases.ts";
 
 /**
- * A stand-in prompt, not a real one (#43, #44 add those): the task's name and
- * the input as JSON. The stand-in model below reads it back.
+ * A stand-in prompt, not a real one (the shipped ones are #43's and #44's):
+ * the task's name and the input as JSON. The stand-in model below reads it back.
  */
 const standIn: Required<Prompts> = {
   assign: {
@@ -135,6 +142,12 @@ describe("runEval", () => {
         citations: { n: 6, of: 6 },
         repaired: { n: 1, of: 3 },
         fallback: { n: 1, of: 3 },
+        answeredBy: [
+          { provider: "a", cases: ["c1", "c2"] },
+          { provider: "b", cases: ["c3"] },
+        ],
+        unanswered: {},
+        tried: [],
       },
     });
     expect(model.keys).toEqual([
@@ -165,6 +178,20 @@ describe("runEval", () => {
       contract: { n: 1, of: 2 },
       citations: { n: 0, of: 4 },
       repaired: { n: 0, of: 1 },
+      answeredBy: [
+        { provider: "a", cases: ["c1"] },
+        { provider: "b", cases: [] },
+      ],
+      unanswered: { "http-500": ["c2"] },
+      tried: [
+        {
+          case: "c2",
+          failures: [
+            { provider: "a", failure: "http-500" },
+            { provider: "b", failure: "http-500" },
+          ],
+        },
+      ],
     });
   });
 
@@ -220,7 +247,183 @@ describe("runEval", () => {
       publishable: { n: 2, of: 5 },
       repaired: { n: 0, of: 5 },
       fallback: { n: 0, of: 5 },
+      answeredBy: [{ provider: "a", cases: ["s1", "s2", "s3", "s4", "s5"] }],
+      unanswered: {},
+      tried: [],
     });
+  });
+
+  test("an unanswered case is counted under why the chain's last provider failed; no error text reaches the result", async () => {
+    const badFlag = (input: SummarizeInput) => ({
+      ...fakeSummarize(input),
+      riskFlags: ["LEAK-MARKER"],
+    });
+    // Per case, provider a then b (an invalid answer gets one repair):
+    // k1: a 429, b 429. k2: a 503, b 400. k3: a not JSON twice, b off-contract twice.
+    // k4: a 500, b not JSON twice. k5: a times out, b's fetch fails. k6: a and b empty.
+    const queues: Record<string, unknown[]> = {
+      "a.test": [429, 503, "garbage", "garbage", 500, "timeout", "empty"],
+      "b.test": [429, 400, badFlag, badFlag, "garbage", "garbage", "network", "empty"],
+    };
+    const fetchImpl = (async (url: string | URL | Request, init?: RequestInit) => {
+      const host = new URL(String(url)).host;
+      const turn = queues[host]?.[0];
+      if (typeof turn === "string") {
+        queues[host]?.shift();
+        if (turn === "timeout") throw new DOMException("LEAK-MARKER timed out", "TimeoutError");
+        if (turn === "network") throw new TypeError("LEAK-MARKER fetch failed");
+        const content = turn === "empty" ? "" : "LEAK-MARKER, not JSON";
+        return Response.json({ choices: [{ message: { content } }] });
+      }
+      return standInModel(queues as Record<string, Turn[]>).fetch(url, init);
+    }) as typeof fetch;
+    const tasks = await runEval({
+      prompts: { summarize: standIn.summarize },
+      cases: {
+        assign: [],
+        summarize: ["k1", "k2", "k3", "k4", "k5", "k6"].map((id) => summarizeCase(id)),
+      },
+      providers: {
+        assign: [],
+        summarize: [
+          { name: "a", baseUrl: "https://a.test/v1", model: "m-a" },
+          { name: "b", baseUrl: "https://b.test/v1", model: "m-b" },
+        ],
+      },
+      secret: () => undefined,
+      fetch: fetchImpl,
+    });
+    const [, summarize] = tasks;
+    expect(summarize?.status === "ran" && summarize.metrics.unanswered).toEqual({
+      "http-400": ["k2"],
+      "http-429": ["k1"],
+      network: ["k5"],
+      empty: ["k6"],
+      "not-json": ["k4"],
+      schema: ["k3"],
+    });
+    // Keys in report order: HTTP statuses by number, then the kinds' order.
+    expect(Object.keys(summarize?.status === "ran" ? summarize.metrics.unanswered : {})).toEqual([
+      "http-400",
+      "http-429",
+      "network",
+      "empty",
+      "not-json",
+      "schema",
+    ]);
+    expect(summarize?.status === "ran" && summarize.metrics.tried).toEqual([
+      {
+        case: "k1",
+        failures: [
+          { provider: "a", failure: "http-429" },
+          { provider: "b", failure: "http-429" },
+        ],
+      },
+      {
+        case: "k2",
+        failures: [
+          { provider: "a", failure: "http-503" },
+          { provider: "b", failure: "http-400" },
+        ],
+      },
+      {
+        case: "k3",
+        failures: [
+          { provider: "a", failure: "not-json" },
+          { provider: "b", failure: "schema" },
+        ],
+      },
+      {
+        case: "k4",
+        failures: [
+          { provider: "a", failure: "http-500" },
+          { provider: "b", failure: "not-json" },
+        ],
+      },
+      {
+        case: "k5",
+        failures: [
+          { provider: "a", failure: "timeout" },
+          { provider: "b", failure: "network" },
+        ],
+      },
+      {
+        case: "k6",
+        failures: [
+          { provider: "a", failure: "empty" },
+          { provider: "b", failure: "empty" },
+        ],
+      },
+    ]);
+    expect(summarize?.status === "ran" && summarize.metrics.contract).toEqual({ n: 0, of: 6 });
+    const md = report({ tasks });
+    expect(md).toContain("- summarize answered by: a 0; b 0\n");
+    expect(md).toContain(
+      "- summarize unanswered, by why the last provider failed: `http-400` 1 (`k2`); `http-429` 1 (`k1`); `network` 1 (`k5`); `empty` 1 (`k6`); `not-json` 1 (`k4`); `schema` 1 (`k3`)\n",
+    );
+    expect(md).toContain(
+      "- summarize unanswered, why each provider failed: `k1` (a `http-429`, b `http-429`); `k2` (a `http-503`, b `http-400`); `k3` (a `not-json`, b `schema`); `k4` (a `http-500`, b `not-json`); `k5` (a `timeout`, b `network`); `k6` (a `empty`, b `empty`)\n",
+    );
+    // The errors held the marker (zod quotes an invalid enum value); none reaches the result.
+    expect(md.includes("LEAK-MARKER")).toBe(false);
+    expect(JSON.stringify(tasks).includes("LEAK-MARKER")).toBe(false);
+  });
+
+  test("a chain that times out is counted as timeout", async () => {
+    const fetchImpl = (async () => {
+      throw new DOMException("LEAK-MARKER", "TimeoutError");
+    }) as unknown as typeof fetch;
+    const [, summarize] = await runEval({
+      prompts: { summarize: standIn.summarize },
+      cases: { assign: [], summarize: [summarizeCase("t1")] },
+      providers,
+      secret,
+      fetch: fetchImpl,
+    });
+    expect(summarize?.status === "ran" && summarize.metrics.unanswered).toEqual({
+      timeout: ["t1"],
+    });
+  });
+
+  test("a page in a case reaches the model, and its words count as the validate step counts them", async () => {
+    const paged: SummarizeCase = {
+      id: "p1",
+      input: {
+        ...summarizeCase("p1").input,
+        echoes: [
+          {
+            id: "e1",
+            title: "CASE-TEXT title",
+            summary: "CASE-TEXT excerpt",
+            page: "see beta.example",
+          },
+        ],
+      },
+    };
+    // An address from the page only: the validate step checks against titles
+    // and excerpts (`referenceText`), so it is discarded there and here.
+    const fromPage = (input: SummarizeInput) => {
+      const r = fakeSummarize(input);
+      return { ...r, texts: r.texts.map((t) => ({ ...t, body: `${t.body} beta.example` })) };
+    };
+    const seen: unknown[] = [];
+    const model = standInModel({
+      "a.test": [
+        (input: SummarizeInput) => {
+          seen.push(input);
+          return fromPage(input);
+        },
+      ],
+    });
+    const [, summarize] = await runEval({
+      prompts: { summarize: standIn.summarize },
+      cases: { assign: [], summarize: [paged] },
+      providers,
+      secret,
+      fetch: model.fetch,
+    });
+    expect(seen).toEqual([paged.input]);
+    expect(summarize?.status === "ran" && summarize.metrics.publishable).toEqual({ n: 0, of: 1 });
   });
 
   test("a prompt with no cases, or with no provider key, is not evaluated", async () => {
@@ -246,6 +449,22 @@ describe("runEval", () => {
 });
 
 describe("report", () => {
+  test("names the provider that answered: a count per provider, case ids for the fallbacks", async () => {
+    // c1: a answers. c2 and c3: a is down (503), b answers.
+    const model = standInModel({ "a.test": ["ok", 503, 503] });
+    const tasks = await runEval({
+      prompts: { assign: standIn.assign },
+      cases: { assign: [assignCase("c1"), assignCase("c2"), assignCase("c3")], summarize: [] },
+      providers,
+      secret,
+      fetch: model.fetch,
+    });
+    const md = report({ tasks });
+    expect(md).toContain("- assign answered by: a 1; b 2 (`c2`, `c3`)\n");
+    expect(md).toContain("- assign unanswered: none\n");
+    expect(md).not.toContain("why each provider failed");
+  });
+
   test("holds numbers, versions and provider names, never answers, case text or keys", async () => {
     const leaky = (input: AssignInput) => ({
       assignments: input.echoes.map((e) => ({ echoId: e.id, newTopic: { name: "LEAK-MARKER" } })),
@@ -268,6 +487,86 @@ describe("report", () => {
       expect(text).not.toContain(KEY);
       expect(text).not.toContain("invalid");
     }
+  });
+});
+
+describe("contract floor", () => {
+  /** An evaluated assign task whose contract is `n` out of `of`. */
+  const ran = (n: number, of: number): TaskResult => ({
+    task: "assign",
+    status: "ran",
+    prompt: "stand-in-assign-1",
+    cases: of,
+    providers: [{ name: "a", model: "m-a" }],
+    metrics: {
+      contract: { n, of },
+      citations: { n: 0, of: 0 },
+      repaired: { n: 0, of: n },
+      fallback: { n: 0, of: n },
+      answeredBy: [],
+      unanswered: {},
+      tried: [],
+    },
+  });
+
+  test("the default is the owner's 3/6", () => {
+    expect(DEFAULT_MIN_CONTRACT).toBe(0.5);
+    expect(needed(0.5, 6)).toBe(3);
+  });
+
+  test("at the floor passes, above passes, below fails", () => {
+    expect(belowFloor(ran(3, 6), 0.5)).toBe(false);
+    expect(belowFloor(ran(4, 6), 0.5)).toBe(false);
+    expect(belowFloor(ran(6, 6), 0.5)).toBe(false);
+    expect(belowFloor(ran(2, 6), 0.5)).toBe(true);
+    expect(belowFloor(ran(0, 6), 0.5)).toBe(true);
+    expect(passed([ran(3, 6)], 0.5)).toBe(true);
+    expect(passed([ran(2, 6)], 0.5)).toBe(false);
+  });
+
+  test("rounds up to whole cases: 7 cases need 4", () => {
+    expect(needed(0.5, 7)).toBe(4);
+    expect(belowFloor(ran(3, 7), 0.5)).toBe(true);
+    expect(belowFloor(ran(4, 7), 0.5)).toBe(false);
+  });
+
+  test("a rate equal to the floor is not below it, despite floating point", () => {
+    // 0.3 * 10 is 3.0000000000000004; 3/10 is exactly 0.3.
+    expect(needed(0.3, 10)).toBe(3);
+    expect(belowFloor(ran(3, 10), 0.3)).toBe(false);
+    expect(belowFloor(ran(0, 6), 0)).toBe(false);
+    expect(belowFloor(ran(5, 6), 1)).toBe(true);
+  });
+
+  test("a task with no cases, no provider or no prompt is unchanged by the floor", () => {
+    const others: TaskResult[] = [
+      { task: "assign", status: "no-cases", prompt: "stand-in-assign-1" },
+      { task: "summarize", status: "no-provider", prompt: "p", cases: 1, keys: ["A_KEY"] },
+    ];
+    for (const t of others) expect(belowFloor(t, 1)).toBe(false);
+    expect(passed(others, 0)).toBe(evaluated(others));
+    expect(passed(others, 0)).toBe(false);
+    const none: TaskResult[] = [{ task: "assign", status: "no-prompt" }];
+    expect(passed(none, 1)).toBe(true);
+  });
+
+  test("the report says when a task is below the floor, in numbers only", () => {
+    const below = report({ minContract: 0.5, tasks: [ran(3, 7)] });
+    expect(below).toContain(
+      "- assign: contract 3/7 is below the floor of 0.5 (at least 4/7). **Below the floor.**\n",
+    );
+    expect(report({ tasks: [ran(2, 6)] })).toContain("below the floor of 0.5 (at least 3/6)");
+    expect(report({ minContract: 0.5, tasks: [ran(4, 7)] })).not.toContain("below the floor");
+  });
+
+  test("parses --min-contract as a plain decimal from 0 to 1", () => {
+    expect(parseMinContract("0.5")).toBe(0.5);
+    expect(parseMinContract("0")).toBe(0);
+    expect(parseMinContract("1")).toBe(1);
+    expect(parseMinContract("1.0")).toBe(1);
+    expect(parseMinContract(".75")).toBe(0.75);
+    for (const bad of ["", " ", "1.5", "2", "-0.1", "+0.5", "abc", "1e-1", "0x1", "0.5.1", "NaN"])
+      expect(parseMinContract(bad)).toBeNull();
   });
 });
 
@@ -330,6 +629,58 @@ describe("main", () => {
     expect(await main(w.args(), { ...io, prompts: {} })).toBe(0);
   });
 
+  test("exits 1 when an evaluated task is below the contract floor", async () => {
+    const w = workspace();
+    const run = (...more: string[]) =>
+      main(w.args("--json", join(w.dir, "r.json"), ...more), {
+        out: w.out,
+        env: { A_KEY: KEY },
+        // The one case's answer fails the contract, and so does its repair: 0/1.
+        fetch: standInModel({ "a.test": ["bad", "bad"] }).fetch,
+        prompts: { assign: standIn.assign },
+      });
+    expect(await run()).toBe(1);
+    expect(JSON.parse(readFileSync(join(w.dir, "r.json"), "utf8")).minContract).toBe(0.5);
+    expect(w.lines.join("\n")).toContain("contract 0/1 is below the floor of 0.5 (at least 1/1)");
+    expect(await run("--min-contract", "0")).toBe(0);
+    expect(JSON.parse(readFileSync(join(w.dir, "r.json"), "utf8")).minContract).toBe(0);
+  });
+
+  test("exits 2 on a --min-contract that is not from 0 to 1, before running anything", async () => {
+    // `=` because parseArgs refuses a separate value that starts with a dash.
+    for (const bad of ["1.5", "-1", "half", ""]) {
+      const w = workspace();
+      const model = standInModel({});
+      const code = await main(w.args(`--min-contract=${bad}`), {
+        out: w.out,
+        env: { A_KEY: KEY },
+        fetch: model.fetch,
+        prompts: { assign: standIn.assign },
+      });
+      expect(code).toBe(2);
+      expect(w.lines).toEqual(["--min-contract must be a number from 0 to 1"]);
+      expect(model.keys).toEqual([]);
+    }
+  });
+
+  test("exits 2 on a malformed command line, before running anything", async () => {
+    // parseArgs refuses a separate value that starts with a dash, and a
+    // missing value: both are exit 2 like a bad value, never 1.
+    for (const argv of [["--min-contract", "-0.5"], ["--min-contract"], ["--nope"]]) {
+      const w = workspace();
+      const model = standInModel({});
+      const code = await main([...w.args(), ...argv], {
+        out: w.out,
+        env: { A_KEY: KEY },
+        fetch: model.fetch,
+        prompts: { assign: standIn.assign },
+      });
+      expect(code).toBe(2);
+      expect(w.lines).toEqual(["bad arguments: see --help"]);
+      expect(model.keys).toEqual([]);
+    }
+  });
+
   test("exits 2 on a case that does not fit the format, naming the file and path only", async () => {
     const w = workspace();
     writeFileSync(
@@ -348,8 +699,23 @@ describe("main", () => {
 
   test("the shipped cases and providers file read", async () => {
     const lines: string[] = [];
-    // Cases from the repository; a prompt-less run makes no call.
-    expect(await main([], { out: (l) => lines.push(l), env: {} })).toBe(0);
+    // Cases from the repository and the shipped prompts; with no key set no
+    // provider is left, so no call is made and the run is not evaluated.
+    let called = false;
+    const code = await main([], {
+      out: (l) => lines.push(l),
+      env: {},
+      fetch: (async () => {
+        called = true;
+        return Response.json({});
+      }) as unknown as typeof fetch,
+    });
+    expect(called).toBe(false);
+    expect(code).toBe(1);
+    expect(lines.join("\n")).toMatch(/assign: prompt `assign-v1`, \d+ cases, but no provider/);
+    expect(lines.join("\n")).toMatch(
+      /summarize: prompt `summarize-v1`, \d+ cases, but no provider/,
+    );
   });
 });
 

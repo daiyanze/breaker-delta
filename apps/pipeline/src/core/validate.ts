@@ -17,7 +17,17 @@
  * - `address`: no title, body or criterion holds a URL scheme, `www.`, or
  *   a dotted word (`x.ai`) that none of the offered echoes' titles or
  *   excerpts has (`nameCitesNoAddress`, as for assign's topic names): the
- *   model cites by id, never by address (invariant 2).
+ *   model cites by id, never by address (invariant 2);
+ * - `markup`: no title, body or criterion holds an HTML tag, a character
+ *   reference, a Markdown link or link definition, a `javascript:`-like
+ *   scheme or an email address (`writesNoMarkup`, #46), so model text can
+ *   never become a link or an element wherever it is shown.
+ *
+ * The contract is strict (#46): an answer with a key it does not name, at
+ * any level, fails `contract` rather than having the key dropped. No real
+ * draft holds one: the chain checks answers against the same strict schema,
+ * so such an answer fails the summarize call (the wave is `failed`, no draft
+ * is written) before this step sees it.
  *
  * A draft that is missing from blob storage fails the step: the summarize
  * step said it was there. The output holds ids and check names only.
@@ -26,7 +36,7 @@ import { type SummarizeResult, SummarizeResultSchema } from "@bd/contracts";
 import { echoes } from "@bd/db";
 import type { Blobs } from "@bd/ports";
 import { sql } from "drizzle-orm";
-import { nameCitesNoAddress } from "./assign.ts";
+import { nameCitesNoAddress, writesNoMarkup } from "./assign.ts";
 import type { Step, StepContext } from "./runner.ts";
 import { type Draft, draftKey, outputOf, type SummarizeOutput } from "./summarize.ts";
 
@@ -35,7 +45,7 @@ export interface ValidateDeps {
 }
 
 /** Why a draft was discarded: the first check it failed. */
-export type DraftCheck = "contract" | "echo_id" | "languages" | "criterion" | "address";
+export type DraftCheck = "contract" | "echo_id" | "languages" | "criterion" | "address" | "markup";
 
 /** What the step returns; the runner stores it in `run_steps.output`. Ids only. */
 export interface ValidateOutput {
@@ -80,6 +90,7 @@ export function validateDraft(draft: Draft, reference: string): DraftVerdict {
   if (!written.every((text) => nameCitesNoAddress(text, reference))) {
     return { ok: false, check: "address" };
   }
+  if (!written.every(writesNoMarkup)) return { ok: false, check: "markup" };
   return { ok: true, value };
 }
 

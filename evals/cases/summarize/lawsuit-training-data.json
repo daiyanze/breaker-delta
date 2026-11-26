@@ -1,0 +1,31 @@
+{
+  "synthetic": true,
+  "input": {
+    "name": "Fictional publishers sue Lumetric over training data",
+    "echoes": [
+      {
+        "id": "s1",
+        "title": "Publishers file suit against Lumetric over model training",
+        "summary": "A group of fictional publishers filed a lawsuit claiming the fictional AI company Lumetric trained on their books without a license."
+      },
+      {
+        "id": "s2",
+        "title": "Lumetric says its training was lawful",
+        "summary": "Lumetric said in a statement that it will contest the claims.",
+        "page": "The statement says Lumetric used only material it believes it was entitled to use and that it will ask the court to dismiss the case. A first hearing has been scheduled; the company did not say whether it will settle."
+      },
+      {
+        "id": "s3",
+        "title": "What the Lumetric suit asks for",
+        "summary": "The complaint seeks damages and an order to delete models trained on the books."
+      },
+      {
+        "id": "s4",
+        "title": "Lumetric suit: a summary for developers",
+        "summary": "Developers using Lumetric's API ask whether the case affects them."
+      }
+    ],
+    "languages": ["en", "zh", "ja"],
+    "first": true
+  }
+}

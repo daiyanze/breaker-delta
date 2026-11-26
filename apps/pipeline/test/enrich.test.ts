@@ -84,7 +84,7 @@ function setup(fetcher = pageFetch()) {
     enrichStep({ blobs, fetch: fetcher.fetch }),
     summarizeStep({ driver, blobs }),
     validateStep({ blobs }),
-    commitStep({ blobs }),
+    commitStep({ blobs, groups: [] }),
   ];
   const run = async () => {
     const outcome = await runSlot(orm, () => NOW, SLOT, steps(), {
@@ -157,9 +157,24 @@ describe("enrich", () => {
     t.wave("t1");
     await t.run();
     expect(t.inputs[0]?.echoes).toEqual([
-      { id: "e1", title: "A headline", summary: "An excerpt\n\nPage text of https://x.test/1" },
-      { id: "e2", title: "A headline", summary: "An excerpt\n\nPage text of https://x.test/2" },
-      { id: "e3", title: "A headline", summary: "An excerpt\n\nPage text of https://x.test/3" },
+      {
+        id: "e1",
+        title: "A headline",
+        summary: "An excerpt",
+        page: "Page text of https://x.test/1",
+      },
+      {
+        id: "e2",
+        title: "A headline",
+        summary: "An excerpt",
+        page: "Page text of https://x.test/2",
+      },
+      {
+        id: "e3",
+        title: "A headline",
+        summary: "An excerpt",
+        page: "Page text of https://x.test/3",
+      },
     ]);
     expect(t.draft("t1")?.sourceTextRead).toBe(true);
     expect(t.all("SELECT status, source_text_read FROM summaries")).toEqual([

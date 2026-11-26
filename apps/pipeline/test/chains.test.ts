@@ -4,8 +4,10 @@
  * and summarize use their own chains; a task with an empty chain, or any
  * task while no prompts are given, is skipped and the board still updates.
  *
- * No prompt ships yet (#43, #44), so these tests inject `PROMPTS`: the input
- * as JSON, which the stand-in endpoint reads back. It is not a real prompt.
+ * These tests inject `PROMPTS`: the input as JSON, which the stand-in
+ * endpoint reads back. It is not a real prompt; `assign-v1` and
+ * `summarize-v1` are tested in `packages/judge/src/`. One test runs assign
+ * with the shipped prompts as `pipelineConfig` gives them.
  *
  * The runs use the recorded fixture sources and a stand-in model endpoint
  * that answers with the fake driver's output. Assertions compare ids,
@@ -21,6 +23,7 @@ import {
   type DriverPrompts,
   fakeAssign,
   fakeSummarize,
+  PROMPTS as SHIPPED,
   type SummarizeInput,
 } from "@bd/judge";
 import { createPipeline, pipelineConfig } from "../src/core/app.ts";
@@ -125,6 +128,25 @@ describe("runModel", () => {
     expect(runModel(null, chains, none, fetch)).toEqual({ assign: null, summarize: null });
   });
 
+  test("each task gets a model only when it has its own prompt, whatever the other has", () => {
+    const chains = { assignProviders: [provider("a")], summarizeProviders: [provider("b")] };
+    const asJson = (input: unknown) => [{ role: "user" as const, content: JSON.stringify(input) }];
+    const summarizeOnly = runModel(null, chains, none, fetch, { summarize: asJson });
+    expect(summarizeOnly.assign).toBeNull();
+    expect(summarizeOnly.summarize).not.toBeNull();
+    const assignOnly = runModel(null, chains, none, fetch, { assign: asJson });
+    expect(assignOnly.assign).not.toBeNull();
+    expect(assignOnly.summarize).toBeNull();
+  });
+
+  test("with the shipped prompts both tasks get a model", () => {
+    const chains = { assignProviders: [provider("a")], summarizeProviders: [provider("b")] };
+    const m = runModel(null, chains, none, fetch, pipelineConfig({}).prompts ?? null);
+    expect(m.assign).not.toBeNull();
+    expect(m.summarize).not.toBeNull();
+    expect(SHIPPED.assign?.version).toBe("assign-v1");
+  });
+
   test("each task gets a model only when its own chain has providers", () => {
     const m = runModel(
       null,
@@ -164,7 +186,13 @@ function modelEndpoint() {
     const url = new URL(String(input));
     calls.push({ host: url.host, auth: new Headers(init?.headers).get("authorization") });
     const body = JSON.parse(String(init?.body)) as { messages: { content: string }[] };
-    const data = JSON.parse(body.messages.at(-1)?.content ?? "null");
+    const content = body.messages.at(-1)?.content ?? "null";
+    // The shipped assign prompt puts the input between markers; the test prompts send it bare.
+    const block = (name: string) =>
+      JSON.parse(content.match(new RegExp(`<${name}>\\n(.*)\\n</${name}>`, "s"))?.[1] ?? "null");
+    const data = content.includes("<echoes>")
+      ? { echoes: block("echoes"), topics: block("topics") }
+      : JSON.parse(content);
     const answer = url.host.startsWith("assign")
       ? fakeAssign(data as AssignInput)
       : fakeSummarize(data as SummarizeInput);
@@ -193,11 +221,13 @@ function setup() {
     modelFetch: model.fetch,
     secret: stringVars({ ASSIGN_KEY, SUMMARIZE_KEY }),
   };
-  const pipeline = (driver?: string, prompts: DriverPrompts | null = PROMPTS) =>
-    createPipeline(ports, {
-      ...pipelineConfig(driver ? { MODEL_DRIVER: driver } : {}),
-      ...(prompts ? { prompts } : {}),
-    });
+  /** `prompts`: the test's own (default), none (null), or the shipped ones ("shipped"). */
+  const pipeline = (driver?: string, prompts: DriverPrompts | null | "shipped" = PROMPTS) => {
+    const config = pipelineConfig(driver ? { MODEL_DRIVER: driver } : {});
+    if (prompts === null) delete config.prompts;
+    else if (prompts !== "shipped") config.prompts = prompts;
+    return createPipeline(ports, config);
+  };
   const output = <T>(slot: string, step: string): T => {
     const row = sqlite
       .query("SELECT output FROM run_steps WHERE slot = ? AND step = ?")
@@ -288,13 +318,36 @@ describe("a run with chains from settings", () => {
     expect(t.count("SELECT count(*) AS n FROM wave_points WHERE slot = ?", SLOT_2)).toBe(points1);
   });
 
-  test("with chains set but no prompts (as shipped until #43, #44) no provider is called", async () => {
+  test("with the shipped prompts assign calls its chain at assign-v1", async () => {
+    const t = setup();
+    // Summarize's chain is empty, so its step is skipped: this test is about
+    // the shipped assign prompt (summarize-v1 is tested in packages/judge).
+    await changeSettings(t.orm, NOW - 1, {
+      assignProviders: [provider("assign", "ASSIGN_KEY")],
+      summarizeProviders: [],
+    });
+    expect(await t.pipeline(undefined, "shipped").tick()).toMatchObject({
+      slot: SLOT,
+      status: "done",
+    });
+    const hosts = new Set(t.model.calls.map((c) => c.host));
+    expect([...hosts]).toEqual(["assign.test"]);
+    const assign = t.output<AssignOutput>(SLOT, "assign");
+    expect(assign.failedBatches).toBe(0);
+    expect(assign.assigned).toBeGreaterThan(0);
+    expect(t.output<SummarizeOutput>(SLOT, "summarize").skipped).toBe(true);
+    expect(
+      t.count("SELECT count(*) AS n FROM model_calls WHERE prompt_version = 'assign-v1'"),
+    ).toBe(t.model.calls.length);
+  });
+
+  test("with chains set but no prompts no provider is called", async () => {
     const t = setup();
     await changeSettings(t.orm, NOW - 1, {
       assignProviders: [provider("assign", "ASSIGN_KEY")],
       summarizeProviders: [provider("summarize", "SUMMARIZE_KEY")],
     });
-    expect(await t.pipeline(undefined, null).tick()).toMatchObject({ slot: SLOT, status: "done" });
+    expect(await t.pipeline(undefined, {}).tick()).toMatchObject({ slot: SLOT, status: "done" });
     expect(t.model.calls).toEqual([]);
     expect(t.output<AssignOutput>(SLOT, "assign").skipped).toBe(true);
     expect(t.output<SummarizeOutput>(SLOT, "summarize").skipped).toBe(true);

@@ -5,6 +5,7 @@
  *
  *   bun scripts/eval.ts [--cases evals/cases] [--providers evals/providers.json]
  *                       [--report report.md] [--json result.json] [--sha <commit>]
+ *                       [--min-contract 0.5]
  *
  * `--cases` defaults to the committed, synthetic cases (CI runs those). The
  * owner can name a local, git-ignored folder of cases frozen from real runs
@@ -15,15 +16,25 @@
  * (`apiKeyRef`), as the pipeline reads them (`resolveProviders`). A provider
  * whose key is not set is left out.
  *
- * Exit code: 0 when every shipped prompt was evaluated (or none ships); 1
- * when a prompt has no cases or no provider with a key, so a prompt PR whose
- * eval could not run is red; 2 on a bad case or providers file.
+ * `--min-contract` is the contract floor, a ratio from 0 to 1 (default 0.5,
+ * the owner's 3/6): an evaluated task whose contract rate (answers that fit
+ * the contract, of its cases) is below it fails the run. It applies to every
+ * task, rounded up to whole cases: at 0.5, 7 cases need 4.
  *
- * Only numbers, case counts, prompt versions and provider names leave this
- * script. The model's answers can quote fetched text, and the report is
- * posted on a PR that a coding session reads (invariant 6), so no answer,
- * no case text and no chain error message (it may quote an answer) is
- * printed or written.
+ * Exit code: 0 when every shipped prompt was evaluated (or none ships) and
+ * no evaluated task is below the contract floor; 1 when a prompt has no
+ * cases or no provider with a key, so a prompt PR whose eval could not run
+ * is red, or when an evaluated task is below the floor; 2 on a bad case or
+ * providers file, a bad `--min-contract` value or a malformed command line
+ * (an unknown option, a missing value, `--min-contract -0.5`).
+ *
+ * Only the commit SHA, task names, counts and ratios (per-provider answer
+ * counts included), prompt versions, provider and model names, failure
+ * kinds, HTTP status codes, case ids and the names (never the values) of
+ * unset key variables leave this script. The model's answers can quote
+ * fetched text, and the report is posted on a PR that a coding session
+ * reads (invariant 6), so no answer, no case text and no chain error
+ * message (it may quote an answer) is printed or written.
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -34,8 +45,11 @@ import { validateDraft } from "../apps/pipeline/src/core/validate.ts";
 import type { AssignResult, SummarizeResult } from "../packages/contracts/src/index.ts";
 import { type Provider, ProviderSchema } from "../packages/contracts/src/index.ts";
 import {
+  type Attempt,
+  ChainExhaustedError,
   type ChainResult,
   chainDriver,
+  FAILURE_KINDS,
   PROMPTS,
   type Prompts,
   type ResolvedProvider,
@@ -75,6 +89,33 @@ export interface Metrics {
   fallback: Ratio;
   /** assign only, when cases have labels: labelled echoes placed as the owner did. */
   agreement?: Ratio;
+  /**
+   * The answered cases by the provider that answered: every provider of the
+   * chain, in chain order, with the ids of its cases (none for a provider
+   * that answered nothing).
+   */
+  answeredBy: { provider: string; cases: string[] }[];
+  /**
+   * The cases with no answer, by why the chain's last provider failed (its
+   * `failure`): case ids only, never an error message, answer or case text.
+   * Only failures that occurred are present.
+   */
+  unanswered: Record<string, string[]>;
+  /**
+   * Per case with no answer, in case order: why each provider the chain
+   * tried failed, in chain order.
+   */
+  tried: { case: string; failures: { provider: string; failure: string }[] }[];
+}
+
+/**
+ * Why one provider gave no answer, as the report shows it: `http-<status>`
+ * (`http-503`) when it answered with an HTTP error status, else the
+ * attempt's kind (`timeout`, `network`, `empty`, `not-json`, `schema`,
+ * `other`). Never error text.
+ */
+export function failure(attempt: Pick<Attempt, "kind" | "status">): string {
+  return attempt.status !== undefined ? `http-${attempt.status}` : attempt.kind;
 }
 
 export type TaskResult =
@@ -92,6 +133,8 @@ export type TaskResult =
 
 export interface EvalResult {
   sha?: string;
+  /** The contract floor the run was judged by; `DEFAULT_MIN_CONTRACT` when absent. */
+  minContract?: number;
   tasks: TaskResult[];
 }
 
@@ -112,30 +155,79 @@ export interface EvalOptions {
 
 const ratio = (n: number, of: number): Ratio => ({ n, of });
 
+/** What `ask` keeps about the cases with no answer. */
+interface Misses {
+  unanswered: Metrics["unanswered"];
+  tried: Metrics["tried"];
+}
+
 /**
  * One case through the chain as the pipeline calls it (`chainDriver`: the
  * same contract check and repair message). Null when the chain is
- * exhausted; its error may quote an answer, so only the miss counts.
+ * exhausted; its error may quote an answer, so only each provider's
+ * `failure` is kept, under the case id, in `misses`.
  */
-async function ask<T>(call: () => Promise<ChainResult<T>>): Promise<ChainResult<T> | null> {
+async function ask<T>(
+  id: string,
+  misses: Misses,
+  call: () => Promise<ChainResult<T>>,
+): Promise<ChainResult<T> | null> {
   try {
     return await call();
-  } catch {
+  } catch (err) {
+    const failures =
+      err instanceof ChainExhaustedError
+        ? err.attempts.map((a) => ({ provider: a.provider, failure: failure(a) }))
+        : [];
+    const last = failures.at(-1)?.failure ?? "other";
+    misses.unanswered[last] = [...(misses.unanswered[last] ?? []), id];
+    misses.tried.push({ case: id, failures });
     return null;
   }
 }
+
+/** HTTP statuses in number order, then the other kinds in `FAILURE_KINDS` order. */
+function rank(f: string): number {
+  const status = /^http-(\d+)$/.exec(f)?.[1];
+  if (status !== undefined) return Number(status);
+  const i = (FAILURE_KINDS as readonly string[]).indexOf(f);
+  return 1000 + (i === -1 ? FAILURE_KINDS.length : i);
+}
+
+/** The failures in `rank` order, so a result reads the same each run. */
+function ordered(unanswered: Metrics["unanswered"]): Metrics["unanswered"] {
+  const out: Metrics["unanswered"] = {};
+  for (const f of Object.keys(unanswered).sort((x, y) => rank(x) - rank(y)))
+    out[f] = unanswered[f] ?? [];
+  return out;
+}
+
+const noMisses = (): Misses => ({ unanswered: {}, tried: [] });
 
 /** A prompt for the task a driver is not used for here. */
 const unused = (): never => {
   throw new Error("not this task's prompt");
 };
 
-function chainCounts(answers: readonly (ChainResult<unknown> | null)[], first: string) {
+function chainCounts(
+  answers: readonly (ChainResult<unknown> | null)[],
+  ids: readonly string[],
+  chain: readonly ResolvedProvider[],
+  misses: Misses,
+) {
   const got = answers.filter((a): a is ChainResult<unknown> => a !== null);
+  const first = chain[0]?.name ?? "";
+  const names = [...new Set(chain.map((p) => p.name))];
   return {
     contract: ratio(got.length, answers.length),
     repaired: ratio(got.filter((a) => a.repaired).length, got.length),
     fallback: ratio(got.filter((a) => a.provider !== first).length, got.length),
+    answeredBy: names.map((provider) => ({
+      provider,
+      cases: ids.filter((_, i) => answers[i]?.provider === provider),
+    })),
+    unanswered: ordered(misses.unanswered),
+    tried: misses.tried,
   };
 }
 
@@ -156,12 +248,13 @@ async function evalAssign(
     fetchImpl ? { fetch: fetchImpl } : {},
   );
   const answers: (ChainResult<AssignResult> | null)[] = [];
+  const misses = noMisses();
   let echoes = 0;
   let kept = 0;
   let labelled = 0;
   let agreed = 0;
   for (const c of cases) {
-    const answer = await ask(() => driver.assign(c.input));
+    const answer = await ask(c.id, misses, () => driver.assign(c.input));
     answers.push(answer);
     echoes += c.input.echoes.length;
     const { placements } = answer
@@ -179,7 +272,12 @@ async function evalAssign(
     }
   }
   const metrics: Metrics = {
-    ...chainCounts(answers, chain[0]?.name ?? ""),
+    ...chainCounts(
+      answers,
+      cases.map((c) => c.id),
+      chain,
+      misses,
+    ),
     citations: ratio(kept, echoes),
   };
   if (labelled > 0) metrics.agreement = ratio(agreed, labelled);
@@ -202,11 +300,12 @@ async function evalSummarize(
     fetchImpl ? { fetch: fetchImpl } : {},
   );
   const answers: (ChainResult<SummarizeResult> | null)[] = [];
+  const misses = noMisses();
   let cited = 0;
   let complete = 0;
   let publishable = 0;
   for (const c of cases) {
-    const answer = await ask(() => driver.summarize(c.input));
+    const answer = await ask(c.id, misses, () => driver.summarize(c.input));
     answers.push(answer);
     if (!answer) continue;
     const offered = c.input.echoes.map((e) => e.id);
@@ -225,14 +324,20 @@ async function evalSummarize(
         provider: answer.provider,
         model: answer.model,
         answer: answer.value,
-        // A case holds no enrich pages, so the draft read no source text.
-        sourceTextRead: false,
+        // As the summarize step sets it: an offered echo came with its page.
+        sourceTextRead: c.input.echoes.some((e) => e.page !== undefined),
       },
+      // As the validate step's `referenceText`: titles and excerpts, not pages.
       c.input.echoes.flatMap((e) => [e.title, e.summary ?? ""]).join("\n"),
     );
     if (verdict.ok) publishable++;
   }
-  const counts = chainCounts(answers, chain[0]?.name ?? "");
+  const counts = chainCounts(
+    answers,
+    cases.map((c) => c.id),
+    chain,
+    misses,
+  );
   const n = counts.contract.n;
   return {
     ...counts,
@@ -294,6 +399,38 @@ export function evaluated(tasks: readonly TaskResult[]): boolean {
   return tasks.every((t) => t.status === "no-prompt" || t.status === "ran");
 }
 
+/** The contract floor when `--min-contract` is not given: the owner's 3/6. */
+export const DEFAULT_MIN_CONTRACT = 0.5;
+
+/** The fewest answers out of `of` cases whose rate is at least `min`. */
+export function needed(min: number, of: number): number {
+  let n = 0;
+  while (n < of && n / of < min) n++;
+  return n;
+}
+
+/** Whether an evaluated task's contract rate is below `min`. Other tasks never are. */
+export function belowFloor(task: TaskResult, min: number): boolean {
+  if (task.status !== "ran") return false;
+  const { n, of } = task.metrics.contract;
+  return of > 0 && n < needed(min, of);
+}
+
+/** Whether the run passes: every shipped prompt evaluated, none below the floor. */
+export function passed(tasks: readonly TaskResult[], min: number): boolean {
+  return evaluated(tasks) && !tasks.some((t) => belowFloor(t, min));
+}
+
+/**
+ * Reads `--min-contract`: a plain decimal from 0 to 1. Null for anything
+ * else (a sign, an exponent, hex, an empty value).
+ */
+export function parseMinContract(value: string): number | null {
+  if (!/^(\d+(\.\d+)?|\.\d+)$/.test(value)) return null;
+  const min = Number(value);
+  return min >= 0 && min <= 1 ? min : null;
+}
+
 /** The first line of the PR comment, which the workflow finds it by. */
 export const MARKER = "<!-- bd-evals -->";
 
@@ -303,7 +440,11 @@ function cell(r: Ratio | undefined): string {
   return `${r.n}/${r.of} (${Math.round((r.n / r.of) * 100)}%)`;
 }
 
-/** Markdown for the PR comment: numbers, versions and provider names only. */
+/**
+ * Markdown for the PR comment: only what the header says leaves this script
+ * (counts, prompt versions, provider and model names, failures, case ids,
+ * names of unset key variables), never answers, case text or error text.
+ */
 export function report(result: EvalResult): string {
   const lines = [MARKER, `### Eval${result.sha ? ` for ${result.sha.slice(0, 7)}` : ""}`, ""];
   const ran = result.tasks.filter((t) => t.status === "ran");
@@ -324,9 +465,46 @@ export function report(result: EvalResult): string {
         `- ${t.task} chain: ${t.providers.map((p) => `${p.name} \`${p.model}\``).join(", ")}`,
       );
     }
+    const ids = (list: readonly string[]) => list.map((id) => `\`${id}\``).join(", ");
+    for (const t of ran) {
+      // The first provider's cases are the default and go uncounted by id.
+      const by = t.metrics.answeredBy.map(({ provider, cases }, i) =>
+        i === 0 || cases.length === 0
+          ? `${provider} ${cases.length}`
+          : `${provider} ${cases.length} (${ids(cases)})`,
+      );
+      lines.push(`- ${t.task} answered by: ${by.join("; ")}`);
+    }
+    for (const t of ran) {
+      const kinds = Object.entries(t.metrics.unanswered);
+      lines.push(
+        kinds.length === 0
+          ? `- ${t.task} unanswered: none`
+          : `- ${t.task} unanswered, by why the last provider failed: ${kinds
+              .map(([kind, list]) => `\`${kind}\` ${list.length} (${ids(list)})`)
+              .join("; ")}`,
+      );
+      if (t.metrics.tried.length > 0) {
+        lines.push(
+          `- ${t.task} unanswered, why each provider failed: ${t.metrics.tried
+            .map(
+              (c) =>
+                `\`${c.case}\` (${c.failures.map((f) => `${f.provider} \`${f.failure}\``).join(", ") || "no provider tried"})`,
+            )
+            .join("; ")}`,
+        );
+      }
+    }
     lines.push("");
   }
+  const min = result.minContract ?? DEFAULT_MIN_CONTRACT;
   for (const t of result.tasks) {
+    if (belowFloor(t, min) && t.status === "ran") {
+      const { n, of } = t.metrics.contract;
+      lines.push(
+        `- ${t.task}: contract ${n}/${of} is below the floor of ${min} (at least ${needed(min, of)}/${of}). **Below the floor.**`,
+      );
+    }
     if (t.status === "no-prompt") lines.push(`- ${t.task}: no prompt ships, nothing to evaluate.`);
     if (t.status === "no-cases") {
       lines.push(
@@ -384,9 +562,9 @@ export interface Io {
 
 const defaultIo: Io = { out: (line) => console.log(line), env: process.env };
 
-/** Runs the command; resolves to the exit code. */
-export async function main(argv: readonly string[], io: Io = defaultIo): Promise<number> {
-  const { values } = parseArgs({
+/** The command's options, parsed; throws on a malformed command line. */
+function parseOptions(argv: readonly string[]) {
+  return parseArgs({
     args: [...argv],
     options: {
       cases: { type: "string", default: COMMITTED_CASES },
@@ -394,14 +572,36 @@ export async function main(argv: readonly string[], io: Io = defaultIo): Promise
       report: { type: "string" },
       json: { type: "string" },
       sha: { type: "string" },
+      "min-contract": { type: "string" },
       help: { type: "boolean" },
     },
-  });
+  }).values;
+}
+
+/** Runs the command; resolves to the exit code. */
+export async function main(argv: readonly string[], io: Io = defaultIo): Promise<number> {
+  let values: ReturnType<typeof parseOptions>;
+  try {
+    values = parseOptions(argv);
+  } catch {
+    // A malformed command line, e.g. `--min-contract -0.5` or a missing value:
+    // the same exit as a bad option value, never 1 (not evaluated).
+    io.out("bad arguments: see --help");
+    return 2;
+  }
   if (values.help) {
     io.out(
-      "usage: bun scripts/eval.ts [--cases dir] [--providers file] [--report out.md] [--json out.json] [--sha commit]",
+      "usage: bun scripts/eval.ts [--cases dir] [--providers file] [--report out.md] [--json out.json] [--sha commit] [--min-contract 0.5]",
     );
     return 0;
+  }
+  const minContract =
+    values["min-contract"] === undefined
+      ? DEFAULT_MIN_CONTRACT
+      : parseMinContract(values["min-contract"]);
+  if (minContract === null) {
+    io.out("--min-contract must be a number from 0 to 1");
+    return 2;
   }
   let cases: Cases;
   let providers: ProviderFile;
@@ -422,12 +622,12 @@ export async function main(argv: readonly string[], io: Io = defaultIo): Promise
     secret: stringVars(io.env),
     ...(io.fetch ? { fetch: io.fetch } : {}),
   });
-  const result: EvalResult = { ...(values.sha ? { sha: values.sha } : {}), tasks };
+  const result: EvalResult = { ...(values.sha ? { sha: values.sha } : {}), minContract, tasks };
   const markdown = report(result);
   if (values.report) writeFileSync(values.report, markdown);
   if (values.json) writeFileSync(values.json, `${JSON.stringify(result, null, 2)}\n`);
   io.out(markdown.trimEnd());
-  return evaluated(tasks) ? 0 : 1;
+  return passed(tasks, minContract) ? 0 : 1;
 }
 
 if (import.meta.main) process.exit(await main(process.argv.slice(2)));

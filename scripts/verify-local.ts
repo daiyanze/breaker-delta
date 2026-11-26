@@ -5,12 +5,13 @@
  *   bun scripts/verify-local.ts up [--fixtures <set>]   start an isolated instance
  *   bun scripts/verify-local.ts doctor                  is it worth driving?
  *   bun scripts/verify-local.ts tick                    run the current slot now
+ *   bun scripts/verify-local.ts report                  the run report (/__report)
  *   bun scripts/verify-local.ts get <path> [--pipeline] GET a page or API route
  *   bun scripts/verify-local.ts sql "<select>"          read the database, read-only
  *   bun scripts/verify-local.ts down                    stop it, keep the evidence
  *
  * Each `up` makes a run folder `.verify/<run>/`: the instance's data, its log,
- * every response saved by `tick`, `get` and `sql`, and `steps.tsv`, one row per
+ * every response saved by `tick`, `report`, `get` and `sql`, and `steps.tsv`, one row per
  * command. `down` stops the process it started and deletes the data folder;
  * everything else stays. Only one instance runs at a time.
  *
@@ -158,6 +159,7 @@ async function up(args: string[]) {
       // One tick at start-up; later runs are started with `tick`.
       BD_TICK_SECONDS: "86400",
       PROBE_TOKEN: TOKEN,
+      REPORT_TOKEN: TOKEN,
       // Recorded fixture sources and the fake model: driving an instance
       // fetches nothing real and calls no provider (invariant 6), offline.
       BD_SOURCES: "fixtures",
@@ -223,6 +225,18 @@ async function tick() {
   const file = await save(state, "tick", "json", body);
   step(state, "tick", `${res.status} ${body}`, file);
   console.log(`${res.status} ${body}\nsaved ${file}`);
+}
+
+async function report() {
+  const state = need();
+  const res = await fetch(`${state.pipelineUrl}/__report`, {
+    headers: { authorization: `Bearer ${TOKEN}` },
+  });
+  const body = await res.text();
+  const file = await save(state, "report", "json", body);
+  step(state, "report", String(res.status), file);
+  // Counts, names and days only (#53), so it can be printed.
+  console.log(`${res.status}\nsaved ${file}\n\n${preview(body)}`);
 }
 
 async function get(args: string[]) {
@@ -297,13 +311,14 @@ if (import.meta.main) {
     up,
     doctor,
     tick,
+    report,
     get,
     sql,
     down,
   };
   const run = command ? commands[command] : undefined;
   if (run === undefined) {
-    console.error("usage: bun scripts/verify-local.ts up|doctor|tick|get|sql|down");
+    console.error("usage: bun scripts/verify-local.ts up|doctor|tick|report|get|sql|down");
     process.exit(2);
   }
   try {
