@@ -24,8 +24,7 @@ other data file, not even one in `src/tokens`.
 
 `tokens` (#269), `styles` and `build` (#270), `runtime` and `patterns`
 (#271) and `primitives` (#272) exist today; `patterns` holds `Band`,
-`primitives` the `ThemeSwitch` island. `catalog` arrives with the
-plan in `docs/plans/ui-architecture.yaml`. A file directly under `src/` is
+`primitives` the `ThemeSwitch` island; `catalog` (#258) lists them. A file directly under `src/` is
 under no rule and fails `check-deps`.
 
 ## `@bd/ui/runtime` and `@bd/ui/patterns`
@@ -110,10 +109,29 @@ no Bun or Cloudflare types, so emails and share cards can import it.
 - `index.ts` exports `colorOf`, `size`, `typeStyle`, `tokensCss`,
   `typeClassesCss`, `FONT_FILES` and `fontFaceCss`.
 
+## `@bd/ui/catalog`
+
+- `CATALOG` lists every component with its states, from each folder's
+  `<Name>.states.tsx`, primitives first. `catalog.test.tsx` finds the
+  component folders under `primitives` and `patterns` and fails on a folder
+  without a states file, a states file missing from the list, or a listed
+  folder that is gone; it also renders every state on the server.
+- A state is a set of props. Hover and focus are not states. A component
+  whose layout depends on its text has a long-text state and a state per
+  language with its own sample text (`Band`: `long`, `zh`, `ja`).
+- Only the local site adapter imports it: `/_catalog` in
+  `apps/web/src/local/catalog.tsx` shows every state, one theme and one
+  language per page. `bun run ui:screens` (`apps/web/scripts/screens.ts`)
+  captures each state at 1440 and 390 wide, in both themes and every
+  language, at rest, hovered and focused, and compares them with
+  `apps/web/screenshots/<platform>`; `bun run ui:baseline` rewrites them.
+  The committed baselines are Linux's, from the `screenshots` CI job.
+
 ## Where a new thing goes
 
 - **A token** goes into the design export (`design/system/tokens.json`),
   then the generator. A value the export does not carry yet goes into
   `supplement.ts` with its source.
 - **A component** gets one folder in `primitives` or `patterns`: `Name.tsx`
-  or `Name.island.tsx`, `Name.css`, `Name.states.tsx`, `SPEC.md`.
+  or `Name.island.tsx`, `Name.css`, `Name.states.tsx`, `SPEC.md`, and an
+  entry in `CATALOG` (`catalog/index.ts`).

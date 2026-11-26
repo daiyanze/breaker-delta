@@ -43,6 +43,16 @@ describe("bd-web", () => {
     expect(body).toContain("The sea is flat.");
   });
 
+  test("has no component catalog: /_catalog is a local route only (issue 258)", async () => {
+    for (const env of [{}, { READ_SOURCE: "fixtures" }]) {
+      for (const path of ["/_catalog", "/_catalog?theme=dark&lang=ja"]) {
+        const res = await get(path, env);
+        expect(res.status).toBe(404);
+        expect(await res.text()).not.toContain("data-shot");
+      }
+    }
+  });
+
   test("rejects an unknown fixture set", async () => {
     const res = await get("/?set=nope", { READ_SOURCE: "fixtures" });
     expect(res.status).toBe(404);

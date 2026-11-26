@@ -15,6 +15,9 @@
     "@bd/ui": "workspace:*",
     "preact": "^11.2.0"
   },
+  "devDependencies": {
+    "playwright-core": "1.65.1"
+  },
   "exports": {
     "./local": "./src/local/index.ts"
   }

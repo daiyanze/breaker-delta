@@ -19,7 +19,8 @@ set; `?set=` picks another set per request and `?lang=` a language.
   the set has them, the source's own headline elsewhere.
 - `get "/?lang=ja"` on `quiet` (English only): falls back to `lang="en"`.
 - `get "/?set=nope"`: 404 "unknown fixture set". Any path other than `/`,
-  `/health` and the files under `/fonts/`, `/icons/` and `/client/`: 404.
+  `/health`, `/_catalog` (`catalog.md`) and the files under `/fonts/`,
+  `/icons/` and `/client/`: 404.
 - `get /client/ui.css`: 200 `text/css`, starting with
   `@layer tokens, base, primitives, patterns;`. Every page links it; no
   page holds a `<style>` (#270).

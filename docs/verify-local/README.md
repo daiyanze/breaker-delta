@@ -47,6 +47,26 @@ bun scripts/verify-local.ts sql "SELECT slot, status FROM runs"
 opens the database read-only. What each feature does and how to check it is
 in `features/`; start from `features/README.md`.
 
+## A UI change
+
+A change to a component in `packages/ui`, or to a page, is verified by
+opening `/_catalog` and the pages that use the component, in a browser,
+on the site `up` started (`features/catalog.md`). `/_catalog` shows every
+component in every state it declares, in one theme and one language per
+page, with links to the others. Then run the screenshot check:
+
+```sh
+bun run ui:browser      # once: downloads headless Chromium
+bun run ui:screens      # compares every state with the baselines; names what changed
+```
+
+Baselines are per OS. The committed ones are Linux's, made by the
+`screenshots` job in CI; on another OS run `bun run ui:baseline` before the
+change and `bun run ui:screens` after it for a local before and after. When
+the change is meant to alter a component, take the new Linux baselines
+from that job's `ui-screens` artifact (`actual/`) into
+`apps/web/screenshots/linux`, so the PR shows them.
+
 ## Evidence
 
 Every `tick`, `get` and `sql` saves its answer in the run folder as a
