@@ -28,8 +28,8 @@
  *
  * With no summarize model the step is skipped, as summarize is: no page is
  * fetched that nothing would read. A run has none when the summarize chain
- * in settings is empty, or when there are no prompts (`model.ts`, #42;
- * none ship until #43, #44), unless `MODEL_DRIVER=fake`.
+ * in settings is empty, or when there is no summarize prompt (`model.ts`,
+ * #42), unless `MODEL_DRIVER=fake`.
  *
  * A retried or resumed attempt fetches again and replaces the blobs; a wave
  * it leaves unread loses the blob an earlier attempt stored.

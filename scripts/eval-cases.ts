@@ -9,7 +9,11 @@
  *
  * Every case says where it came from: `synthetic: true` (written by hand,
  * no fetched text) or `frozenFrom` (made by `freeze-cases` from a stored
- * run, so it holds fetched titles and excerpts).
+ * run, so it holds fetched titles, excerpts and page texts).
+ *
+ * A summarize echo may have `page`: the text of its page the enrich step
+ * read (#45), which the step gives the model apart from the excerpt. A case
+ * with a page is one written with source text (`sourceTextRead`).
  *
  * - **Only synthetic cases are committed** (`evals/cases/`, owner, #253):
  *   fetched text must never reach a session that can write code (invariant
@@ -124,13 +128,20 @@ function list(v: unknown, path: string, fail: Fail): unknown[] {
   return v as unknown[];
 }
 
-function echo(v: unknown, path: string, fail: Fail): DriverEcho {
-  const o = record(v, path, ["id", "title", "summary"], fail);
+/** One echo; `page` (the page text enrich read, #45) only where `withPage`, i.e. summarize. */
+function echo(v: unknown, path: string, fail: Fail, withPage = false): DriverEcho {
+  const o = record(
+    v,
+    path,
+    withPage ? ["id", "title", "summary", "page"] : ["id", "title", "summary"],
+    fail,
+  );
   const e: DriverEcho = {
     id: text(o.id, `${path}.id`, fail),
     title: text(o.title, `${path}.title`, fail),
   };
   if (o.summary !== undefined) e.summary = text(o.summary, `${path}.summary`, fail);
+  if (o.page !== undefined) e.page = text(o.page, `${path}.page`, fail);
   return e;
 }
 
@@ -248,7 +259,7 @@ function parseBody(
   if (root.input === undefined) fail("input", "is required");
   const o = record(root.input, "input", ["name", "echoes", "languages", "first"], fail);
   const echoes = list(o.echoes, "input.echoes", fail).map((e, i) =>
-    echo(e, `input.echoes.${i}`, fail),
+    echo(e, `input.echoes.${i}`, fail, true),
   );
   if (echoes.length === 0) fail("input.echoes", "must have at least one echo");
   unique(

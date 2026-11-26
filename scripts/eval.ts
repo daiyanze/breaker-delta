@@ -19,7 +19,7 @@
  * when a prompt has no cases or no provider with a key, so a prompt PR whose
  * eval could not run is red; 2 on a bad case or providers file.
  *
- * Only numbers, case counts, prompt versions and provider names leave this
+ * Only numbers, case counts, failure kinds, case ids, prompt versions and provider names leave this
  * script. The model's answers can quote fetched text, and the report is
  * posted on a PR that a coding session reads (invariant 6), so no answer,
  * no case text and no chain error message (it may quote an answer) is
@@ -34,8 +34,11 @@ import { validateDraft } from "../apps/pipeline/src/core/validate.ts";
 import type { AssignResult, SummarizeResult } from "../packages/contracts/src/index.ts";
 import { type Provider, ProviderSchema } from "../packages/contracts/src/index.ts";
 import {
+  ChainExhaustedError,
   type ChainResult,
   chainDriver,
+  FAILURE_KINDS,
+  type FailureKind,
   PROMPTS,
   type Prompts,
   type ResolvedProvider,
@@ -75,6 +78,12 @@ export interface Metrics {
   fallback: Ratio;
   /** assign only, when cases have labels: labelled echoes placed as the owner did. */
   agreement?: Ratio;
+  /**
+   * The cases with no answer, by why the chain's last provider failed
+   * (`FailureKind`): case ids only, never an error message, answer or case
+   * text. Only kinds that occurred are present.
+   */
+  unanswered: Partial<Record<FailureKind, string[]>>;
 }
 
 export type TaskResult =
@@ -115,14 +124,29 @@ const ratio = (n: number, of: number): Ratio => ({ n, of });
 /**
  * One case through the chain as the pipeline calls it (`chainDriver`: the
  * same contract check and repair message). Null when the chain is
- * exhausted; its error may quote an answer, so only the miss counts.
+ * exhausted; its error may quote an answer, so only the kind of the last
+ * provider's failure is kept, under the case id, in `misses`.
  */
-async function ask<T>(call: () => Promise<ChainResult<T>>): Promise<ChainResult<T> | null> {
+async function ask<T>(
+  id: string,
+  misses: Metrics["unanswered"],
+  call: () => Promise<ChainResult<T>>,
+): Promise<ChainResult<T> | null> {
   try {
     return await call();
-  } catch {
+  } catch (err) {
+    const kind: FailureKind =
+      err instanceof ChainExhaustedError ? (err.attempts.at(-1)?.kind ?? "other") : "other";
+    misses[kind] = [...(misses[kind] ?? []), id];
     return null;
   }
+}
+
+/** The kinds in `FAILURE_KINDS` order, so a result reads the same each run. */
+function ordered(misses: Metrics["unanswered"]): Metrics["unanswered"] {
+  const out: Metrics["unanswered"] = {};
+  for (const k of FAILURE_KINDS) if (misses[k]) out[k] = misses[k];
+  return out;
 }
 
 /** A prompt for the task a driver is not used for here. */
@@ -156,12 +180,13 @@ async function evalAssign(
     fetchImpl ? { fetch: fetchImpl } : {},
   );
   const answers: (ChainResult<AssignResult> | null)[] = [];
+  const misses: Metrics["unanswered"] = {};
   let echoes = 0;
   let kept = 0;
   let labelled = 0;
   let agreed = 0;
   for (const c of cases) {
-    const answer = await ask(() => driver.assign(c.input));
+    const answer = await ask(c.id, misses, () => driver.assign(c.input));
     answers.push(answer);
     echoes += c.input.echoes.length;
     const { placements } = answer
@@ -181,6 +206,7 @@ async function evalAssign(
   const metrics: Metrics = {
     ...chainCounts(answers, chain[0]?.name ?? ""),
     citations: ratio(kept, echoes),
+    unanswered: ordered(misses),
   };
   if (labelled > 0) metrics.agreement = ratio(agreed, labelled);
   return metrics;
@@ -202,11 +228,12 @@ async function evalSummarize(
     fetchImpl ? { fetch: fetchImpl } : {},
   );
   const answers: (ChainResult<SummarizeResult> | null)[] = [];
+  const misses: Metrics["unanswered"] = {};
   let cited = 0;
   let complete = 0;
   let publishable = 0;
   for (const c of cases) {
-    const answer = await ask(() => driver.summarize(c.input));
+    const answer = await ask(c.id, misses, () => driver.summarize(c.input));
     answers.push(answer);
     if (!answer) continue;
     const offered = c.input.echoes.map((e) => e.id);
@@ -225,9 +252,10 @@ async function evalSummarize(
         provider: answer.provider,
         model: answer.model,
         answer: answer.value,
-        // A case holds no enrich pages, so the draft read no source text.
-        sourceTextRead: false,
+        // As the summarize step sets it: an offered echo came with its page.
+        sourceTextRead: c.input.echoes.some((e) => e.page !== undefined),
       },
+      // As the validate step's `referenceText`: titles and excerpts, not pages.
       c.input.echoes.flatMap((e) => [e.title, e.summary ?? ""]).join("\n"),
     );
     if (verdict.ok) publishable++;
@@ -239,6 +267,7 @@ async function evalSummarize(
     citations: ratio(cited, n),
     languages: ratio(complete, n),
     publishable: ratio(publishable, n),
+    unanswered: ordered(misses),
   };
 }
 
@@ -322,6 +351,19 @@ export function report(result: EvalResult): string {
     for (const t of ran) {
       lines.push(
         `- ${t.task} chain: ${t.providers.map((p) => `${p.name} \`${p.model}\``).join(", ")}`,
+      );
+    }
+    for (const t of ran) {
+      const kinds = Object.entries(t.metrics.unanswered);
+      lines.push(
+        kinds.length === 0
+          ? `- ${t.task} unanswered: none`
+          : `- ${t.task} unanswered, by why the last provider failed: ${kinds
+              .map(
+                ([kind, ids]) =>
+                  `\`${kind}\` ${ids.length} (${ids.map((id) => `\`${id}\``).join(", ")})`,
+              )
+              .join("; ")}`,
       );
     }
     lines.push("");

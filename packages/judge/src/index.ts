@@ -10,6 +10,7 @@ import {
   SummarizeResultSchema,
 } from "@bd/contracts";
 import type { AssignInput, ModelDriver, SummarizeInput } from "./driver.ts";
+import type { Prompts } from "./prompts.ts";
 
 export interface ResolvedProvider {
   name: string;
@@ -69,9 +70,72 @@ export interface ChainResult<T> {
   calls: ModelCall[];
 }
 
+/**
+ * Why one provider of a chain gave no valid answer, from a fixed list, so it
+ * can be counted and shown without the error text (which may quote an
+ * answer):
+ *
+ * - `http-429`, `http-4xx`, `http-5xx`: the provider answered with that HTTP
+ *   status (`http-4xx` is every other 4xx, `http-5xx` every 5xx);
+ * - `timeout`: no response within the chain's timeout;
+ * - `network`: the request failed before any response (DNS, TLS, refused);
+ * - `empty`: a response with no completion text;
+ * - `not-json`: the repaired answer was not JSON (the first one was invalid too);
+ * - `schema`: the repaired answer was JSON but did not fit the contract;
+ * - `other`: anything else (an HTTP status outside 4xx/5xx, an unknown error).
+ */
+export const FAILURE_KINDS = [
+  "http-429",
+  "http-4xx",
+  "http-5xx",
+  "timeout",
+  "network",
+  "empty",
+  "not-json",
+  "schema",
+  "other",
+] as const;
+export type FailureKind = (typeof FAILURE_KINDS)[number];
+
 export interface Attempt {
   provider: string;
   error: string;
+  /** The error's kind; never text from the answer. */
+  kind: FailureKind;
+}
+
+/** An HTTP error status from a provider. */
+export class HttpStatusError extends Error {
+  readonly status: number;
+  constructor(status: number) {
+    super(`HTTP ${status}`);
+    this.name = "HttpStatusError";
+    this.status = status;
+  }
+}
+
+/** No completion text in a response. */
+class EmptyCompletionError extends Error {
+  constructor() {
+    super("empty completion");
+    this.name = "EmptyCompletionError";
+  }
+}
+
+/** The kind of a transport or HTTP error thrown by one completion request. */
+export function failureKind(err: unknown): FailureKind {
+  if (err instanceof HttpStatusError) {
+    if (err.status === 429) return "http-429";
+    if (err.status >= 400 && err.status < 500) return "http-4xx";
+    if (err.status >= 500 && err.status < 600) return "http-5xx";
+    return "other";
+  }
+  if (err instanceof EmptyCompletionError) return "empty";
+  const name = (err as { name?: unknown } | null)?.name;
+  if (name === "TimeoutError" || name === "AbortError") return "timeout";
+  // fetch rejects with a TypeError when no response arrives at all.
+  if (err instanceof TypeError) return "network";
+  return "other";
 }
 
 export class ChainExhaustedError extends Error {
@@ -151,14 +215,20 @@ export async function callChain<T>(
         record("error");
         throw err;
       });
-      const v2 = validate(parseJson(second.content));
+      const json2 = parseJson(second.content);
+      const v2 = validate(json2);
       record(v2.ok ? "ok" : "invalid", second.usage);
       if (v2.ok) return done(v2.value, true);
-      attempts.push({ provider: provider.name, error: `invalid after repair: ${v2.error}` });
+      attempts.push({
+        provider: provider.name,
+        error: `invalid after repair: ${v2.error}`,
+        kind: json2 === undefined ? "not-json" : "schema",
+      });
     } catch (err) {
       attempts.push({
         provider: provider.name,
         error: err instanceof Error ? err.message : String(err),
+        kind: failureKind(err),
       });
     }
   }
@@ -198,25 +268,25 @@ async function complete(
     body: JSON.stringify({ model: provider.model, messages, temperature: 0 }),
     signal: AbortSignal.timeout(options.timeoutMs ?? 60_000),
   });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) throw new HttpStatusError(res.status);
   const data = (await res.json()) as {
     choices?: { message?: { content?: unknown } }[];
     usage?: unknown;
   };
   const content = data.choices?.[0]?.message?.content;
-  if (typeof content !== "string" || content.length === 0) throw new Error("empty completion");
+  if (typeof content !== "string" || content.length === 0) throw new EmptyCompletionError();
   return { content, usage: readUsage(data.usage) };
 }
 
 /**
- * The messages a chain sends for each task. No prompt ships with this
- * package yet: the assign prompt is #43 (M2-02) and the summarize prompt
- * #44 (M2-03), each with an eval. Fetched text goes into these tool-less
- * calls only as data (invariant 6).
+ * The messages a chain sends for each task; the shipped ones are `PROMPTS`
+ * (`prompts.ts`). A task without one has no prompt: a driver over it fails
+ * that task's calls, and the pipeline skips its step (`runModel`). Fetched
+ * text goes into these tool-less calls only as data (invariant 6).
  */
 export interface DriverPrompts {
-  assign(input: AssignInput): ChatMessage[];
-  summarize(input: SummarizeInput): ChatMessage[];
+  assign?(input: AssignInput): ChatMessage[];
+  summarize?(input: SummarizeInput): ChatMessage[];
   /**
    * Each task's prompt version, recorded with every call and summary (ADR
    * 0005, #48). A task without one is recorded as unversioned (null).
@@ -265,17 +335,44 @@ export function chainDriver(
 ): ModelDriver {
   const versioned = (version: string | undefined): ChainOptions =>
     version === undefined ? options : { ...options, promptVersion: version };
+  const missing = (task: string) => Promise.reject(new Error(`no ${task} prompt`));
   return {
     assign: (input) =>
-      callChain(providers, prompts.assign(input), validAssign, versioned(prompts.versions?.assign)),
+      prompts.assign
+        ? callChain(
+            providers,
+            prompts.assign(input),
+            validAssign,
+            versioned(prompts.versions?.assign),
+          )
+        : missing("assign"),
     summarize: (input) =>
-      callChain(
-        providers,
-        prompts.summarize(input),
-        validSummarize,
-        versioned(prompts.versions?.summarize),
-      ),
+      prompts.summarize
+        ? callChain(
+            providers,
+            prompts.summarize(input),
+            validSummarize,
+            versioned(prompts.versions?.summarize),
+          )
+        : missing("summarize"),
   };
+}
+
+/** `Prompts` (one per task, each with its version) as a chain driver's prompts. */
+export function driverPrompts(prompts: Prompts): DriverPrompts {
+  const versions: NonNullable<DriverPrompts["versions"]> = {};
+  const out: DriverPrompts = { versions };
+  if (prompts.assign) {
+    const p = prompts.assign;
+    out.assign = (input) => p.messages(input);
+    versions.assign = p.version;
+  }
+  if (prompts.summarize) {
+    const p = prompts.summarize;
+    out.summarize = (input) => p.messages(input);
+    versions.summarize = p.version;
+  }
+  return out;
 }
 
 /** Accepts bare JSON or JSON wrapped in a Markdown code fence. */
@@ -292,3 +389,4 @@ export function parseJson(text: string): unknown {
 export * from "./driver.ts";
 export * from "./fake.ts";
 export * from "./prompts.ts";
+export * from "./summarize-prompt.ts";
