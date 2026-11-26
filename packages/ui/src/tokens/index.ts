@@ -8,7 +8,7 @@
  * Themes: the system's choice by default, and `<html data-theme="light|dark">`
  * overrides it either way.
  */
-import { PHONE } from "./supplement.ts";
+import { CONTROL, ICON, PHONE } from "./supplement.ts";
 import {
   COLORS,
   type ColorToken,
@@ -25,7 +25,7 @@ import {
 } from "./tokens.gen.ts";
 
 export { FONT_FILES, type FontFile, fontFaceCss } from "./fonts.ts";
-export { CONTROL, PHONE, TWO_COLUMNS_FROM } from "./supplement.ts";
+export { CONTROL, ICON, PHONE, TWO_COLUMNS_FROM } from "./supplement.ts";
 export type {
   ColorToken,
   FontFamily,
@@ -109,8 +109,10 @@ function staticVars(): string {
   for (const group of [SPACING, RADII, RULES]) {
     for (const [name, value] of Object.entries(group)) out.push(decl(name, value));
   }
-  // The phone values of `supplement.ts`, for the components' CSS files.
+  // The values of `supplement.ts`, for the components' CSS files.
   for (const [name, v] of Object.entries(PHONE)) out.push(decl(`phone-${kebab(name)}`, v.value));
+  for (const [name, v] of Object.entries(CONTROL)) out.push(decl(`control-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(ICON)) out.push(decl(`icon-${kebab(name)}`, v));
   return out.join("");
 }
 
