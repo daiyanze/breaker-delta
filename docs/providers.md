@@ -184,7 +184,7 @@ owner on 2026-11-23.
 | Workers AI | `CF_AI_TOKEN` | An account-owned Cloudflare token with Workers AI permissions only. It is a separate token from the agent's operations token (ADR 0019) and from CI's deploy token, so each can be revoked on its own. Base URL: `https://api.cloudflare.com/client/v4/accounts/<account id>/ai/v1`. |
 | Groq | `GROQ_API_KEY` | https://console.groq.com/keys |
 | Gemini | `GEMINI_API_KEY` | Google AI Studio, in a Google Cloud project used only for Breaker Delta, so its quota is not shared. |
-| OpenCode Go (eval only) | `OPENCODE_GO_API_KEY` | The owner's OpenCode Go subscription. Base URL: `https://opencode.ai/inference/go/openai/v1` (chat completions). The model list, with each model's API, price and data terms, is public at `https://opencode.ai/zen/go/v1/models`; it lists `deepseek-v4.1-flash` with `training: false` (read 2026-11-26). |
+| OpenCode Go (eval only) | `OPENCODE_GO_API_KEY` | The owner's OpenCode Go subscription. Added 2026-11-26, after the confirmation above: the agent proposed the key name and the owner set it in the `evals` environment under that name; the base URL is the agent's reading of OpenCode's model list, not reviewed. Base URL: `https://opencode.ai/inference/go/openai/v1` (chat completions). The model list, with each model's API, price and data terms, is public at `https://opencode.ai/zen/go/v1/models`; it lists `deepseek-v4.1-flash` with `training: false` (read 2026-11-26). |
 
 ## Verification (#15)
 
