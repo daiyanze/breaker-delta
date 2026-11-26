@@ -15,7 +15,13 @@ import type { ChainResult } from "./index.ts";
 export interface DriverEcho {
   id: string;
   title: string;
+  /** The echo's excerpt, as its source gave it. */
   summary?: string;
+  /**
+   * The text of the echo's page, when the enrich step read it (#45).
+   * Summarize only; fetched content, so a prompt puts it in as data.
+   */
+  page?: string;
 }
 
 /** One shortlisted topic the assign step offers. */

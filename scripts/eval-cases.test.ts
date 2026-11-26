@@ -29,6 +29,43 @@ describe("the committed cases", () => {
   });
 });
 
+describe("an echo's page text (#45)", () => {
+  const summarize = (page: unknown) => ({
+    synthetic: true,
+    input: {
+      name: "n",
+      echoes: [{ id: "e1", title: "t", summary: "excerpt", page }],
+      languages: ["en"],
+      first: true,
+    },
+  });
+
+  test("a summarize echo may carry the page text the step gave the model", () => {
+    expect(parseCase("summarize", "s1", summarize("the page")).input.echoes).toEqual([
+      { id: "e1", title: "t", summary: "excerpt", page: "the page" },
+    ]);
+  });
+
+  test("an assign echo may not: assign is never given pages", () => {
+    const withPage = {
+      synthetic: true,
+      input: { echoes: [{ id: "e1", title: "t", page: "p" }], topics: [] },
+    };
+    expect(() => parseCase("assign", "a1", withPage)).toThrow(
+      "input.echoes.0.page: is not part of the case format",
+    );
+  });
+
+  test("a synthetic page is value-checked like every string, and must not be empty", () => {
+    expect(() => parseCase("summarize", "s1", summarize("read more at www.example.test"))).toThrow(
+      "input.echoes.0.page: looks like a URL",
+    );
+    expect(() => parseCase("summarize", "s1", summarize(""))).toThrow(
+      "input.echoes.0.page: must be a non-empty string",
+    );
+  });
+});
+
 describe("a case's origin", () => {
   test("is synthetic or frozen from a slot, exactly one", () => {
     expect(parseCase("assign", "c1", { synthetic: true, input }).synthetic).toBe(true);

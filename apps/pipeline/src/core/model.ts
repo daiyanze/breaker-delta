@@ -5,12 +5,12 @@
  *
  * - unset or empty: the provider chains from settings (ADR 0005, 0008),
  *   `assignProviders` for assign and `summarizeProviders` for summarize, each
- *   its own chain, sent the prompts in `PipelineConfig.prompts` (the
- *   shipped `PROMPTS` of `@bd/judge`). A task has no model when its chain
- *   is empty or when it has no prompt: its step is skipped (no call is
- *   made) and the rest of the run goes on, so compute still writes the
- *   board. The chains default to empty. The assign prompt ships (#43); the
- *   summarize prompt is #44, so until then summarize is always skipped.
+ *   its own chain, sent the prompts in `PipelineConfig.prompts`. A task has
+ *   no model when its chain is empty or when it has no prompt: its step is
+ *   skipped (no call is made) and the rest of the run goes on, so compute
+ *   still writes the board. The chains default to empty, so no provider is
+ *   called until the owner sets one. The prompts are the shipped `PROMPTS`
+ *   (`pipelineConfig`): assign (#43) and summarize (#44).
  * - `fake`: the deterministic fake from `@bd/judge` (#31) for both tasks,
  *   whatever the chains say, for local mode, verify-local and previews. Its
  *   texts are marked as fake.
@@ -103,8 +103,8 @@ export function resolveProviders(
 
 /**
  * The model for one run. With chains, a task whose chain in settings is
- * empty gets null (skipped), and so does a task with no prompt (every task
- * while `prompts` is null). One whose providers all lack their key gets a
+ * empty gets null (skipped), and so does a task with no prompt in `prompts`
+ * (every task while `prompts` is null). One whose providers all lack their key gets a
  * driver over an empty chain, so its calls fail and its echoes or waves wait
  * for a later run: it was configured, so it is not skipped.
  */

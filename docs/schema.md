@@ -112,8 +112,8 @@ worded per language by the site. `writer` is the provider name from
 settings; `model` is that provider's model and `prompt_version` the
 version of the summarize prompt it was sent (ADR 0005, #48), so a summary
 can be traced to its origin. Both are null on rows written before #48, and
-`prompt_version` is null while the prompt has no version (none ships yet,
-#44). The commit step copies all three from the draft, for discarded rows
+`prompt_version` is null for a writer with no prompt version (the fake
+model); the shipped summarize prompt is `summarize-v1` (#44). The commit step copies all three from the draft, for discarded rows
 too. `unverified` is the fact gate's label (ADR 0006, #47);
 `source_text_read` is false when enrich could not fetch the sources (#45).
 `risk_flags` is the model's flags as JSON.
@@ -174,8 +174,8 @@ board shows a wave whose summary is still queued (owner's decision,
 first summary, which proposed it. Never edited; it stays when its summary is
 withdrawn (ADR 0006).
 `lang` is the first of the languages the summary was asked to write. The
-summarize call does not yet ask for the criterion in a given language, so
-the criterion may be in another one; asking for it in `lang` is left to M2.
+summarize prompt (`summarize-v1`, #44) asks for the criterion in that
+language; nothing checks that the model did.
 `registered_at` is the slot's start and
 `due_at` is `reviewWindowDays` later. The commit step never writes a version 1
 without this row: both, and the `wave_formed` event, are one batch.

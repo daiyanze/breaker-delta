@@ -5,7 +5,8 @@
  * task while no prompts are given, is skipped and the board still updates.
  *
  * These tests inject `PROMPTS`: the input as JSON, which the stand-in
- * endpoint reads back. It is not the shipped prompt (#43); one test runs
+ * endpoint reads back. It is not a real prompt; `assign-v1` and
+ * `summarize-v1` are tested in `packages/judge/src/`. One test runs assign
  * with the shipped prompts as `pipelineConfig` gives them.
  *
  * The runs use the recorded fixture sources and a stand-in model endpoint
@@ -22,6 +23,7 @@ import {
   type DriverPrompts,
   fakeAssign,
   fakeSummarize,
+  PROMPTS as SHIPPED,
   type SummarizeInput,
 } from "@bd/judge";
 import { createPipeline, pipelineConfig } from "../src/core/app.ts";
@@ -126,13 +128,23 @@ describe("runModel", () => {
     expect(runModel(null, chains, none, fetch)).toEqual({ assign: null, summarize: null });
   });
 
-  test("a task with no prompt gets no model, whatever its chain holds", () => {
+  test("each task gets a model only when it has its own prompt, whatever the other has", () => {
     const chains = { assignProviders: [provider("a")], summarizeProviders: [provider("b")] };
-    const m = runModel(null, chains, none, fetch, {
-      assign: (input) => [{ role: "user", content: JSON.stringify(input) }],
-    });
+    const asJson = (input: unknown) => [{ role: "user" as const, content: JSON.stringify(input) }];
+    const summarizeOnly = runModel(null, chains, none, fetch, { summarize: asJson });
+    expect(summarizeOnly.assign).toBeNull();
+    expect(summarizeOnly.summarize).not.toBeNull();
+    const assignOnly = runModel(null, chains, none, fetch, { assign: asJson });
+    expect(assignOnly.assign).not.toBeNull();
+    expect(assignOnly.summarize).toBeNull();
+  });
+
+  test("with the shipped prompts both tasks get a model", () => {
+    const chains = { assignProviders: [provider("a")], summarizeProviders: [provider("b")] };
+    const m = runModel(null, chains, none, fetch, pipelineConfig({}).prompts ?? null);
     expect(m.assign).not.toBeNull();
-    expect(m.summarize).toBeNull();
+    expect(m.summarize).not.toBeNull();
+    expect(SHIPPED.assign?.version).toBe("assign-v1");
   });
 
   test("each task gets a model only when its own chain has providers", () => {
@@ -306,11 +318,13 @@ describe("a run with chains from settings", () => {
     expect(t.count("SELECT count(*) AS n FROM wave_points WHERE slot = ?", SLOT_2)).toBe(points1);
   });
 
-  test("with the shipped prompts assign calls its chain at assign-v1; summarize, with no prompt yet, is skipped", async () => {
+  test("with the shipped prompts assign calls its chain at assign-v1", async () => {
     const t = setup();
+    // Summarize's chain is empty, so its step is skipped: this test is about
+    // the shipped assign prompt (summarize-v1 is tested in packages/judge).
     await changeSettings(t.orm, NOW - 1, {
       assignProviders: [provider("assign", "ASSIGN_KEY")],
-      summarizeProviders: [provider("summarize", "SUMMARIZE_KEY")],
+      summarizeProviders: [],
     });
     expect(await t.pipeline(undefined, "shipped").tick()).toMatchObject({
       slot: SLOT,
@@ -333,7 +347,7 @@ describe("a run with chains from settings", () => {
       assignProviders: [provider("assign", "ASSIGN_KEY")],
       summarizeProviders: [provider("summarize", "SUMMARIZE_KEY")],
     });
-    expect(await t.pipeline(undefined, null).tick()).toMatchObject({ slot: SLOT, status: "done" });
+    expect(await t.pipeline(undefined, {}).tick()).toMatchObject({ slot: SLOT, status: "done" });
     expect(t.model.calls).toEqual([]);
     expect(t.output<AssignOutput>(SLOT, "assign").skipped).toBe(true);
     expect(t.output<SummarizeOutput>(SLOT, "summarize").skipped).toBe(true);

@@ -43,7 +43,6 @@ bun scripts/verify-local.ts down
 ```
 
 **Edges.** A verify-local tick does not call the bridge: verify-local runs
-with the fake model. Outside it, the assign prompt has shipped since #43,
-so a bridge in the assign chain is called; summarize waits for #44. A run
-through the bridge is shown by `scripts/local-bridge.test.ts` with stand-in
-prompts.
+with the fake model. Outside it, both prompts have shipped (assign #43,
+summarize #44), so a bridge in either chain is called. A run through the
+bridge is shown by `scripts/local-bridge.test.ts` with stand-in prompts.

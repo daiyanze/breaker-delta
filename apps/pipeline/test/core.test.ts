@@ -1,5 +1,6 @@
 /** The app core, run on the bun:sqlite Database adapter. */
 import { describe, expect, test } from "bun:test";
+import { PROMPTS, SUMMARIZE_PROMPT } from "@bd/judge";
 import { createPipeline, type PipelinePorts, pipelineConfig } from "../src/core/app.ts";
 import { memoryBlobs, migratedDatabase, NOW, SLOT } from "./helpers.ts";
 
@@ -25,25 +26,33 @@ const get = (path: string, token?: string) =>
   });
 
 describe("pipeline config", () => {
-  test("holds the probe token and the model driver; behaviour comes from settings", () => {
-    const pick = (c: ReturnType<typeof pipelineConfig>) => ({
-      probeToken: c.probeToken,
-      model: c.model,
-    });
-    expect(pick(pipelineConfig({}))).toEqual({ probeToken: null, model: null });
-    expect(pick(pipelineConfig({ PROBE_TOKEN: "t" }))).toEqual({ probeToken: "t", model: null });
-    expect(pick(pipelineConfig({ MODEL_DRIVER: "" }))).toEqual({ probeToken: null, model: null });
-    expect(pick(pipelineConfig({ MODEL_DRIVER: "fake" }))).toEqual({
-      probeToken: null,
-      model: "fake",
-    });
+  test("holds the tokens and the model driver; behaviour comes from settings", () => {
+    const without = (vars: Parameters<typeof pipelineConfig>[0]) => {
+      const { prompts: _, ...rest } = pipelineConfig(vars);
+      return rest;
+    };
+    const none = { probeToken: null, reportToken: null, model: null };
+    expect(without({})).toEqual(none);
+    expect(without({ PROBE_TOKEN: "t" })).toEqual({ ...none, probeToken: "t" });
+    expect(without({ REPORT_TOKEN: "r" })).toEqual({ ...none, reportToken: "r" });
+    expect(without({ REPORT_TOKEN: "" })).toEqual(none);
+    expect(without({ MODEL_DRIVER: "" })).toEqual(none);
+    expect(without({ MODEL_DRIVER: "fake" })).toEqual({ ...none, model: "fake" });
   });
 
-  test("sends the shipped prompts: assign at its version, no summarize yet (#43, #44)", () => {
+  test("hands the shipped prompts to the chains: assign-v1 and summarize-v1", () => {
     const { prompts } = pipelineConfig({});
-    expect(prompts?.versions).toEqual({ assign: "assign-v1" });
-    expect(prompts?.assign?.({ echoes: [], topics: [] })[0]?.role).toBe("system");
-    expect(prompts?.summarize).toBeUndefined();
+    expect(prompts?.versions).toEqual({ assign: "assign-v1", summarize: "summarize-v1" });
+    expect(prompts?.assign?.({ echoes: [], topics: [] })).toEqual(
+      PROMPTS.assign?.messages({ echoes: [], topics: [] }),
+    );
+    const input = {
+      name: "n",
+      echoes: [{ id: "e1", title: "t" }],
+      languages: ["en" as const],
+      first: true,
+    };
+    expect(prompts?.summarize?.(input)).toEqual(SUMMARIZE_PROMPT.messages(input));
   });
 
   test("an unknown MODEL_DRIVER is refused, not run without a model", () => {

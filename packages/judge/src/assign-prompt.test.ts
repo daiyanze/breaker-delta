@@ -2,8 +2,8 @@
 import { describe, expect, test } from "bun:test";
 import { ASSIGN_PROMPT } from "./assign-prompt.ts";
 import type { AssignInput } from "./driver.ts";
-import { chainDriver, type ResolvedProvider } from "./index.ts";
-import { driverPrompts, PROMPTS } from "./prompts.ts";
+import { chainDriver, driverPrompts, type ResolvedProvider } from "./index.ts";
+import { PROMPTS } from "./prompts.ts";
 
 const INPUT: AssignInput = {
   echoes: [
