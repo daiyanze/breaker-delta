@@ -4,6 +4,24 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L27 Run an acceptance criterion before writing it into a plan
+
+- **Date:** 2026-11-26. **Status:** active.
+- **What happened:** the plan in #262 (ADR 0020) had three criteria that
+  could not pass as written: a `find` over `apps` for `.css` files in an
+  issue that itself writes one there; "the existing tests pass" against
+  output a probe had already shown to differ; and an executable "shown with
+  the verify-local procedure", which only drives the launcher from source.
+  The challenge rounds read the shape, not the criteria; review round 1
+  found each by running it. Round 2 found more of the same kind (a
+  criterion already true before any work, a script with no path).
+- **Rule:** A criterion that names a command or a procedure is run before it
+  is written: against today's tree, and against what the issue itself will
+  produce. A criterion that names a procedure says what that procedure
+  drives, and one that is already true today is not a criterion.
+- **Scope:** `docs/plans/*.yaml`, issue bodies, acceptance criteria in ADRs.
+- **Evidence:** review rounds 1 and 2 on #262; fixed in the same PR.
+
 ## L25 Say what a change does under the default run, not only under verify-local
 
 - **Date:** 2026-11-25. **Status:** active.
@@ -179,7 +197,13 @@ Each rule applies only within its scope.
   were "chosen by the owner". `docs/settings.md` said every default was the
   owner's, including one the agent had only proposed and others nobody had
   reviewed. The PR description said so; the docs did not. The review caught
-  it. It is L5 again, in documents instead of code.
+  it. It is L5 again, in documents instead of code. It happened again in
+  #262: the owner asked whether React libraries stay usable, and ADR 0020
+  wrote that the owner "asked to keep [it] open" and allowed a React
+  library per island, against ADR 0015, with no row in its own "Who
+  decided what" table. A sentence that says the owner asked for or decided
+  something now points at its row there, and a question is recorded as a
+  question.
 - **Rule:** In a decision record, mark every value as the owner's decision
   (with the date), the agent's proposal, or inherited and unreviewed. Never
   widen an owner's decision when writing it down. A PR closes a decision
