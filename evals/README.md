@@ -179,7 +179,7 @@ in `packages/judge/src/index.ts` (`FAILURE_KINDS`):
 
 Then, for each unanswered case, why every provider the chain tried failed,
 in chain order (`tried` in the JSON), for example
-`` `k2` (gemini `http-503`, groq `http-429`, opencode-go `http-400`) ``.
+`` `k2` (gemini `http-503`, groq `http-429`) ``.
 
 HTTP statuses, `timeout`, `network` and `empty` are provider errors;
 `not-json` and `schema` are the prompt's or the model's. Only the failure,
@@ -207,10 +207,10 @@ marker). A shipped prompt it could not evaluate, or a task below the
 contract floor, fails the job (the job runs the default floor).
 
 The owner sets up once: in the GitHub environment `evals`, the secrets
-`GROQ_API_KEY`, `GEMINI_API_KEY` and `OPENCODE_GO_API_KEY` (the keys in
-`docs/providers.md`; one is enough, the chain skips a provider without its
-key). No required reviewers.
+`GROQ_API_KEY` and `GEMINI_API_KEY` (the keys in `docs/providers.md`; one
+is enough, the chain skips a provider without its key). No required reviewers.
 The chains in `providers.json` are the agent's proposal (#50), not
 reviewed: the hosted chains of `docs/providers.md` in the same order, without
-Workers AI, whose base URL holds the account id. OpenCode Go is last in both
-chains, as the eval's fallback only (owner's decision, 2026-11-26).
+Workers AI, whose base URL holds the account id. OpenCode Go was in both
+chains for a day and is removed (owner's decision, 2026-11-26,
+`docs/providers.md`).
