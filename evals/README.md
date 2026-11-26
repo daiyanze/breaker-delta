@@ -116,13 +116,31 @@ could not place are left out, and batch boundaries can shift.
 ## Running
 
 ```sh
-bun scripts/eval.ts [--cases evals/cases] [--report eval.md] [--json eval.json]
+bun scripts/eval.ts [--cases evals/cases] [--report eval.md] [--json eval.json] [--min-contract 0.5]
 ```
 
 Keys come from the environment by the names in `providers.json`
 (`apiKeyRef`), as the pipeline reads them; a provider without its key is
-left out. Exit 0 when every shipped prompt was evaluated, 1 when one has no
-cases or no provider with a key, 2 on a bad case or providers file.
+left out.
+
+**Contract floor.** An evaluated task whose contract rate (answers that fit
+the contract, of its cases) is below `--min-contract` fails the run. The
+default is 0.5, the owner's floor of 3/6, and it applies to every task.
+Rounded up to whole cases: 6 cases need at least 3, and assign's 7 cases
+need at least 4 (3/7 fails). The value is a plain decimal from 0 to 1;
+anything else is refused with exit 2, as is a malformed command line (a
+missing value, an unknown option, or `--min-contract -0.5`, which the
+argument parser reads as an option). A task with no cases or no provider
+key is reported as not evaluated, as before, and the floor does not apply
+to it. The report says, per task below the floor, its count and the count
+it needed (`contract 3/7 is below the floor of 0.5 (at least 4/7)`), and
+the JSON holds the floor used (`minContract`). The floor is a flag of the
+eval script, not a pipeline setting: the eval reads no `settings` table.
+
+Exit 0 when every shipped prompt was evaluated and none is below the
+contract floor; 1 when one has no cases or no provider with a key, or when
+an evaluated task is below the floor; 2 on a bad case or providers file or
+a bad `--min-contract`.
 
 ## Metrics
 
@@ -138,15 +156,20 @@ Automatic, per task. Each is printed as a count out of a total:
 | fallback | answers from a provider other than the chain's first, of answers | same |
 | agreement | labelled echoes placed as labelled, when cases have labels | - |
 
-**Unanswered cases** (contract misses), per task, are listed by why the
-chain's last provider failed, one kind from a fixed list (`FAILURE_KINDS`
-in `packages/judge/src/index.ts`), with the ids of the cases:
+**Answered by**, per task: every provider of the chain, in chain order,
+with the number of cases it answered (0 for one that answered none). For
+each provider after the first, the report also lists the ids of those
+cases; the JSON has the ids for every provider (`answeredBy`).
 
-| kind | the last provider |
+**Unanswered cases** (contract misses), per task, are listed by why the
+chain's last provider failed, with the ids of the cases. A provider that
+answered with an HTTP error status is shown by its exact status
+(`http-503`, `http-429`); any other failure by its kind from the fixed list
+in `packages/judge/src/index.ts` (`FAILURE_KINDS`):
+
+| failure | the provider |
 | --- | --- |
-| `http-429` | answered HTTP 429 (rate limit) |
-| `http-4xx` | answered another 4xx |
-| `http-5xx` | answered a 5xx |
+| `http-<status>` | answered that HTTP error status (`http-429` is a rate limit) |
 | `timeout` | gave no response within the timeout |
 | `network` | failed before any response |
 | `empty` | answered with no completion text |
@@ -154,15 +177,23 @@ in `packages/judge/src/index.ts`), with the ids of the cases:
 | `schema` | answered JSON, and after the one repair still off the contract |
 | `other` | failed some other way |
 
-The HTTP kinds, `timeout`, `network` and `empty` are provider errors;
-`not-json` and `schema` are the prompt's or the model's. Only the kind
-and the case id are kept: case ids are file names (hand-written for
-committed cases, slot and topic id for frozen ones), never fetched text.
+Then, for each unanswered case, why every provider the chain tried failed,
+in chain order (`tried` in the JSON), for example
+`` `k2` (gemini `http-503`, groq `http-429`, opencode-go `http-400`) ``.
 
-The result holds numbers, kinds, case ids, prompt versions and provider
-names only. A model
-answer can quote fetched text and the comment is read by coding sessions,
-so no answer, case text or chain error is printed.
+HTTP statuses, `timeout`, `network` and `empty` are provider errors;
+`not-json` and `schema` are the prompt's or the model's. Only the failure,
+the provider name and the case id are kept: case ids are file names
+(hand-written for committed cases, slot and topic id for frozen ones),
+never fetched text.
+
+The result (the report and the JSON) holds only: the commit SHA, task
+names, counts and ratios (per-provider answer counts included), prompt
+versions, provider and model names, failures (kinds and HTTP status
+codes), case ids, and, when no provider has a key, the names (never the
+values) of the key variables to set. A model answer can quote fetched text
+and the comment is read by coding sessions, so no answer, case text or
+chain error is printed.
 
 Still by hand: spot checks of Chinese and Japanese readability.
 
@@ -172,7 +203,8 @@ Still by hand: spot checks of Chinese and Japanese readability.
 prompt, the judge, the eval or its cases, or the pipeline checks it scores
 with. It runs only for the owner's same-repository PRs, in the `evals`
 environment, and updates one comment on the PR (its bot's, found by a
-marker). A shipped prompt it could not evaluate fails the job.
+marker). A shipped prompt it could not evaluate, or a task below the
+contract floor, fails the job (the job runs the default floor).
 
 The owner sets up once: in the GitHub environment `evals`, the secrets
 `GROQ_API_KEY`, `GEMINI_API_KEY` and `OPENCODE_GO_API_KEY` (the keys in

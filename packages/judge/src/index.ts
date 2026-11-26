@@ -76,7 +76,8 @@ export interface ChainResult<T> {
  * answer):
  *
  * - `http-429`, `http-4xx`, `http-5xx`: the provider answered with that HTTP
- *   status (`http-4xx` is every other 4xx, `http-5xx` every 5xx);
+ *   status (`http-4xx` is every other 4xx, `http-5xx` every 5xx; the exact
+ *   status is on the attempt, `Attempt.status`);
  * - `timeout`: no response within the chain's timeout;
  * - `network`: the request failed before any response (DNS, TLS, refused);
  * - `empty`: a response with no completion text;
@@ -102,6 +103,8 @@ export interface Attempt {
   error: string;
   /** The error's kind; never text from the answer. */
   kind: FailureKind;
+  /** The HTTP status, when the provider answered with an error status (the `http-*` kinds). */
+  status?: number;
 }
 
 /** An HTTP error status from a provider. */
@@ -229,6 +232,7 @@ export async function callChain<T>(
         provider: provider.name,
         error: err instanceof Error ? err.message : String(err),
         kind: failureKind(err),
+        ...(err instanceof HttpStatusError ? { status: err.status } : {}),
       });
     }
   }
