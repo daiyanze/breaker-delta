@@ -24,7 +24,10 @@
  *   never become a link or an element wherever it is shown.
  *
  * The contract is strict (#46): an answer with a key it does not name, at
- * any level, fails `contract` rather than having the key dropped.
+ * any level, fails `contract` rather than having the key dropped. No real
+ * draft holds one: the chain checks answers against the same strict schema,
+ * so such an answer fails the summarize call (the wave is `failed`, no draft
+ * is written) before this step sees it.
  *
  * A draft that is missing from blob storage fails the step: the summarize
  * step said it was there. The output holds ids and check names only.

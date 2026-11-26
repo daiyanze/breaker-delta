@@ -99,7 +99,9 @@ describe("injection samples: no field outside the contract", () => {
   });
 
   for (const [name, edit] of EXTRA_FIELDS) {
-    test(`summarize: ${name} discards the draft`, () => {
+    // In a run the chain refuses such an answer first (packages/judge's
+    // summarize test), so no draft holds one; this pins validate's own check.
+    test(`summarize: ${name} fails validate's contract check`, () => {
       expect(validateDraft(draft(edit(good())), REF)).toEqual({ ok: false, check: "contract" });
     });
   }
