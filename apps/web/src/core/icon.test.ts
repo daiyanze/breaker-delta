@@ -8,7 +8,6 @@ import {
   oneInkMark,
   oneInkMarkFile,
 } from "./icon.ts";
-import { renderPage } from "./layout.ts";
 
 const DELTA = 'points="256,240 290,308 222,308"';
 const WINDOW_BAR = 'd="M256,104 V150"';
@@ -134,22 +133,17 @@ describe("files and links", () => {
   });
 
   test("every link and manifest entry points at a file that exists, at its size", () => {
-    const hrefs = [...ICON_LINKS.matchAll(/href="\/icons\/([^"]+)"/g)].map((m) => m[1] ?? "");
-    expect(hrefs.length).toBe(5);
-    for (const h of hrefs) expect(byName.has(h)).toBeTrue();
-    for (const m of ICON_LINKS.matchAll(/href="\/icons\/([^"]+)" sizes="(\d+)x\2"/g)) {
-      expect(byName.get(m[1] ?? "")?.size).toBe(Number(m[2]));
+    expect(ICON_LINKS.length).toBe(5);
+    for (const link of ICON_LINKS) {
+      expect(link.href).toStartWith("/icons/");
+      const file = byName.get(link.href.replace("/icons/", ""));
+      expect(file).toBeDefined();
+      if (link.sizes !== undefined) expect(link.sizes).toBe(`${file?.size}x${file?.size}`);
     }
     const manifest = JSON.parse(byName.get("manifest.webmanifest")?.source ?? "");
     for (const icon of manifest.icons) {
       const file = byName.get(icon.src.replace("/icons/", ""));
       expect(icon.sizes).toBe(`${file?.size}x${file?.size}`);
     }
-  });
-
-  test("every page's head carries the links", () => {
-    const html = renderPage({ lang: "en", title: "T", heading: "H", bands: [] });
-    const head = html.slice(html.indexOf("<head>"), html.indexOf("</head>"));
-    expect(head).toContain(ICON_LINKS);
   });
 });

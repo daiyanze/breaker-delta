@@ -305,11 +305,19 @@ export const ICON_FILES: readonly IconFile[] = [
   },
 ];
 
+/** One `<link>` in the `<head>`: its attributes. */
+export interface IconLink {
+  rel: "icon" | "apple-touch-icon" | "manifest";
+  href: string;
+  sizes?: string;
+  type?: string;
+}
+
 /** The `<head>` links that point browsers and home screens at the icons. */
-export const ICON_LINKS = [
-  '<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">',
-  '<link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">',
-  '<link rel="icon" href="/icons/favicon-16.png" sizes="16x16" type="image/png">',
-  '<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">',
-  '<link rel="manifest" href="/icons/manifest.webmanifest">',
-].join("\n");
+export const ICON_LINKS: readonly IconLink[] = [
+  { rel: "icon", href: "/icons/favicon.svg", type: "image/svg+xml" },
+  { rel: "icon", href: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+  { rel: "icon", href: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
+  { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+  { rel: "manifest", href: "/icons/manifest.webmanifest" },
+];
