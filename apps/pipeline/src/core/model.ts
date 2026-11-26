@@ -8,9 +8,10 @@
  *   its own chain, sent the prompts in `PipelineConfig.prompts`. A task has
  *   no model when its chain is empty or when there are no prompts: its step
  *   is skipped (no call is made) and the rest of the run goes on, so compute
- *   still writes the board. The chains default to empty, and no prompts
- *   ship yet (#43, #44 add them, each with an eval), so until then no
- *   provider is ever called.
+ *   still writes the board. The chains default to empty, so no provider is
+ *   called until the owner sets one. The prompts are the shipped `PROMPTS`
+ *   (`pipelineConfig`): summarize has one (#44); assign has none until #43,
+ *   so until then assign is skipped whatever its chain holds.
  * - `fake`: the deterministic fake from `@bd/judge` (#31) for both tasks,
  *   whatever the chains say, for local mode, verify-local and previews. Its
  *   texts are marked as fake.
@@ -103,7 +104,8 @@ export function resolveProviders(
 
 /**
  * The model for one run. With chains, a task whose chain in settings is
- * empty gets null (skipped), and so does every task while `prompts` is null. One whose providers all lack their key gets a
+ * empty gets null (skipped), and so does a task with no prompt in `prompts`
+ * (every task while `prompts` is null). One whose providers all lack their key gets a
  * driver over an empty chain, so its calls fail and its echoes or waves wait
  * for a later run: it was configured, so it is not skipped.
  */
@@ -118,9 +120,12 @@ export function runModel(
     const fake = fakeDriver();
     return { assign: fake, summarize: fake };
   }
-  const chain = (providers: readonly Provider[]) =>
-    prompts === null || providers.length === 0
+  const chain = (providers: readonly Provider[], prompted: boolean) =>
+    prompts === null || !prompted || providers.length === 0
       ? null
       : chainDriver(resolveProviders(providers, secret), prompts, { fetch });
-  return { assign: chain(settings.assignProviders), summarize: chain(settings.summarizeProviders) };
+  return {
+    assign: chain(settings.assignProviders, prompts?.assign !== undefined),
+    summarize: chain(settings.summarizeProviders, prompts?.summarize !== undefined),
+  };
 }

@@ -89,6 +89,8 @@ export const SettingsSchema = z.object({
   echoRetentionDays: z.number().int().min(1).default(30),
   /** Days after its slot that a scan's raw responses are removed from blob storage. */
   rawRetentionDays: z.number().int().min(1).default(30),
+  /** Days the run report (`/__report`, #53) covers: the current UTC day and the ones before it. */
+  reportWindowDays: z.number().int().min(1).max(90).default(7),
   /** Enrich: evidence pages fetched per selected wave at most. 0: none (#45). */
   enrichPagesPerTopic: z.number().int().min(0).max(10).default(3),
   /** Enrich: evidence pages fetched per run at most, over every selected wave (#45). */

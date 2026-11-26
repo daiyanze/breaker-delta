@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "input": {
+    "name": "Fictional lab Norwind releases open model Arda 2",
+    "echoes": [
+      {
+        "id": "e1",
+        "title": "Norwind releases Arda 2 with open weights",
+        "summary": "The fictional lab Norwind published the weights of Arda 2 under a permissive license."
+      },
+      {
+        "id": "e4",
+        "title": "Independent test finds Arda 2 behind on long documents",
+        "summary": "A volunteer evaluation group reports Arda 2 loses accuracy on inputs longer than 32,000 tokens."
+      },
+      {
+        "id": "e5",
+        "title": "Norwind ships the 8B version of Arda 2",
+        "summary": "The smaller Arda 2 model is now available, as the lab had promised."
+      }
+    ],
+    "languages": ["en", "zh", "ja"],
+    "first": false
+  }
+}

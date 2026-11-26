@@ -18,9 +18,11 @@ PR. This directory is a protected path.
 | Freezing cases from a run | `scripts/freeze-cases.ts` |
 | Workflow | `.github/workflows/evals.yml` |
 
-No prompt ships yet: #43 (assign) and #44 (summarize) each add a prompt
-file, its entry in `PROMPTS`, and its cases. Wiring the prompts into the
-pipeline's `PipelineConfig.prompts` is theirs too.
+Summarize ships `summarize-v1` (#44, `packages/judge/src/summarize-prompt.ts`)
+with its cases in `evals/cases/summarize/`. The assign prompt is #43: a prompt
+file, its entry in `PROMPTS`, and its cases. `pipelineConfig` hands every
+prompt in `PROMPTS` to the pipeline (`driverPrompts`), so an entry there is
+all the wiring a prompt needs.
 
 ## Two kinds of case (owner, #253)
 
@@ -60,7 +62,12 @@ plus its origin. The file name is the case id.
 A case has exactly one of `"synthetic": true` and `"frozenFrom"`. Biome
 lints JSON, so run `bun run format` after writing a committed case. A
 summarize case's `input` is `{ "name", "echoes", "languages", "first" }`
-(`SummarizeInput`). `labels` (assign only) is the owner's own assignment for
+(`SummarizeInput`). A summarize echo may have `page`: the text of its page
+that the enrich step read (#45), which the step gives the model apart from
+the excerpt (`summary`). The eval passes it to the prompt as is, marks the
+draft `sourceTextRead` when any echo has one, and checks addresses against
+titles and excerpts only, as the validate step does. Assign echoes have no
+`page`. `labels` (assign only) is the owner's own assignment for
 some echoes: a shortlisted topic id or `new`, written by hand.
 
 What the parser checks (`scripts/eval-cases.ts`):
@@ -87,7 +94,12 @@ bun scripts/eval.ts --cases .bd-data/eval-cases
 It reads the local-mode database without writing it and rebuilds what the
 model was given in that slot: assign's batches with the shortlist from the
 topics that existed when the run started, and one summarize case per topic
-the slot summarised. Settings are the ones in force when the run started. A
+the slot summarised. A summary written with page text
+(`summaries.source_text_read`) gets each echo's page from the slot's enrich
+blob under `<data-dir>/blobs`, so the case is what the model saw. Retention
+removes those blobs after `rawRetentionDays`: freeze such a slot before
+then, since a summary whose pages are gone is skipped (and counted), never
+frozen without them. Settings are the ones in force when the run started. A
 case file that exists is kept, so a case is frozen once. It prints file
 names and counts, never fetched text.
 
@@ -125,7 +137,29 @@ Automatic, per task. Each is printed as a count out of a total:
 | fallback | answers from a provider other than the chain's first, of answers | same |
 | agreement | labelled echoes placed as labelled, when cases have labels | - |
 
-The result holds numbers, prompt versions and provider names only. A model
+**Unanswered cases** (contract misses), per task, are listed by why the
+chain's last provider failed, one kind from a fixed list (`FAILURE_KINDS`
+in `packages/judge/src/index.ts`), with the ids of the cases:
+
+| kind | the last provider |
+| --- | --- |
+| `http-429` | answered HTTP 429 (rate limit) |
+| `http-4xx` | answered another 4xx |
+| `http-5xx` | answered a 5xx |
+| `timeout` | gave no response within the timeout |
+| `network` | failed before any response |
+| `empty` | answered with no completion text |
+| `not-json` | answered, and after the one repair still not JSON |
+| `schema` | answered JSON, and after the one repair still off the contract |
+| `other` | failed some other way |
+
+The HTTP kinds, `timeout`, `network` and `empty` are provider errors;
+`not-json` and `schema` are the prompt's or the model's. Only the kind
+and the case id are kept: case ids are file names (hand-written for
+committed cases, slot and topic id for frozen ones), never fetched text.
+
+The result holds numbers, kinds, case ids, prompt versions and provider
+names only. A model
 answer can quote fetched text and the comment is read by coding sessions,
 so no answer, case text or chain error is printed.
 
@@ -140,8 +174,10 @@ environment, and updates one comment on the PR (its bot's, found by a
 marker). A shipped prompt it could not evaluate fails the job.
 
 The owner sets up once: in the GitHub environment `evals`, the secrets
-`GROQ_API_KEY` and `GEMINI_API_KEY` (the keys in `docs/providers.md`; one is
-enough, the chain skips a provider without its key). No required reviewers.
+`GROQ_API_KEY`, `GEMINI_API_KEY` and `OPENCODE_GO_API_KEY` (the keys in
+`docs/providers.md`; one is enough, the chain skips a provider without its
+key). No required reviewers.
 The chains in `providers.json` are the agent's proposal (#50), not
 reviewed: the hosted chains of `docs/providers.md` in the same order, without
-Workers AI, whose base URL holds the account id.
+Workers AI, whose base URL holds the account id. OpenCode Go is last in both
+chains, as the eval's fallback only (owner's decision, 2026-11-26).

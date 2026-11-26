@@ -12,6 +12,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { enrichKey } from "../apps/pipeline/src/core/enrich.ts";
 import { seedRun } from "../apps/pipeline/src/local/seed.ts";
 import { type ChatMessage, fakeAssign, fakeSummarize } from "../packages/judge/src/index.ts";
 import { runEval } from "./eval.ts";
@@ -299,6 +300,149 @@ describe("freeze-cases", () => {
     }
   });
 
+  test("a summary written with page text whose stored pages match no offered echo is skipped, not frozen without them", async () => {
+    const copy = mkdtempSync(join(tmpdir(), "bd-freeze-nomatch-"));
+    try {
+      writeFileSync(join(copy, "content.db"), db.serialize());
+      const c = new SQLite(join(copy, "content.db"));
+      const one = c
+        .query("SELECT slot, topic_id AS topicId FROM summaries ORDER BY slot, topic_id LIMIT 1")
+        .get() as { slot: string; topicId: string };
+      c.query("UPDATE summaries SET source_text_read = 0").run();
+      c.query("UPDATE summaries SET source_text_read = 1 WHERE slot = ? AND topic_id = ?").run(
+        one.slot,
+        one.topicId,
+      );
+      c.close();
+      // A blob is there, but its only page is of an echo the step did not offer.
+      const blob = join(copy, "blobs", ...enrichKey(one.slot, one.topicId).split("/"));
+      mkdirSync(join(blob, ".."), { recursive: true });
+      writeFileSync(
+        blob,
+        JSON.stringify({
+          topicId: one.topicId,
+          pages: [{ echoId: "not-offered", text: "Synthetic page." }],
+        }),
+      );
+      const lines: string[] = [];
+      const out = join(copy, "out");
+      const code = await main(
+        ["--slot", one.slot, "--data-dir", copy, "--out", out, "--task", "summarize"],
+        { out: (l) => lines.push(l), env: {} },
+      );
+      expect(code).toBe(0);
+      expect(lines.at(-1)).toBe(
+        "skipped 1 summarize cases whose page text is not stored for their echoes (removed after rawRetentionDays?)",
+      );
+      expect(loadCases(out).summarize.some((x) => x.id.endsWith(one.topicId))).toBe(false);
+    } finally {
+      rmSync(copy, { recursive: true, force: true });
+    }
+  });
+
+  test("a summary written with page text is frozen with the pages enrich gave the model; one whose pages are gone is skipped", async () => {
+    const copy = mkdtempSync(join(tmpdir(), "bd-freeze-pages-"));
+    try {
+      writeFileSync(join(copy, "content.db"), db.serialize());
+      const c = new SQLite(join(copy, "content.db"));
+      // Two topics this slot summarised. The fixture run read no page, so
+      // mark both as written with page text, and store a page for the first
+      // only, as the enrich step does (synthetic text, never a real page).
+      const summarized = c
+        .query(
+          `SELECT slot, topic_id AS topicId FROM summaries WHERE slot = (
+             SELECT slot FROM summaries GROUP BY slot HAVING count(DISTINCT topic_id) >= 2
+             ORDER BY slot LIMIT 1)
+           GROUP BY topic_id ORDER BY topic_id LIMIT 2`,
+        )
+        .all() as { slot: string; topicId: string }[];
+      expect(summarized).toHaveLength(2);
+      const [read, gone] = summarized as [
+        { slot: string; topicId: string },
+        { slot: string; topicId: string },
+      ];
+      c.query("UPDATE summaries SET source_text_read = 0").run();
+      c.query(
+        "UPDATE summaries SET source_text_read = 1 WHERE slot = ? AND topic_id IN (?, ?)",
+      ).run(read.slot, read.topicId, gone.topicId);
+      expect(gone.slot).toBe(read.slot);
+      const echoIds = (
+        c
+          .query(
+            "SELECT id FROM echoes WHERE topic_id = ? AND first_slot <= ? ORDER BY first_seen_at, id",
+          )
+          .all(read.topicId, read.slot) as { id: string }[]
+      ).map((r) => r.id);
+      c.close();
+      const pageFor = echoIds[0] ?? "";
+      const blob = join(copy, "blobs", ...enrichKey(read.slot, read.topicId).split("/"));
+      mkdirSync(join(blob, ".."), { recursive: true });
+      writeFileSync(
+        blob,
+        JSON.stringify({
+          topicId: read.topicId,
+          pages: [
+            { echoId: pageFor, text: "Synthetic page text for the freeze test." },
+            // A page of an echo not offered is not in the case (enrich never stores one).
+            { echoId: "not-offered", text: "Never frozen." },
+          ],
+        }),
+      );
+
+      const lines: string[] = [];
+      const out = join(copy, "out");
+      const code = await main(
+        ["--slot", read.slot, "--data-dir", copy, "--out", out, "--task", "summarize"],
+        { out: (l) => lines.push(l), env: {} },
+      );
+      expect(code).toBe(0);
+      expect(lines.at(-1)).toBe(
+        "skipped 1 summarize cases whose page text is not stored for their echoes (removed after rawRetentionDays?)",
+      );
+      expect(lines.join("\n")).not.toContain("Synthetic page text");
+      const cases = loadCases(out).summarize;
+      const withPage = cases.find((x) => x.id.endsWith(read.topicId));
+      expect(withPage?.input.echoes.map((e) => [e.id, e.page ?? null])).toEqual(
+        echoIds.map((id) => [
+          id,
+          id === pageFor ? "Synthetic page text for the freeze test." : null,
+        ]),
+      );
+      expect(JSON.stringify(cases)).not.toContain("Never frozen.");
+      expect(cases.some((x) => x.id.endsWith(gone.topicId))).toBe(false);
+      // Every other case was written without page text, and has none.
+      for (const x of cases.filter((x) => x !== withPage)) {
+        expect(x.input.echoes.every((e) => e.page === undefined)).toBe(true);
+      }
+
+      // The eval hands the page to the prompt, apart from the excerpt.
+      const seen: unknown[] = [];
+      const fetchImpl = (async (_url: string | URL | Request, init?: RequestInit) => {
+        const input = JSON.parse(JSON.parse(String(init?.body)).messages[0].content);
+        seen.push(input);
+        return Response.json({
+          choices: [{ message: { content: JSON.stringify(fakeSummarize(input)) } }],
+        });
+      }) as typeof fetch;
+      const chain = [{ name: "stand-in", baseUrl: "https://stand-in.test/v1", model: "fake" }];
+      await runEval({
+        prompts: {
+          summarize: {
+            version: "summarize-x",
+            messages: (input) => [{ role: "user", content: JSON.stringify(input) }],
+          },
+        },
+        cases: { assign: [], summarize: withPage ? [withPage] : [] },
+        providers: { assign: [], summarize: chain },
+        secret: () => undefined,
+        fetch: fetchImpl,
+      });
+      expect(seen).toEqual([withPage?.input]);
+    } finally {
+      rmSync(copy, { recursive: true, force: true });
+    }
+  });
+
   test("an unknown slot or a missing database is an error", async () => {
     const lines: string[] = [];
     const io = { out: (l: string) => lines.push(l), env: {} };
@@ -336,6 +480,7 @@ describe("freeze-cases", () => {
         citations: { n: echoes, of: echoes },
         repaired: { n: 0, of: cases.assign.length },
         fallback: { n: 0, of: cases.assign.length },
+        unanswered: {},
       },
       expect.objectContaining({
         contract: { n: cases.summarize.length, of: cases.summarize.length },
