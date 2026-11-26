@@ -12,8 +12,11 @@ name: evals
 #   shipped prompt with no provider left fails the job, and the comment says
 #   which key to set. Only same-repository PRs opened by the owner run this
 #   job; forks never get the keys (ADR 0007).
-# - The comment holds numbers, prompt versions and provider names only, never
-#   a model answer or case text (invariant 6: a coding session reads it).
+# - The comment holds numbers, failure kinds, case ids, prompt versions,
+#   provider and model names, and the names (never the values) of unset key
+#   variables only; never a model answer, case text or error text
+#   (invariant 6: a coding session reads it). Case ids are file names of
+#   synthetic cases (evals/README.md, "Metrics").
 
 on:
   pull_request:

@@ -480,7 +480,9 @@ describe("freeze-cases", () => {
         citations: { n: echoes, of: echoes },
         repaired: { n: 0, of: cases.assign.length },
         fallback: { n: 0, of: cases.assign.length },
+        answeredBy: [{ provider: "stand-in", cases: cases.assign.map((c) => c.id) }],
         unanswered: {},
+        tried: [],
       },
       expect.objectContaining({
         contract: { n: cases.summarize.length, of: cases.summarize.length },
