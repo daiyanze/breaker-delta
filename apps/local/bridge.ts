@@ -281,6 +281,7 @@ const APP_SECRETS = [
   /^CF_AI_TOKEN$/,
   /^GROQ_API_KEY$/,
   /^GEMINI_API_KEY$/,
+  /^OPENCODE_GO_API_KEY$/,
   /^CLOUDFLARE_/,
 ];
 
