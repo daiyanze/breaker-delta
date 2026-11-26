@@ -7,10 +7,10 @@ import { createSite } from "../core/site.ts";
 // from fixture data are checked here. The pages are Preact (#271): the
 // renderer writes no line breaks and escapes `<`, `&` and, in attributes, `"`.
 
-/** The front page the site serves from `q`, as HTML. */
+/** The front page the site serves from `q`, as HTML; `/` is English, the default. */
 async function front(q: ReadQueries | null, lang?: string): Promise<string> {
-  const query = lang === undefined ? "" : `?lang=${lang}`;
-  return (await createSite(() => q).fetch(new Request(`http://x/${query}`))).text();
+  const path = lang === undefined || lang === "en" ? "/" : `/${lang}/`;
+  return (await createSite(() => q).fetch(new Request(`http://x${path}`))).text();
 }
 
 describe("every page uses the band", () => {
@@ -24,7 +24,10 @@ describe("every page uses the band", () => {
     for (const [name, html] of Object.entries(await pages())) {
       const body = html.slice(html.indexOf("<body>") + 6, html.indexOf("</body>"));
       const outside = body
-        .replace(/^<header class="page"><h1>[^<]+<\/h1><\/header>/, "")
+        .replace(
+          /^<header class="page">(?:<div class="LanguageMenu">[\s\S]*?<\/details><\/div>)?<h1>[^<]+<\/h1><\/header>/,
+          "",
+        )
         .replace(/^<main class="page">(?:<section class="Band"[\s\S]*?<\/section>)+<\/main>$/, "");
       expect({ name, outside }).toEqual({ name, outside: "" });
     }
