@@ -1,5 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import { alternates, isArrival, locate, pathIn, preferredLanguage } from "./languages.ts";
+import {
+  alternates,
+  isArrival,
+  isSitePath,
+  locate,
+  pathIn,
+  preferredLanguage,
+  sitePath,
+} from "./languages.ts";
 
 const all = { languages: ["en", "zh", "ja"] as const, defaultLanguage: "en" as const };
 const one = { languages: ["en"] as const, defaultLanguage: "en" as const };
@@ -115,5 +123,35 @@ describe("isArrival", () => {
     expect(isArrival(req("same-origin"))).toBe(false);
     for (const s of ["cross-site", "same-site", "none", undefined])
       expect(isArrival(req(s))).toBe(true);
+  });
+});
+
+describe("sitePath and isSitePath (the review of PR 278)", () => {
+  test("leading slashes and backslashes collapse to one slash", () => {
+    expect(sitePath("//evil.example/x")).toBe("/evil.example/x");
+    expect(sitePath("/\\evil.example")).toBe("/evil.example");
+    expect(sitePath("\\/\\evil")).toBe("/evil");
+    expect(sitePath("")).toBe("/");
+    expect(sitePath("/topic/a")).toBe("/topic/a");
+    expect(sitePath("/%2F%2Fevil")).toBe("/%2F%2Fevil");
+  });
+
+  test("only a single-slash path is a site path", () => {
+    for (const ok of ["/", "/zh/", "/topic/a?x=1", "/%2F%2Fevil"])
+      expect(isSitePath(ok)).toBe(true);
+    for (const bad of ["//evil", "/\\evil", "https://evil", "evil", ""]) {
+      expect(isSitePath(bad)).toBe(false);
+    }
+  });
+
+  test("a redirect from a prefix never keeps a second leading slash", () => {
+    expect(locate("/en//evil.example/x", site(all))).toEqual({
+      kind: "redirect",
+      location: "/evil.example/x",
+    });
+    expect(locate("/ja///evil.example", site(one))).toEqual({
+      kind: "redirect",
+      location: "/evil.example",
+    });
   });
 });

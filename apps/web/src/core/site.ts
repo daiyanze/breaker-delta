@@ -10,7 +10,7 @@
  * language from the path and sends a visitor by their browser's language.
  */
 import type { ReadQueries } from "@bd/contracts";
-import { isArrival, locate, pathIn, preferredLanguage, VARY } from "./languages.ts";
+import { isArrival, isSitePath, locate, pathIn, preferredLanguage, VARY } from "./languages.ts";
 import { placeholderPage } from "./pages/placeholder.tsx";
 import { match, ROUTES, respond } from "./routes.ts";
 
@@ -28,14 +28,19 @@ export interface Site {
   fetch(request: Request): Promise<Response>;
 }
 
-/** A redirect to a path on this site; `vary` when where it goes depends on the request's headers. */
+const notFound = () => new Response("not found", { status: 404 });
+
+/**
+ * A redirect to a path on this site; `vary` when where it goes depends on
+ * the request's headers. Anything that is not a same-origin path (`//host`,
+ * `/\host`) is a 404, never a `Location`.
+ */
 function redirect(location: string, vary: boolean): Response {
+  if (!isSitePath(location)) return notFound();
   const headers: Record<string, string> = { location };
   if (vary) headers.vary = VARY;
   return new Response(null, { status: 302, headers });
 }
-
-const notFound = () => new Response("not found", { status: 404 });
 
 export function createSite(queries: QueryLayer): Site {
   return {
@@ -47,7 +52,10 @@ export function createSite(queries: QueryLayer): Site {
       const meta = await q.siteMeta();
       const at = locate(url.pathname, meta);
       if (at.kind === "redirect") return redirect(at.location + url.search, false);
-      const found = match(ROUTES, new URL(at.path + url.search, url));
+      // The path is set, not parsed against the request: `//host` stays a path.
+      const target = new URL(url);
+      target.pathname = at.path;
+      const found = match(ROUTES, target);
       if (found === null) return notFound();
       // Only a page without a prefix depends on the browser's language.
       const varies = !at.prefixed && meta.languages.length > 1;

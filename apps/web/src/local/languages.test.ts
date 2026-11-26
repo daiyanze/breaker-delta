@@ -14,7 +14,9 @@ function visit(path: string, opts: { from?: "site" | "outside"; accept?: string 
     "sec-fetch-site": opts.from === "outside" ? "cross-site" : "same-origin",
   };
   if (opts.accept !== undefined) headers["accept-language"] = opts.accept;
-  return handle(new Request(new URL(path, ORIGIN), { headers }), VARS);
+  // Joined as text, not `new URL(path, ORIGIN)`: that would read `//host` as another host.
+  const url = path.startsWith(ORIGIN) ? path : ORIGIN + path;
+  return handle(new Request(url, { headers }), VARS);
 }
 
 interface Read {
@@ -213,6 +215,73 @@ describe("a visit without a language in the URL goes by the browser's language",
   test("a path no route has is a 404 in every language, not a redirect", async () => {
     for (const path of ["/nope", "/zh/nope"]) {
       expect((await visit(path, { from: "outside", accept: "ja" })).status).toBe(404);
+    }
+  });
+});
+
+// Review of #278: a path after a language prefix went into `Location` as
+// is, so `/en//evil.example/x` redirected to `//evil.example/x`, another
+// host. Every redirect must be a path on this site.
+describe("no redirect leaves the site", () => {
+  const HOSTILE = [
+    "//evil.example/x",
+    "///evil.example/x",
+    "/\\evil.example/x",
+    "/\\/evil.example",
+    "/%2F%2Fevil.example/x",
+    "/%5C%5Cevil.example",
+    "/%09/evil.example",
+  ];
+
+  /** What the site answers, and if it redirects, where the browser would go. */
+  async function check(path: string, opts: Parameters<typeof visit>[1] = {}) {
+    const res = await visit(path, opts);
+    const location = res.headers.get("location");
+    const resolved = location === null ? null : new URL(location, `${ORIGIN}/x`);
+    return { path, status: res.status, location, origin: resolved?.origin ?? null };
+  }
+
+  test("after every language prefix, enabled, default or not enabled", async () => {
+    const cases = [
+      ...["en", "zh", "ja"].map((l) => ({ prefix: `/${l}`, query: "" })),
+      { prefix: "/ja", query: "?set=quiet" },
+      { prefix: "/zh", query: "?set=quiet" },
+    ];
+    let redirects = 0;
+    for (const { prefix, query } of cases) {
+      for (const bad of HOSTILE) {
+        for (const from of ["site", "outside"] as const) {
+          const got = await check(`${prefix}${bad}${query}`, { from, accept: "ja" });
+          if (got.location === null) continue;
+          redirects += 1;
+          expect(got.location).toMatch(/^\/(?![/\\])/);
+          expect(got).toEqual({ ...got, origin: ORIGIN });
+        }
+      }
+    }
+    // `/en` (the default) and `/ja`, `/zh` on quiet (not enabled) always redirect.
+    expect(redirects).toBeGreaterThanOrEqual(HOSTILE.length * 2 * 3);
+  });
+
+  test("the reported cases go to a path on this site", async () => {
+    expect(await check("/en//evil.example/x")).toMatchObject({
+      status: 302,
+      location: "/evil.example/x",
+      origin: ORIGIN,
+    });
+    expect(await check("/ja//evil.example?set=quiet")).toMatchObject({
+      status: 302,
+      location: "/evil.example?set=quiet",
+      origin: ORIGIN,
+    });
+  });
+
+  test("a path that starts with // and has no prefix is a 404, not a page or a redirect", async () => {
+    for (const bad of HOSTILE) {
+      for (const from of ["site", "outside"] as const) {
+        const got = await check(bad, { from, accept: "ja" });
+        expect({ bad, from, status: got.status }).toEqual({ bad, from, status: 404 });
+      }
     }
   });
 });

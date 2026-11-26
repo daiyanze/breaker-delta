@@ -34,9 +34,24 @@ export function locate(pathname: string, site: Languages): Located {
   const lang = m[1] as Language;
   const path = m[2] ?? "/";
   if (lang === site.defaultLanguage || !site.languages.includes(lang)) {
-    return { kind: "redirect", location: path };
+    return { kind: "redirect", location: sitePath(path) };
   }
   return { kind: "page", lang, path, prefixed: true };
+}
+
+/**
+ * `path` with exactly one leading slash, so a `Location` built from it is a
+ * path on this site: `//host` or `/\host` would name another host (review
+ * of #278). The URL parser has already turned `\` into `/` and keeps `%2F`
+ * encoded, so leading slashes are all there is to collapse.
+ */
+export function sitePath(path: string): string {
+  return `/${path.replace(/^[/\\]+/, "")}`;
+}
+
+/** True for a path on this site: one `/`, then anything but another `/` or `\`. */
+export function isSitePath(location: string): boolean {
+  return /^\/(?![/\\])/.test(location);
 }
 
 /** The path of the page at `path` (without a language) in `lang`. */

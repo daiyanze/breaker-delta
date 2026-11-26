@@ -47,3 +47,12 @@ redirect with `curl -sI` and the headers above against the site URL `up`
 prints.
 
 **Edges.** The site only reads; nothing in the database changes.
+
+- A browser that sends no `Sec-Fetch-Site` (Safari before 16.4, some
+  embedded webviews) and ranks `zh` or `ja` first is redirected from every
+  page without a prefix, every time: choosing English in the menu sends it
+  back to its language, and English has no URL it can bookmark. This is the
+  cost of redirecting without a cookie (#107, fork 2).
+- A redirect's `Location` is always a path on this site: the path after a
+  prefix loses extra leading slashes (`/en//host/x` goes to `/host/x`), and
+  a path starting with `//` or `/\` and no prefix is a 404.
