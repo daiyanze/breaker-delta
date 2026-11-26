@@ -256,7 +256,26 @@ describe("chainDriver", () => {
     const r = await chainDriver([A], prompts, { fetch: spy }).assign(input);
     expect(r.value).toEqual(clean);
     expect(r.repaired).toBe(true);
-    expect(sent[1]).toContain("url");
+    const repair = (JSON.parse(sent[1] ?? "{}") as { messages: { content: string }[] }).messages.at(
+      -1,
+    );
+    expect(repair?.content).toContain('assignments.0: Unrecognized key: "url"');
+  });
+
+  test("summarize: a key outside the contract is refused by the chain, so no draft is written (#46)", async () => {
+    const extra = JSON.stringify({
+      texts: [{ lang: "en", title: "Rocket ships", body: "One source reports it." }],
+      evidenceEchoIds: ["e1"],
+      riskFlags: [],
+      url: "https://x.test/",
+    });
+    const f = fakeFetch({ "a.test": [extra, extra] });
+    const err = await chainDriver([A], prompts, { fetch: f.fetch })
+      .summarize({ name: "Rocket", echoes: input.echoes, languages: ["en"], first: false })
+      .catch((e) => e);
+    expect(err).toBeInstanceOf(ChainExhaustedError);
+    expect(String(err.message)).toContain('(root): Unrecognized key: "url"');
+    expect(f.calls).toHaveLength(2);
   });
 
   test("the key is in no error the chain throws", async () => {
