@@ -13,27 +13,42 @@ import {
 } from "./index.ts";
 
 // Checked against `tokens.json` itself, not against the generated file.
-const [root = "", systemDark = "", forcedDark = ""] = tokensCss().split("\n");
+const [root = "", forcedLight = "", systemDark = "", forcedDark = ""] = tokensCss().split("\n");
 
+// How `uiCss()` holds these, read as rules: `../styles/styles.test.ts`.
 describe("design tokens as CSS", () => {
-  test("three blocks: the root, dark from the system, dark by choice", () => {
-    expect(tokensCss().split("\n")).toHaveLength(3);
+  test("four blocks: the root, light by choice, dark from the system, dark by choice", () => {
+    expect(tokensCss().split("\n")).toHaveLength(4);
   });
 
-  test("every colour and shadow token is a variable in both themes", () => {
-    for (const t of [...tokens.color.tokens, ...tokens.shadow.tokens]) {
+  test("every colour is one variable for both themes, each shadow one per theme block", () => {
+    for (const t of tokens.color.tokens) {
+      const both = t.value.light === t.value.dark;
+      const value = both ? t.value.light : `light-dark(${t.value.light},${t.value.dark})`;
+      expect(root).toContain(`--${t.name}:${value};`);
+      for (const block of [forcedLight, systemDark, forcedDark]) {
+        expect(block).not.toContain(`--${t.name}:`);
+      }
+    }
+    for (const t of tokens.shadow.tokens) {
       expect(root).toContain(`--${t.name}:${t.value.light};`);
       expect(systemDark).toContain(`--${t.name}:${t.value.dark};`);
       expect(forcedDark).toContain(`--${t.name}:${t.value.dark};`);
     }
   });
 
-  test("dark follows the system unless the page picks light, and a page can pick dark", () => {
+  test("the system picks the theme unless the page picks light or dark", () => {
+    expect(root).toContain("color-scheme:light dark;");
+    expect(forcedLight).toBe(':root[data-theme="light"]{color-scheme:light}');
     expect(systemDark).toStartWith(
-      '@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;',
+      '@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--shadow-',
     );
     expect(forcedDark).toStartWith(':root[data-theme="dark"]{color-scheme:dark;');
-    expect(root).toContain("color-scheme:light;");
+  });
+
+  test("the phone values are variables for the components' CSS", () => {
+    expect(root).toContain(`--phone-gutter:${PHONE.gutter.value};`);
+    expect(root).toContain(`--phone-section-size:${PHONE.sectionSize.value};`);
   });
 
   test("sun is the same in both themes", () => {

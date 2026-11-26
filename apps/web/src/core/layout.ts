@@ -2,10 +2,27 @@
  * The page skeleton every public page shares (issue #106, design system
  * "版式"): one page width, and content in bands. A band is a narrow left
  * rail with the italic section name and a right column with the content.
- * The styles are `LAYOUT_CSS` in `style.ts`.
+ * The styles are `@bd/ui`'s stylesheet, linked from every page (ADR 0020,
+ * section 4): the band's in `packages/ui/src/patterns/Band/Band.css`.
  */
+import { FONT_FILES } from "@bd/ui/tokens";
 import { ICON_LINKS } from "./icon.ts";
-import { headStyles } from "./style.ts";
+
+/** Where both adapters serve the stylesheet and the font files (ADR 0020, section 11). */
+export const CLIENT = { css: "/client/ui.css", fonts: "/fonts" } as const;
+
+/**
+ * The design system in a page's `<head>`: a preload for each font the first
+ * line uses, so it is ready before the short block period ends (the faces
+ * are `font-display: optional`), and the stylesheet.
+ */
+export const HEAD_STYLES = [
+  ...FONT_FILES.filter((f) => f.preload).map(
+    (f) =>
+      `<link rel="preload" href="${CLIENT.fonts}/${f.file}" as="font" type="font/woff2" crossorigin>`,
+  ),
+  `<link rel="stylesheet" href="${CLIENT.css}">`,
+].join("\n");
 
 export function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
@@ -53,7 +70,7 @@ export function renderPage(page: Page): string {
 <meta name="robots" content="noindex">
 <title>${escapeHtml(page.title)}</title>
 ${ICON_LINKS}
-${headStyles()}
+${HEAD_STYLES}
 </head>
 <body>
 <header class="page">

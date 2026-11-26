@@ -19,7 +19,7 @@
     "rebuild": "bun scripts/rebuild.ts",
     "local": "bun apps/local/start.ts",
     "icons": "bun scripts/build-icons.ts",
-    "build:local": "bun build apps/local/start.ts --compile --outfile dist/breaker-delta"
+    "build:local": "bun packages/ui/scripts/write-client.ts dist/client && bun build apps/local/start.ts --compile --asset dist/client --outfile dist/breaker-delta"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.8",

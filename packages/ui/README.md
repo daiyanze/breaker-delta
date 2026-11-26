@@ -22,9 +22,34 @@ other data file, not even one in `src/tokens`.
 | `catalog` | every component's states, for `/_catalog` | the layers, `preact` |
 | `build` | `buildClient()`: the client files, bundled with Bun | everything above, `bun`, `node:` |
 
-Only `tokens` exists today (#269); the others arrive with the plan in
+`tokens` (#269), `styles` and `build` (#270) exist today, and `patterns`
+holds only `Band/Band.css`; the others arrive with the plan in
 `docs/plans/ui-architecture.yaml`. A file directly under `src/` is under no
 rule and fails `check-deps`.
+
+## `@bd/ui/styles` and `@bd/ui/build`
+
+- CSS is plain `.css` files, each written inside its cascade layer
+  (`@layer base { … }`), with native nesting. Layers, first to last:
+  `tokens, base, primitives, patterns`. Page defaults are
+  `styles/base.css`; a component's styles are `Name.css` in its folder.
+- `uiCss()` imports each file as text and joins them in layer order, after
+  the font faces and `tokensCss()`. A new `.css` file goes into
+  `CSS_FILES` in `styles/index.ts`; `styles.test.ts` fails until it does.
+- Themed colours are one `light-dark()` variable each; the shadows keep
+  three blocks. `<html data-theme="light|dark">` overrides the system.
+- A value goes through a variable from the tokens layer, never a literal:
+  `scripts/check-colors.ts` reports a colour literal anywhere under `src`
+  outside `tokens`. The one literal allowed is the two-column breakpoint in
+  a media query (`TWO_COLUMNS_FROM`).
+- `styles/checks.ts` holds the design rules the tests run on the sheet:
+  tabular figures, no type under 13px, fonts preloaded and never swapped
+  late, the band's columns.
+- `buildClient()` returns the files served under `/client/` (`ui.css`).
+  `scripts/write-client.ts <dir>/client` writes them: `build:local` embeds
+  `dist/client` in the executable, and wrangler's build command writes
+  `apps/web/public/client` (git-ignored). Run from source, the local site
+  builds them in memory at start.
 
 ## `@bd/ui/tokens`
 

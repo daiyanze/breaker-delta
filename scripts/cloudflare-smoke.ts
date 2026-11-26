@@ -7,7 +7,10 @@
  *      and the R2 Blobs adapter the same checks as a directory;
  *   2. the cron handler runs the whole run, publish's RPC to bd-web
  *      included, and a slot runs once; and a preview, which binds no site,
- *      finishes its runs too.
+ *      finishes its runs too;
+ *   3. the built bd-web answers its front page with 200 and its heading,
+ *      and `client/ui.css` is in its static assets (wrangler's build
+ *      command writes it, #270).
  *
  * Cloudflare tooling stays out of `bun test` (ADR 0018): only this script,
  * in its own CI job, needs miniflare.
@@ -15,7 +18,7 @@
  * Usage: bun scripts/cloudflare-smoke.ts <built pipeline dir> [<built web dir>]
  * The web dir defaults to `web` next to the pipeline dir.
  */
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { convertV4MiniflareOptions, Miniflare, Response as MiniflareResponse } from "miniflare";
 import { d1Database } from "../apps/pipeline/src/cloudflare/d1.ts";
@@ -223,6 +226,50 @@ async function smoke(label: string, bindings: Bindings) {
 
 await smoke("deployed", config);
 await smoke("preview", config.previews ?? {});
+
+// 3. The built bd-web (#270): its front page renders in the Workers runtime,
+// and wrangler's build command wrote the client files into its static
+// assets, which the Worker's pages link (`/client/ui.css`).
+interface WebConfig {
+  assets?: { directory: string };
+}
+async function webSmoke() {
+  const mf = new Miniflare(
+    convertV4MiniflareOptions({
+      name: webConfig.name,
+      modules: true,
+      modulesRoot: webDir,
+      scriptPath: join(webDir, webScript as string),
+      compatibilityDate: webConfig.compatibility_date,
+    }),
+  );
+  try {
+    const res = await (await mf.getWorker(webConfig.name)).fetch("http://bd.test/");
+    const body = await res.text();
+    record(
+      "bd-web: the front page answers 200 with its heading",
+      res.status === 200 && body.includes("<h1>Breaker Delta</h1>"),
+      `${res.status}`,
+    );
+  } catch (err) {
+    record(
+      "bd-web: the front page renders",
+      false,
+      err instanceof Error ? err.message : String(err),
+    );
+  } finally {
+    await mf.dispose();
+  }
+  const assets = (webConfig as WranglerConfig & WebConfig).assets?.directory;
+  const css = assets ? join(root, "apps", "web", assets, "client", "ui.css") : null;
+  const text = css && existsSync(css) ? readFileSync(css, "utf8") : null;
+  record(
+    "bd-web: client/ui.css is in the built assets",
+    text?.includes("@layer tokens, base, primitives, patterns;") === true,
+    css ?? "no assets directory in wrangler.jsonc",
+  );
+}
+await webSmoke();
 
 const summary = failures.length === 0 ? "all checks passed" : `${failures.length} failed`;
 console.log(`[cloudflare] ${summary}`);

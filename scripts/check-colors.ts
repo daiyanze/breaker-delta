@@ -1,11 +1,12 @@
 /**
  * No colour value is hard-coded in the site's code (issue #104): colours come
  * from `design/system/tokens.json` as CSS variables. Reports every hex, rgb(),
- * hsl() or other colour function literal in `apps/web/src`, and a colour
+ * hsl() or other colour function literal in `apps/web/src` and in `@bd/ui`
+ * outside `tokens` (`SCANNED`), and a colour
  * property set to a keyword such as `red`. Comment lines are skipped, so issue
  * references such as "#104" there are not colours.
  */
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 // `&#160;` is an HTML character reference, not a colour.
@@ -21,17 +22,27 @@ const NAMED =
 // by anything else (`*{color:...}` in a CSS string) is code.
 const COMMENT = /^\s*(?:\/\/|\/\*|\*(?:\s|\/|$))/;
 
-function files(dir: string): string[] {
+function files(dir: string, skip: readonly string[]): string[] {
+  if (!existsSync(dir)) return [];
   return readdirSync(dir).flatMap((name) => {
     const path = join(dir, name);
-    if (statSync(path).isDirectory()) return files(path);
+    if (skip.includes(path)) return [];
+    if (statSync(path).isDirectory()) return files(path, skip);
     return /\.(ts|tsx|css|html)$/.test(name) ? [path] : [];
   });
 }
 
-export function hardCodedColors(root: string, dir = "apps/web/src"): string[] {
+/**
+ * The folders scanned: the site's code, and `@bd/ui` outside `tokens`, the
+ * one layer that holds the values (ADR 0020, section 4).
+ */
+export const SCANNED = ["apps/web/src", "packages/ui/src"] as const;
+const SKIPPED = ["packages/ui/src/tokens"];
+
+export function hardCodedColors(root: string, dirs: readonly string[] = SCANNED): string[] {
   const found: string[] = [];
-  for (const file of files(join(root, dir))) {
+  const skip = SKIPPED.map((d) => join(root, d));
+  for (const file of dirs.flatMap((dir) => files(join(root, dir), skip))) {
     const lines = readFileSync(file, "utf8").split("\n");
     lines.forEach((line, i) => {
       if (COMMENT.test(line)) return;
@@ -48,5 +59,5 @@ if (import.meta.main) {
   const found = hardCodedColors(join(import.meta.dir, ".."));
   for (const line of found) console.error(line);
   if (found.length > 0) process.exit(1);
-  console.log("check-colors: no hard-coded colour in apps/web/src");
+  console.log(`check-colors: no hard-coded colour in ${SCANNED.join(", ")} (outside tokens)`);
 }
