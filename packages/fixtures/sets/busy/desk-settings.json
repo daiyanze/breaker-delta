@@ -59,7 +59,8 @@
     "enrichPagesPerTopic": 3,
     "enrichPagesPerRun": 9,
     "enrichPageMaxChars": 4000,
-    "enrichPageMaxKB": 1024
+    "enrichPageMaxKB": 1024,
+    "factGateFirstHandSources": 2
   },
   "updatedAt": "2026-11-18T21:15:00+09:00",
   "history": [

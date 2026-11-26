@@ -262,9 +262,9 @@ describe("validateAssignments", () => {
     }
   });
 
-  test("a model-written url field is not a placement", () => {
+  test("a model-written url field fails the contract: the whole answer is rejected (#46)", () => {
     const r = ok({ assignments: [{ echoId: "e1", topicId: "t1", url: "https://evil.test" }] });
-    expect(r.placements.get("e1")).toEqual({ topicId: "t1" });
+    expect(r).toEqual({ placements: new Map(), rejected: 2 });
   });
 });
 
