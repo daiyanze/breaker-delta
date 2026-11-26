@@ -108,9 +108,10 @@ The bridge adds guards of its own:
   `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL`,
   `CLAUDE_CODE_OAUTH_TOKEN`, `CLAUDE_CONFIG_DIR`. `BD_BRIDGE_ENV` adds more
   names, comma-separated, for another CLI's sign-in; it may not name the
-  app's own (`BD_*`, `PROBE_TOKEN`, `MODEL_DRIVER`, `CF_AI_TOKEN`,
-  `GROQ_API_KEY`, `GEMINI_API_KEY`, `OPENCODE_GO_API_KEY`, `CLOUDFLARE_*`). So `PROBE_TOKEN` and
-  the provider keys never reach a process that reads fetched text.
+  app's own (`BD_*`, `PROBE_TOKEN`, `REPORT_TOKEN`, `MODEL_DRIVER`,
+  `CF_AI_TOKEN`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `OPENCODE_GO_API_KEY`,
+  `CLOUDFLARE_*`). So the app's tokens and the provider keys never reach a
+  process that reads fetched text.
 - A request that offers tools (`tools`, `functions`) or asks to stream is
   refused before the command runs.
 - It listens on 127.0.0.1 only, and answers only requests addressed to

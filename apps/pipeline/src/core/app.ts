@@ -18,10 +18,12 @@ import { LAUNCH_GROUPS } from "../sources/launch-groups.ts";
 import { probeAll } from "../sources/probe.ts";
 import { PROBE_TARGETS } from "../sources/probe-targets.ts";
 import { type ModelDriverName, parseModelDriver, runModel, type SecretReader } from "./model.ts";
+import { runReport } from "./report.ts";
 import { runSlot, type Step } from "./runner.ts";
 import { lastRun } from "./runs.ts";
-import { readSettings } from "./settings.ts";
+import { peekSettings, readSettings } from "./settings.ts";
 import { buildSteps } from "./steps.ts";
+import { bearerMatches } from "./token.ts";
 
 export interface PipelinePorts {
   db: Database;
@@ -60,6 +62,11 @@ export const NO_SITE: SiteCache = { purge: async () => ({ purged: 0 }) };
 export interface PipelineConfig {
   /** Guards /__probe and /__tick. Null means those routes do not exist. */
   probeToken: string | null;
+  /**
+   * Guards /__report (#53), the read-only run report. Separate from
+   * `probeToken`, which can start a run. Null: the route does not exist.
+   */
+  reportToken: string | null;
   /** The model driver (`MODEL_DRIVER`, `model.ts`). Null: the chains from settings. */
   model: ModelDriverName | null;
   /**
@@ -76,10 +83,12 @@ export interface PipelineConfig {
  */
 export function pipelineConfig(vars: {
   PROBE_TOKEN?: string | undefined;
+  REPORT_TOKEN?: string | undefined;
   MODEL_DRIVER?: string | undefined;
 }): PipelineConfig {
   return {
     probeToken: vars.PROBE_TOKEN ? vars.PROBE_TOKEN : null,
+    reportToken: vars.REPORT_TOKEN ? vars.REPORT_TOKEN : null,
     model: parseModelDriver(vars.MODEL_DRIVER),
   };
 }
@@ -168,6 +177,14 @@ export function createPipeline(
     const { pathname } = new URL(request.url);
     if (pathname === "/health") {
       return Response.json({ ok: true, lastRun: await lastRun(db) });
+    }
+    if (pathname === "/__report") {
+      // Not configured, no token or a wrong one: the route does not exist.
+      if (request.method !== "GET" || !(await bearerMatches(request, config.reportToken))) {
+        return notFound();
+      }
+      const { reportWindowDays } = await peekSettings(db);
+      return Response.json(await runReport(db, ports.clock.now(), reportWindowDays));
     }
     if (pathname === "/__probe" || pathname === "/__tick") {
       if (!authorized(request)) return notFound();

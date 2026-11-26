@@ -220,8 +220,8 @@ export function bridgeConfig(
 /**
  * Variables the agent gets from the launcher's environment: what a program
  * needs to run (paths, home, locale, temp folder, proxy and certificates)
- * and Claude Code's own sign-in. Nothing of the app: no `PROBE_TOKEN`, no
- * provider key, no `BD_*`.
+ * and Claude Code's own sign-in. Nothing of the app: no `PROBE_TOKEN` or
+ * `REPORT_TOKEN`, no provider key, no `BD_*`.
  */
 export const AGENT_ENV: readonly string[] = [
   // POSIX
@@ -277,6 +277,7 @@ export const AGENT_ENV: readonly string[] = [
 const APP_SECRETS = [
   /^BD_/,
   /^PROBE_TOKEN$/,
+  /^REPORT_TOKEN$/,
   /^MODEL_DRIVER$/,
   /^CF_AI_TOKEN$/,
   /^GROQ_API_KEY$/,
