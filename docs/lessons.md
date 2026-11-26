@@ -4,7 +4,7 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
-## L26 Run an acceptance criterion before writing it into a plan
+## L27 Run an acceptance criterion before writing it into a plan
 
 - **Date:** 2026-11-26. **Status:** active.
 - **What happened:** the plan in #262 (ADR 0020) had three criteria that
@@ -12,12 +12,13 @@ Each rule applies only within its scope.
   issue that itself writes one there; "the existing tests pass" against
   output a probe had already shown to differ; and an executable "shown with
   the verify-local procedure", which only drives the launcher from source.
-  Three challenge rounds read the shape and missed them; review round 1
-  found each by running it.
+  The challenge rounds read the shape, not the criteria; review round 1
+  found each by running it. Round 2 found more of the same kind (a
+  criterion already true before any work, a script with no path).
 - **Rule:** A criterion that names a command or a procedure is run before it
   is written: against today's tree, and against what the issue itself will
   produce. A criterion that names a procedure says what that procedure
-  drives.
+  drives, and one that is already true today is not a criterion.
 - **Scope:** `docs/plans/*.yaml`, issue bodies, acceptance criteria in ADRs.
 - **Evidence:** review round 1 on #262; fixed in the same PR.
 
