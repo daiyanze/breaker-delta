@@ -325,4 +325,13 @@ export function isRunDue(lastSlot: string | null, nowMs: number, intervalMinutes
   return lastSlot !== slotId(nowMs, intervalMinutes);
 }
 
+export {
+  countFirstHandSources,
+  EVENT_RISK_FLAGS,
+  type EvidenceSource,
+  isHighRisk,
+  isUnverified,
+  NAMED_RISK_FLAGS,
+  unverifiedWording,
+} from "./fact-gate.ts";
 export { normaliseUrl } from "./url.ts";

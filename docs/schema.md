@@ -114,7 +114,13 @@ version of the summarize prompt it was sent (ADR 0005, #48), so a summary
 can be traced to its origin. Both are null on rows written before #48, and
 `prompt_version` is null for a writer with no prompt version (the fake
 model); the shipped summarize prompt is `summarize-v1` (#44). The commit step copies all three from the draft, for discarded rows
-too. `unverified` is the fact gate's label (ADR 0006, #47);
+too. `unverified` is the fact gate's label (ADR 0006, #47), set by the
+commit step from `isUnverified` in `@bd/core`: the version's risk flags
+name a person or company together with an appointment or dismissal, a
+lawsuit, or an accident or casualty, and fewer than
+`factGateFirstHandSources` fetch groups of tier `first_hand` are among its
+evidence echoes. The model never sets it; the site's wording for it is
+`UNVERIFIED_WORDING` in `@bd/contracts`;
 `source_text_read` is false when enrich could not fetch the sources (#45).
 `risk_flags` is the model's flags as JSON.
 The select step (#33, `apps/pipeline/src/core/select.ts`) reads this table

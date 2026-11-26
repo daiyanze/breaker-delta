@@ -45,6 +45,7 @@ agent's proposal for `summariesPerRun`.
 | `enrichPagesPerRun` | 9 | agent's proposal (#45), not reviewed | The run's cap on page fetches over every selected wave, in select's order: three pages for each of `summariesPerRun`'s three waves. A wave left without pages is written without source text. |
 | `enrichPageMaxChars` | 4000 | agent's proposal (#45), not reviewed | Characters of a page's text kept for the summarize call: a news article's first few paragraphs, so three pages stay a small part of the prompt. |
 | `enrichPageMaxKB` | 1024 | agent's proposal (#45), not reviewed | Bytes of a page's body read at most; the rest is not downloaded. Most article pages are smaller; a large page's text usually starts in its first megabyte. |
+| `factGateFirstHandSources` | 2 | ADR 0006 (the number); agent's proposal (#47), not reviewed (what counts) | A high-risk summary is published as "unverified" when fewer than this many first-hand sources are among the echoes it cites (`isUnverified` in `packages/core`). Two is ADR 0006's. That a first-hand source is a distinct fetch group of tier `first_hand` in the source list, among the cited echoes only, and that high-risk means a named person or company together with one of the listed events, are the agent's reading (#47), not reviewed. |
 
 The `fresh` fixture set is a new installation, so its settings equal these
 defaults; `packages/fixtures/src/settings.test.ts` checks that.
