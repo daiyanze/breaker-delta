@@ -5,6 +5,7 @@
  *
  *   bun scripts/eval.ts [--cases evals/cases] [--providers evals/providers.json]
  *                       [--report report.md] [--json result.json] [--sha <commit>]
+ *                       [--min-contract 0.5]
  *
  * `--cases` defaults to the committed, synthetic cases (CI runs those). The
  * owner can name a local, git-ignored folder of cases frozen from real runs
@@ -15,9 +16,16 @@
  * (`apiKeyRef`), as the pipeline reads them (`resolveProviders`). A provider
  * whose key is not set is left out.
  *
- * Exit code: 0 when every shipped prompt was evaluated (or none ships); 1
- * when a prompt has no cases or no provider with a key, so a prompt PR whose
- * eval could not run is red; 2 on a bad case or providers file.
+ * `--min-contract` is the contract floor, a ratio from 0 to 1 (default 0.5,
+ * the owner's 3/6): an evaluated task whose contract rate (answers that fit
+ * the contract, of its cases) is below it fails the run. It applies to every
+ * task, rounded up to whole cases: at 0.5, 7 cases need 4.
+ *
+ * Exit code: 0 when every shipped prompt was evaluated (or none ships) and
+ * no evaluated task is below the contract floor; 1 when a prompt has no
+ * cases or no provider with a key, so a prompt PR whose eval could not run
+ * is red, or when an evaluated task is below the floor; 2 on a bad case or
+ * providers file or a bad `--min-contract`.
  *
  * Only the commit SHA, task names, counts and ratios (per-provider answer
  * counts included), prompt versions, provider and model names, failure
@@ -124,6 +132,8 @@ export type TaskResult =
 
 export interface EvalResult {
   sha?: string;
+  /** The contract floor the run was judged by; `DEFAULT_MIN_CONTRACT` when absent. */
+  minContract?: number;
   tasks: TaskResult[];
 }
 
@@ -388,6 +398,38 @@ export function evaluated(tasks: readonly TaskResult[]): boolean {
   return tasks.every((t) => t.status === "no-prompt" || t.status === "ran");
 }
 
+/** The contract floor when `--min-contract` is not given: the owner's 3/6. */
+export const DEFAULT_MIN_CONTRACT = 0.5;
+
+/** The fewest answers out of `of` cases whose rate is at least `min`. */
+export function needed(min: number, of: number): number {
+  let n = 0;
+  while (n < of && n / of < min) n++;
+  return n;
+}
+
+/** Whether an evaluated task's contract rate is below `min`. Other tasks never are. */
+export function belowFloor(task: TaskResult, min: number): boolean {
+  if (task.status !== "ran") return false;
+  const { n, of } = task.metrics.contract;
+  return of > 0 && n < needed(min, of);
+}
+
+/** Whether the run passes: every shipped prompt evaluated, none below the floor. */
+export function passed(tasks: readonly TaskResult[], min: number): boolean {
+  return evaluated(tasks) && !tasks.some((t) => belowFloor(t, min));
+}
+
+/**
+ * Reads `--min-contract`: a plain decimal from 0 to 1. Null for anything
+ * else (a sign, an exponent, hex, an empty value).
+ */
+export function parseMinContract(value: string): number | null {
+  if (!/^(\d+(\.\d+)?|\.\d+)$/.test(value)) return null;
+  const min = Number(value);
+  return min >= 0 && min <= 1 ? min : null;
+}
+
 /** The first line of the PR comment, which the workflow finds it by. */
 export const MARKER = "<!-- bd-evals -->";
 
@@ -454,7 +496,14 @@ export function report(result: EvalResult): string {
     }
     lines.push("");
   }
+  const min = result.minContract ?? DEFAULT_MIN_CONTRACT;
   for (const t of result.tasks) {
+    if (belowFloor(t, min) && t.status === "ran") {
+      const { n, of } = t.metrics.contract;
+      lines.push(
+        `- ${t.task}: contract ${n}/${of} is below the floor of ${min} (at least ${needed(min, of)}/${of}). **Below the floor.**`,
+      );
+    }
     if (t.status === "no-prompt") lines.push(`- ${t.task}: no prompt ships, nothing to evaluate.`);
     if (t.status === "no-cases") {
       lines.push(
@@ -522,14 +571,23 @@ export async function main(argv: readonly string[], io: Io = defaultIo): Promise
       report: { type: "string" },
       json: { type: "string" },
       sha: { type: "string" },
+      "min-contract": { type: "string" },
       help: { type: "boolean" },
     },
   });
   if (values.help) {
     io.out(
-      "usage: bun scripts/eval.ts [--cases dir] [--providers file] [--report out.md] [--json out.json] [--sha commit]",
+      "usage: bun scripts/eval.ts [--cases dir] [--providers file] [--report out.md] [--json out.json] [--sha commit] [--min-contract 0.5]",
     );
     return 0;
+  }
+  const minContract =
+    values["min-contract"] === undefined
+      ? DEFAULT_MIN_CONTRACT
+      : parseMinContract(values["min-contract"]);
+  if (minContract === null) {
+    io.out("--min-contract must be a number from 0 to 1");
+    return 2;
   }
   let cases: Cases;
   let providers: ProviderFile;
@@ -550,12 +608,12 @@ export async function main(argv: readonly string[], io: Io = defaultIo): Promise
     secret: stringVars(io.env),
     ...(io.fetch ? { fetch: io.fetch } : {}),
   });
-  const result: EvalResult = { ...(values.sha ? { sha: values.sha } : {}), tasks };
+  const result: EvalResult = { ...(values.sha ? { sha: values.sha } : {}), minContract, tasks };
   const markdown = report(result);
   if (values.report) writeFileSync(values.report, markdown);
   if (values.json) writeFileSync(values.json, `${JSON.stringify(result, null, 2)}\n`);
   io.out(markdown.trimEnd());
-  return evaluated(tasks) ? 0 : 1;
+  return passed(tasks, minContract) ? 0 : 1;
 }
 
 if (import.meta.main) process.exit(await main(process.argv.slice(2)));

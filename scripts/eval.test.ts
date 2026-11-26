@@ -11,13 +11,20 @@ import {
   type SummarizeInput,
 } from "../packages/judge/src/index.ts";
 import {
+  belowFloor,
+  DEFAULT_MIN_CONTRACT,
   type EvalOptions,
+  evaluated,
   isCommitted,
   MARKER,
   main,
+  needed,
+  parseMinContract,
   parseProviders,
+  passed,
   report,
   runEval,
+  type TaskResult,
 } from "./eval.ts";
 import { type AssignCase, CaseError, parseCase, type SummarizeCase } from "./eval-cases.ts";
 
@@ -483,6 +490,86 @@ describe("report", () => {
   });
 });
 
+describe("contract floor", () => {
+  /** An evaluated assign task whose contract is `n` out of `of`. */
+  const ran = (n: number, of: number): TaskResult => ({
+    task: "assign",
+    status: "ran",
+    prompt: "stand-in-assign-1",
+    cases: of,
+    providers: [{ name: "a", model: "m-a" }],
+    metrics: {
+      contract: { n, of },
+      citations: { n: 0, of: 0 },
+      repaired: { n: 0, of: n },
+      fallback: { n: 0, of: n },
+      answeredBy: [],
+      unanswered: {},
+      tried: [],
+    },
+  });
+
+  test("the default is the owner's 3/6", () => {
+    expect(DEFAULT_MIN_CONTRACT).toBe(0.5);
+    expect(needed(0.5, 6)).toBe(3);
+  });
+
+  test("at the floor passes, above passes, below fails", () => {
+    expect(belowFloor(ran(3, 6), 0.5)).toBe(false);
+    expect(belowFloor(ran(4, 6), 0.5)).toBe(false);
+    expect(belowFloor(ran(6, 6), 0.5)).toBe(false);
+    expect(belowFloor(ran(2, 6), 0.5)).toBe(true);
+    expect(belowFloor(ran(0, 6), 0.5)).toBe(true);
+    expect(passed([ran(3, 6)], 0.5)).toBe(true);
+    expect(passed([ran(2, 6)], 0.5)).toBe(false);
+  });
+
+  test("rounds up to whole cases: 7 cases need 4", () => {
+    expect(needed(0.5, 7)).toBe(4);
+    expect(belowFloor(ran(3, 7), 0.5)).toBe(true);
+    expect(belowFloor(ran(4, 7), 0.5)).toBe(false);
+  });
+
+  test("a rate equal to the floor is not below it, despite floating point", () => {
+    // 0.3 * 10 is 3.0000000000000004; 3/10 is exactly 0.3.
+    expect(needed(0.3, 10)).toBe(3);
+    expect(belowFloor(ran(3, 10), 0.3)).toBe(false);
+    expect(belowFloor(ran(0, 6), 0)).toBe(false);
+    expect(belowFloor(ran(5, 6), 1)).toBe(true);
+  });
+
+  test("a task with no cases, no provider or no prompt is unchanged by the floor", () => {
+    const others: TaskResult[] = [
+      { task: "assign", status: "no-cases", prompt: "stand-in-assign-1" },
+      { task: "summarize", status: "no-provider", prompt: "p", cases: 1, keys: ["A_KEY"] },
+    ];
+    for (const t of others) expect(belowFloor(t, 1)).toBe(false);
+    expect(passed(others, 0)).toBe(evaluated(others));
+    expect(passed(others, 0)).toBe(false);
+    const none: TaskResult[] = [{ task: "assign", status: "no-prompt" }];
+    expect(passed(none, 1)).toBe(true);
+  });
+
+  test("the report says when a task is below the floor, in numbers only", () => {
+    const below = report({ minContract: 0.5, tasks: [ran(3, 7)] });
+    expect(below).toContain(
+      "- assign: contract 3/7 is below the floor of 0.5 (at least 4/7). **Below the floor.**\n",
+    );
+    expect(report({ tasks: [ran(2, 6)] })).toContain("below the floor of 0.5 (at least 3/6)");
+    expect(report({ minContract: 0.5, tasks: [ran(4, 7)] })).not.toContain("below the floor");
+  });
+
+  test("parses --min-contract as a plain decimal from 0 to 1", () => {
+    expect(parseMinContract("0.5")).toBe(0.5);
+    expect(parseMinContract("0")).toBe(0);
+    expect(parseMinContract("1")).toBe(1);
+    expect(parseMinContract("1.0")).toBe(1);
+    expect(parseMinContract(".75")).toBe(0.75);
+    for (const bad of ["", " ", "1.5", "2", "-0.1", "+0.5", "abc", "1e-1", "0x1", "0.5.1", "NaN"])
+      expect(parseMinContract(bad)).toBeNull();
+  });
+});
+
 describe("main", () => {
   function workspace() {
     const dir = mkdtempSync(join(tmpdir(), "bd-eval-"));
@@ -540,6 +627,40 @@ describe("main", () => {
     expect(await main(w.args(), { ...io, prompts: { assign: standIn.assign } })).toBe(1);
     expect(await main(w.args(), { ...io, prompts: { summarize: standIn.summarize } })).toBe(1);
     expect(await main(w.args(), { ...io, prompts: {} })).toBe(0);
+  });
+
+  test("exits 1 when an evaluated task is below the contract floor", async () => {
+    const w = workspace();
+    const run = (...more: string[]) =>
+      main(w.args("--json", join(w.dir, "r.json"), ...more), {
+        out: w.out,
+        env: { A_KEY: KEY },
+        // The one case's answer fails the contract, and so does its repair: 0/1.
+        fetch: standInModel({ "a.test": ["bad", "bad"] }).fetch,
+        prompts: { assign: standIn.assign },
+      });
+    expect(await run()).toBe(1);
+    expect(JSON.parse(readFileSync(join(w.dir, "r.json"), "utf8")).minContract).toBe(0.5);
+    expect(w.lines.join("\n")).toContain("contract 0/1 is below the floor of 0.5 (at least 1/1)");
+    expect(await run("--min-contract", "0")).toBe(0);
+    expect(JSON.parse(readFileSync(join(w.dir, "r.json"), "utf8")).minContract).toBe(0);
+  });
+
+  test("exits 2 on a --min-contract that is not from 0 to 1, before running anything", async () => {
+    // `=` because parseArgs refuses a separate value that starts with a dash.
+    for (const bad of ["1.5", "-1", "half", ""]) {
+      const w = workspace();
+      const model = standInModel({});
+      const code = await main(w.args(`--min-contract=${bad}`), {
+        out: w.out,
+        env: { A_KEY: KEY },
+        fetch: model.fetch,
+        prompts: { assign: standIn.assign },
+      });
+      expect(code).toBe(2);
+      expect(w.lines).toEqual(["--min-contract must be a number from 0 to 1"]);
+      expect(model.keys).toEqual([]);
+    }
   });
 
   test("exits 2 on a case that does not fit the format, naming the file and path only", async () => {
