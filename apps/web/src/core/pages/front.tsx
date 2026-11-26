@@ -2,8 +2,8 @@
 /**
  * A bare front page: enough to prove a page renders from the read contracts
  * alone. Every piece of text is a plain string; the renderer escapes it.
- * The theme switch is its one island (#272); #105 moves it into the
- * masthead.
+ * The theme switch is its one island (#105); it moves into the masthead's
+ * top bar with #110, and its names into the string tables with #278.
  */
 import type { Language, RankRow } from "@bd/contracts";
 import { Band } from "@bd/ui/patterns";
@@ -74,7 +74,7 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
       <Document lang={ctx.lang} title={meta.siteName} head={siteHead()}>
         <header class="page">
           <h1>{meta.siteName}</h1>
-          <ThemeSwitch label="Dark theme" />
+          <ThemeSwitch toDark="Switch to dark mode" toLight="Switch to light mode" />
         </header>
         <main class="page">{bands}</main>
       </Document>

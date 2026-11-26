@@ -51,11 +51,14 @@ describe("every page uses the band", () => {
     expect(fresh).toContain("Nothing has been scanned yet. Next scan: ");
   });
 
-  test("the front page holds the theme switch island; the placeholder holds no island, issue 272", async () => {
+  test("the front page holds the theme switch island; the placeholder holds no island, issues 272 and 105", async () => {
     const { placeholder, busy, fresh } = await pages();
     for (const html of [busy, fresh]) {
       expect(html).toContain(
-        '<header class="page"><h1>Breaker Delta</h1><bd-island name="ThemeSwitch" props="{&quot;label&quot;:&quot;Dark theme&quot;}"><button type="button" class="ThemeSwitch">Dark theme</button></bd-island></header>',
+        '<header class="page"><h1>Breaker Delta</h1><bd-island name="ThemeSwitch" props="{&quot;toDark&quot;:&quot;Switch to dark mode&quot;,&quot;toLight&quot;:&quot;Switch to light mode&quot;}"><button type="button" class="ThemeSwitch">',
+      );
+      expect(html).toContain(
+        '<span class="ThemeSwitch-name ThemeSwitch-to-dark">Switch to dark mode</span><span class="ThemeSwitch-name ThemeSwitch-to-light">Switch to light mode</span></button></bd-island></header>',
       );
     }
     expect(placeholder).not.toContain("<bd-island");

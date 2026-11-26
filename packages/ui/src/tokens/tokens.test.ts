@@ -5,6 +5,7 @@ import {
   colorOf,
   FONT_FILES,
   fontFaceCss,
+  ICON,
   PHONE,
   size,
   tokensCss,
@@ -124,5 +125,25 @@ describe("supplement: values the design states only in prose", () => {
       `${import.meta.dir}/../../../../design/system/components/Button/README.md`,
     ).text();
     expect(readme).toContain(`高度不小于 ${CONTROL.minHeight}，桌面默认 ${CONTROL.height}`);
+  });
+
+  test("the theme switch's icon size is the one boards 01 and 02 draw", async () => {
+    const px = Number.parseFloat(ICON.themeSwitch);
+    for (const board of ["Front2", "FrontMobile"]) {
+      const html = await Bun.file(
+        `${import.meta.dir}/../../../../design/boards/${board}.dc.html`,
+      ).text();
+      const button = /<button[^>]*onClick="\{\{ toggleTheme \}\}"[^>]*><svg ([^>]*)>/.exec(html);
+      expect({ board, svg: button?.[1] }).toEqual({
+        board,
+        svg: `width="${px}" height="${px}" viewBox="0 0 ${px} ${px}" aria-hidden="true"`,
+      });
+    }
+  });
+
+  test("the control height and the icon size are variables for the components' CSS", () => {
+    expect(root).toContain(`--control-min-height:${CONTROL.minHeight};`);
+    expect(root).toContain(`--control-height:${CONTROL.height};`);
+    expect(root).toContain(`--icon-theme-switch:${ICON.themeSwitch};`);
   });
 });

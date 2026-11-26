@@ -62,9 +62,10 @@ under no rule and fails `check-deps`.
 - `Band` (`patterns/Band`): a section with its name in the rail. Classes
   `.Band` and `.Band-rail`, `.Band-name`, `.Band-note`, `.Band-body`; the
   heading's id is `band-<id>`.
-- `ThemeSwitch` (`primitives/ThemeSwitch`, an island): a button that flips
-  `<html data-theme>` and stores the choice. Its smallest form; #105
-  finishes it. `SPEC.md` in its folder.
+- `ThemeSwitch` (`primitives/ThemeSwitch`, an island): the masthead's
+  square icon button (#105) that flips `<html data-theme>` and stores the
+  choice. Props `toDark` and `toLight`, its name in each theme; the
+  stylesheet shows the one that applies. `SPEC.md` in its folder.
 
 ## `@bd/ui/styles` and `@bd/ui/build`
 
@@ -103,9 +104,13 @@ no Bun or Cloudflare types, so emails and share cards can import it.
   export changes, run `bun run --filter @bd/ui tokens` and commit the result;
   `scripts/generate-tokens.test.ts` fails while the two differ.
 - `supplement.ts` holds the values the design states only in prose or not at
-  all (the phone gutter and section size, the control height, the
-  two-column breakpoint), each with the text it comes from. No other file
-  holds a design value.
+  all (the phone gutter and section size, the control height, the theme
+  switch's icon size, the two-column breakpoint), each with the text it
+  comes from. No other file holds a design value. All but the breakpoint
+  are CSS variables too: `--phone-*`, `--control-*`, `--icon-*`.
+- `contrast.test.ts` computes the WCAG 2.2 contrast of every text and
+  background pair the design uses, in both themes: 4.5:1 for text, 3:1 for
+  a control's outline. A new colour token fails it until it is placed.
 - `fonts.ts` lists the self-hosted font files (in `apps/web/public/fonts`).
 - `index.ts` exports `colorOf`, `size`, `typeStyle`, `tokensCss`,
   `typeClassesCss`, `FONT_FILES` and `fontFaceCss`.

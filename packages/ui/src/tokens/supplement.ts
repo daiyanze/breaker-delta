@@ -30,6 +30,15 @@ export const CONTROL = {
 } as const;
 
 /**
+ * The theme switch's icon, 20 × 20 inside the square button on boards 01 and
+ * 02 (`<svg width="20" height="20">`); no token names an icon size.
+ * `tokens.test.ts` checks that both boards still draw it so.
+ */
+export const ICON = {
+  themeSwitch: "20px",
+} as const;
+
+/**
  * Below this width a band is one column: the rail becomes a heading above
  * the content. The design system names no breakpoint; this is the agent's
  * choice (#106): the narrowest width where the rail at its full `rail` width,
