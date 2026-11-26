@@ -175,10 +175,10 @@ environment, and updates one comment on the PR (its bot's, found by a
 marker). A shipped prompt it could not evaluate fails the job.
 
 The owner sets up once: in the GitHub environment `evals`, the secrets
-`GROQ_API_KEY`, `GEMINI_API_KEY` and `OPENCODE_GO_API_KEY` (the keys in
-`docs/providers.md`; one is enough, the chain skips a provider without its
-key). No required reviewers.
+`GROQ_API_KEY` and `GEMINI_API_KEY` (the keys in `docs/providers.md`; one
+is enough, the chain skips a provider without its key). No required reviewers.
 The chains in `providers.json` are the agent's proposal (#50), not
 reviewed: the hosted chains of `docs/providers.md` in the same order, without
-Workers AI, whose base URL holds the account id. OpenCode Go is last in both
-chains, as the eval's fallback only (owner's decision, 2026-11-26).
+Workers AI, whose base URL holds the account id. OpenCode Go was in both
+chains for a day and is removed (owner's decision, 2026-11-26,
+`docs/providers.md`).

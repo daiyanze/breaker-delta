@@ -10,10 +10,13 @@ an installation is set up with.
 - **Owner's decisions (2026-11-23):** which chain each provider is in, the
   order inside each chain, the models in the table below, and the keys in
   "Keys". The agent proposed them; the owner confirmed them.
-- **Owner's decision (2026-11-26):** the eval's chains (`evals/providers.json`)
-  end with OpenCode Go `deepseek-v4.1-flash`, on the owner's OpenCode Go
-  subscription, so the eval gets an answer when Gemini and Groq both fail.
-  It is in the eval only; the hosted chains below are unchanged.
+- **Owner's decisions (2026-11-26):** OpenCode Go `deepseek-v4.1-flash` was
+  added to the end of the eval's chains (#261), then removed the same day:
+  it answered no case, every call failing `http-400` (#265's per-provider
+  report). The endpoint refuses a request without an `x-opencode-session`
+  header, and OpenCode's docs describe Go as for coding agents' traffic,
+  which an eval of news summaries is not. The hosted chains below never
+  held it.
 
 Free tiers change often. The figures below were read on 2026-11-22, mostly
 from recent third-party readings of the providers' own pages (September to
@@ -186,7 +189,7 @@ owner on 2026-11-23.
 | Workers AI | `CF_AI_TOKEN` | An account-owned Cloudflare token with Workers AI permissions only. It is a separate token from the agent's operations token (ADR 0019) and from CI's deploy token, so each can be revoked on its own. Base URL: `https://api.cloudflare.com/client/v4/accounts/<account id>/ai/v1`. |
 | Groq | `GROQ_API_KEY` | https://console.groq.com/keys |
 | Gemini | `GEMINI_API_KEY` | Google AI Studio, in a Google Cloud project used only for Breaker Delta, so its quota is not shared. |
-| OpenCode Go (eval only) | `OPENCODE_GO_API_KEY` | The owner's OpenCode Go subscription. Added 2026-11-26, after the confirmation above: the agent proposed the key name and the owner set it in the `evals` environment under that name; the base URL is the agent's reading of OpenCode's model list, not reviewed. Base URL: `https://opencode.ai/inference/go/openai/v1` (chat completions). The model list, with each model's API, price and data terms, is public at `https://opencode.ai/zen/go/v1/models`; it lists `deepseek-v4.1-flash` with `training: false` (read 2026-11-26). |
+| OpenCode Go (removed 2026-11-26) | `OPENCODE_GO_API_KEY` | No longer used: see the decisions above. The bridge still refuses to pass this name to the agent (`BD_BRIDGE_ENV`), so a key left in the environment cannot reach it. The owner may delete the `evals` secret. |
 
 ## Verification (#15)
 
