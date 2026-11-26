@@ -179,7 +179,7 @@ in `packages/judge/src/index.ts` (`FAILURE_KINDS`):
 
 Then, for each unanswered case, why every provider the chain tried failed,
 in chain order (`tried` in the JSON), for example
-`` `k2` (gemini `http-503`, groq `http-429`, opencode-go `http-400`) ``.
+`` `k2` (gemini `http-503`, groq `http-429`) ``.
 
 HTTP statuses, `timeout`, `network` and `empty` are provider errors;
 `not-json` and `schema` are the prompt's or the model's. Only the failure,
