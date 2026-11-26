@@ -663,6 +663,24 @@ describe("main", () => {
     }
   });
 
+  test("exits 2 on a malformed command line, before running anything", async () => {
+    // parseArgs refuses a separate value that starts with a dash, and a
+    // missing value: both are exit 2 like a bad value, never 1.
+    for (const argv of [["--min-contract", "-0.5"], ["--min-contract"], ["--nope"]]) {
+      const w = workspace();
+      const model = standInModel({});
+      const code = await main([...w.args(), ...argv], {
+        out: w.out,
+        env: { A_KEY: KEY },
+        fetch: model.fetch,
+        prompts: { assign: standIn.assign },
+      });
+      expect(code).toBe(2);
+      expect(w.lines).toEqual(["bad arguments: see --help"]);
+      expect(model.keys).toEqual([]);
+    }
+  });
+
   test("exits 2 on a case that does not fit the format, naming the file and path only", async () => {
     const w = workspace();
     writeFileSync(

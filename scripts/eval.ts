@@ -25,7 +25,8 @@
  * no evaluated task is below the contract floor; 1 when a prompt has no
  * cases or no provider with a key, so a prompt PR whose eval could not run
  * is red, or when an evaluated task is below the floor; 2 on a bad case or
- * providers file or a bad `--min-contract`.
+ * providers file, a bad `--min-contract` value or a malformed command line
+ * (an unknown option, a missing value, `--min-contract -0.5`).
  *
  * Only the commit SHA, task names, counts and ratios (per-provider answer
  * counts included), prompt versions, provider and model names, failure
@@ -561,9 +562,9 @@ export interface Io {
 
 const defaultIo: Io = { out: (line) => console.log(line), env: process.env };
 
-/** Runs the command; resolves to the exit code. */
-export async function main(argv: readonly string[], io: Io = defaultIo): Promise<number> {
-  const { values } = parseArgs({
+/** The command's options, parsed; throws on a malformed command line. */
+function parseOptions(argv: readonly string[]) {
+  return parseArgs({
     args: [...argv],
     options: {
       cases: { type: "string", default: COMMITTED_CASES },
@@ -574,7 +575,20 @@ export async function main(argv: readonly string[], io: Io = defaultIo): Promise
       "min-contract": { type: "string" },
       help: { type: "boolean" },
     },
-  });
+  }).values;
+}
+
+/** Runs the command; resolves to the exit code. */
+export async function main(argv: readonly string[], io: Io = defaultIo): Promise<number> {
+  let values: ReturnType<typeof parseOptions>;
+  try {
+    values = parseOptions(argv);
+  } catch {
+    // A malformed command line, e.g. `--min-contract -0.5` or a missing value:
+    // the same exit as a bad option value, never 1 (not evaluated).
+    io.out("bad arguments: see --help");
+    return 2;
+  }
   if (values.help) {
     io.out(
       "usage: bun scripts/eval.ts [--cases dir] [--providers file] [--report out.md] [--json out.json] [--sha commit] [--min-contract 0.5]",

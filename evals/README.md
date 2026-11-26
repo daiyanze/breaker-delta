@@ -128,7 +128,9 @@ the contract, of its cases) is below `--min-contract` fails the run. The
 default is 0.5, the owner's floor of 3/6, and it applies to every task.
 Rounded up to whole cases: 6 cases need at least 3, and assign's 7 cases
 need at least 4 (3/7 fails). The value is a plain decimal from 0 to 1;
-anything else is refused with exit 2. A task with no cases or no provider
+anything else is refused with exit 2, as is a malformed command line (a
+missing value, an unknown option, or `--min-contract -0.5`, which the
+argument parser reads as an option). A task with no cases or no provider
 key is reported as not evaluated, as before, and the floor does not apply
 to it. The report says, per task below the floor, its count and the count
 it needed (`contract 3/7 is below the floor of 0.5 (at least 4/7)`), and
