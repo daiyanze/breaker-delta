@@ -258,6 +258,40 @@ describe("chainDriver", () => {
     expect(String(err.message)).toContain("evidenceEchoIds");
   });
 
+  test("a key outside the contract is refused, not dropped, and named in the repair (#46)", async () => {
+    const extra = { assignments: [{ echoId: "e1", topicId: "t1", url: "https://x.test/" }] };
+    const clean = { assignments: [{ echoId: "e1", topicId: "t1" }] };
+    const f = fakeFetch({ "a.test": [JSON.stringify(extra), JSON.stringify(clean)] });
+    const sent: string[] = [];
+    const spy = (async (input: string | URL | Request, init?: RequestInit) => {
+      sent.push(String(init?.body));
+      return f.fetch(input, init);
+    }) as typeof fetch;
+    const r = await chainDriver([A], prompts, { fetch: spy }).assign(input);
+    expect(r.value).toEqual(clean);
+    expect(r.repaired).toBe(true);
+    const repair = (JSON.parse(sent[1] ?? "{}") as { messages: { content: string }[] }).messages.at(
+      -1,
+    );
+    expect(repair?.content).toContain('assignments.0: Unrecognized key: "url"');
+  });
+
+  test("summarize: a key outside the contract is refused by the chain, so no draft is written (#46)", async () => {
+    const extra = JSON.stringify({
+      texts: [{ lang: "en", title: "Rocket ships", body: "One source reports it." }],
+      evidenceEchoIds: ["e1"],
+      riskFlags: [],
+      url: "https://x.test/",
+    });
+    const f = fakeFetch({ "a.test": [extra, extra] });
+    const err = await chainDriver([A], prompts, { fetch: f.fetch })
+      .summarize({ name: "Rocket", echoes: input.echoes, languages: ["en"], first: false })
+      .catch((e) => e);
+    expect(err).toBeInstanceOf(ChainExhaustedError);
+    expect(String(err.message)).toContain('(root): Unrecognized key: "url"');
+    expect(f.calls).toHaveLength(2);
+  });
+
   test("the key is in no error the chain throws", async () => {
     const key = "sk-test-not-a-real-key";
     const f = fakeFetch({ "a.test": [401] });
