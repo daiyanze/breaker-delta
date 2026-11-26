@@ -114,7 +114,7 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 
 | Rule | Enforced by | Kind |
 | --- | --- | --- |
-| Dependency direction (architecture map) | `scripts/check-deps.ts`: package imports by each rule's `allow`; relative imports into another package fail, and between areas of one package pass only along a rule's `reach`; a data file from outside the package passes only when the rule lists it in `data`; every file under a `src` folder is under a rule, and a ruled file may not import code no rule covers; code outside every rule (tests, scripts): review checklist 13 | check, review |
+| Dependency direction (architecture map) | `scripts/check-deps.ts`: package imports by each rule's `allow`; relative imports into another package fail, and between areas of one package pass only along a rule's `reach`; a data file outside the areas a rule reaches passes only when the rule's `data` lists it; every file under a `src` folder is under a rule, and a ruled file may not import code no rule covers; code outside every rule (tests, scripts): review checklist 13 | check, review |
 | App cores use no Bun or Cloudflare API | `src/core` tsconfig without those types; `check-deps` | types |
 | `@bd/ui` layers (ADR 0020, section 3) | `check-deps` rules per layer and area; `tokens` has no DOM, Bun or Cloudflare types (`packages/ui/tsconfig.tokens.json`); `tokens.gen.ts` matches `tokens.json` (`packages/ui/scripts/generate-tokens.test.ts`) | check, types, test |
 | 1. Code decides | model result schemas have no wave, height or rank fields (`packages/contracts/src/model.ts`); core's imports, package and relative (`check-deps`); no IO or clock in core: review checklist 13 | types, check, review |
@@ -146,8 +146,9 @@ field) fails. These are false failures, loud and by name; the owner chose
 them over a reader that could miss an import silently (#215). A `#!` line is
 blanked before parsing. A relative import that resolves to no TypeScript
 file and has another extension counts as data (JSON, SQL, fonts): it passes
-inside its own package, and from outside only when the rule lists the file
-or its folder in `data` (#269).
+when it is in the importer's own area or one its rule reaches, and otherwise
+only when a glob in the rule's `data` matches it, in the same package or not
+(#269). The `tokens` rule takes listed data only, even from its own folder.
 It reads package imports with a pattern (import statements,
 `import.meta.require()`, and `import()` or `require()` with a string or a
 template with no `${`). Neither sees paths built at run time. It does not

@@ -15,11 +15,15 @@ interface Rule {
    */
   reach?: string[];
   /**
-   * Data files outside its own package that this area may import by
-   * relative path (#269): a file, or every file under a folder ending in
-   * `/`. Data files inside its own package always pass.
+   * Data files outside its own area and the areas it reaches that this
+   * area may import by relative path (#269), as globs from the repository
+   * root (`Bun.Glob`): `design/system/tokens.json`,
+   * `packages/db/migrations/*.sql`. Data files in its own area or one it
+   * reaches pass; any other data file, in its package or not, fails.
    */
   data?: string[];
+  /** Even data in its own area and the areas it reaches must match `data` (#275 review). */
+  onlyListedData?: true;
   why: string;
 }
 
@@ -48,6 +52,7 @@ export const RULES: Rule[] = [
   {
     dir: "packages/fixtures/src",
     allow: [/^@bd\/contracts$/, /^bun:test$/],
+    data: ["packages/fixtures/sets/**/*.json"],
     why: "fixtures are data behind the read contracts: no database, no IO",
   },
   {
@@ -67,7 +72,9 @@ export const RULES: Rule[] = [
   {
     dir: `${UI}/tokens`,
     allow: [/^bun:test$/],
+    // ADR 0020 section 5: no data file but tokens.json, not even its own.
     data: ["design/system/tokens.json"],
+    onlyListedData: true,
     why: "tokens hold values only: no JSX, no DOM, no runtime API (ADR 0020)",
   },
   {
@@ -92,6 +99,7 @@ export const RULES: Rule[] = [
     dir: `${UI}/styles`,
     allow: [/^bun:test$/],
     reach: [`${UI}/tokens`],
+    data: [`${UI}/primitives/**/*.css`, `${UI}/patterns/**/*.css`],
     why: "styles join the tokens and the components' .css files (ADR 0020)",
   },
   {
@@ -103,7 +111,14 @@ export const RULES: Rule[] = [
   {
     dir: `${UI}/build`,
     allow: [/^bun(:.+)?$/, /^node:/],
-    reach: [`${UI}/tokens`, `${UI}/runtime`, `${UI}/primitives`, `${UI}/patterns`, `${UI}/styles`],
+    reach: [
+      `${UI}/tokens`,
+      `${UI}/runtime`,
+      `${UI}/primitives`,
+      `${UI}/patterns`,
+      `${UI}/styles`,
+      `${UI}/catalog`,
+    ],
     why: "the build bundles the client files with Bun (ADR 0020)",
   },
   // ADR 0018: app cores run on any runtime, so no `cloudflare:*` and no Bun APIs.
@@ -128,7 +143,7 @@ export const RULES: Rule[] = [
     dir: "apps/pipeline/src/local",
     allow: [/^@bd\/(contracts|core|db)$/, PORTS, /^bun:/, /^node:/],
     reach: ["apps/pipeline/src/core"],
-    data: ["packages/db/migrations/"],
+    data: ["packages/db/migrations/*.sql", "apps/pipeline/src/sources/fixtures/*"],
     why: "the local adapter runs on Bun, never on Cloudflare APIs (ADR 0018)",
   },
   {
@@ -141,6 +156,7 @@ export const RULES: Rule[] = [
     dir: "apps/web/src/local",
     allow: [/^@bd\/(contracts|fixtures)$/, UI_TOKENS, PORTS, /^bun:/, /^node:/],
     reach: ["apps/web/src/core", "apps/web/src/select.ts"],
+    data: ["apps/web/public/fonts/*.woff2", "apps/web/public/icons/*"],
     why: "the local site adapter runs on Bun, never on Cloudflare APIs (ADR 0018)",
   },
   {
@@ -310,9 +326,16 @@ function areaOf(path: string, rules: Rule[]): Rule | undefined {
     .sort((a, b) => b.dir.length - a.dir.length)[0];
 }
 
-/** Whether `rule` lists the data file at `path` (relative to the root). */
-function listedData(rule: Rule, path: string): boolean {
-  return (rule.data ?? []).some((d) => (d.endsWith("/") ? path.startsWith(d) : path === d));
+/**
+ * Whether `rule` may import the data file at `path` (relative to the root):
+ * it is in the rule's own area or one it reaches (unless the rule allows
+ * only listed data), or a `data` glob matches.
+ */
+function allowedData(rule: Rule, path: string, rules: Rule[]): boolean {
+  const area = areaOf(path, rules);
+  const reached = area !== undefined && (area === rule || rule.reach?.includes(area.dir));
+  if (reached && !rule.onlyListedData) return true;
+  return (rule.data ?? []).some((glob) => new Bun.Glob(glob).match(path));
 }
 
 /** `packages/<x>` or `apps/<x>`, the workspace package a path is in. */
@@ -354,10 +377,10 @@ export function relativeViolations(root: string, rules: Rule[] = RULES): string[
         const pkg = packageOf(to);
         const head = `${from} imports "${spec}"`;
         if (DATA.test(spec) && !CODE.test(target)) {
-          if (pkg === packageOf(from) || listedData(rule, to)) continue;
-          const fix = "list it in the rule's data, or import it from its own package (#269)";
+          if (allowedData(rule, to, rules)) continue;
+          const fix = "list it in the rule's data (#269)";
           found.push(
-            `${head}, a data file outside its package that ${rule.dir} does not list: ${fix}`,
+            `${head}, a data file outside the areas ${rule.dir} reaches that it does not list: ${fix}`,
           );
           continue;
         }

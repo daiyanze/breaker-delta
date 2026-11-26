@@ -7,7 +7,10 @@ and no component of its own. Nothing here imports an app.
 ## Layers and areas
 
 Each layer imports only the layers before it. `scripts/check-deps.ts`
-enforces it, by package name and by relative path.
+enforces it, by package name and by relative path, for code and for data
+files (`.json`, `.css`) alike: a file in a folder the table does not list is
+reported. `tokens` imports its own `.ts` files and `tokens.json`, and no
+other data file, not even one in `src/tokens`.
 
 | Folder (`src/`) | Holds | May import |
 | --- | --- | --- |
@@ -16,8 +19,8 @@ enforces it, by package name and by relative path.
 | `primitives` | Button, Menu, Tabs, Notice, form fields, Icon | the two above, `preact` |
 | `patterns` | Band, Masthead, Newsstand and the other Tide Paper parts | the three above, `preact`, `@bd/contracts` types |
 | `styles` | `uiCss()`: the whole stylesheet as text | `tokens`, the components' `.css` |
-| `catalog` | every component's states, for `/_catalog` | the layers |
-| `build` | `buildClient()`: the client files, bundled with Bun | everything above, `bun` |
+| `catalog` | every component's states, for `/_catalog` | the layers, `preact` |
+| `build` | `buildClient()`: the client files, bundled with Bun | everything above, `bun`, `node:` |
 
 Only `tokens` exists today (#269); the others arrive with the plan in
 `docs/plans/ui-architecture.yaml`. A file directly under `src/` is under no

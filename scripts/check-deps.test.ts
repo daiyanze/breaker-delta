@@ -213,7 +213,7 @@ describe("check-deps", () => {
       for (const name of ok) expect(found).not.toContain(name);
     });
 
-    test("a data file from outside the package passes only when the rule lists it (#269)", () => {
+    test("a data file outside the areas a rule reaches passes only when the rule lists it (#269)", () => {
       file(
         "apps/web/src/core/tokens-json.ts",
         'import tokens from "../../../../design/system/tokens.json" with { type: "json" };',
@@ -225,7 +225,7 @@ describe("check-deps", () => {
       const found = rel();
       expect(found).toContain(
         'apps/web/src/core/tokens-json.ts imports "../../../../design/system/tokens.json", ' +
-          "a data file outside its package that apps/web/src/core does not list",
+          "a data file outside the areas apps/web/src/core reaches that it does not list",
       );
       expect(found).toContain("apps/pipeline/src/core/sql.ts imports");
       expect(found).toContain("list it in the rule's data");
@@ -397,9 +397,74 @@ describe("check-deps", () => {
       const found = all();
       expect(found).toContain(
         'packages/ui/src/tokens/other.ts imports "../../../../design/system/design-system.json", ' +
-          "a data file outside its package that packages/ui/src/tokens does not list",
+          "a data file outside the areas packages/ui/src/tokens reaches that it does not list",
       );
       expect(found).toContain("packages/ui/src/runtime/json.ts imports");
+    });
+
+    test("data inside @bd/ui is checked by layer too (#275 review)", () => {
+      file("packages/ui/src/tokens/extra.json", "{}");
+      file("packages/ui/package.json", "{}");
+      file("packages/ui/src/patterns/Band/Band.css", ".Band{}");
+      file("packages/ui/src/primitives/Button/Button.css", ".Button{}");
+      file(
+        "packages/ui/src/tokens/planted.ts",
+        [
+          'import a from "./extra.json" with { type: "json" };',
+          'import b from "../../package.json" with { type: "json" };',
+          'import c from "../patterns/Band/Band.css" with { type: "text" };',
+        ].join("\n"),
+      );
+      file(
+        "packages/ui/src/primitives/css.ts",
+        'import c from "../patterns/Band/Band.css" with { type: "text" };',
+      );
+      // Its own area's data, and the components' .css in styles, pass.
+      file(
+        "packages/ui/src/patterns/own.ts",
+        'import c from "./Band/Band.css" with { type: "text" };',
+      );
+      file(
+        "packages/ui/src/styles/ui.ts",
+        'import a from "../primitives/Button/Button.css" with { type: "text" };\n' +
+          'import b from "../patterns/Band/Band.css" with { type: "text" };',
+      );
+      const found = all();
+      expect(found).toContain('packages/ui/src/tokens/planted.ts imports "./extra.json"');
+      expect(found).toContain('packages/ui/src/tokens/planted.ts imports "../../package.json"');
+      expect(found).toContain(
+        'packages/ui/src/tokens/planted.ts imports "../patterns/Band/Band.css", a data file',
+      );
+      expect(found).toContain(
+        'packages/ui/src/primitives/css.ts imports "../patterns/Band/Band.css"',
+      );
+      expect(found).not.toContain("patterns/own.ts");
+      expect(found).not.toContain("styles/ui.ts");
+    });
+
+    test("styles, catalog and build keep to their rules (L7)", () => {
+      file("packages/ui/src/patterns/band2.ts", "export const b = 1;");
+      file("packages/ui/src/styles/code.ts", 'import { b } from "../patterns/band2.ts";');
+      file("packages/ui/src/styles/bun.ts", 'import { file } from "bun";');
+      file("packages/ui/src/catalog/pkg.ts", 'import { z } from "zod";');
+      file("packages/ui/src/catalog/build.ts", 'import { x } from "../build/x.ts";');
+      file("packages/ui/src/build/x.ts", "export const x = 1;");
+      file("packages/ui/src/build/app.ts", 'import { s } from "@bd/web/local";');
+      file(
+        "packages/ui/src/build/ok.ts",
+        'import { b } from "../patterns/band2.ts";\nimport "bun";',
+      );
+      const found = all();
+      expect(found).toContain(
+        'packages/ui/src/styles/code.ts imports "../patterns/band2.ts", which is in packages/ui/src/patterns',
+      );
+      expect(found).toContain('ui/src/styles/bun.ts imports "bun"');
+      expect(found).toContain('ui/src/catalog/pkg.ts imports "zod"');
+      expect(found).toContain(
+        'packages/ui/src/catalog/build.ts imports "../build/x.ts", which is in packages/ui/src/build',
+      );
+      expect(found).toContain('ui/src/build/app.ts imports "@bd/web/local"');
+      expect(found).not.toContain("build/ok.ts");
     });
 
     test("a layer imports only the layers before it", () => {
