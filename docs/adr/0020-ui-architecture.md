@@ -63,6 +63,9 @@ outside the repository.
 | React Email (`@react-email/components` 1.0.12, `@react-email/render` 2.3.1) | renders in Bun and in workerd; the Worker bundle with it is about 219 kB gzip |
 | `document.title` in server code, tsconfig without the DOM lib | type-checks once Preact is imported: types do not keep browser globals out of server components |
 | Front-page data of the `busy` fixture as JSON | 17.3 kB, 4.4 kB gzip |
+| A `.css` file imported as text (`with { type: "text" }`) | a string in Bun and in the compiled executable: the stylesheet needs no build |
+| Island props as an attribute, with `</script>`, quotes, `&` and `<` in the text | the renderer escapes them and the JSON reads back equal |
+| The client build run in memory when the server starts | 5 files in 11 ms; skipped when files are embedded |
 
 Facts read from primary sources the same day: `light-dark()`, `@layer`,
 nesting, container queries and `:has()` are Baseline Widely available;
@@ -155,8 +158,9 @@ has no supported route to C1.
 
 What the type check showed while sketching:
 
-- A function, a `Date` or a callback as an island prop is a compile error,
-  as intended.
+- A function, a `Date`, a `Map` or a callback as an island prop, at any
+  depth, is a compile error; the read-contract shapes (`RankRow`,
+  `SiteMeta`, `Edition`) and props written as interfaces are accepted.
 - `states(Component, {...})` inferred the props from the states and
   rejected `variant: "solid"`; the states parameter is `NoInfer<P>`.
 - Browser globals type-check in server code (see Probes), so that rule
@@ -191,30 +195,42 @@ export interface Route {
 
 ```ts
 // @bd/ui/runtime
-export type Json =
-  | string | number | boolean | null
-  | readonly Json[]
-  | { readonly [key: string]: Json | undefined };
+/** `T` itself when it is JSON all the way down, `never` where it is not. */
+export type Jsonable<T> = T extends string | number | boolean | null | undefined
+  ? T
+  : T extends (...args: never[]) => unknown
+    ? never
+    : T extends readonly (infer U)[]
+      ? readonly Jsonable<U>[]
+      : T extends object
+        ? { readonly [K in keyof T]: Jsonable<T[K]> }
+        : never;
 
 export interface Island<P> {
   (props: P): JSX.Element;
   islandName: string;
   component: ComponentType<P>;
 }
-export function island<P extends { [K in keyof P]: Json | undefined }>(
+export function island<P extends object>(
   name: string,
-  component: ComponentType<P>,
+  component: ComponentType<P> & (P extends Jsonable<P> ? unknown : "island props must be JSON"),
 ): Island<P>;
 ```
 
 - An island lives in `<Name>.island.tsx` and default-exports `island(...)`.
   The name is the file name and the URL: `/client/<Name>.island.js`.
-- On the server it renders `<bd-island name="…">` holding the props as JSON
-  (with `<` escaped) and the component's HTML.
+- On the server it renders `<bd-island name="…" props="…">` around the
+  component's HTML. The props are JSON in an attribute, so the renderer
+  escapes them like any other text (C6). `dangerouslySetInnerHTML` is used
+  in one place only: the constant theme script in `Document`.
 - In the browser one loader defines the `bd-island` element, imports the
   island's module and hydrates it. Shared code (Preact) is a shared chunk.
-- A component that is not an island runs on the server only. Browser
-  globals appear only inside an island's handlers and effects.
+- A component that is not an island runs on the server only. An island also
+  renders on the server, so browser globals appear only inside its handlers
+  and effects.
+- An island does not import another island, and imports `@bd/contracts`
+  with `import type` only, so no schema code reaches the browser. Text
+  reaches an island as finished strings, not as functions.
 - A React library, when one is worth its size, is used inside one island
   through `preact/compat`. That is a decision per island, named in its PR
   with the bundle size.
@@ -231,9 +247,20 @@ enforces it.
 | `primitives` | Button, Menu, Tabs, Notice, form fields, Icon | the two above |
 | `patterns` | Band, Masthead, Newsstand, TicketStub and the other Tide Paper parts, one per `design/system/components/<Name>` | the three above, `@bd/contracts` types |
 
+Two more areas serve the layers and are imported by no component:
+
+| Area | Holds | May import |
+| --- | --- | --- |
+| `styles` | `uiCss()`: the whole stylesheet as text | `tokens`, every component's `.css` |
+| `build` | `buildClient()`: the loader and the island modules, bundled with Bun | everything above, `bun` |
+
 One folder per component: `Name.tsx` or `Name.island.tsx`, `Name.css`,
 `Name.states.tsx`, `SPEC.md`. Nothing in `@bd/ui` imports an app.
 `apps/web` holds routes, pages and strings, and no component of its own.
+
+JSX is set once, in `tsconfig.base.json` (`jsx: react-jsx`,
+`jsxImportSource: preact`), because every program that reaches a `.tsx`
+needs it: the web adapters and `apps/local` as well as the core.
 
 ```ts
 // @bd/ui/runtime
@@ -255,12 +282,20 @@ export function states<P>(component: ComponentType<P>, states: { readonly [name:
 - Plain `.css` files, one per component, written inside its layer:
   `@layer tokens, base, primitives, patterns;`. Native nesting. The root
   class is the component's name.
+- No build step for CSS. `uiCss()` in `@bd/ui/styles` imports each file as
+  text and joins them in layer order; a test fails when a `.css` file under
+  `src` is missing from its list. Every page links the result at
+  `/client/ui.css`; styles are no longer inlined in each page.
 - Themed colours are one declaration each with `light-dark()`;
   `color-scheme` follows the system and `<html data-theme>` overrides it.
-  A small inline script in `<head>` applies a stored choice before first
+  `light-dark()` takes colours only, so a themed token that is not a colour
+  (the three shadows) keeps today's form: `:root`, the dark media query and
+  `[data-theme="dark"]`.
+- A small constant script in `<head>` applies a stored theme before first
   paint (C10).
-- A build step joins the files in layer order into one `ui.css`, linked
-  from every page. Styles are no longer inlined in each page.
+- A width in a media or container query cannot be a variable. It is the one
+  literal a component's CSS may hold, and only a value the tokens layer
+  lists as a breakpoint.
 - No Tailwind, no CSS-in-JS, no utility classes. `apps/*` holds no `.css`
   and no `style=`.
 
@@ -274,6 +309,13 @@ export function states<P>(component: ComponentType<P>, states: { readonly [name:
   values; a test regenerates it and compares (L19).
 - The layer has no JSX, no DOM and no runtime API, so emails and share
   cards can import it.
+- Some values the components need are not in `tokens.json`: the design
+  states them only in prose (a control's height in
+  `components/Button/README.md`, the phone gutter and section size in token
+  `usage` text) or not at all (the two-column breakpoint, the agent's
+  choice in #106). They live in one file of this layer, `supplement.ts`,
+  each with the design text it comes from, until the design export carries
+  them. No other file holds a value.
 
 ```ts
 // @bd/ui/tokens
@@ -300,7 +342,9 @@ literal values from `@bd/ui/tokens` (light theme, inline styles; Gmail
 strips variables). It exports one function per template:
 `render<Name>(data): Promise<{ html: string; text: string }>`. Only
 `apps/pipeline` and the local catalog import it. React never reaches a
-browser.
+browser. Each of its `.tsx` files starts with `/** @jsxImportSource react */`,
+because a program that also holds Preact files (`apps/local`) would
+otherwise compile them for Preact; a check requires the line.
 
 ### 8. Share cards
 
@@ -321,23 +365,50 @@ may be relied on once all three engines ship it (Baseline "Newly
 available"); a feature still missing an engine is used only where the page
 works without it.
 
-### 11. Build
+### 11. Client files
 
-One script builds what the browser loads into `apps/web/public/client/`
-(git-ignored): `ui.css`, the loader and one module per island. It runs
-before local mode starts from source, before `bun build --compile` (which
-embeds the folder with `--asset`), and as wrangler's build command. A site
-that starts without the folder stops with the command to run. Fonts stay in
-`apps/web/public/fonts`.
+What the browser loads from `/client/`: `ui.css`, the loader, one module
+per island and their shared chunks.
+
+```ts
+// @bd/ui/build — the only area of @bd/ui that uses a Bun API
+export interface ClientFile {
+  path: string; // "ui.css", "loader.js", "Newsstand.island.js", "chunk-ab12.js"
+  type: "text/css; charset=utf-8" | "text/javascript; charset=utf-8";
+  body: Uint8Array;
+}
+export function buildClient(): Promise<readonly ClientFile[]>;
+```
+
+- **Local, from source:** the local adapter calls `buildClient()` when the
+  site starts and serves the files from memory. Nothing is written, so
+  every way of starting the site (the launcher, `verify-local`, the tests
+  that call `startSite`) gets them without a step of its own.
+- **The compiled executable:** `build:local` writes the files to a folder
+  and embeds that folder with `--asset`; the adapter serves the embedded
+  files and never builds.
+- **Cloudflare:** wrangler's build command writes them into
+  `apps/web/public/client/` (git-ignored), served as static assets.
+- Files under `/client/` are revalidated on every load (ETag), not cached
+  for long, so a page and its island modules come from the same deploy.
+- Fonts stay in `apps/web/public/fonts`.
 
 ### 12. Catalog and guardrails
 
-- `/_catalog`, local only, renders every `*.states.tsx` (#258).
-  Screenshots run with Playwright on Bun.
+- `/_catalog`, local only, renders every `*.states.tsx` (#258). Rendering
+  every state on the server is also the test that no island touches a
+  browser global while rendering.
+- Screenshots run with Playwright on Bun, in a CI job of their own on one
+  OS, which is also where baselines are made: a browser is not part of
+  `bun install`, and a baseline made on macOS does not match Linux. `check`
+  stays free of a browser download.
 - `check-deps` holds the layer rules. A `check-ui` script (#259) fails on:
-  a literal colour or size in a `.css` file outside `tokens`; `document` or
-  `window` outside a `*.island.tsx`; a `.css` file or `style=` in `apps/*`;
-  a component folder without states or a spec.
+  a literal colour or size in a `.css` file outside `tokens` (a listed
+  breakpoint in a query excepted); `document` or `window` outside a
+  `*.island.tsx`; `dangerouslySetInnerHTML` outside `Document`; an island
+  importing an island, or a value from `@bd/contracts`; a `.css` file or
+  `style=` in `apps/*`; a mail `.tsx` without its pragma; a component
+  folder without states or a spec.
 
 ## One-way doors
 
@@ -350,18 +421,43 @@ that starts without the folder stops with the command to run. Fonts stay in
 - **Class names as the styling hook.** Pages and tests will select on them.
 - **`@bd/ui/tokens` function names**, once emails and share cards use them.
 
+## Challenge
+
+An agent with no context from the writing session was asked to break shape
+A. Round 1 proved eight things; each is settled above.
+
+| Finding | Settled by |
+| --- | --- |
+| Screenshot checks need a browser download in CI and per-OS baselines | section 12: a job of their own on one OS |
+| A build in `scripts/` cannot be imported by a ruled file, and a `package.json` pre-step is skipped by everything that starts the site directly | section 11: `@bd/ui/build`, called by the adapter, in memory |
+| A `.tsx` reached from the adapters or `apps/local` fails without JSX settings; mail files compile for Preact there | section 3 (base tsconfig) and section 7 (pragma) |
+| `light-dark()` rejects a whole shadow | section 4: non-colour themed tokens keep three blocks |
+| `tokens.json` lacks the control height and breakpoints; a query cannot use a variable | sections 4 and 5: `supplement.ts`, listed breakpoints |
+| JSON props in a `<script>` child are entity-encoded or need raw HTML | section 2: props in an attribute |
+| The first prop constraint rejected interfaces with a misleading error and accepted a `Map` under `{}` | section 2: `Jsonable<T>` |
+| #257 contradicts this record | "What this changes" |
+
 ## Risks
+
+Raised and not proven, or still open.
 
 - `preact/compat` with a React library was shown on the server and as a
   bundle, not running in a browser.
-- The share-card engine is unknown (spike).
+- The share-card engine is unknown (spike). Chinese and Japanese cards need
+  CJK fonts inside the pipeline Worker.
 - `@react-email/components` is deprecated in favour of `react-email` 6,
   which also carries the CLI's dependencies; the mail issue picks the
   import that keeps the Worker bundle small and records the size.
 - Playwright on Bun is opt-in and young.
-- There is no hot reload: a change needs a rebuild and a refresh.
+- There is no hot reload: a change needs a restart and a refresh.
 - Chinese and Japanese pages add two Noto families each (#147); their size
   is not measured.
+- A page cached across a deploy (#70) can meet newer island modules; a
+  deploy that changes an island's props must purge.
+- The desk's in-place language switch (#139) is a reload under this shape
+  unless the desk shell is an island; unsaved form input would be lost.
+- The Mail tab's live preview (#156) is a round trip to the pipeline per
+  edit.
 
 ## Signs the shape is wrong
 
@@ -379,11 +475,17 @@ owner; do not patch around it.
 
 ## What this changes
 
-- #56: the choice is this record. Adopting it is the first two issues of
-  the plan; the database criteria stay with #57.
-- #257: replaced by the plan's issues, which split it by layer.
-- #258 and #259: unchanged in purpose; their "What to build" follows
-  sections 3, 11 and 12 here.
+- #56: the choice is this record. Adopting it is the plan's
+  `ui-server-render`; the database criteria stay with #57.
+- #257: contradicts this record (three layers, no dependency but
+  `@bd/contracts`, byte-identical output, string-rendering functions). The
+  plan's first four issues replace it; the owner closes or rewrites it.
+- #258: its screenshot check moves out of `check` into a CI job of its own,
+  which changes `.github` (protected).
+- #259: its check takes the list in section 12.
 - `AGENTS.md` (protected): the architecture map gains `packages/ui` and
   `packages/mail`, and the enforcement table gains the UI rows. Each issue
   that makes one of them true changes the file in the same PR.
+- `tsconfig.base.json` and root `package.json` scripts change; both are
+  part of how `bun run check` works (`docs/development.md`, "The gate
+  here").
