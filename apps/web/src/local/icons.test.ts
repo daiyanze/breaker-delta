@@ -30,6 +30,8 @@ describe("icons on local mode", () => {
   });
 
   test("the front page links the icons", async () => {
-    expect(await (await fetch(`${site.url}/`)).text()).toContain(ICON_LINKS);
+    const html = await (await fetch(`${site.url}/`)).text();
+    for (const link of ICON_LINKS)
+      expect(html).toContain(`<link rel="${link.rel}" href="${link.href}"`);
   });
 });

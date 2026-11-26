@@ -33,8 +33,11 @@ const DRIZZLE = /^drizzle-orm(\/sqlite-core|\/sqlite-proxy)?$/;
 /** Preact itself, its hooks and its JSX runtime; not `preact/compat` (ADR 0020, section 2). */
 const PREACT = /^preact(\/hooks|\/jsx-runtime)?$/;
 const UI = "packages/ui/src";
-/** The parts of `@bd/ui` the site may use; more arrive with ADR 0020's later issues. */
-const UI_TOKENS = /^@bd\/ui\/tokens$/;
+/**
+ * The parts of `@bd/ui` the site's pages are made from (ADR 0020, sections 1
+ * and 3): `primitives` and `catalog` arrive with later issues.
+ */
+const UI_SITE = /^@bd\/ui\/(tokens|runtime|patterns)$/;
 /** The local site adapter also builds and checks the client files (ADR 0020, section 11). */
 const UI_CLIENT = /^@bd\/ui\/(build|styles)$/;
 
@@ -156,7 +159,7 @@ export const RULES: Rule[] = [
   },
   {
     dir: "apps/web/src/local",
-    allow: [/^@bd\/(contracts|fixtures)$/, UI_TOKENS, UI_CLIENT, PORTS, /^bun:/, /^node:/],
+    allow: [/^@bd\/(contracts|fixtures)$/, UI_SITE, UI_CLIENT, PORTS, /^bun:/, /^node:/],
     reach: ["apps/web/src/core", "apps/web/src/select.ts"],
     data: ["apps/web/public/fonts/*.woff2", "apps/web/public/icons/*"],
     why: "the local site adapter runs on Bun, never on Cloudflare APIs (ADR 0018)",
@@ -168,18 +171,22 @@ export const RULES: Rule[] = [
   },
   {
     dir: "apps/web/src/core",
-    allow: [/^@bd\/contracts$/, UI_TOKENS, PORTS, /^bun:test$/],
+    // Pages are Preact components; `renderDocument` in `@bd/ui/runtime` is
+    // what turns them into HTML, so not `preact-render-to-string` (ADR 0020).
+    allow: [/^@bd\/contracts$/, UI_SITE, PREACT, PORTS, /^bun:test$/],
     why: "the site core reads through the read contracts only (ADR 0018)",
   },
   {
     dir: "apps/web/src",
-    // UI_CLIENT for `src/local`, which this rule covers too. It also lets
-    // `src/cloudflare` import `@bd/ui/build`; nothing checks that it does not
-    // (the Worker serves the built files as static assets instead).
+    // UI_CLIENT for `src/local` and PREACT for `src/core`, which this rule
+    // covers too. It also lets `src/cloudflare` import `@bd/ui/build`;
+    // nothing checks that it does not (the Worker serves the built files as
+    // static assets instead).
     allow: [
       /^@bd\/(contracts|db|fixtures)$/,
-      UI_TOKENS,
+      UI_SITE,
       UI_CLIENT,
+      PREACT,
       PORTS,
       /^cloudflare:/,
       /^bun:test$/,

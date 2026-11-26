@@ -23,6 +23,9 @@ set; `?set=` picks another set per request and `?lang=` a language.
 - `get /client/ui.css`: 200 `text/css`, starting with
   `@layer tokens, base, primitives, patterns;`. Every page links it; no
   page holds a `<style>` (#270).
+- Every page is rendered by Preact on the server (#271): one line of HTML,
+  each section a `<section class="Band" aria-labelledby="band-<id>">`, and
+  text escaped by the renderer (`&lt;`, `&amp;`, `&quot;` in attributes).
 - In a browser, the page follows the system's light or dark theme;
   `document.documentElement.dataset.theme = "dark"` (or `"light"`) set by
   hand overrides it: `getComputedStyle(document.documentElement)`

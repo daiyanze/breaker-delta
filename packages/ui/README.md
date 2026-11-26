@@ -22,10 +22,29 @@ other data file, not even one in `src/tokens`.
 | `catalog` | every component's states, for `/_catalog` | the layers, `preact` |
 | `build` | `buildClient()`: the client files, bundled with Bun | everything above, `bun`, `node:` |
 
-`tokens` (#269), `styles` and `build` (#270) exist today, and `patterns`
-holds only `Band/Band.css`; the others arrive with the plan in
-`docs/plans/ui-architecture.yaml`. A file directly under `src/` is under no
-rule and fails `check-deps`.
+`tokens` (#269), `styles` and `build` (#270), `runtime` and `patterns`
+(#271) exist today; `patterns` holds `Band`. The others arrive with the
+plan in `docs/plans/ui-architecture.yaml`. A file directly under `src/` is
+under no rule and fails `check-deps`.
+
+## `@bd/ui/runtime` and `@bd/ui/patterns`
+
+- Components are Preact, rendered on the server. Every `.tsx` file starts
+  with `/** @jsxImportSource preact */` on its first line
+  (`scripts/jsx-pragma.test.ts` fails otherwise): Bun reads JSX settings
+  from the working directory's tsconfig, not the file's. This package's
+  `tsconfig.json` extends the base (`jsx: react-jsx`); wrangler's bundler
+  reads a file of that name.
+- `Document` is the whole page: `<html lang>`, the font preloads, the
+  stylesheet at `CLIENT.css`, the page's own `head`, then its children.
+  `renderDocument` turns it into HTML with its doctype. It is the only
+  place HTML text is made, so escaping is the renderer's: a page passes
+  plain strings.
+- `states(Component, { name: props })` lists a component's states for the
+  catalog; the props are checked against the component's.
+- `Band` (`patterns/Band`): a section with its name in the rail. Classes
+  `.Band` and `.Band-rail`, `.Band-name`, `.Band-note`, `.Band-body`; the
+  heading's id is `band-<id>`.
 
 ## `@bd/ui/styles` and `@bd/ui/build`
 

@@ -172,11 +172,11 @@ describe("the band: one column on phones, two from the breakpoint", () => {
     const two = "grid-template-columns: minmax(0, var(--rail)) minmax(0, 1fr);";
     expect(band).toContain(two);
     expect(bandColumns(css.replace(two, ""))).toEqual([
-      `.band from ${TWO_COLUMNS_FROM}: grid-template-columns is unset, not minmax(0, var(--rail)) minmax(0, 1fr)`,
+      `.Band from ${TWO_COLUMNS_FROM}: grid-template-columns is unset, not minmax(0, var(--rail)) minmax(0, 1fr)`,
     ]);
     const one = "grid-template-columns: minmax(0, 1fr);";
     expect(bandColumns(css.replace(one, ""))).toEqual([
-      ".band: grid-template-columns is unset, not minmax(0, 1fr)",
+      ".Band: grid-template-columns is unset, not minmax(0, 1fr)",
     ]);
   });
 
@@ -227,14 +227,14 @@ describe("page width and band spacing (moved from apps/web layout.test.ts)", () 
   });
 
   test("bands are separated by a thin ink rule and the band spacing", () => {
-    const band = at(".band", false);
+    const band = at(".Band", false);
     expect(cssValue(band, "border-top")).toBe("var(--rule-thin) solid var(--ink)");
     expect(cssValue(band, "padding-block")).toBe("var(--band-space)");
-    expect(cssValue(at(".band", true), "column-gap")).toBe("var(--space-8)");
+    expect(cssValue(at(".Band", true), "column-gap")).toBe("var(--space-8)");
   });
 
   test("no layout rule sets a fixed width that could overflow a phone", () => {
-    for (const sel of [".page", ".band", ".band-rail", ".band-body", ".band-name"]) {
+    for (const sel of [".page", ".Band", ".Band-rail", ".Band-body", ".Band-name"]) {
       for (const r of rules.filter((x) => x.selector === sel)) {
         for (const [p, v] of r.declarations) {
           if (/^(min-)?width$/.test(p)) expect({ sel, p, v }).toEqual({ sel, p, v: "0" });

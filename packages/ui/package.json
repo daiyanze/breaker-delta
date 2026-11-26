@@ -5,11 +5,17 @@
   "type": "module",
   "exports": {
     "./tokens": "./src/tokens/index.ts",
+    "./runtime": "./src/runtime/index.ts",
+    "./patterns": "./src/patterns/index.ts",
     "./styles": "./src/styles/index.ts",
     "./build": "./src/build/index.ts"
   },
   "scripts": {
     "tokens": "bun scripts/generate-tokens.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.tokens.json && tsc --noEmit -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "preact": "^11.2.0",
+    "preact-render-to-string": "^6.8.3"
   }
 }

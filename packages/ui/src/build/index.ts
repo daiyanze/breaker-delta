@@ -16,7 +16,8 @@ export interface ClientFile {
   /** Under `/client/`: "ui.css". */
   path: string;
   type: "text/css; charset=utf-8" | "text/javascript; charset=utf-8";
-  body: Uint8Array;
+  /** ArrayBuffer-backed, so the DOM's `BodyInit` (which Preact's types bring in) takes it. */
+  body: Uint8Array<ArrayBuffer>;
 }
 
 export async function buildClient(): Promise<readonly ClientFile[]> {

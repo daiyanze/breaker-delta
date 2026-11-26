@@ -104,12 +104,12 @@ export function bandColumns(css: string): string[] {
       problems.push(`${selector}${where}: ${property} is ${got ?? "unset"}, not ${want}`);
     }
   };
-  expect(".band", false, "display", "grid");
-  expect(".band", false, "grid-template-columns", "minmax(0, 1fr)");
-  expect(".band", true, "grid-template-columns", "minmax(0, var(--rail)) minmax(0, 1fr)");
-  expect(".band-rail", true, "position", "sticky");
-  if (value(".band-rail", false, "position") === "sticky") {
-    problems.push(".band-rail is sticky on phones");
+  expect(".Band", false, "display", "grid");
+  expect(".Band", false, "grid-template-columns", "minmax(0, 1fr)");
+  expect(".Band", true, "grid-template-columns", "minmax(0, var(--rail)) minmax(0, 1fr)");
+  expect(".Band-rail", true, "position", "sticky");
+  if (value(".Band-rail", false, "position") === "sticky") {
+    problems.push(".Band-rail is sticky on phones");
   }
   for (const r of rules) {
     if (r.media.some((m) => m.includes("width") && m !== WIDE)) {

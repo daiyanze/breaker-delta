@@ -1,8 +1,9 @@
 import { afterAll, describe, expect, test } from "bun:test";
 import { createFixtureReadQueries, FIXTURE_SET_NAMES } from "@bd/fixtures";
 import { buildClient } from "@bd/ui/build";
-import { fontLoading, uiCss } from "@bd/ui/styles";
-import { CLIENT, HEAD_STYLES } from "../core/layout.ts";
+import { CLIENT } from "@bd/ui/runtime";
+import { FONTS, fontLoading, uiCss } from "@bd/ui/styles";
+import { ICON_LINKS } from "../core/icon.ts";
 import { handle } from "../select.ts";
 import { startSite } from "./server.ts";
 
@@ -29,11 +30,13 @@ interface Head {
   inlineStyle: number;
   stylesheets: string[];
   fontPreloads: string[];
+  /** Every other `<link>` in the head, as `rel href sizes type`. */
+  others: string[];
 }
 
 /** What a page's `<head>` loads, read with an HTML parser (Bun's HTMLRewriter). */
 async function head(html: string): Promise<Head> {
-  const found: Head = { styles: 0, inlineStyle: 0, stylesheets: [], fontPreloads: [] };
+  const found: Head = { styles: 0, inlineStyle: 0, stylesheets: [], fontPreloads: [], others: [] };
   const rewriter = new HTMLRewriter()
     .on("style", {
       element() {
@@ -51,6 +54,10 @@ async function head(html: string): Promise<Head> {
         const href = el.getAttribute("href") ?? "";
         if (rel === "stylesheet") found.stylesheets.push(href);
         if (rel === "preload" && el.getAttribute("as") === "font") found.fontPreloads.push(href);
+        else if (rel !== "stylesheet") {
+          const attrs = ["rel", "href", "sizes", "type"].map((a) => el.getAttribute(a) ?? "");
+          found.others.push(attrs.join(" ").trim());
+        }
       },
     });
   await rewriter.transform(new Response(html)).text();
@@ -61,12 +68,13 @@ describe("every page links the stylesheet (ADR 0020, section 4)", () => {
   test("no page holds a <style> or a style attribute, and each links /client/ui.css", async () => {
     for (const { name, html } of await pages()) {
       const h = await head(html);
-      expect({ name, ...h, fontPreloads: [] }).toEqual({
+      expect({ name, ...h, fontPreloads: [], others: [] }).toEqual({
         name,
         styles: 0,
         inlineStyle: 0,
         stylesheets: [CLIENT.css],
         fontPreloads: [],
+        others: [],
       });
       expect(html).not.toContain("<style");
     }
@@ -81,8 +89,22 @@ describe("every page links the stylesheet (ADR 0020, section 4)", () => {
     }
   });
 
+  test("every head links the icons", async () => {
+    const want = ICON_LINKS.map((l) =>
+      [l.rel, l.href, l.sizes ?? "", l.type ?? ""].join(" ").trim(),
+    );
+    for (const { name, html } of await pages()) {
+      expect({ name, links: (await head(html)).others }).toEqual({ name, links: want });
+    }
+  });
+
+  test("the runtime and the stylesheet serve the fonts from the same place", () => {
+    expect(CLIENT.fonts).toBe(FONTS);
+  });
+
   test("a missing preload is reported", async () => {
-    const { fontPreloads } = await head(`<head>${HEAD_STYLES}</head>`);
+    const [placeholder] = await pages();
+    const { fontPreloads } = await head(placeholder?.html ?? "");
     const missing = fontPreloads.slice(1);
     expect(fontLoading(uiCss(), missing)).toEqual([`${fontPreloads[0]} is not preloaded`]);
   });

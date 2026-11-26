@@ -12,7 +12,8 @@
     "@bd/contracts": "workspace:*",
     "@bd/fixtures": "workspace:*",
     "@bd/ports": "workspace:*",
-    "@bd/ui": "workspace:*"
+    "@bd/ui": "workspace:*",
+    "preact": "^11.2.0"
   },
   "exports": {
     "./local": "./src/local/index.ts"
