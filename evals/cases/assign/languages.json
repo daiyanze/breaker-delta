@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "input": {
+    "echoes": [
+      { "id": "e1", "title": "Kestrel Labs 发布 Finch 3 编译器，构建速度大幅提升" },
+      { "id": "e2", "title": "Kestrel Labs が Finch 3 をリリース、ビルドが高速に" },
+      { "id": "e3", "title": "港城公交司机罢工进入第二天" },
+      { "id": "e4", "title": "ヴェル諸島で新しい図書館が開館" }
+    ],
+    "topics": [
+      { "id": "t1", "name": "Kestrel Labs releases Finch 3 compiler", "aliases": ["Finch 3"] },
+      { "id": "t2", "name": "Harbor City transit strike", "aliases": ["港城罢工"] }
+    ]
+  },
+  "labels": { "e1": "t1", "e2": "t1", "e3": "t2", "e4": "new" }
+}

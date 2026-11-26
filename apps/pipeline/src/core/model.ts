@@ -6,12 +6,11 @@
  * - unset or empty: the provider chains from settings (ADR 0005, 0008),
  *   `assignProviders` for assign and `summarizeProviders` for summarize, each
  *   its own chain, sent the prompts in `PipelineConfig.prompts`. A task has
- *   no model when its chain is empty or when there are no prompts: its step
- *   is skipped (no call is made) and the rest of the run goes on, so compute
+ *   no model when its chain is empty or when it has no prompt: its step is
+ *   skipped (no call is made) and the rest of the run goes on, so compute
  *   still writes the board. The chains default to empty, so no provider is
  *   called until the owner sets one. The prompts are the shipped `PROMPTS`
- *   (`pipelineConfig`): summarize has one (#44); assign has none until #43,
- *   so until then assign is skipped whatever its chain holds.
+ *   (`pipelineConfig`): assign (#43) and summarize (#44).
  * - `fake`: the deterministic fake from `@bd/judge` (#31) for both tasks,
  *   whatever the chains say, for local mode, verify-local and previews. Its
  *   texts are marked as fake.

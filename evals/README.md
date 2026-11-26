@@ -18,11 +18,12 @@ PR. This directory is a protected path.
 | Freezing cases from a run | `scripts/freeze-cases.ts` |
 | Workflow | `.github/workflows/evals.yml` |
 
-Summarize ships `summarize-v1` (#44, `packages/judge/src/summarize-prompt.ts`)
-with its cases in `evals/cases/summarize/`. The assign prompt is #43: a prompt
-file, its entry in `PROMPTS`, and its cases. `pipelineConfig` hands every
-prompt in `PROMPTS` to the pipeline (`driverPrompts`), so an entry there is
-all the wiring a prompt needs.
+Assign ships `assign-v1` (#43, `packages/judge/src/assign-prompt.ts`) with
+its cases in `evals/cases/assign/`, and summarize ships `summarize-v1` (#44,
+`packages/judge/src/summarize-prompt.ts`) with its cases in
+`evals/cases/summarize/`. `pipelineConfig` hands every prompt in `PROMPTS`
+to the pipeline (`driverPrompts`), so an entry there is all the wiring a
+prompt needs.
 
 ## Two kinds of case (owner, #253)
 

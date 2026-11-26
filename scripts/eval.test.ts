@@ -22,8 +22,8 @@ import {
 import { type AssignCase, CaseError, parseCase, type SummarizeCase } from "./eval-cases.ts";
 
 /**
- * A stand-in prompt, not a real one (#43, #44 add those): the task's name and
- * the input as JSON. The stand-in model below reads it back.
+ * A stand-in prompt, not a real one (the shipped ones are #43's and #44's):
+ * the task's name and the input as JSON. The stand-in model below reads it back.
  */
 const standIn: Required<Prompts> = {
   assign: {
@@ -480,6 +480,7 @@ describe("main", () => {
     });
     expect(called).toBe(false);
     expect(code).toBe(1);
+    expect(lines.join("\n")).toMatch(/assign: prompt `assign-v1`, \d+ cases, but no provider/);
     expect(lines.join("\n")).toMatch(
       /summarize: prompt `summarize-v1`, \d+ cases, but no provider/,
     );

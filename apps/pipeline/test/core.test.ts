@@ -40,13 +40,12 @@ describe("pipeline config", () => {
     expect(without({ MODEL_DRIVER: "fake" })).toEqual({ ...none, model: "fake" });
   });
 
-  test("hands the shipped prompts to the chains: summarize-v1, and assign only once it ships", () => {
+  test("hands the shipped prompts to the chains: assign-v1 and summarize-v1", () => {
     const { prompts } = pipelineConfig({});
-    expect(prompts?.versions).toEqual({
-      ...(PROMPTS.assign ? { assign: PROMPTS.assign.version } : {}),
-      summarize: "summarize-v1",
-    });
-    expect(prompts?.assign === undefined).toBe(PROMPTS.assign === undefined);
+    expect(prompts?.versions).toEqual({ assign: "assign-v1", summarize: "summarize-v1" });
+    expect(prompts?.assign?.({ echoes: [], topics: [] })).toEqual(
+      PROMPTS.assign?.messages({ echoes: [], topics: [] }),
+    );
     const input = {
       name: "n",
       echoes: [{ id: "e1", title: "t" }],
