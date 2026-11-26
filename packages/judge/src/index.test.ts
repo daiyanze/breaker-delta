@@ -105,6 +105,20 @@ describe("callChain", () => {
     expect((err as ChainExhaustedError).attempts.map((a) => a.provider)).toEqual(["a", "b"]);
   });
 
+  test("an attempt keeps the exact HTTP status; other failures have none", async () => {
+    const f = fakeFetch({ "a.test": [503], "b.test": [418], "c.test": ["{}", "{}"] });
+    const C = { ...B, name: "c", baseUrl: "https://c.test/v1" };
+    const err = (await callChain([A, B, C], messages, validate, { fetch: f.fetch }).catch(
+      (e) => e,
+    )) as ChainExhaustedError;
+    expect(err.attempts.map(({ provider, kind, status }) => ({ provider, kind, status }))).toEqual([
+      { provider: "a", kind: "http-5xx", status: 503 },
+      { provider: "b", kind: "http-4xx", status: 418 },
+      { provider: "c", kind: "schema", status: undefined },
+    ]);
+    expect("status" in (err.attempts[2] ?? {})).toBe(false);
+  });
+
   test("an empty chain fails", async () => {
     await expect(callChain([], messages, validate)).rejects.toBeInstanceOf(ChainExhaustedError);
   });

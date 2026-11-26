@@ -138,15 +138,20 @@ Automatic, per task. Each is printed as a count out of a total:
 | fallback | answers from a provider other than the chain's first, of answers | same |
 | agreement | labelled echoes placed as labelled, when cases have labels | - |
 
-**Unanswered cases** (contract misses), per task, are listed by why the
-chain's last provider failed, one kind from a fixed list (`FAILURE_KINDS`
-in `packages/judge/src/index.ts`), with the ids of the cases:
+**Answered by**, per task: every provider of the chain, in chain order,
+with the number of cases it answered (0 for one that answered none). For
+each provider after the first, the report also lists the ids of those
+cases; the JSON has the ids for every provider (`answeredBy`).
 
-| kind | the last provider |
+**Unanswered cases** (contract misses), per task, are listed by why the
+chain's last provider failed, with the ids of the cases. A provider that
+answered with an HTTP error status is shown by its exact status
+(`http-503`, `http-429`); any other failure by its kind from the fixed list
+in `packages/judge/src/index.ts` (`FAILURE_KINDS`):
+
+| failure | the provider |
 | --- | --- |
-| `http-429` | answered HTTP 429 (rate limit) |
-| `http-4xx` | answered another 4xx |
-| `http-5xx` | answered a 5xx |
+| `http-<status>` | answered that HTTP error status (`http-429` is a rate limit) |
 | `timeout` | gave no response within the timeout |
 | `network` | failed before any response |
 | `empty` | answered with no completion text |
@@ -154,13 +159,18 @@ in `packages/judge/src/index.ts`), with the ids of the cases:
 | `schema` | answered JSON, and after the one repair still off the contract |
 | `other` | failed some other way |
 
-The HTTP kinds, `timeout`, `network` and `empty` are provider errors;
-`not-json` and `schema` are the prompt's or the model's. Only the kind
-and the case id are kept: case ids are file names (hand-written for
-committed cases, slot and topic id for frozen ones), never fetched text.
+Then, for each unanswered case, why every provider the chain tried failed,
+in chain order (`tried` in the JSON), for example
+`` `k2` (gemini `http-503`, groq `http-429`, opencode-go `http-400`) ``.
 
-The result holds numbers, kinds, case ids, prompt versions and provider
-names only. A model
+HTTP statuses, `timeout`, `network` and `empty` are provider errors;
+`not-json` and `schema` are the prompt's or the model's. Only the failure,
+the provider name and the case id are kept: case ids are file names
+(hand-written for committed cases, slot and topic id for frozen ones),
+never fetched text.
+
+The result holds numbers, failures (kinds and HTTP status codes), case ids,
+prompt versions, provider and model names only. A model
 answer can quote fetched text and the comment is read by coding sessions,
 so no answer, case text or chain error is printed.
 

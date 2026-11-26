@@ -19,11 +19,11 @@
  * when a prompt has no cases or no provider with a key, so a prompt PR whose
  * eval could not run is red; 2 on a bad case or providers file.
  *
- * Only numbers, case counts, failure kinds, case ids, prompt versions and provider names leave this
- * script. The model's answers can quote fetched text, and the report is
- * posted on a PR that a coding session reads (invariant 6), so no answer,
- * no case text and no chain error message (it may quote an answer) is
- * printed or written.
+ * Only numbers, case counts, failure kinds, HTTP status codes, case ids,
+ * prompt versions, provider and model names leave this script. The model's
+ * answers can quote fetched text, and the report is posted on a PR that a
+ * coding session reads (invariant 6), so no answer, no case text and no
+ * chain error message (it may quote an answer) is printed or written.
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -34,11 +34,11 @@ import { validateDraft } from "../apps/pipeline/src/core/validate.ts";
 import type { AssignResult, SummarizeResult } from "../packages/contracts/src/index.ts";
 import { type Provider, ProviderSchema } from "../packages/contracts/src/index.ts";
 import {
+  type Attempt,
   ChainExhaustedError,
   type ChainResult,
   chainDriver,
   FAILURE_KINDS,
-  type FailureKind,
   PROMPTS,
   type Prompts,
   type ResolvedProvider,
@@ -79,11 +79,32 @@ export interface Metrics {
   /** assign only, when cases have labels: labelled echoes placed as the owner did. */
   agreement?: Ratio;
   /**
-   * The cases with no answer, by why the chain's last provider failed
-   * (`FailureKind`): case ids only, never an error message, answer or case
-   * text. Only kinds that occurred are present.
+   * The answered cases by the provider that answered: every provider of the
+   * chain, in chain order, with the ids of its cases (none for a provider
+   * that answered nothing).
    */
-  unanswered: Partial<Record<FailureKind, string[]>>;
+  answeredBy: { provider: string; cases: string[] }[];
+  /**
+   * The cases with no answer, by why the chain's last provider failed (its
+   * `failure`): case ids only, never an error message, answer or case text.
+   * Only failures that occurred are present.
+   */
+  unanswered: Record<string, string[]>;
+  /**
+   * Per case with no answer, in case order: why each provider the chain
+   * tried failed, in chain order.
+   */
+  tried: { case: string; failures: { provider: string; failure: string }[] }[];
+}
+
+/**
+ * Why one provider gave no answer, as the report shows it: `http-<status>`
+ * (`http-503`) when it answered with an HTTP error status, else the
+ * attempt's kind (`timeout`, `network`, `empty`, `not-json`, `schema`,
+ * `other`). Never error text.
+ */
+export function failure(attempt: Pick<Attempt, "kind" | "status">): string {
+  return attempt.status !== undefined ? `http-${attempt.status}` : attempt.kind;
 }
 
 export type TaskResult =
@@ -121,45 +142,79 @@ export interface EvalOptions {
 
 const ratio = (n: number, of: number): Ratio => ({ n, of });
 
+/** What `ask` keeps about the cases with no answer. */
+interface Misses {
+  unanswered: Metrics["unanswered"];
+  tried: Metrics["tried"];
+}
+
 /**
  * One case through the chain as the pipeline calls it (`chainDriver`: the
  * same contract check and repair message). Null when the chain is
- * exhausted; its error may quote an answer, so only the kind of the last
- * provider's failure is kept, under the case id, in `misses`.
+ * exhausted; its error may quote an answer, so only each provider's
+ * `failure` is kept, under the case id, in `misses`.
  */
 async function ask<T>(
   id: string,
-  misses: Metrics["unanswered"],
+  misses: Misses,
   call: () => Promise<ChainResult<T>>,
 ): Promise<ChainResult<T> | null> {
   try {
     return await call();
   } catch (err) {
-    const kind: FailureKind =
-      err instanceof ChainExhaustedError ? (err.attempts.at(-1)?.kind ?? "other") : "other";
-    misses[kind] = [...(misses[kind] ?? []), id];
+    const failures =
+      err instanceof ChainExhaustedError
+        ? err.attempts.map((a) => ({ provider: a.provider, failure: failure(a) }))
+        : [];
+    const last = failures.at(-1)?.failure ?? "other";
+    misses.unanswered[last] = [...(misses.unanswered[last] ?? []), id];
+    misses.tried.push({ case: id, failures });
     return null;
   }
 }
 
-/** The kinds in `FAILURE_KINDS` order, so a result reads the same each run. */
-function ordered(misses: Metrics["unanswered"]): Metrics["unanswered"] {
+/** HTTP statuses in number order, then the other kinds in `FAILURE_KINDS` order. */
+function rank(f: string): number {
+  const status = /^http-(\d+)$/.exec(f)?.[1];
+  if (status !== undefined) return Number(status);
+  const i = (FAILURE_KINDS as readonly string[]).indexOf(f);
+  return 1000 + (i === -1 ? FAILURE_KINDS.length : i);
+}
+
+/** The failures in `rank` order, so a result reads the same each run. */
+function ordered(unanswered: Metrics["unanswered"]): Metrics["unanswered"] {
   const out: Metrics["unanswered"] = {};
-  for (const k of FAILURE_KINDS) if (misses[k]) out[k] = misses[k];
+  for (const f of Object.keys(unanswered).sort((x, y) => rank(x) - rank(y)))
+    out[f] = unanswered[f] ?? [];
   return out;
 }
+
+const noMisses = (): Misses => ({ unanswered: {}, tried: [] });
 
 /** A prompt for the task a driver is not used for here. */
 const unused = (): never => {
   throw new Error("not this task's prompt");
 };
 
-function chainCounts(answers: readonly (ChainResult<unknown> | null)[], first: string) {
+function chainCounts(
+  answers: readonly (ChainResult<unknown> | null)[],
+  ids: readonly string[],
+  chain: readonly ResolvedProvider[],
+  misses: Misses,
+) {
   const got = answers.filter((a): a is ChainResult<unknown> => a !== null);
+  const first = chain[0]?.name ?? "";
+  const names = [...new Set(chain.map((p) => p.name))];
   return {
     contract: ratio(got.length, answers.length),
     repaired: ratio(got.filter((a) => a.repaired).length, got.length),
     fallback: ratio(got.filter((a) => a.provider !== first).length, got.length),
+    answeredBy: names.map((provider) => ({
+      provider,
+      cases: ids.filter((_, i) => answers[i]?.provider === provider),
+    })),
+    unanswered: ordered(misses.unanswered),
+    tried: misses.tried,
   };
 }
 
@@ -180,7 +235,7 @@ async function evalAssign(
     fetchImpl ? { fetch: fetchImpl } : {},
   );
   const answers: (ChainResult<AssignResult> | null)[] = [];
-  const misses: Metrics["unanswered"] = {};
+  const misses = noMisses();
   let echoes = 0;
   let kept = 0;
   let labelled = 0;
@@ -204,9 +259,13 @@ async function evalAssign(
     }
   }
   const metrics: Metrics = {
-    ...chainCounts(answers, chain[0]?.name ?? ""),
+    ...chainCounts(
+      answers,
+      cases.map((c) => c.id),
+      chain,
+      misses,
+    ),
     citations: ratio(kept, echoes),
-    unanswered: ordered(misses),
   };
   if (labelled > 0) metrics.agreement = ratio(agreed, labelled);
   return metrics;
@@ -228,7 +287,7 @@ async function evalSummarize(
     fetchImpl ? { fetch: fetchImpl } : {},
   );
   const answers: (ChainResult<SummarizeResult> | null)[] = [];
-  const misses: Metrics["unanswered"] = {};
+  const misses = noMisses();
   let cited = 0;
   let complete = 0;
   let publishable = 0;
@@ -260,14 +319,18 @@ async function evalSummarize(
     );
     if (verdict.ok) publishable++;
   }
-  const counts = chainCounts(answers, chain[0]?.name ?? "");
+  const counts = chainCounts(
+    answers,
+    cases.map((c) => c.id),
+    chain,
+    misses,
+  );
   const n = counts.contract.n;
   return {
     ...counts,
     citations: ratio(cited, n),
     languages: ratio(complete, n),
     publishable: ratio(publishable, n),
-    unanswered: ordered(misses),
   };
 }
 
@@ -353,18 +416,35 @@ export function report(result: EvalResult): string {
         `- ${t.task} chain: ${t.providers.map((p) => `${p.name} \`${p.model}\``).join(", ")}`,
       );
     }
+    const ids = (list: readonly string[]) => list.map((id) => `\`${id}\``).join(", ");
+    for (const t of ran) {
+      // The first provider's cases are the default and go uncounted by id.
+      const by = t.metrics.answeredBy.map(({ provider, cases }, i) =>
+        i === 0 || cases.length === 0
+          ? `${provider} ${cases.length}`
+          : `${provider} ${cases.length} (${ids(cases)})`,
+      );
+      lines.push(`- ${t.task} answered by: ${by.join("; ")}`);
+    }
     for (const t of ran) {
       const kinds = Object.entries(t.metrics.unanswered);
       lines.push(
         kinds.length === 0
           ? `- ${t.task} unanswered: none`
           : `- ${t.task} unanswered, by why the last provider failed: ${kinds
-              .map(
-                ([kind, ids]) =>
-                  `\`${kind}\` ${ids.length} (${ids.map((id) => `\`${id}\``).join(", ")})`,
-              )
+              .map(([kind, list]) => `\`${kind}\` ${list.length} (${ids(list)})`)
               .join("; ")}`,
       );
+      if (t.metrics.tried.length > 0) {
+        lines.push(
+          `- ${t.task} unanswered, why each provider failed: ${t.metrics.tried
+            .map(
+              (c) =>
+                `\`${c.case}\` (${c.failures.map((f) => `${f.provider} \`${f.failure}\``).join(", ") || "no provider tried"})`,
+            )
+            .join("; ")}`,
+        );
+      }
     }
     lines.push("");
   }
