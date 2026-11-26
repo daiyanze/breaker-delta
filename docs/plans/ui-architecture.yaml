@@ -12,7 +12,7 @@ issues:
 
       - A generator writes `tokens.gen.ts` (literal-union types and values)
         from `design/system/tokens.json`.
-      - Exports `color`, `size`, `typeStyle`, `tokensCss`, `FONT_FILES` and
+      - Exports `colorOf`, `size`, `typeStyle`, `tokensCss`, `FONT_FILES` and
         `fontFaceCss`, with the signatures in the record.
       - `supplement.ts` holds the values the design states only in prose or
         not at all (control height, phone gutter and section size, the
@@ -61,22 +61,26 @@ issues:
         file; wrangler's build command writes it to
         `apps/web/public/client/`.
       - Every page links `ui.css`; the inline `<style>` goes.
-        `apps/web/src/core/style.ts` is deleted.
-      - `scripts/check-colors.ts` scans `packages/ui/src` `.css` files
-        outside `tokens` as well; today it scans `apps/web/src` only.
+        `apps/web/src/core/style.ts` is deleted, and its tests move with
+        the code they check. Class names do not change in this issue.
+        `icon.ts` keeps the styles inside the SVG files it draws.
+      - `scripts/check-colors.ts` scans `packages/ui/src` outside `tokens`
+        as well (`.css`, `.ts` and `.tsx`); today it scans `apps/web/src`
+        only.
       - `scripts/cloudflare-smoke.ts` also checks the built bd-web: it
         finds that build beside the pipeline's, so `ci.yml` is unchanged.
 
       Part of the check: root `package.json` scripts, `packages/ui`'s
-      `typecheck` script and a tsconfig for the build area with Bun's
-      types. Also changes `apps/web/wrangler.jsonc` and `.gitignore`.
+      `typecheck` script, a tsconfig for the build area with Bun's types,
+      and `.gitignore`. Also changes `apps/web/wrangler.jsonc`.
     acceptance:
       - A test fails when a `.css` file under `packages/ui/src` is missing from `uiCss()`.
       - A test finds the layers in `uiCss()` in the order `tokens, base, primitives, patterns`, each themed colour as one `light-dark()` declaration, and each shadow in all three theme blocks.
-      - "`find apps -name '*.css' -not -path '*/node_modules/*'` prints nothing, and no file under `apps/web/src` outside tests holds CSS text."
+      - "`git ls-files 'apps/**/*.css'` prints nothing, and `apps/web/src/core/layout.ts` holds no CSS text."
+      - "The assertions of today's `style.test.ts` and `layout.test.ts` on the styles (tabular figures, fonts preloaded and never swapped late, no type under 13px, the band's one and two columns) pass against `uiCss()` and the page head."
       - A test plants a literal colour in a `.css` file under `packages/ui/src` outside `tokens`, and `check-colors` reports it.
       - With the verify-local procedure and a browser, the front page shows the dark colours with `data-theme="dark"` set by hand, the light ones with `data-theme="light"`, and the system's choice with neither.
-      - The compiled executable serves `/client/ui.css` when run from an empty folder.
+      - "A script in the PR runs `bun run build:local`, starts the executable from an empty temporary folder and gets 200 for `/` and for `/client/ui.css`; its output is in the PR."
       - "The Cloudflare smoke run fails when bd-web's front page does not answer 200 with its heading, or when `client/ui.css` is missing from the built assets."
 
   - id: ui-server-render
@@ -97,6 +101,8 @@ issues:
         `apps/web`.
       - `@bd/ui/runtime`: `Document`, `renderDocument`, `states`, `CLIENT`.
       - `@bd/ui/patterns`: `Band`, moved from `apps/web/src/core/layout.ts`.
+        Its classes become `.Band` and `.Band-<part>`, in the markup and
+        the CSS together.
       - `apps/web/src/core/routes.ts`: the `URLPattern` route table with
         the `Route`, `RouteResult` and `RouteContext` types of the record.
       - The placeholder page and the bare front page become Preact
@@ -105,16 +111,17 @@ issues:
 
       Protected path: `AGENTS.md` (architecture map: the renderer and the
       route table). Part of the check: `tsconfig.base.json`,
-      `packages/ui/tsconfig.json`, `scripts/check-deps.ts` and `bun.lock`.
-      Answers the "choose" half of #56.
+      `packages/ui/tsconfig.json` and its `typecheck` script,
+      `scripts/check-deps.ts` and `bun.lock`. This is the "adopt" half of
+      #56; the record is the "choose" half.
     acceptance:
-      - A test renders a page whose fixture text holds `<script>`, quotes and `&`, and the output contains none of them unescaped.
-      - The existing band and page tests pass against the new components, with the same landmarks, ids and classes.
+      - "A test renders a page whose fixture text holds `<script>`, `&` and, in an attribute, `\"`; in the output they appear only as `&lt;script>`, `&amp;` and `&quot;`."
+      - The band and page tests are rewritten to assert the same landmarks, ids, headings and text as today; they no longer assert the old escape forms or line breaks.
       - "`grep -rn 'escapeHtml' apps packages --include='*.ts' --include='*.tsx'` prints nothing."
       - "Every tsconfig that reaches a `.tsx` compiles: `bun run typecheck` passes with a page exported from `site.ts`."
-      - "`bun test` and `bun run local` work from the repository root, and a test fails on a `.tsx` whose first line is not its JSX pragma."
+      - "`bun test` passes from the repository root, the verify-local procedure with `--fixtures busy` shows the front page, and a test fails on a `.tsx` whose first line is not its JSX pragma."
       - "The Cloudflare smoke run, which fetches bd-web's front page since `ui-css`, passes; with `packages/ui/tsconfig.json` renamed it fails."
-      - "`bun run build:local` produces an executable whose front page answers 200 with the fixture set `busy`, shown with the verify-local procedure."
+      - "The script of `ui-css` that builds the executable and starts it from an empty folder still gets 200 for `/`; its output is in the PR."
 
   - id: ui-islands
     title: Islands and the client modules
@@ -133,10 +140,10 @@ issues:
         its smallest form (a button that flips `data-theme` and stores the
         choice). #105 then finishes its design.
     acceptance:
-      - A type test shows that a function, a `Date`, a `Map`, a nested callback and `children` are compile errors as island props, that `RankRow`, `SiteMeta` and `Edition` are accepted, and that a prop typed `unknown` is rejected.
+      - "A type test, compiled by `bun run typecheck`, shows that a function, a `Date`, a `Map`, a nested callback and `children: ComponentChildren` are compile errors as island props, that `RankRow`, `SiteMeta` and `Edition` are accepted, and that a prop typed `unknown` is rejected."
       - A test renders an island whose prop text holds `</script>`, quotes and `&`; the HTML has no raw `<` inside the attribute and the props read back equal.
       - With the verify-local procedure and a browser, clicking the theme switch on the front page changes the theme, a reload keeps it, and the other theme does not show first; the steps and a screenshot are in the PR.
-      - The same works from the compiled executable run from an empty folder.
+      - "The script that starts the executable from an empty folder also gets 200 for `/client/loader.js` and the island's module; the theme switch is then clicked in a browser against that executable, with a screenshot in the PR."
       - A page with no island requests no JavaScript besides the loader, checked from the browser's network list.
 
   - id: mail-package
@@ -150,6 +157,8 @@ issues:
       theme, inline styles).
 
       - Export `renderConfirm(data): Promise<{ html: string; text: string }>`.
+        The template's text comes in `data`; the string tables for emails
+        live in `apps/pipeline`.
       - Every `.tsx` file starts with `/** @jsxImportSource react */`; the
         pragma test of `ui-server-render` covers this package too.
         `packages/mail` has a file named `tsconfig.json` extending the
@@ -172,7 +181,8 @@ issues:
       - "A `check-deps` test shows `apps/web` importing `@bd/mail` is reported."
       - "`bun run typecheck` passes with the template imported from the pipeline core, in the pipeline's three tsconfigs and in `apps/local`."
       - The Cloudflare smoke run renders the template in the Workers runtime and fails when the render throws; the pipeline Worker's dry-run size, with the template imported, is in the PR.
-      - "No `package.json` under `apps/web` or `packages/ui` lists `react` or `react-dom`."
+      - "A test fails when a `package.json` under `apps/web` or `packages/ui` lists `react` or `react-dom`."
+      - A test renders the template in English and in Chinese from the text in its data, with no string of its own in the template.
 
   - id: share-card-engine
     title: "Spike: draw a share card as PNG in Bun and in a Worker"

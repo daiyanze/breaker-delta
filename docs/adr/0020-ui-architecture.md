@@ -1,7 +1,7 @@
 # 0020 UI architecture: Preact on the server, islands, one UI package
 
-Date: 2026-11-26. Status: proposed. Builds on 0015 and 0018; answers the
-"choose" half of #56.
+Date: 2026-11-26. Status: proposed; the owner accepts it by merging it.
+Builds on 0015 and 0018; answers the "choose" half of #56.
 
 ## Goal
 
@@ -27,6 +27,7 @@ Marked per lesson L16.
 | Only the latest browser versions are supported | owner, 2026-11-26 |
 | No third-party component library; Tide Paper tokens | owner, ADR 0015 |
 | Emails are written with React Email, sent by `apps/pipeline` | owner, ADR 0012 |
+| Whether React community libraries stay usable | the owner asked this on 2026-11-26 and chose Preact after the answer; no library was approved. Section 2 states what follows from it, as the agent's proposal |
 | Everything else in "Decision" below | agent's proposal; the owner accepts it by merging this record |
 
 ## Constraints
@@ -87,16 +88,18 @@ export async function frontPage(ctx: RouteContext) {
   const meta = await ctx.queries.siteMeta();
   const edition = await ctx.queries.edition();
   const s = strings(ctx.lang);
-  return (
-    <Document lang={ctx.lang} title={meta.siteName}>
-      <Band id="newsstand" name={s.newsstand}>
-        <Newsstand papers={papers(edition)} selected={slot} nextRunAt={meta.nextRunAt} labels={s.newsstandLabels} />
-      </Band>
-      <Band id="front" name={s.frontPage}>
-        <Button href="/echoes">{s.readAll(214)}</Button>
-      </Band>
-    </Document>
-  );
+  return {
+    document: (
+      <Document lang={ctx.lang} title={meta.siteName}>
+        <Band id="newsstand" name={s.newsstand}>
+          <Newsstand papers={papers(edition)} selected={slot} nextRunAt={meta.nextRunAt} labels={s.newsstandLabels} />
+        </Band>
+        <Band id="front" name={s.frontPage}>
+          <Button href="/echoes">{s.readAll(214)}</Button>
+        </Band>
+      </Document>
+    ),
+  };
 }
 ```
 
@@ -120,14 +123,16 @@ export default states(Button, {
 });
 
 // packages/mail/src/Confirm.tsx
-<Text style={{ color: color("ink", "light"), fontFamily: typeStyle("body").family }}>…</Text>
+<Text style={{ color: colorOf("ink", "light"), fontFamily: typeStyle("body").family }}>{data.strings.confirm}</Text>
 ```
 
 ## Shapes considered
 
 Both were sketched as code against the real callers, on local branches that
 are not pushed (`sketch/ui-architecture-a`, `sketch/ui-architecture-b`),
-and both type-check.
+and both type-check. Sketch A was revised after the first challenge round
+only: the JSX pragma, `RouteResult` and the `catalog` area came later and
+are in this record, not in the sketch.
 
 **A. Server-rendered Preact with named islands (chosen).** The server owns
 the page. A component that needs the browser is wrapped with `island()`;
@@ -151,7 +156,8 @@ data embedded as JSON. It lost because:
 **C. Template strings and hand-written custom elements** (today's
 `layout.ts`, extended). Not sketched. Smallest client, but escaping stays a
 manual call at every interpolation (C6), props are untyped, and it has no
-path to a React library, which the owner asked to keep open.
+path to a React library, which the owner asked about (see "Who decided
+what").
 
 Renderers: React costs 65 kB gzip on every page with an island. Hono JSX is
 as small as Preact but cannot run React libraries. vinext fails C1. Astro
@@ -247,9 +253,13 @@ export function island<P extends object>(
   or an `undefined` inside an array reads back as `null`. A prop typed `unknown` is rejected even when the data is JSON
   (`DeskSettings.history[].changes[].from` is `z.unknown()`); such a value
   reaches an island as text the server has already formatted.
-- A React library, when one is worth its size, is used inside one island
-  through `preact/compat`. That is a decision per island, named in its PR
-  with the bundle size.
+- ADR 0015 stands: no third-party component library, headless ones
+  (Radix, React Aria) included, with or without `preact/compat`. They were
+  used above only to probe compatibility. What Preact keeps possible is a
+  React library that is not a component library (a hook, a data or
+  drawing helper) inside one island through `preact/compat`. None is
+  adopted here; each one is the owner's decision, asked before it is built,
+  with its bundle size.
 
 ### 3. `packages/ui` (`@bd/ui`)
 
@@ -258,8 +268,8 @@ enforces it.
 
 | Layer | Holds | May import |
 | --- | --- | --- |
-| `tokens` | values and CSS variables from `tokens.json`, font files | `design/system/tokens.json` |
-| `runtime` | `Document`, `renderDocument`, `island`, `states`, the loader | `tokens`, `preact` |
+| `tokens` | values and CSS variables from `tokens.json`, the font-face definitions | `design/system/tokens.json` |
+| `runtime` | `Document`, `renderDocument`, `island`, `states`, the loader | `tokens`, `preact`, `preact-render-to-string` |
 | `primitives` | Button, Menu, Tabs, Notice, form fields, Icon | the two above |
 | `patterns` | Band, Masthead, Newsstand, TicketStub and the other Tide Paper parts, one per `design/system/components/<Name>` | the three above, `@bd/contracts` types |
 
@@ -306,7 +316,8 @@ export function states<P>(component: ComponentType<P>, states: { readonly [name:
 
 - Plain `.css` files, one per component, written inside its layer:
   `@layer tokens, base, primitives, patterns;`. Native nesting. The root
-  class is the component's name.
+  class is the component's name (`.Band`), its parts `.Band-rail`; today's
+  `.band` classes are renamed when the component moves.
 - No build step for CSS. `uiCss()` in `@bd/ui/styles` imports each file as
   text and joins them in layer order; a test fails when a `.css` file under
   `src` is missing from its list. Every page links the result at
@@ -321,8 +332,11 @@ export function states<P>(component: ComponentType<P>, states: { readonly [name:
 - A width in a media or container query cannot be a variable. It is the one
   literal a component's CSS may hold, and only a value the tokens layer
   lists as a breakpoint.
-- No Tailwind, no CSS-in-JS, no utility classes. `apps/*` holds no `.css`
-  and no `style=`.
+- The `.type-<name>` classes stay generated by the tokens layer, as today.
+- No Tailwind, no CSS-in-JS, no utility classes. `apps/*` tracks no `.css`
+  file and writes no `style=` in a page. The one exception is
+  `apps/web/src/core/icon.ts`: the SVG icons it draws are files of their
+  own, cannot link `ui.css`, and carry their styles inside.
 
 ### 5. Tokens
 
@@ -346,7 +360,8 @@ export function states<P>(component: ComponentType<P>, states: { readonly [name:
 // @bd/ui/tokens
 export type Theme = "light" | "dark";
 export type ColorToken = "paper" | "ink" | "ink-2" /* … generated */;
-export function color(name: ColorToken, theme: Theme): string;
+/** Not `color(`: `scripts/check-colors.ts` reads that as a CSS colour function. */
+export function colorOf(name: ColorToken, theme: Theme): string;
 export function size(name: SpaceToken | RadiusToken | RuleToken): string;
 export function typeStyle(name: TypeStyle): TypeValues;
 export function tokensCss(): string;
@@ -358,7 +373,8 @@ export function fontFaceCss(base: string): string;
 
 Components take their text as props. String tables live in `apps/web`, one
 per language; a missing key fails CI (#107). The desk's strings come from
-`design/strings`.
+`design/strings`. An email template takes its text in its data, like any
+component; the tables for emails live with the caller, `apps/pipeline`.
 
 ### 7. Emails
 
@@ -463,7 +479,7 @@ A. Round 1 proved eight things; each is settled above.
 | --- | --- |
 | Screenshot checks need a browser download in CI and per-OS baselines | section 12: a job of their own on one OS |
 | A build in `scripts/` cannot be imported by a ruled file, and a `package.json` pre-step is skipped by everything that starts the site directly | section 11: `@bd/ui/build`, called by the adapter, in memory |
-| A `.tsx` reached from the adapters or `apps/local` fails without JSX settings; mail files compile for Preact there | section 3 (base tsconfig) and section 7 (pragma) |
+| A `.tsx` reached from the adapters or `apps/local` fails without JSX settings; mail files compile for Preact there | section 3 |
 | `light-dark()` rejects a whole shadow | section 4: non-colour themed tokens keep three blocks |
 | `tokens.json` lacks the control height and breakpoints; a query cannot use a variable | sections 4 and 5: `supplement.ts`, listed breakpoints |
 | JSON props in a `<script>` child are entity-encoded or need raw HTML | section 2: props in an attribute |
@@ -551,6 +567,15 @@ owner; do not patch around it.
 - The same React library is wanted in a third island.
 - A page needs to change without a load in a way a link cannot do.
 
+## Open for the owner
+
+- **The desk's language switch (C9).** The design says the desk switches
+  language in place. Under this shape a switch is a reload that keeps the
+  stored choice, unless a whole desk page is one island. This record does
+  not decide it; #139 needs the owner's answer.
+- **`supplement.ts`** (section 5) departs from "values come only from
+  `tokens.json`" until the design export carries those values.
+
 ## What this changes
 
 - #56: the choice is this record. Adopting it is the plan's
@@ -562,8 +587,10 @@ owner; do not patch around it.
   `@bd/contracts`, byte-identical output, string-rendering functions). The
   plan's first four issues replace it; the owner closes or rewrites it.
 - "Depends on" in existing issues, for the owner to set when the plan's
-  issues exist: #105 on `ui-islands`; #129 on `share-card-engine`; #143 on
-  `mail-package`; #258 and #259 on `ui-islands` in place of #257.
+  issues exist and before #257 is closed (closing it first would make #258
+  and #259 pickable; #105 is pickable today): #105 on `ui-islands`; #129 on
+  `share-card-engine`; #143 on `mail-package`; #258 and #259 on
+  `ui-islands` in place of #257.
 - #258: its screenshot check moves out of `check` into a CI job of its own,
   which changes `.github` (protected); hover, focus and languages follow
   section 12.
