@@ -1,2 +1,3 @@
 # Copy to .dev.vars for local runs. Never commit .dev.vars.
 PROBE_TOKEN=dev
+REPORT_TOKEN=dev-report

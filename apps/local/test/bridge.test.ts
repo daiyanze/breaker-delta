@@ -243,6 +243,7 @@ describe("agentEnv", () => {
   test("BD_BRIDGE_ENV adds names, never an app secret", () => {
     expect(agentEnv(launcher, ["FOO", "MISSING"])).toMatchObject({ FOO: "foo" });
     expect(() => agentEnv(launcher, ["PROBE_TOKEN"])).toThrow("PROBE_TOKEN");
+    expect(() => agentEnv(launcher, ["REPORT_TOKEN"])).toThrow("REPORT_TOKEN");
     expect(() => agentEnv(launcher, ["GROQ_API_KEY"])).toThrow("GROQ_API_KEY");
   });
 });

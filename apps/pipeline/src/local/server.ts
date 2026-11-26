@@ -32,7 +32,7 @@ export interface LocalPipelineOptions {
   hostname?: string;
   /** Seconds between ticks. The runner decides whether a slot is due. */
   tickSeconds: number;
-  /** PROBE_TOKEN and MODEL_DRIVER, as on Cloudflare. */
+  /** PROBE_TOKEN, REPORT_TOKEN and MODEL_DRIVER, as on Cloudflare. */
   vars: Record<string, string | undefined>;
   /**
    * Reads the secret a provider's `apiKeyRef` names (#42). Default: the
@@ -85,6 +85,7 @@ export function startPipeline(options: LocalPipelineOptions): LocalPipeline {
     },
     pipelineConfig({
       PROBE_TOKEN: options.vars.PROBE_TOKEN,
+      REPORT_TOKEN: options.vars.REPORT_TOKEN,
       MODEL_DRIVER: options.vars.MODEL_DRIVER,
     }),
   );

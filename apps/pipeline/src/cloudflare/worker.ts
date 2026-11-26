@@ -20,6 +20,8 @@ export interface Env {
   SITE?: SiteCache;
   /** Guards /__probe and /__tick. Unset = those routes do not exist. */
   PROBE_TOKEN?: string;
+  /** Guards /__report, the read-only run report (#53). Unset = it does not exist. */
+  REPORT_TOKEN?: string;
   /** The model driver (`src/core/model.ts`). Unset = the provider chains from settings. */
   MODEL_DRIVER?: string;
 }
