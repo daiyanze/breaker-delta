@@ -19,11 +19,13 @@
  * when a prompt has no cases or no provider with a key, so a prompt PR whose
  * eval could not run is red; 2 on a bad case or providers file.
  *
- * Only numbers, case counts, failure kinds, HTTP status codes, case ids,
- * prompt versions, provider and model names leave this script. The model's
- * answers can quote fetched text, and the report is posted on a PR that a
- * coding session reads (invariant 6), so no answer, no case text and no
- * chain error message (it may quote an answer) is printed or written.
+ * Only the commit SHA, task names, counts and ratios (per-provider answer
+ * counts included), prompt versions, provider and model names, failure
+ * kinds, HTTP status codes, case ids and the names (never the values) of
+ * unset key variables leave this script. The model's answers can quote
+ * fetched text, and the report is posted on a PR that a coding session
+ * reads (invariant 6), so no answer, no case text and no chain error
+ * message (it may quote an answer) is printed or written.
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -395,7 +397,11 @@ function cell(r: Ratio | undefined): string {
   return `${r.n}/${r.of} (${Math.round((r.n / r.of) * 100)}%)`;
 }
 
-/** Markdown for the PR comment: numbers, versions and provider names only. */
+/**
+ * Markdown for the PR comment: only what the header says leaves this script
+ * (counts, prompt versions, provider and model names, failures, case ids,
+ * names of unset key variables), never answers, case text or error text.
+ */
 export function report(result: EvalResult): string {
   const lines = [MARKER, `### Eval${result.sha ? ` for ${result.sha.slice(0, 7)}` : ""}`, ""];
   const ran = result.tasks.filter((t) => t.status === "ran");

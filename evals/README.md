@@ -169,10 +169,13 @@ the provider name and the case id are kept: case ids are file names
 (hand-written for committed cases, slot and topic id for frozen ones),
 never fetched text.
 
-The result holds numbers, failures (kinds and HTTP status codes), case ids,
-prompt versions, provider and model names only. A model
-answer can quote fetched text and the comment is read by coding sessions,
-so no answer, case text or chain error is printed.
+The result (the report and the JSON) holds only: the commit SHA, task
+names, counts and ratios (per-provider answer counts included), prompt
+versions, provider and model names, failures (kinds and HTTP status
+codes), case ids, and, when no provider has a key, the names (never the
+values) of the key variables to set. A model answer can quote fetched text
+and the comment is read by coding sessions, so no answer, case text or
+chain error is printed.
 
 Still by hand: spot checks of Chinese and Japanese readability.
 
