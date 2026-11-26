@@ -139,7 +139,10 @@ export function nameCitesNoAddress(name: string, title: string): boolean {
  * - a Markdown link or image (`](`) or link definition (`[x]: ...` at a
  *   line's start);
  * - a link scheme with no `//`: `javascript:`, `data:`, `mailto:` and the
- *   like (`https://` and `www.` are `nameCitesNoAddress`'s);
+ *   like, followed directly by a non-space character (`data:text/html`,
+ *   `mailto:x`); with a space after the colon it is a prose label ("Key
+ *   data: ...", "The court file: ..."), which no autolinker reads as a link
+ *   (`https://` and `www.` are `nameCitesNoAddress`'s);
  * - an email address, which mail clients link even when its domain is in
  *   the echoes' own text.
  */
@@ -148,7 +151,7 @@ const MARKUP = [
   /&(?:#\d+|#x[0-9a-f]+|[a-z][a-z0-9]*);/iu,
   /\]\s*\(/u,
   /^\s*\[[^\]\n]*\]\s*:/mu,
-  /(?:^|[^\p{L}\p{N}+.-])(?:javascript|vbscript|data|mailto|tel|sms|file|blob|about|intent|ftp|wss?):/iu,
+  /(?:^|[^\p{L}\p{N}+.-])(?:javascript|vbscript|data|mailto|tel|sms|file|blob|about|intent|ftp|wss?):(?=\S)/iu,
   /[\p{L}\p{N}._%+-]+@[\p{L}\p{N}-]+(?:\.[\p{L}\p{N}-]+)+/u,
 ];
 

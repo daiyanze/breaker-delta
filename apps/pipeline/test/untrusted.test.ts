@@ -79,6 +79,10 @@ const LINKS: string[] = [
   "Write to press@rust-lang.org",
   "tel:+15550100",
   "file:///etc/passwd",
+  "Key data:text/plain;base64,QQ==",
+  "See file:x",
+  "Call tel:5550100 now",
+  "Data:x",
 ];
 
 /** Ordinary prose, in every enabled language, that must still pass. */
@@ -89,6 +93,12 @@ const PROSE: string[] = [
   "C++ users are unaffected [according to the notes].",
   "The compiler (version 2.0) is out; rust-lang.org hosts the notes.",
   "AT&T and R&D teams test it.",
+  "Key data: revenue rose 40% in the quarter.",
+  "What the lawsuit is about: training data.",
+  "The court file: a 40-page complaint.",
+  "The stated intent: to ship by June.",
+  "Data: the model scores 90 on the benchmark.",
+  "Mailto: and tel: are not used here.",
   "Rust 2.0 正式发布，编译器更快。",
   "Rust 2.0 が公開された。提供は本日から。",
 ];
