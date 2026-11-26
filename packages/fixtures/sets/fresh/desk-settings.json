@@ -35,6 +35,7 @@
     "assignActivityDays": 7,
     "echoRetentionDays": 30,
     "rawRetentionDays": 30,
+    "reportWindowDays": 7,
     "enrichPagesPerTopic": 3,
     "enrichPagesPerRun": 9,
     "enrichPageMaxChars": 4000,

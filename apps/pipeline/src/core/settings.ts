@@ -75,6 +75,15 @@ export async function readSettings(db: Db, nowMs: number): Promise<StoredSetting
   return { settings: loaded.settings, updatedAt: loaded.updatedAt };
 }
 
+/**
+ * The current settings without writing: the defaults when no row is stored
+ * yet. For read-only routes (`/__report`), which must not seed.
+ */
+export async function peekSettings(db: Db): Promise<Settings> {
+  const row = await readRow(db);
+  return row ? parseStored(row.json) : SettingsSchema.parse({});
+}
+
 /** The settings and the row's JSON as stored, which a change compares against. */
 async function load(db: Db, nowMs: number): Promise<StoredSettings & { stored: string }> {
   let row = await readRow(db);

@@ -26,15 +26,18 @@ const get = (path: string, token?: string) =>
   });
 
 describe("pipeline config", () => {
-  test("holds the probe token and the model driver; behaviour comes from settings", () => {
+  test("holds the tokens and the model driver; behaviour comes from settings", () => {
     const without = (vars: Parameters<typeof pipelineConfig>[0]) => {
       const { prompts: _, ...rest } = pipelineConfig(vars);
       return rest;
     };
-    expect(without({})).toEqual({ probeToken: null, model: null });
-    expect(without({ PROBE_TOKEN: "t" })).toEqual({ probeToken: "t", model: null });
-    expect(without({ MODEL_DRIVER: "" })).toEqual({ probeToken: null, model: null });
-    expect(without({ MODEL_DRIVER: "fake" })).toEqual({ probeToken: null, model: "fake" });
+    const none = { probeToken: null, reportToken: null, model: null };
+    expect(without({})).toEqual(none);
+    expect(without({ PROBE_TOKEN: "t" })).toEqual({ ...none, probeToken: "t" });
+    expect(without({ REPORT_TOKEN: "r" })).toEqual({ ...none, reportToken: "r" });
+    expect(without({ REPORT_TOKEN: "" })).toEqual(none);
+    expect(without({ MODEL_DRIVER: "" })).toEqual(none);
+    expect(without({ MODEL_DRIVER: "fake" })).toEqual({ ...none, model: "fake" });
   });
 
   test("hands the shipped prompts to the chains: summarize-v1, and assign only once it ships", () => {

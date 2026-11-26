@@ -13,6 +13,7 @@
  *   BD_SOURCES        live (default): scan fetches the real sources;
  *                     fixtures: each group's recorded fixture, no network
  *   PROBE_TOKEN       as on Cloudflare
+ *   REPORT_TOKEN      as on Cloudflare: guards /__report (#53); unset = no report
  *   MODEL_DRIVER      as on Cloudflare: unset = the provider chains from settings, fake = the fake driver
  *   BD_BRIDGE_COMMAND the agent CLI the model bridge runs, as a JSON array (bridge.ts); unset = no bridge
  *   BD_BRIDGE_PORT    bridge port, on 127.0.0.1 only (default 8789)
@@ -74,7 +75,11 @@ const pipeline = startPipeline({
   dataDir,
   port: Number(env.BD_PORT ?? 8787),
   tickSeconds: Number(env.BD_TICK_SECONDS ?? 60),
-  vars: { PROBE_TOKEN: env.PROBE_TOKEN, MODEL_DRIVER: env.MODEL_DRIVER },
+  vars: {
+    PROBE_TOKEN: env.PROBE_TOKEN,
+    REPORT_TOKEN: env.REPORT_TOKEN,
+    MODEL_DRIVER: env.MODEL_DRIVER,
+  },
   sources,
   site,
 });
