@@ -244,6 +244,21 @@ describe("chainDriver", () => {
     expect(String(err.message)).toContain("evidenceEchoIds");
   });
 
+  test("a key outside the contract is refused, not dropped, and named in the repair (#46)", async () => {
+    const extra = { assignments: [{ echoId: "e1", topicId: "t1", url: "https://x.test/" }] };
+    const clean = { assignments: [{ echoId: "e1", topicId: "t1" }] };
+    const f = fakeFetch({ "a.test": [JSON.stringify(extra), JSON.stringify(clean)] });
+    const sent: string[] = [];
+    const spy = (async (input: string | URL | Request, init?: RequestInit) => {
+      sent.push(String(init?.body));
+      return f.fetch(input, init);
+    }) as typeof fetch;
+    const r = await chainDriver([A], prompts, { fetch: spy }).assign(input);
+    expect(r.value).toEqual(clean);
+    expect(r.repaired).toBe(true);
+    expect(sent[1]).toContain("url");
+  });
+
   test("the key is in no error the chain throws", async () => {
     const key = "sk-test-not-a-real-key";
     const f = fakeFetch({ "a.test": [401] });

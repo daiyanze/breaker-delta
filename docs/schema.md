@@ -125,7 +125,8 @@ The commit step (#34, `apps/pipeline/src/core/commit.ts`) writes it: a
 published row gets the topic's next `version`, its texts and its evidence
 in one batch; a draft the validate step refused (an echo id it was not
 given, a missing language, a first summary with no criterion, an address
-the echoes do not have) gets a discarded row and nothing else. A row's id
+the echoes do not have, markup or a link such as `<a>`, `[x](...)` or
+`javascript:`, a key outside the contract) gets a discarded row and nothing else. A row's id
 comes from its slot and topic, so a retried commit writes nothing twice.
 `source_text_read` is true when the enrich step (#45,
 `apps/pipeline/src/core/enrich.ts`) read at least one of the wave's

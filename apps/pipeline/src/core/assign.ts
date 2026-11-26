@@ -127,6 +127,38 @@ export function nameCitesNoAddress(name: string, title: string): boolean {
 }
 
 /**
+ * Model-written text is shown as plain text, never as markup (#46). Every
+ * renderer escapes it, and this check refuses, before anything is stored,
+ * text that a renderer which did not escape, a Markdown reader or a mail
+ * client could turn into a link or an element. Read on the NFKC form, so
+ * fullwidth `＜`, `［` or `：` count as their ASCII forms:
+ *
+ * - an HTML tag, comment or autolink: `<` before a letter, `/`, `!` or `?`
+ *   (`a < b` and `<3` are prose);
+ * - a character reference (`&#60;`, `&#x3c;`, `&lt;`);
+ * - a Markdown link or image (`](`) or link definition (`[x]: ...` at a
+ *   line's start);
+ * - a link scheme with no `//`: `javascript:`, `data:`, `mailto:` and the
+ *   like (`https://` and `www.` are `nameCitesNoAddress`'s);
+ * - an email address, which mail clients link even when its domain is in
+ *   the echoes' own text.
+ */
+const MARKUP = [
+  /<[\p{L}/!?]/u,
+  /&(?:#\d+|#x[0-9a-f]+|[a-z][a-z0-9]*);/iu,
+  /\]\s*\(/u,
+  /^\s*\[[^\]\n]*\]\s*:/mu,
+  /(?:^|[^\p{L}\p{N}+.-])(?:javascript|vbscript|data|mailto|tel|sms|file|blob|about|intent|ftp|wss?):/iu,
+  /[\p{L}\p{N}._%+-]+@[\p{L}\p{N}-]+(?:\.[\p{L}\p{N}-]+)+/u,
+];
+
+/** Whether model-written `text` holds no markup or link a renderer could act on. Pure. */
+export function writesNoMarkup(text: string): boolean {
+  const n = text.normalize("NFKC");
+  return !MARKUP.some((re) => re.test(n));
+}
+
+/**
  * At most `size` topics for the batch whose titles are given: most words
  * shared between a topic's name or aliases and the titles first, then the
  * most recently active, then by id. Pure; exported for tests.
@@ -160,7 +192,7 @@ export type Placement = { topicId: string } | { newTopic: string };
  * it rejected. Rejected: an answer that fails the contract (all of it), an
  * echo not in the batch, an echo named more than once (every one of its
  * assignments), a topic not in the shortlist, a blank new topic name, a new name
- * `nameCitesNoAddress` refuses. Pure;
+ * `nameCitesNoAddress` or `writesNoMarkup` refuses. Pure;
  * exported for tests.
  */
 export function validateAssignments(
@@ -187,7 +219,7 @@ export function validateAssignments(
       continue;
     }
     const name = a.newTopic.name.trim();
-    if (name && nameCitesNoAddress(name, titles.get(a.echoId) ?? ""))
+    if (name && nameCitesNoAddress(name, titles.get(a.echoId) ?? "") && writesNoMarkup(name))
       placements.set(a.echoId, { newTopic: name });
     else rejected++;
   }
