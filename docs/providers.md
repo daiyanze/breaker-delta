@@ -13,8 +13,9 @@ an installation is set up with.
 - **Owner's decisions (2026-11-26):** OpenCode Go `deepseek-v4.1-flash` was
   added to the end of the eval's chains (#261), then removed the same day:
   it answered no case, every call failing `http-400` (#265's per-provider
-  report). The endpoint refuses a request without an `x-opencode-session`
-  header, and OpenCode's docs describe Go as for coding agents' traffic,
+  report). By the agent's own probe (one request without a key, not
+  reviewed), the endpoint refuses a request without an `x-opencode-session`
+  header; OpenCode's docs describe Go as for coding agents' traffic,
   which an eval of news summaries is not. The hosted chains below never
   held it.
 

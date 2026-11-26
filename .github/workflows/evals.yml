@@ -9,8 +9,8 @@ name: evals
 # - Credentials: the `evals` environment holds the provider keys named in
 #   evals/providers.json (GROQ_API_KEY, GEMINI_API_KEY). A provider whose key
 #   is not set is left out; a shipped prompt with no provider left fails the
-#   job, and the comment says which key to set. Only same-repository PRs opened by the owner run this
-#   job; forks never get the keys (ADR 0007).
+#   job, and the comment says which key to set. Only same-repository PRs
+#   opened by the owner run this job; forks never get the keys (ADR 0007).
 # - The comment holds numbers, prompt versions and provider names only, never
 #   a model answer or case text (invariant 6: a coding session reads it).
 
