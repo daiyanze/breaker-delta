@@ -1,0 +1,13 @@
+{
+  "name": "@bd/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tokens": "./src/tokens/index.ts"
+  },
+  "scripts": {
+    "tokens": "bun scripts/generate-tokens.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.tokens.json"
+  }
+}

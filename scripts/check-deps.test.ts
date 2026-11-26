@@ -195,17 +195,40 @@ describe("check-deps", () => {
         "apps/web/src/core/t.ts",
         'import type { X } from "../local/x.ts";\nexport type { Y } from "../local/x.ts";',
       );
+      // A data file in its own package, and one the rule lists from another (#269).
       file(
-        "apps/web/src/core/data.ts",
-        'import tokens from "../../../../design/system/tokens.json";',
+        "apps/pipeline/src/local/data.ts",
+        'import f from "../sources/fixtures/x.json" with { type: "text" };',
       );
       file(
         "apps/pipeline/src/local/sql.ts",
         'import m from "../../../../packages/db/migrations/0000_init.sql" with { type: "text" };',
       );
+      file(
+        "packages/ui/src/tokens/json.ts",
+        'import t from "../../../../design/system/tokens.json" with { type: "json" };',
+      );
       const found = rel();
-      const ok = ["app2.ts", "core/q.ts", "srv.ts", "core/t.ts", "data.ts", "sql.ts"];
+      const ok = ["app2.ts", "core/q.ts", "srv.ts", "core/t.ts", "data.ts", "sql.ts", "json.ts"];
       for (const name of ok) expect(found).not.toContain(name);
+    });
+
+    test("a data file from outside the package passes only when the rule lists it (#269)", () => {
+      file(
+        "apps/web/src/core/tokens-json.ts",
+        'import tokens from "../../../../design/system/tokens.json" with { type: "json" };',
+      );
+      file(
+        "apps/pipeline/src/core/sql.ts",
+        'import m from "../../../../packages/db/migrations/0000_init.sql" with { type: "text" };',
+      );
+      const found = rel();
+      expect(found).toContain(
+        'apps/web/src/core/tokens-json.ts imports "../../../../design/system/tokens.json", ' +
+          "a data file outside its package that apps/web/src/core does not list",
+      );
+      expect(found).toContain("apps/pipeline/src/core/sql.ts imports");
+      expect(found).toContain("list it in the rule's data");
     });
 
     test("an edge is one way: sources may not reach the core", () => {
@@ -325,6 +348,89 @@ describe("check-deps", () => {
         'apps/web/src/core/sel.ts imports "../select.ts", which is in apps/web/src/select.ts',
       );
       expect(found).not.toContain("web/src/local/sel.ts");
+    });
+  });
+
+  // #269, ADR 0020 section 3: one planted violation per rule.
+  describe("@bd/ui layers", () => {
+    const all = () => [...violations(root, RULES), ...relativeViolations(root, RULES)].join("\n");
+
+    test("no layer or area imports an app, by name or by relative path", () => {
+      file("apps/web/src/core/site-x.ts", "export const s = 1;");
+      file("packages/ui/src/tokens/app.ts", 'import { s } from "@bd/web/local";');
+      file("packages/ui/src/patterns/app.ts", 'import { s } from "@bd/pipeline";');
+      file(
+        "packages/ui/src/primitives/app-path.ts",
+        'import { s } from "../../../../apps/web/src/core/site-x.ts";',
+      );
+      const found = all();
+      expect(found).toContain('ui/src/tokens/app.ts imports "@bd/web/local"');
+      expect(found).toContain('ui/src/patterns/app.ts imports "@bd/pipeline"');
+      expect(found).toContain(
+        'packages/ui/src/primitives/app-path.ts imports "../../../../apps/web/src/core/site-x.ts", code in apps/web',
+      );
+    });
+
+    test("no layer imports another package, except contract types in patterns", () => {
+      file("packages/ui/src/tokens/pkg.ts", 'import { z } from "zod";');
+      file("packages/ui/src/primitives/pkg.ts", 'import type { RankRow } from "@bd/contracts";');
+      file("packages/ui/src/runtime/pkg.ts", 'import { core } from "@bd/core";');
+      file("packages/ui/src/patterns/ok.ts", 'import type { RankRow } from "@bd/contracts";');
+      file("packages/ui/src/primitives/compat.ts", 'import { forwardRef } from "preact/compat";');
+      const found = all();
+      expect(found).toContain('ui/src/tokens/pkg.ts imports "zod"');
+      expect(found).toContain('ui/src/primitives/pkg.ts imports "@bd/contracts"');
+      expect(found).toContain('ui/src/runtime/pkg.ts imports "@bd/core"');
+      expect(found).toContain('ui/src/primitives/compat.ts imports "preact/compat"');
+      expect(found).not.toContain("patterns/ok.ts");
+    });
+
+    test("tokens import tokens.json and no other JSON file", () => {
+      file(
+        "packages/ui/src/tokens/other.ts",
+        'import d from "../../../../design/system/design-system.json" with { type: "json" };',
+      );
+      file(
+        "packages/ui/src/runtime/json.ts",
+        'import t from "../../../../design/system/tokens.json" with { type: "json" };',
+      );
+      const found = all();
+      expect(found).toContain(
+        'packages/ui/src/tokens/other.ts imports "../../../../design/system/design-system.json", ' +
+          "a data file outside its package that packages/ui/src/tokens does not list",
+      );
+      expect(found).toContain("packages/ui/src/runtime/json.ts imports");
+    });
+
+    test("a layer imports only the layers before it", () => {
+      file("packages/ui/src/runtime/document.ts", "export const d = 1;");
+      file("packages/ui/src/patterns/band.ts", "export const b = 1;");
+      file("packages/ui/src/tokens/up.ts", 'import { d } from "../runtime/document.ts";');
+      file("packages/ui/src/primitives/up.ts", 'import { b } from "../patterns/band.ts";');
+      file("packages/ui/src/patterns/down.ts", 'import { d } from "../runtime/document.ts";');
+      const found = all();
+      expect(found).toContain(
+        'packages/ui/src/tokens/up.ts imports "../runtime/document.ts", which is in packages/ui/src/runtime',
+      );
+      expect(found).toContain(
+        'packages/ui/src/primitives/up.ts imports "../patterns/band.ts", which is in packages/ui/src/patterns',
+      );
+      expect(found).not.toContain("patterns/down.ts");
+    });
+
+    test("a file directly under packages/ui/src is under no rule", () => {
+      file("packages/ui/src/index.ts", "export {};");
+      expect(uncovered(root, RULES).join("\n")).toContain(
+        "packages/ui/src/index.ts is under no check-deps rule",
+      );
+    });
+
+    test("the site may import @bd/ui/tokens and nothing else of @bd/ui yet", () => {
+      file("apps/web/src/core/ui-ok.ts", 'import { colorOf } from "@bd/ui/tokens";');
+      file("apps/web/src/core/ui-build.ts", 'import { buildClient } from "@bd/ui/build";');
+      const found = all();
+      expect(found).not.toContain("core/ui-ok.ts");
+      expect(found).toContain('web/src/core/ui-build.ts imports "@bd/ui/build"');
     });
   });
 

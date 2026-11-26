@@ -11,7 +11,8 @@
   "dependencies": {
     "@bd/contracts": "workspace:*",
     "@bd/fixtures": "workspace:*",
-    "@bd/ports": "workspace:*"
+    "@bd/ports": "workspace:*",
+    "@bd/ui": "workspace:*"
   },
   "exports": {
     "./local": "./src/local/index.ts"
