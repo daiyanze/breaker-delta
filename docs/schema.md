@@ -119,7 +119,8 @@ commit step from `isUnverified` in `@bd/core`: the version's risk flags
 name a person or company together with an appointment or dismissal, a
 lawsuit, or an accident or casualty, and fewer than
 `factGateFirstHandSources` fetch groups of tier `first_hand` are among its
-evidence echoes. The model never sets it; the site's wording for it is
+evidence echoes. Both readings are the agent's proposal, not reviewed
+(`docs/settings.md`, `factGateFirstHandSources`). The model never sets it; the site's wording for it is
 `UNVERIFIED_WORDING` in `@bd/contracts`;
 `source_text_read` is false when enrich could not fetch the sources (#45).
 `risk_flags` is the model's flags as JSON.

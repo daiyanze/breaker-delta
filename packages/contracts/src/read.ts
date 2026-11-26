@@ -257,7 +257,10 @@ export const SummaryLabelSchema = z.enum(["unverified", "source_text_not_read"])
  * per language. Code shows them next to the summary; they never go into the
  * model's text, and the model never writes them. In `note`, `{min}` stands
  * for the `factGateFirstHandSources` setting (`unverifiedWording` in
- * `@bd/core` fills it in).
+ * `@bd/core` fills it in). The text is design board 51's. Its second
+ * sentence holds only once the summary itself is written in neutral wording
+ * (ADR 0006), which the summarize prompt does not ask for yet: nothing may
+ * show this note until it does.
  */
 export const UNVERIFIED_WORDING = {
   en: {
