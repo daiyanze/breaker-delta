@@ -99,6 +99,11 @@ export const SettingsSchema = z.object({
   enrichPageMaxChars: z.number().int().min(200).max(20000).default(4000),
   /** Enrich: kilobytes of a page's body read at most; the rest is not downloaded (#45). */
   enrichPageMaxKB: z.number().int().min(16).max(10240).default(1024),
+  /**
+   * Fact gate: first-hand sources a high-risk summary needs among its
+   * evidence; with fewer it is published as "unverified" (ADR 0006, #47).
+   */
+  factGateFirstHandSources: z.number().int().min(1).max(10).default(2),
 });
 export type Settings = z.infer<typeof SettingsSchema>;
 
@@ -146,6 +151,7 @@ export const RiskFlagSchema = z.enum([
   "lawsuit",
   "accident_or_casualty",
 ]);
+export type RiskFlag = z.infer<typeof RiskFlagSchema>;
 
 /** summarize: per-language text that cites echoes by id only. */
 export const SummarizeResultSchema = z
