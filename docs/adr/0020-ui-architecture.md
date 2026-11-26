@@ -338,7 +338,9 @@ export function states<P>(component: ComponentType<P>, states: { readonly [name:
   `apps/web/src/core/icon.ts`: the SVG icons it draws carry their styles
   inside, because most are served as files of their own and cannot link
   `ui.css`. Moving it into `@bd/ui` belongs to the issue that builds the
-  Icon primitive, not to this plan.
+  Icon primitive, not to this plan. No such issue exists yet (#113 and
+  #108 are about icon assets), so the exception has no end date until
+  the owner or a later plan creates one.
 
 ### 5. Tokens
 

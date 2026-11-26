@@ -20,7 +20,7 @@ Each rule applies only within its scope.
   produce. A criterion that names a procedure says what that procedure
   drives, and one that is already true today is not a criterion.
 - **Scope:** `docs/plans/*.yaml`, issue bodies, acceptance criteria in ADRs.
-- **Evidence:** review round 1 on #262; fixed in the same PR.
+- **Evidence:** review rounds 1 and 2 on #262; fixed in the same PR.
 
 ## L25 Say what a change does under the default run, not only under verify-local
 
