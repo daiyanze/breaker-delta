@@ -186,11 +186,18 @@ export interface RouteContext {
   lang: Language;
   queries: ReadQueries;
 }
+/** A document with its status and headers (a 404 page, cache tags), or any other Response. */
+export type RouteResult =
+  | Response
+  | { document: VNode; status?: number; headers?: Readonly<Record<string, string>> };
 export interface Route {
   pattern: URLPattern;
-  handle(ctx: RouteContext): Promise<VNode | Response>;
+  handle(ctx: RouteContext): Promise<RouteResult>;
 }
 ```
+
+`renderDocument` is for HTML. Feeds and the sitemap (#67) are XML and are
+not written with it.
 
 ### 2. Islands
 
@@ -232,9 +239,12 @@ export function island<P extends object>(
 - An island does not import another island, and imports `@bd/contracts`
   with `import type` only, so no schema code reaches the browser. Text
   reaches an island as finished strings, not as functions.
+- An island is a leaf: it has no `children`, so it cannot wrap content the
+  server rendered. `<bd-island>` is `display: contents`, so it does not
+  change the layout around it; it cannot sit directly inside a table row.
 - What the type does not catch: a prop typed `object`, `{}` or `any`
-  accepts anything, and `NaN` or an `undefined` inside an array reads back
-  as `null`. A prop typed `unknown` is rejected even when the data is JSON
+  accepts anything, as does a class instance that has only fields; `NaN`
+  or an `undefined` inside an array reads back as `null`. A prop typed `unknown` is rejected even when the data is JSON
   (`DeskSettings.history[].changes[].from` is `z.unknown()`); such a value
   reaches an island as text the server has already formatted.
 - A React library, when one is worth its size, is used inside one island
@@ -253,11 +263,12 @@ enforces it.
 | `primitives` | Button, Menu, Tabs, Notice, form fields, Icon | the two above |
 | `patterns` | Band, Masthead, Newsstand, TicketStub and the other Tide Paper parts, one per `design/system/components/<Name>` | the three above, `@bd/contracts` types |
 
-Two more areas serve the layers and are imported by no component:
+Three more areas serve the layers and are imported by no component:
 
 | Area | Holds | May import |
 | --- | --- | --- |
 | `styles` | `uiCss()`: the whole stylesheet as text | `tokens`, every component's `.css` |
+| `catalog` | the list of every component's states, for `/_catalog` (#258) | every `*.states.tsx` |
 | `build` | `buildClient()`: the loader and the island modules, bundled with Bun | everything above, `bun` |
 
 One folder per component: `Name.tsx` or `Name.island.tsx`, `Name.css`,
@@ -270,7 +281,11 @@ runtime reads JSX settings from the tsconfig of the working directory, not
 of the file, so a setting in a tsconfig alone breaks `bun test` and local
 mode started from the repository root. `tsconfig.base.json` gets only
 `jsx: react-jsx`, which `tsc` needs in every program that reaches a `.tsx`:
-the web adapters and `apps/local` as well as the core.
+the web adapters and `apps/local` as well as the core. Wrangler's bundler
+needs the same setting and looks for a file named `tsconfig.json` beside
+the source, so every package that holds a `.tsx` has one extending the
+base; without it the Worker builds and then fails with `React is not
+defined`.
 
 ```ts
 // @bd/ui/runtime
@@ -364,7 +379,8 @@ Bun executable and a Worker is not known; a spike answers it before #129.
 
 The same stack: server-rendered pages under `/admin`, islands where a tab
 needs them, forms that post to web routes which call the pipeline over the
-service binding (0010).
+service binding (0010). `RouteContext` gains a handle to those pipeline
+actions when the desk is built (#139); it is a port, like the query layer.
 
 ### 10. Browser line
 
@@ -406,13 +422,15 @@ export function buildClient(): Promise<readonly ClientFile[]>;
 ### 12. Catalog and guardrails
 
 - `/_catalog` is a route of the local adapter (`apps/web/src/local`), so
-  the Cloudflare adapter never has it. It renders every `*.states.tsx`
-  (#258). Rendering every state on the server is also the test that no
+  the Cloudflare adapter never has it. It renders the list exported by
+  `@bd/ui/catalog`; a test fails when a `*.states.tsx` is missing from
+  that list (#258). Rendering every state on the server is also the test that no
   island touches a browser global while rendering.
 - A state is a set of props. Hover and focus are not props: the screenshot
   run moves the pointer and the focus. A component whose layout depends on
   the language gets a named state per language with its own sample text;
-  `@bd/ui` holds no string table.
+  `@bd/ui` holds no string table. A state an island reaches only by a
+  click (an open drawer) is given as a starting prop.
 - Screenshots run with Playwright on Bun, in a CI job of their own on one
   OS, which is also where baselines are made: a browser is not part of
   `bun install`, and a baseline made on macOS does not match Linux. `check`
@@ -466,6 +484,25 @@ props in an attribute, `tsc` in every workspace).
 | The record let the catalog import `@bd/mail`; the plan forbade `apps/web` from importing it | sections 7 and 12 |
 | #258 wants hover, focus and three languages per state; a state holds props only | section 12 |
 
+Round 3, a third agent, again found nothing that breaks the shape. It
+re-ran the pragma under `bun test`, the launcher, `tsc` in every workspace,
+a compiled executable and both Workers, and read the desk, search,
+language, analytics, caching, feed and accessibility issues against the
+record without proving any of them impossible. It proved eight more gaps.
+They are settled below but, the budget being three rounds, not challenged
+again; the review of this record's pull request reads them next.
+
+| Finding | Settled by |
+| --- | --- |
+| The pragma does not reach wrangler's bundler: without a file named `tsconfig.json` the Worker throws `React is not defined` | section 3 |
+| The Cloudflare smoke run fetches only the pipeline, so it passed with a dead site | plan: the smoke run fetches a bd-web page |
+| Styles kept inline through the renderer are entity-encoded (`format(&quot;woff2&quot;)`) | plan order: the stylesheet becomes a linked file before pages move to Preact |
+| `bun.lock`, `typecheck` scripts and tsconfigs were not named as changes to the check | plan: each issue names them |
+| #105, #129, #143, #258 and #259 are not tied to the plan's issues | "What this changes" |
+| `scripts/check-colors.ts` scans `apps/web/src` only; after the move it guards nothing | plan: `ui-css` extends it |
+| The catalog's list of states had no place a local adapter could import | section 3: the `catalog` area |
+| An island cannot take `children`; class instances with only fields pass the type | section 2 |
+
 ## Risks
 
 Raised and not proven, or still open.
@@ -484,7 +521,14 @@ Raised and not proven, or still open.
 - A page cached across a deploy (#70) can meet newer island modules; a
   deploy that changes an island's props must purge.
 - The desk's in-place language switch (#139) is a reload under this shape
-  unless the desk shell is an island; unsaved form input would be lost.
+  unless a whole desk page is one island (an island is a leaf); unsaved
+  form input would be lost.
+- "A change in the result count is announced" (#142) presupposes results
+  that update without a load: the results list would be an island.
+- "English pages load no Noto font" (#147): echo titles carry their own
+  `lang`, so the font stack must key on `html[lang]`.
+- Whether `wrangler preview` runs the build command was read in its source,
+  not run.
 - The Mail tab's live preview (#156) is a round trip to the pipeline per
   edit.
 - On Windows, embedded file names may use `\`; the compiled executable was
@@ -511,9 +555,15 @@ owner; do not patch around it.
 
 - #56: the choice is this record. Adopting it is the plan's
   `ui-server-render`; the database criteria stay with #57.
+- The plan's order is `ui-tokens`, `ui-css`, `ui-server-render`,
+  `ui-islands`: the stylesheet becomes a linked file before pages move to
+  Preact, because the renderer entity-encodes text inside `<style>`.
 - #257: contradicts this record (three layers, no dependency but
   `@bd/contracts`, byte-identical output, string-rendering functions). The
   plan's first four issues replace it; the owner closes or rewrites it.
+- "Depends on" in existing issues, for the owner to set when the plan's
+  issues exist: #105 on `ui-islands`; #129 on `share-card-engine`; #143 on
+  `mail-package`; #258 and #259 on `ui-islands` in place of #257.
 - #258: its screenshot check moves out of `check` into a CI job of its own,
   which changes `.github` (protected); hover, focus and languages follow
   section 12.
@@ -521,7 +571,7 @@ owner; do not patch around it.
 - `AGENTS.md` (protected): the architecture map gains `packages/ui` and
   `packages/mail`, and the enforcement table gains the UI rows. Each issue
   that makes one of them true changes the file in the same PR.
-- `tsconfig.base.json`, a new tsconfig in `packages/ui` for the build
-  area, root `package.json` scripts and `scripts/check-deps.ts` change; all
-  are part of how `bun run check` works (`docs/development.md`, "The gate
-  here").
+- `bun.lock`, `tsconfig.base.json`, the new packages' tsconfigs and
+  `typecheck` scripts, root `package.json` scripts and
+  `scripts/check-deps.ts` change; all are part of how `bun run check` works
+  (`docs/development.md`, "The gate here"). Each issue names its own.

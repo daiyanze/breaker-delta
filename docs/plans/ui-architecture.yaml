@@ -30,8 +30,9 @@ issues:
 
       Protected path: `AGENTS.md` (the architecture map gains
       `packages/ui`; the known-gaps sentence about data files changes).
-      Changes `scripts/check-deps.ts`, part of the check. Replaces the
-      tokens half of #257.
+      Part of the check: `scripts/check-deps.ts`, `bun.lock` (a new
+      workspace), `packages/ui/package.json` (`typecheck`) and
+      `packages/ui/tsconfig.tokens.json`. Replaces the tokens half of #257.
     acceptance:
       - A snapshot of every page the site renders, recorded in a commit before the move, is byte-identical after it.
       - A test regenerates `tokens.gen.ts` and fails when it differs from the committed file.
@@ -39,32 +40,72 @@ issues:
       - "`grep -rn 'tokens.json' apps/web/src --include='*.ts' --exclude='*.test.ts'` prints nothing."
       - "`packages/ui/tsconfig.tokens.json` has no DOM lib and no Bun or Cloudflare types, and `bun run check` passes."
 
+  - id: ui-css
+    title: The stylesheet as CSS files and one linked file
+    milestone: UI M0 Foundations
+    depends_on: [ui-tokens]
+    what: |
+      ADR 0020, sections 4 and 11, for CSS. Pages are still built by
+      `layout.ts`; only how styles are written and served changes.
+
+      - The CSS in `style.ts` moves into `.css` files in `packages/ui`,
+        each inside its `@layer`: base styles, and the band's styles in the
+        folder its component will get.
+      - `@bd/ui/styles`: `uiCss()` joins the files, imported as text, in
+        layer order.
+      - `tokensCss()` writes themed colours with `light-dark()`; the three
+        shadows keep three blocks.
+      - `@bd/ui/build`: `buildClient()` returns `ui.css` (island modules
+        come with `ui-islands`). The local adapter calls it at start and
+        serves `/client/ui.css` from memory; `build:local` embeds the
+        file; wrangler's build command writes it to
+        `apps/web/public/client/`.
+      - Every page links `ui.css`; the inline `<style>` goes.
+        `apps/web/src/core/style.ts` is deleted.
+      - `scripts/check-colors.ts` scans `packages/ui/src` `.css` files
+        outside `tokens` as well; today it scans `apps/web/src` only.
+      - `scripts/cloudflare-smoke.ts` also checks the built bd-web: it
+        finds that build beside the pipeline's, so `ci.yml` is unchanged.
+
+      Part of the check: root `package.json` scripts, `packages/ui`'s
+      `typecheck` script and a tsconfig for the build area with Bun's
+      types. Also changes `apps/web/wrangler.jsonc` and `.gitignore`.
+    acceptance:
+      - A test fails when a `.css` file under `packages/ui/src` is missing from `uiCss()`.
+      - A test finds the layers in `uiCss()` in the order `tokens, base, primitives, patterns`, each themed colour as one `light-dark()` declaration, and each shadow in all three theme blocks.
+      - "`find apps -name '*.css' -not -path '*/node_modules/*'` prints nothing, and no file under `apps/web/src` outside tests holds CSS text."
+      - A test plants a literal colour in a `.css` file under `packages/ui/src` outside `tokens`, and `check-colors` reports it.
+      - With the verify-local procedure and a browser, the front page shows the dark colours with `data-theme="dark"` set by hand, the light ones with `data-theme="light"`, and the system's choice with neither.
+      - The compiled executable serves `/client/ui.css` when run from an empty folder.
+      - "The Cloudflare smoke run fails when bd-web's front page does not answer 200 with its heading, or when `client/ui.css` is missing from the built assets."
+
   - id: ui-server-render
     title: Render the site with Preact on the server
     milestone: UI M0 Foundations
-    depends_on: [ui-tokens]
+    depends_on: [ui-css]
     what: |
       Adopt the renderer of ADR 0020, sections 1 and 3. No client
       JavaScript yet.
 
       - Add `preact` and `preact-render-to-string`. Set `jsx: react-jsx`
         in `tsconfig.base.json`; every `.tsx` starts with
-        `/** @jsxImportSource preact */`.
+        `/** @jsxImportSource preact */`; `packages/ui` has a file named
+        `tsconfig.json` extending the base, which wrangler's bundler
+        reads.
       - `scripts/check-deps.ts`: `preact` and `preact-render-to-string`
         allowed where the record's layers use them, and `preact` in
         `apps/web`.
       - `@bd/ui/runtime`: `Document`, `renderDocument`, `states`, `CLIENT`.
       - `@bd/ui/patterns`: `Band`, moved from `apps/web/src/core/layout.ts`.
       - `apps/web/src/core/routes.ts`: the `URLPattern` route table with
-        the `Route` and `RouteContext` types of the record.
+        the `Route`, `RouteResult` and `RouteContext` types of the record.
       - The placeholder page and the bare front page become Preact
         components in `apps/web/src/core/pages`. `escapeHtml` and the
         template strings go.
-      - Styles stay as they are served today (inline, from `style.ts`).
 
       Protected path: `AGENTS.md` (architecture map: the renderer and the
-      route table). Changes `tsconfig.base.json` and
-      `scripts/check-deps.ts`, both part of the check.
+      route table). Part of the check: `tsconfig.base.json`,
+      `packages/ui/tsconfig.json`, `scripts/check-deps.ts` and `bun.lock`.
       Answers the "choose" half of #56.
     acceptance:
       - A test renders a page whose fixture text holds `<script>`, quotes and `&`, and the output contains none of them unescaped.
@@ -72,48 +113,13 @@ issues:
       - "`grep -rn 'escapeHtml' apps packages --include='*.ts' --include='*.tsx'` prints nothing."
       - "Every tsconfig that reaches a `.tsx` compiles: `bun run typecheck` passes with a page exported from `site.ts`."
       - "`bun test` and `bun run local` work from the repository root, and a test fails on a `.tsx` whose first line is not its JSX pragma."
-      - "The site renders in the Workers runtime: the `cloudflare` CI job's dry-run build and smoke run pass."
+      - "The Cloudflare smoke run, which fetches bd-web's front page since `ui-css`, passes; with `packages/ui/tsconfig.json` renamed it fails."
       - "`bun run build:local` produces an executable whose front page answers 200 with the fixture set `busy`, shown with the verify-local procedure."
-
-  - id: ui-css
-    title: Component CSS files, layers and one linked stylesheet
-    milestone: UI M0 Foundations
-    depends_on: [ui-server-render]
-    what: |
-      ADR 0020, sections 4 and 11, for CSS.
-
-      - Component styles move into `.css` files next to their components,
-        each inside its `@layer`; base styles get a file of their own.
-      - `@bd/ui/styles`: `uiCss()` joins the files, imported as text, in
-        layer order.
-      - `tokensCss()` writes themed colours with `light-dark()`; the three
-        shadows keep three blocks.
-      - `@bd/ui/build`: `buildClient()` returns `ui.css` (islands come
-        with `ui-islands`). The local adapter calls it at start and serves
-        `/client/ui.css` from memory; `build:local` embeds the file;
-        wrangler's build command writes it to `apps/web/public/client/`.
-      - Every page links `ui.css`; the inline `<style>` goes. A constant
-        script in `<head>` applies a stored theme before first paint.
-      - `apps/web/src/core/style.ts` is deleted.
-
-      The build area uses Bun's API, so `packages/ui` gets a tsconfig
-      for it with Bun's types and its `typecheck` script runs it.
-
-      Changes root `package.json` scripts, `packages/ui`'s `typecheck`
-      script and a new tsconfig (all part of the check),
-      `apps/web/wrangler.jsonc` and `.gitignore`.
-    acceptance:
-      - A test fails when a `.css` file under `packages/ui/src` is missing from `uiCss()`.
-      - A test finds the layers in `uiCss()` in the order `tokens, base, primitives, patterns`, each themed colour as one `light-dark()` declaration, and each shadow in all three theme blocks.
-      - "`find apps -name '*.css' -not -path '*/node_modules/*'` prints nothing, and no file under `apps/web/src` outside tests holds CSS text."
-      - With the verify-local procedure and a browser, the front page shows the dark colours with `data-theme="dark"`, the light ones with `data-theme="light"`, and the system's choice with neither.
-      - The compiled executable serves `/client/ui.css` when run from an empty folder.
-      - "The `cloudflare` CI job's dry-run build writes `apps/web/public/client/ui.css` with no Node on PATH."
 
   - id: ui-islands
     title: Islands and the client modules
     milestone: UI M0 Foundations
-    depends_on: [ui-css]
+    depends_on: [ui-server-render]
     what: |
       ADR 0020, sections 2 and 11.
 
@@ -121,14 +127,15 @@ issues:
         defines `<bd-island>` and reads its `props` attribute.
       - `buildClient()` also returns the loader, one module per
         `*.island.tsx` and the shared chunks.
-      - `Document` loads the loader.
+      - `Document` loads the loader, and holds the constant script that
+        applies a stored theme before first paint.
       - One real island proves it end to end: the theme switch of #105, in
         its smallest form (a button that flips `data-theme` and stores the
         choice). #105 then finishes its design.
     acceptance:
-      - A type test shows that a function, a `Date`, a `Map` and a nested callback are compile errors as island props, that `RankRow`, `SiteMeta` and `Edition` are accepted, and that a prop typed `unknown` is rejected.
+      - A type test shows that a function, a `Date`, a `Map`, a nested callback and `children` are compile errors as island props, that `RankRow`, `SiteMeta` and `Edition` are accepted, and that a prop typed `unknown` is rejected.
       - A test renders an island whose prop text holds `</script>`, quotes and `&`; the HTML has no raw `<` inside the attribute and the props read back equal.
-      - With the verify-local procedure and a browser, clicking the theme switch on the front page changes the theme and a reload keeps it; the steps and a screenshot are in the PR.
+      - With the verify-local procedure and a browser, clicking the theme switch on the front page changes the theme, a reload keeps it, and the other theme does not show first; the steps and a screenshot are in the PR.
       - The same works from the compiled executable run from an empty folder.
       - A page with no island requests no JavaScript besides the loader, checked from the browser's network list.
 
@@ -145,20 +152,26 @@ issues:
       - Export `renderConfirm(data): Promise<{ html: string; text: string }>`.
       - Every `.tsx` file starts with `/** @jsxImportSource react */`; the
         pragma test of `ui-server-render` covers this package too.
+        `packages/mail` has a file named `tsconfig.json` extending the
+        base.
       - `check-deps`: a rule for `packages/mail/src`; only
         `apps/pipeline` may import `@bd/mail`.
       - Choose the React Email import that keeps the Worker bundle small
         (`react-email` 6 or `@react-email/render` with components) and
         record the size in the PR.
+      - `scripts/cloudflare-smoke.ts` renders the template in the Workers
+        runtime.
 
       Protected path: `AGENTS.md` (architecture map gains `packages/mail`).
-      Changes `scripts/check-deps.ts`. #143 builds the three subscriber
+      Part of the check: `scripts/check-deps.ts`, `bun.lock`,
+      `packages/mail/package.json` (`typecheck`) and
+      `packages/mail/tsconfig.json`. #143 builds the three subscriber
       emails on this.
     acceptance:
       - A test renders the template and finds no `var(` and no web font the text depends on.
       - "A `check-deps` test shows `apps/web` importing `@bd/mail` is reported."
       - "`bun run typecheck` passes with the template imported from the pipeline core, in the pipeline's three tsconfigs and in `apps/local`."
-      - The pipeline Worker's dry-run build, with the template imported, stays under the size the PR states, and the smoke run renders the template in the Workers runtime.
+      - The Cloudflare smoke run renders the template in the Workers runtime and fails when the render throws; the pipeline Worker's dry-run size, with the template imported, is in the PR.
       - "No `package.json` under `apps/web` or `packages/ui` lists `react` or `react-dom`."
 
   - id: share-card-engine
