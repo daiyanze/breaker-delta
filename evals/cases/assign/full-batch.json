@@ -1,0 +1,92 @@
+{
+  "synthetic": true,
+  "input": {
+    "echoes": [
+      { "id": "e01", "title": "Kestrel Labs ships Finch 3 with incremental builds" },
+      {
+        "id": "e02",
+        "title": "Harbor City strike: talks resume on Thursday",
+        "summary": "Union leaders and city officials meet again after a week of stoppages."
+      },
+      { "id": "e03", "title": "Quill database 9.0 released with a new query planner" },
+      { "id": "e04", "title": "Mount Orrin eruption: second ash plume reported" },
+      { "id": "e05", "title": "Lantern Maze sells one million copies in its first month" },
+      { "id": "e06", "title": "Northmere tram line wins final council vote" },
+      { "id": "e07", "title": "Brightwater Robotics cuts 400 jobs at its Lowmarsh plant" },
+      { "id": "e08", "title": "Vell Islands election: opposition claims a narrow win" },
+      {
+        "id": "e09",
+        "title": "Copperline Bank fined for delayed fraud reports",
+        "summary": "The fictional regulator says the bank waited months to file."
+      },
+      { "id": "e10", "title": "Solace browser 40 adds tab groups synced across devices" },
+      { "id": "e11", "title": "Orbiter Pell-2 reaches lunar orbit after a three-day trip" },
+      {
+        "id": "e12",
+        "title": "Pell-2 probe enters orbit around the Moon",
+        "summary": "Mission control in the fictional space agency confirmed the burn."
+      },
+      { "id": "e13", "title": "Ferrow FC appoints a new head coach after the season's poor start" },
+      { "id": "e14", "title": "Grainfield wheat harvest falls a fifth after the dry summer" },
+      { "id": "e15", "title": "Tidewell open-source editor moves to a new license" },
+      { "id": "e16", "title": "Tidewell changes license; contributors split on the move" },
+      { "id": "e17", "title": "Marrow Pharma trial of a migraine drug meets its main goal" },
+      { "id": "e18", "title": "Saltmere bridge closed for repairs after cracks are found" },
+      { "id": "e19", "title": "Quill 9 migration guide: replacing the legacy wire protocol" },
+      { "id": "e20", "title": "Copperline Bank appoints a new chief executive" }
+    ],
+    "topics": [
+      { "id": "t01", "name": "Kestrel Labs releases Finch 3 compiler", "aliases": ["Finch 3"] },
+      { "id": "t02", "name": "Harbor City transit strike" },
+      { "id": "t03", "name": "Quill database 9.0 release", "aliases": ["Quill 9"] },
+      { "id": "t04", "name": "Mount Orrin eruption disrupts Vell Islands flights" },
+      { "id": "t05", "name": "Northmere council approves dockside tram line" },
+      { "id": "t06", "name": "Brightwater Robotics layoffs" },
+      { "id": "t07", "name": "Vell Islands general election" },
+      { "id": "t08", "name": "Copperline Bank fraud reporting fine" },
+      { "id": "t09", "name": "Solace browser 39 security fix" },
+      { "id": "t10", "name": "Kestrel Labs raises Series C funding" },
+      { "id": "t11", "name": "Brightwater Robotics opens Lowmarsh factory" },
+      { "id": "t12", "name": "Grainfield drought emergency declared" },
+      { "id": "t13", "name": "Ferrow FC stadium expansion plan" },
+      { "id": "t14", "name": "Marrow Pharma merger with Elmbrook Health" },
+      { "id": "t15", "name": "Saltmere ferry timetable changes" },
+      { "id": "t16", "name": "Lantern Maze release date announced" },
+      { "id": "t17", "name": "Pell-1 lander mission ends" },
+      { "id": "t18", "name": "Northmere mayoral race" },
+      { "id": "t19", "name": "Harbor City port expansion approved" },
+      { "id": "t20", "name": "Quill cloud outage" },
+      { "id": "t21", "name": "Tidewell editor 2.0 release" },
+      { "id": "t22", "name": "Vell Islands new public library opens" },
+      { "id": "t23", "name": "Copperline Bank quarterly results" },
+      { "id": "t24", "name": "Solace browser drops old extension format" },
+      { "id": "t25", "name": "Mount Orrin volcano monitoring funding" },
+      { "id": "t26", "name": "Ferrow FC wins regional cup" },
+      { "id": "t27", "name": "Grainfield rail freight strike" },
+      { "id": "t28", "name": "Finch sensor kit battery recall" },
+      { "id": "t29", "name": "Lowmarsh flood defences completed" },
+      { "id": "t30", "name": "Elmbrook Health data breach" }
+    ]
+  },
+  "labels": {
+    "e01": "t01",
+    "e02": "t02",
+    "e03": "t03",
+    "e04": "t04",
+    "e05": "new",
+    "e06": "t05",
+    "e07": "t06",
+    "e08": "t07",
+    "e09": "t08",
+    "e10": "new",
+    "e11": "new",
+    "e12": "new",
+    "e13": "new",
+    "e15": "new",
+    "e16": "new",
+    "e17": "new",
+    "e18": "new",
+    "e19": "t03",
+    "e20": "new"
+  }
+}

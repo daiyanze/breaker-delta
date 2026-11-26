@@ -23,6 +23,13 @@
  *   version, texts or evidence, so the topic page can say it failed checks.
  *   It writes no event and no prediction.
  *
+ * - **Fact gate.** A published version is labelled `unverified` when
+ *   `isUnverified` in `@bd/core` says so (ADR 0006, #47): the model's risk
+ *   flags make it high-risk and fewer than `factGateFirstHandSources`
+ *   fetch groups of tier `first_hand` are among its evidence echoes. The
+ *   tier comes from the source list the step is given; a group no longer
+ *   in it counts as not first-hand. The model never sets the label.
+ *
  * Whether a version is the first is read from the database here, not taken
  * from the draft, and the draft is checked again as a first summary when it
  * is one, so a draft written without a criterion cannot become a version 1.
@@ -31,10 +38,11 @@
  * attempt skips what an earlier attempt committed. Events are dated at the
  * slot's start. The output holds topic ids only.
  */
-import { slotStart } from "@bd/core";
-import { events, predictions, summaries, summaryTexts } from "@bd/db";
+import { type EvidenceSource, isUnverified, slotStart } from "@bd/core";
+import { echoes, events, predictions, summaries, summaryTexts } from "@bd/db";
 import type { Blobs } from "@bd/ports";
 import { and, eq, max, sql } from "drizzle-orm";
+import type { LaunchGroup } from "../sources/launch-groups.ts";
 import type { Step } from "./runner.ts";
 import { readSettings } from "./settings.ts";
 import { outputOf } from "./summarize.ts";
@@ -42,6 +50,8 @@ import { readDraft, referenceText, type ValidateOutput, validateDraft } from "./
 
 export interface CommitDeps {
   blobs: Blobs;
+  /** The source list: each group's tier, for the fact gate. */
+  groups: readonly LaunchGroup[];
 }
 
 /** What the step returns; the runner stores it in `run_steps.output`. Ids only. */
@@ -82,6 +92,22 @@ export function commitStep(deps: CommitDeps): Step {
       const nowMs = ctx.now();
       const at = slotStart(ctx.slot);
       const { settings } = await readSettings(ctx.db, nowMs);
+      const firstHandGroups = new Set(
+        deps.groups.filter((g) => g.tier === "first_hand").map((g) => g.id),
+      );
+      /** The fetch group of each cited echo, with its tier. */
+      const evidenceOf = async (ids: readonly string[]): Promise<EvidenceSource[]> => {
+        const out: EvidenceSource[] = [];
+        for (const part of chunks([...new Set(ids)])) {
+          const rows = await ctx.db
+            .select({ groupId: echoes.groupId })
+            .from(echoes)
+            .where(sql`${echoes.id} IN (SELECT value FROM json_each(${JSON.stringify(part)}))`);
+          for (const r of rows)
+            out.push({ groupId: r.groupId, firstHand: firstHandGroups.has(r.groupId) });
+        }
+        return out;
+      };
       const { valid, discarded } = outputOf<ValidateOutput>(ctx, "validate");
       const output: CommitOutput = { published: [], formed: [], discarded: [] };
 
@@ -143,6 +169,11 @@ export function commitStep(deps: CommitDeps): Step {
         }
         const value = verdict.value;
         const version = (latest?.version ?? 0) + 1;
+        const unverified = isUnverified(
+          value.riskFlags,
+          await evidenceOf(value.evidenceEchoIds),
+          settings.factGateFirstHandSources,
+        );
 
         const writes: Parameters<typeof ctx.db.batch>[0][number][] = [
           ctx.db.insert(summaries).values({
@@ -155,6 +186,7 @@ export function commitStep(deps: CommitDeps): Step {
             model: draft.model,
             promptVersion: draft.promptVersion ?? null,
             riskFlags: JSON.stringify(value.riskFlags),
+            unverified,
             // False when enrich read no page for it (#45), or for a draft from before it.
             sourceTextRead: draft.sourceTextRead === true,
             slot: ctx.slot,

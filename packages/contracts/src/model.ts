@@ -99,6 +99,11 @@ export const SettingsSchema = z.object({
   enrichPageMaxChars: z.number().int().min(200).max(20000).default(4000),
   /** Enrich: kilobytes of a page's body read at most; the rest is not downloaded (#45). */
   enrichPageMaxKB: z.number().int().min(16).max(10240).default(1024),
+  /**
+   * Fact gate: first-hand sources a high-risk summary needs among its
+   * evidence; with fewer it is published as "unverified" (ADR 0006, #47).
+   */
+  factGateFirstHandSources: z.number().int().min(1).max(10).default(2),
 });
 export type Settings = z.infer<typeof SettingsSchema>;
 
@@ -113,15 +118,30 @@ export const EchoInputSchema = z.object({
 });
 export type EchoInput = z.infer<typeof EchoInputSchema>;
 
+/*
+ * The model result schemas below are strict (#46): an object with a key the
+ * contract does not name is refused as a whole, not stripped, so an answer
+ * that tries to carry a URL, a source name, a height or any other field
+ * outside the contract fails it (and the chain asks once for a repair). The
+ * `max` lengths bound every model-written text.
+ */
+
 /** assign: each new echo goes to one shortlisted topic or a new topic. */
-export const AssignResultSchema = z.object({
-  assignments: z.array(
-    z.union([
-      z.object({ echoId: z.string(), topicId: z.string() }),
-      z.object({ echoId: z.string(), newTopic: z.object({ name: z.string().min(1).max(120) }) }),
-    ]),
-  ),
-});
+export const AssignResultSchema = z
+  .object({
+    assignments: z.array(
+      z.union([
+        z.object({ echoId: z.string(), topicId: z.string() }).strict(),
+        z
+          .object({
+            echoId: z.string(),
+            newTopic: z.object({ name: z.string().min(1).max(120) }).strict(),
+          })
+          .strict(),
+      ]),
+    ),
+  })
+  .strict();
 export type AssignResult = z.infer<typeof AssignResultSchema>;
 
 export const RiskFlagSchema = z.enum([
@@ -131,27 +151,34 @@ export const RiskFlagSchema = z.enum([
   "lawsuit",
   "accident_or_casualty",
 ]);
+export type RiskFlag = z.infer<typeof RiskFlagSchema>;
 
 /** summarize: per-language text that cites echoes by id only. */
-export const SummarizeResultSchema = z.object({
-  texts: z.array(
-    z.object({
-      lang: LanguageSchema,
-      title: z.string().min(1).max(160),
-      body: z.string().min(1).max(1200),
-    }),
-  ),
-  evidenceEchoIds: z.array(z.string()).min(1),
-  riskFlags: z.array(RiskFlagSchema).default([]),
-  /** Only on the first summary of a topic, when it becomes a wave. */
-  criterion: z.string().min(1).max(600).optional(),
-});
+export const SummarizeResultSchema = z
+  .object({
+    texts: z.array(
+      z
+        .object({
+          lang: LanguageSchema,
+          title: z.string().min(1).max(160),
+          body: z.string().min(1).max(1200),
+        })
+        .strict(),
+    ),
+    evidenceEchoIds: z.array(z.string()).min(1),
+    riskFlags: z.array(RiskFlagSchema).default([]),
+    /** Only on the first summary of a topic, when it becomes a wave. */
+    criterion: z.string().min(1).max(600).optional(),
+  })
+  .strict();
 export type SummarizeResult = z.infer<typeof SummarizeResultSchema>;
 
 /** verdict: outcome of the 14-day review, citing evidence by id only. */
-export const VerdictResultSchema = z.object({
-  result: z.enum(["hit", "partial", "miss", "undetermined"]),
-  evidenceIds: z.array(z.string()),
-  reason: z.string().min(1).max(600),
-});
+export const VerdictResultSchema = z
+  .object({
+    result: z.enum(["hit", "partial", "miss", "undetermined"]),
+    evidenceIds: z.array(z.string()),
+    reason: z.string().min(1).max(600),
+  })
+  .strict();
 export type VerdictResult = z.infer<typeof VerdictResultSchema>;

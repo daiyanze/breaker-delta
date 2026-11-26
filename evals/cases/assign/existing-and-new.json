@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "input": {
+    "echoes": [
+      {
+        "id": "e1",
+        "title": "Kestrel Labs ships Finch 3 with incremental builds",
+        "summary": "The fictional compiler's third major version cuts rebuild times."
+      },
+      { "id": "e2", "title": "Harbor City bus drivers stay off the job for a second day" },
+      {
+        "id": "e3",
+        "title": "Ash cloud from Mount Orrin grounds flights across the Vell Islands",
+        "summary": "Two airports in the fictional archipelago closed overnight."
+      },
+      { "id": "e4", "title": "Finch 3 benchmarks: how the new compiler compares" }
+    ],
+    "topics": [
+      { "id": "t1", "name": "Kestrel Labs releases Finch 3 compiler", "aliases": ["Finch 3"] },
+      { "id": "t2", "name": "Harbor City transit strike" },
+      { "id": "t3", "name": "Vell Islands election results" }
+    ]
+  },
+  "labels": { "e1": "t1", "e2": "t2", "e3": "new", "e4": "t1" }
+}

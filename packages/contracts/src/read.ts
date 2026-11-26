@@ -253,6 +253,32 @@ export const SummaryTextSchema = z.object({
 export const SummaryLabelSchema = z.enum(["unverified", "source_text_not_read"]);
 
 /**
+ * The site's own words for the "unverified" label (ADR 0006, #47), one entry
+ * per language. Code shows them next to the summary; they never go into the
+ * model's text, and the model never writes them. In `note`, `{min}` stands
+ * for the `factGateFirstHandSources` setting (`unverifiedWording` in
+ * `@bd/core` fills it in). The text is design board 51's. Its second
+ * sentence ("says only what was reported and by whom") does not hold yet:
+ * the summarize prompt asks for neutral summaries but not ADR 0006's
+ * reported-only form, and it forbids naming who reported. Nothing may show
+ * this note until the prompt asks for both.
+ */
+export const UNVERIFIED_WORDING = {
+  en: {
+    label: "Unverified",
+    note: "We could not confirm this with {min} first-hand sources. The wording below says only what was reported and by whom.",
+  },
+  zh: {
+    label: "未经证实",
+    note: "尚未经 {min} 个第一手来源证实。以下文字仅说明报道了什么、由谁报道。",
+  },
+  ja: {
+    label: "未確認",
+    note: "{min} つの一次情報源による確認が取れていません。以下は、何が報じられ、誰が報じたかのみを記しています。",
+  },
+} as const satisfies Record<z.infer<typeof LanguageSchema>, { label: string; note: string }>;
+
+/**
  * The five summary states are: published, published with the "unverified"
  * label, published with the "source text not read" label (both labels may
  * show together), withdrawn, and none.

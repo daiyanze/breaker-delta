@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "input": {
+    "echoes": [
+      { "id": "e1", "title": "Quill database 9.0 drops support for its legacy wire protocol" },
+      {
+        "id": "e2",
+        "title": "Quill 9 is out: legacy protocol removed, new query planner",
+        "summary": "Release notes for the fictional database list the breaking changes."
+      },
+      { "id": "e3", "title": "Northmere council approves a tram line to the old docks" }
+    ],
+    "topics": []
+  },
+  "labels": { "e1": "new", "e2": "new", "e3": "new" }
+}

@@ -84,7 +84,7 @@ function setup(fetcher = pageFetch()) {
     enrichStep({ blobs, fetch: fetcher.fetch }),
     summarizeStep({ driver, blobs }),
     validateStep({ blobs }),
-    commitStep({ blobs }),
+    commitStep({ blobs, groups: [] }),
   ];
   const run = async () => {
     const outcome = await runSlot(orm, () => NOW, SLOT, steps(), {

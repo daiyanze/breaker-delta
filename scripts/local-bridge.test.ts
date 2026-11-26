@@ -7,9 +7,10 @@
  * runs one process of the configured command per call.
  *
  * What is a stand-in, and why:
- * - No prompt ships yet (#43 assign, #44 summarize). The run is given
- *   stand-in prompts through `PipelineConfig.prompts`, the seam #42 made for
- *   them. Each one carries the fake driver's answer for its input.
+ * - The run is given stand-in prompts through `PipelineConfig.prompts`, the
+ *   seam #42 made for them, in place of the shipped ones (assign since #43,
+ *   summarize with #44). Each one carries the fake driver's answer for its
+ *   input.
  * - The command is `apps/local/test/fake-agent.ts`, never a real agent CLI:
  *   it prints the answer its prompt carries. So this shows the bridge, the
  *   chain and the steps end to end; it does not show that a real agent

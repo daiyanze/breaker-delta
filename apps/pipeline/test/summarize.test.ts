@@ -16,6 +16,7 @@ import {
   summarizeStep,
 } from "../src/core/summarize.ts";
 import { type ValidateOutput, validateDraft, validateStep } from "../src/core/validate.ts";
+import type { LaunchGroup, SourceTier } from "../src/sources/launch-groups.ts";
 import { d1Limited, migratedDatabase, NOW, SLOT } from "./helpers.ts";
 
 const NEXT = "20261119T0600";
@@ -67,7 +68,19 @@ const failing: ModelDriver = {
   },
 };
 
-function setup(driver: ModelDriver = fakeDriver(), { d1 = false } = {}) {
+const group = (id: string, tier: SourceTier): LaunchGroup => ({
+  id,
+  name: id,
+  tier,
+  countsAsOne: false,
+  minIntervalMinutes: 0,
+  probeUrl: "https://example.test/",
+});
+
+function setup(
+  driver: ModelDriver = fakeDriver(),
+  { d1 = false, groups = [] as readonly LaunchGroup[] } = {},
+) {
   const { db, sqlite } = migratedDatabase();
   const orm = drizzleOver(d1 ? d1Limited(db) : db);
   const { blobs, store } = memoryBlobs();
@@ -103,7 +116,7 @@ function setup(driver: ModelDriver = fakeDriver(), { d1 = false } = {}) {
     selectStep(),
     summarizeStep({ driver: d, blobs }),
     validateStep({ blobs }),
-    commitStep({ blobs }),
+    commitStep({ blobs, groups }),
   ];
   /** Runs select to commit for `slot` through the runner. */
   const run = async (slot = SLOT, now = NOW, d: ModelDriver = driver) => {
@@ -450,7 +463,7 @@ describe("commit", () => {
       now: () => NOW + 1000,
       outputs: new Map<string, unknown>([["validate", first.validate]]),
     };
-    expect(await commitStep({ blobs: t.blobs }).run(ctx)).toEqual(first.commit);
+    expect(await commitStep({ blobs: t.blobs, groups: [] }).run(ctx)).toEqual(first.commit);
     expect(snapshot()).toEqual(before);
   });
 });
@@ -523,7 +536,7 @@ describe("no first summary without a prediction (invariant 5)", () => {
       answer,
     };
     await t.blobs.put(draftKey(SLOT, "t1"), JSON.stringify(draft));
-    const out = await commitStep({ blobs: t.blobs }).run(
+    const out = await commitStep({ blobs: t.blobs, groups: [] }).run(
       ctx([["validate", { valid: ["t1"], discarded: [] }]]),
     );
     expect(out).toEqual({ published: [], formed: [], discarded: ["t1"] });
@@ -558,6 +571,89 @@ describe("no first summary without a prediction (invariant 5)", () => {
     ).toBeGreaterThan(0);
     expect(t.all("SELECT count(*) AS n FROM summaries WHERE version = 1")[0]?.n).toBeGreaterThan(0);
     expectEveryFirstSummaryRegistered(t);
+  });
+});
+
+describe("fact gate (ADR 0006, #47)", () => {
+  // Echoes of a wave come from g0, g1, g2, ... in order (`addEchoes`).
+  const risky = (r: SummarizeResult): SummarizeResult => ({
+    ...r,
+    riskFlags: ["named_person", "appointment_or_dismissal"],
+  });
+  const unverified = (t: ReturnType<typeof setup>) =>
+    t.all("SELECT version, unverified FROM summaries WHERE status = 'published' ORDER BY version");
+
+  test("a high-risk summary with one first-hand source is published as unverified", async () => {
+    const t = setup(editedDriver(risky), {
+      groups: [group("g0", "first_hand"), group("g1", "relaying"), group("g2", "relaying")],
+    });
+    t.wave("t1");
+    const { commit } = await t.run();
+    expect(commit.published).toEqual(["t1"]);
+    expect(unverified(t)).toEqual([{ version: 1, unverified: 1 }]);
+    expect(t.all("SELECT risk_flags FROM summaries")).toEqual([
+      { risk_flags: JSON.stringify(["named_person", "appointment_or_dismissal"]) },
+    ]);
+  });
+
+  test("with two first-hand groups among its evidence it is not", async () => {
+    const t = setup(editedDriver(risky), {
+      groups: [group("g0", "first_hand"), group("g1", "first_hand"), group("g2", "relaying")],
+    });
+    t.wave("t1");
+    await t.run();
+    expect(unverified(t)).toEqual([{ version: 1, unverified: 0 }]);
+  });
+
+  test("only the echoes the summary cites count, and a group missing from the list is not first-hand", async () => {
+    const groups = [group("g0", "first_hand"), group("g1", "first_hand")];
+    // Cites e1 (g0) and e3 (g2, not in the list): one first-hand group.
+    const t = setup(
+      editedDriver((r) => ({ ...risky(r), evidenceEchoIds: ["e1", "e3"] })),
+      {
+        groups,
+      },
+    );
+    t.wave("t1");
+    await t.run();
+    expect(unverified(t)).toEqual([{ version: 1, unverified: 1 }]);
+  });
+
+  test("a summary that is not high-risk is not unverified, whatever its sources", async () => {
+    const t = setup(
+      editedDriver((r) => ({ ...r, riskFlags: ["named_company"] })),
+      {
+        groups: [group("g0", "relaying")],
+      },
+    );
+    t.wave("t1");
+    await t.run();
+    expect(unverified(t)).toEqual([{ version: 1, unverified: 0 }]);
+  });
+
+  test("the threshold comes from settings", async () => {
+    const t = setup(editedDriver(risky), {
+      groups: [group("g0", "first_hand"), group("g1", "first_hand"), group("g2", "relaying")],
+    });
+    await changeSettings(t.orm, NOW, { factGateFirstHandSources: 3 });
+    t.wave("t1");
+    await t.run();
+    expect(unverified(t)).toEqual([{ version: 1, unverified: 1 }]);
+  });
+
+  test("the label is per version: a later version with a second first-hand source drops it", async () => {
+    const t = setup(editedDriver(risky), {
+      groups: [group("g0", "first_hand"), group("g1", "first_hand")],
+    });
+    await changeSettings(t.orm, NOW, { rewriteAfterNewEchoes: 1 });
+    t.wave("t1", 1); // one echo, in g0
+    await t.run();
+    t.wave("t1", 2, NEXT); // echoes in g0 and g1
+    await t.run(NEXT, NEXT_NOW);
+    expect(unverified(t)).toEqual([
+      { version: 1, unverified: 1 },
+      { version: 2, unverified: 0 },
+    ]);
   });
 });
 
