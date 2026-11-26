@@ -135,7 +135,12 @@ describe("runEval", () => {
         citations: { n: 6, of: 6 },
         repaired: { n: 1, of: 3 },
         fallback: { n: 1, of: 3 },
+        answeredBy: [
+          { provider: "a", cases: ["c1", "c2"] },
+          { provider: "b", cases: ["c3"] },
+        ],
         unanswered: {},
+        tried: [],
       },
     });
     expect(model.keys).toEqual([
@@ -166,7 +171,20 @@ describe("runEval", () => {
       contract: { n: 1, of: 2 },
       citations: { n: 0, of: 4 },
       repaired: { n: 0, of: 1 },
-      unanswered: { "http-5xx": ["c2"] },
+      answeredBy: [
+        { provider: "a", cases: ["c1"] },
+        { provider: "b", cases: [] },
+      ],
+      unanswered: { "http-500": ["c2"] },
+      tried: [
+        {
+          case: "c2",
+          failures: [
+            { provider: "a", failure: "http-500" },
+            { provider: "b", failure: "http-500" },
+          ],
+        },
+      ],
     });
   });
 
@@ -222,7 +240,9 @@ describe("runEval", () => {
       publishable: { n: 2, of: 5 },
       repaired: { n: 0, of: 5 },
       fallback: { n: 0, of: 5 },
+      answeredBy: [{ provider: "a", cases: ["s1", "s2", "s3", "s4", "s5"] }],
       unanswered: {},
+      tried: [],
     });
   });
 
@@ -268,17 +288,74 @@ describe("runEval", () => {
     });
     const [, summarize] = tasks;
     expect(summarize?.status === "ran" && summarize.metrics.unanswered).toEqual({
+      "http-400": ["k2"],
       "http-429": ["k1"],
-      "http-4xx": ["k2"],
       network: ["k5"],
       empty: ["k6"],
       "not-json": ["k4"],
       schema: ["k3"],
     });
+    // Keys in report order: HTTP statuses by number, then the kinds' order.
+    expect(Object.keys(summarize?.status === "ran" ? summarize.metrics.unanswered : {})).toEqual([
+      "http-400",
+      "http-429",
+      "network",
+      "empty",
+      "not-json",
+      "schema",
+    ]);
+    expect(summarize?.status === "ran" && summarize.metrics.tried).toEqual([
+      {
+        case: "k1",
+        failures: [
+          { provider: "a", failure: "http-429" },
+          { provider: "b", failure: "http-429" },
+        ],
+      },
+      {
+        case: "k2",
+        failures: [
+          { provider: "a", failure: "http-503" },
+          { provider: "b", failure: "http-400" },
+        ],
+      },
+      {
+        case: "k3",
+        failures: [
+          { provider: "a", failure: "not-json" },
+          { provider: "b", failure: "schema" },
+        ],
+      },
+      {
+        case: "k4",
+        failures: [
+          { provider: "a", failure: "http-500" },
+          { provider: "b", failure: "not-json" },
+        ],
+      },
+      {
+        case: "k5",
+        failures: [
+          { provider: "a", failure: "timeout" },
+          { provider: "b", failure: "network" },
+        ],
+      },
+      {
+        case: "k6",
+        failures: [
+          { provider: "a", failure: "empty" },
+          { provider: "b", failure: "empty" },
+        ],
+      },
+    ]);
     expect(summarize?.status === "ran" && summarize.metrics.contract).toEqual({ n: 0, of: 6 });
     const md = report({ tasks });
+    expect(md).toContain("- summarize answered by: a 0; b 0\n");
     expect(md).toContain(
-      "- summarize unanswered, by why the last provider failed: `http-429` 1 (`k1`); `http-4xx` 1 (`k2`); `network` 1 (`k5`); `empty` 1 (`k6`); `not-json` 1 (`k4`); `schema` 1 (`k3`)",
+      "- summarize unanswered, by why the last provider failed: `http-400` 1 (`k2`); `http-429` 1 (`k1`); `network` 1 (`k5`); `empty` 1 (`k6`); `not-json` 1 (`k4`); `schema` 1 (`k3`)\n",
+    );
+    expect(md).toContain(
+      "- summarize unanswered, why each provider failed: `k1` (a `http-429`, b `http-429`); `k2` (a `http-503`, b `http-400`); `k3` (a `not-json`, b `schema`); `k4` (a `http-500`, b `not-json`); `k5` (a `timeout`, b `network`); `k6` (a `empty`, b `empty`)\n",
     );
     // The errors held the marker (zod quotes an invalid enum value); none reaches the result.
     expect(md.includes("LEAK-MARKER")).toBe(false);
@@ -365,6 +442,22 @@ describe("runEval", () => {
 });
 
 describe("report", () => {
+  test("names the provider that answered: a count per provider, case ids for the fallbacks", async () => {
+    // c1: a answers. c2 and c3: a is down (503), b answers.
+    const model = standInModel({ "a.test": ["ok", 503, 503] });
+    const tasks = await runEval({
+      prompts: { assign: standIn.assign },
+      cases: { assign: [assignCase("c1"), assignCase("c2"), assignCase("c3")], summarize: [] },
+      providers,
+      secret,
+      fetch: model.fetch,
+    });
+    const md = report({ tasks });
+    expect(md).toContain("- assign answered by: a 1; b 2 (`c2`, `c3`)\n");
+    expect(md).toContain("- assign unanswered: none\n");
+    expect(md).not.toContain("why each provider failed");
+  });
+
   test("holds numbers, versions and provider names, never answers, case text or keys", async () => {
     const leaky = (input: AssignInput) => ({
       assignments: input.echoes.map((e) => ({ echoId: e.id, newTopic: { name: "LEAK-MARKER" } })),
