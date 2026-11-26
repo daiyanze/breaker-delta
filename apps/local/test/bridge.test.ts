@@ -245,6 +245,7 @@ describe("agentEnv", () => {
     expect(() => agentEnv(launcher, ["PROBE_TOKEN"])).toThrow("PROBE_TOKEN");
     expect(() => agentEnv(launcher, ["REPORT_TOKEN"])).toThrow("REPORT_TOKEN");
     expect(() => agentEnv(launcher, ["GROQ_API_KEY"])).toThrow("GROQ_API_KEY");
+    expect(() => agentEnv(launcher, ["OPENCODE_GO_API_KEY"])).toThrow("OPENCODE_GO_API_KEY");
   });
 });
 

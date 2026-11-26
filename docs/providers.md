@@ -10,6 +10,10 @@ an installation is set up with.
 - **Owner's decisions (2026-11-23):** which chain each provider is in, the
   order inside each chain, the models in the table below, and the keys in
   "Keys". The agent proposed them; the owner confirmed them.
+- **Owner's decision (2026-11-26):** the eval's chains (`evals/providers.json`)
+  end with OpenCode Go `deepseek-v4.1-flash`, on the owner's OpenCode Go
+  subscription, so the eval gets an answer when Gemini and Groq both fail.
+  It is in the eval only; the hosted chains below are unchanged.
 
 Free tiers change often. The figures below were read on 2026-11-22, mostly
 from recent third-party readings of the providers' own pages (September to
@@ -105,9 +109,9 @@ The bridge adds guards of its own:
   `CLAUDE_CODE_OAUTH_TOKEN`, `CLAUDE_CONFIG_DIR`. `BD_BRIDGE_ENV` adds more
   names, comma-separated, for another CLI's sign-in; it may not name the
   app's own (`BD_*`, `PROBE_TOKEN`, `REPORT_TOKEN`, `MODEL_DRIVER`,
-  `CF_AI_TOKEN`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `CLOUDFLARE_*`). So the
-  app's tokens and the provider keys never reach a process that reads
-  fetched text.
+  `CF_AI_TOKEN`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `OPENCODE_GO_API_KEY`,
+  `CLOUDFLARE_*`). So the app's tokens and the provider keys never reach a
+  process that reads fetched text.
 - A request that offers tools (`tools`, `functions`) or asks to stream is
   refused before the command runs.
 - It listens on 127.0.0.1 only, and answers only requests addressed to
@@ -181,6 +185,7 @@ owner on 2026-11-23.
 | Workers AI | `CF_AI_TOKEN` | An account-owned Cloudflare token with Workers AI permissions only. It is a separate token from the agent's operations token (ADR 0019) and from CI's deploy token, so each can be revoked on its own. Base URL: `https://api.cloudflare.com/client/v4/accounts/<account id>/ai/v1`. |
 | Groq | `GROQ_API_KEY` | https://console.groq.com/keys |
 | Gemini | `GEMINI_API_KEY` | Google AI Studio, in a Google Cloud project used only for Breaker Delta, so its quota is not shared. |
+| OpenCode Go (eval only) | `OPENCODE_GO_API_KEY` | The owner's OpenCode Go subscription. Added 2026-11-26, after the confirmation above: the agent proposed the key name and the owner set it in the `evals` environment under that name; the base URL is the agent's reading of OpenCode's model list, not reviewed. Base URL: `https://opencode.ai/inference/go/openai/v1` (chat completions). The model list, with each model's API, price and data terms, is public at `https://opencode.ai/zen/go/v1/models`; it lists `deepseek-v4.1-flash` with `training: false` (read 2026-11-26). |
 
 ## Verification (#15)
 
