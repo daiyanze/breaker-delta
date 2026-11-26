@@ -1,0 +1,154 @@
+goal: Build the UI foundation that ADR 0020 decides, so every page, desk tab, email and share card is made from one package
+record: docs/adr/0020-ui-architecture.md
+issues:
+  - id: ui-tokens
+    title: "@bd/ui package with the tokens layer"
+    milestone: UI M0 Foundations
+    depends_on: []
+    what: |
+      Create `packages/ui` (`@bd/ui`) with the `tokens` layer of ADR 0020,
+      section 5, and move the token work out of
+      `apps/web/src/core/style.ts` and `icon.ts` into it.
+
+      - A generator writes `tokens.gen.ts` (literal-union types and values)
+        from `design/system/tokens.json`.
+      - Exports `color`, `size`, `typeStyle`, `tokensCss`, `FONT_FILES` and
+        `fontFaceCss`, with the signatures in the record.
+      - `tokensCss()` keeps today's output in this issue; `light-dark()`
+        comes with `ui-css-build`.
+      - `apps/web` imports from `@bd/ui/tokens`; `icon.ts` no longer reads
+        `tokens.json` itself.
+      - `scripts/check-deps.ts`: rules for the four layers of section 3, a
+        list of data files a rule may import, and `@bd/ui` allowed in
+        `apps/web`.
+      - `packages/ui/README.md`: the layers, the import direction, where a
+        new token or component goes.
+
+      Protected path: `AGENTS.md` (the architecture map gains
+      `packages/ui`; the known-gaps sentence about data files changes).
+      Replaces the tokens half of #257.
+    acceptance:
+      - A snapshot of every page the site renders, recorded in a commit before the move, is byte-identical after it.
+      - A test regenerates `tokens.gen.ts` and fails when it differs from the committed file.
+      - "`check-deps` tests plant one violation per rule and each is reported: `@bd/ui` importing an app by name and by relative path, importing another package, importing a JSON file other than `tokens.json`, `tokens` importing `runtime`, `primitives` importing `patterns`."
+      - "`grep -rn 'tokens.json' apps/web/src --include='*.ts' --exclude='*.test.ts'` prints nothing."
+      - "`packages/ui/tsconfig.tokens.json` has no DOM lib and no Bun or Cloudflare types, and `bun run check` passes."
+
+  - id: ui-server-render
+    title: Render the site with Preact on the server
+    milestone: UI M0 Foundations
+    depends_on: [ui-tokens]
+    what: |
+      Adopt the renderer of ADR 0020, sections 1 and 3. No client
+      JavaScript yet.
+
+      - Add `preact` and `preact-render-to-string`.
+      - `@bd/ui/runtime`: `Document`, `renderDocument`, `states`, `CLIENT`.
+      - `@bd/ui/patterns`: `Band`, moved from `apps/web/src/core/layout.ts`.
+      - `apps/web/src/core/routes.ts`: the `URLPattern` route table with
+        the `Route` and `RouteContext` types of the record.
+      - The placeholder page and the bare front page become Preact
+        components in `apps/web/src/core/pages`. `escapeHtml` and the
+        template strings go.
+      - Styles stay as they are served today (inline, from `style.ts`).
+
+      Protected path: `AGENTS.md` (architecture map: the renderer and the
+      route table). Answers the "choose" half of #56.
+    acceptance:
+      - A test renders a page whose fixture text holds `<script>`, quotes and `&`, and the output contains none of them unescaped.
+      - The existing band and page tests pass against the new components, with the same landmarks, ids and classes.
+      - "`grep -rn 'escapeHtml' apps packages --include='*.ts' --include='*.tsx'` prints nothing."
+      - "The site renders in the Workers runtime: the `cloudflare` CI job's dry-run build and smoke run pass."
+      - "`bun run build:local` produces an executable whose front page answers 200 with the fixture set `busy`, shown with the verify-local procedure."
+
+  - id: ui-css-build
+    title: Component CSS files, layers and one built stylesheet
+    milestone: UI M0 Foundations
+    depends_on: [ui-server-render]
+    what: |
+      ADR 0020, sections 4 and 11, for CSS.
+
+      - Component styles move into `.css` files next to their components,
+        each inside its `@layer`; base styles get a file of their own.
+      - `tokensCss()` writes themed colours with `light-dark()`.
+      - `scripts/build-ui.ts` writes `ui.css` into
+        `apps/web/public/client/` (git-ignored), in layer order.
+      - Every page links `ui.css`; the inline `<style>` goes. A small
+        inline script applies a stored theme before first paint.
+      - The build runs before local mode starts from source, before
+        `bun build --compile` (embedded with `--asset`), and as wrangler's
+        build command. A site started without the folder stops and names
+        the command.
+      - `apps/web/src/core/style.ts` is deleted.
+
+      Changes the check and build entry points: root `package.json`
+      scripts and `apps/web/wrangler.jsonc`.
+    acceptance:
+      - "`apps/web/src` holds no `.css` file and no CSS text: `grep -rn 'font-size\\|padding' apps/web/src` prints nothing outside tests."
+      - A test builds `ui.css` and finds the layers in the order `tokens, base, primitives, patterns`.
+      - With the verify-local procedure, the front page in a browser shows the dark colours with `data-theme="dark"`, the light ones with `data-theme="light"`, and the system's choice with neither.
+      - The compiled executable serves `/client/ui.css` with no `apps/web/public` folder beside it.
+      - The `cloudflare` CI job's dry-run output contains `client/ui.css` among the assets.
+
+  - id: ui-islands
+    title: Islands and the client build
+    milestone: UI M0 Foundations
+    depends_on: [ui-css-build]
+    what: |
+      ADR 0020, section 2.
+
+      - `island()` and the `Json` type in `@bd/ui/runtime`, and the loader
+        that defines `<bd-island>`.
+      - `scripts/build-ui.ts` also builds one module per `*.island.tsx`,
+        the loader and shared chunks.
+      - `Document` loads the loader.
+      - One real island proves it end to end: the theme switch of #105, in
+        its smallest form (a button that flips `data-theme` and stores the
+        choice). #105 then finishes its design.
+    acceptance:
+      - A type test shows that a function, a `Date` and a callback are compile errors as island props.
+      - A test renders an island whose prop text holds `</script>` and the page's JSON block does not end early.
+      - With the verify-local procedure and a browser, clicking the theme switch on the front page changes the theme and a reload keeps it; the steps and a screenshot are in the PR.
+      - The same works from the compiled executable with no `apps/web/public` folder beside it.
+      - A page with no island requests no JavaScript besides the loader, checked from the browser's network list.
+
+  - id: mail-package
+    title: "@bd/mail package with the first React Email template"
+    milestone: UI M9 Search, email and snapshots
+    depends_on: [ui-tokens]
+    what: |
+      ADR 0020, section 7. Create `packages/mail` (`@bd/mail`) with React
+      and React Email, and the "confirm subscription" template as the
+      first one. Values come from `@bd/ui/tokens` as literals (light
+      theme, inline styles).
+
+      - Export `renderConfirm(data): Promise<{ html: string; text: string }>`.
+      - `check-deps`: a rule for `packages/mail/src`; only
+        `apps/pipeline` may import `@bd/mail`.
+      - Choose the React Email import that keeps the Worker bundle small
+        (`react-email` 6 or `@react-email/render` with components) and
+        record the size in the PR.
+
+      Protected path: `AGENTS.md` (architecture map gains `packages/mail`).
+      #143 builds the three subscriber emails on this.
+    acceptance:
+      - A test renders the template and finds no `var(` and no `<style>` rule the content depends on.
+      - "A `check-deps` test shows `apps/web` importing `@bd/mail` is reported."
+      - The pipeline Worker's dry-run build, with the template imported, stays under the size the PR states, and the smoke run renders the template in the Workers runtime.
+      - "`grep -rn 'react' apps/web packages/ui --include='package.json'` shows no `react` or `react-dom` dependency."
+
+  - id: share-card-engine
+    title: "Spike: draw a share card as PNG in Bun and in a Worker"
+    milestone: UI M3 Topic page and share cards
+    depends_on: [ui-tokens]
+    what: |
+      ADR 0020, section 8. Find one way to turn an SVG share card with the
+      site's fonts into a PNG that works in a compiled Bun executable and
+      in the Workers runtime, without a cloud-only service (invariant 8).
+      Candidates to measure: `@resvg/resvg-wasm`, satori with it, a native
+      module on Bun with wasm on Workers. Report the size added to each
+      bundle and the time to draw one card. The answer goes in the issue
+      and closes it; no product code is merged.
+    acceptance:
+      - A throwaway script draws the same 1200x630 card, with Fraunces text, in a compiled Bun executable and in Miniflare, and the two PNGs are compared.
+      - The answer names the engine, the bundle size it adds to each side, and the draw time, or says that no candidate works and what that means for #129.

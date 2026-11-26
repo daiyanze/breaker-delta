@@ -1,0 +1,389 @@
+# 0020 UI architecture: Preact on the server, islands, one UI package
+
+Date: 2026-11-26. Status: proposed. Builds on 0015 and 0018; answers the
+"choose" half of #56.
+
+## Goal
+
+The owner's words: settle the overall UI solution. It covers the public
+site, the desk, the emails, the share cards, the component catalog (#258)
+and the UI guardrails (#259).
+
+Done means: this record is accepted, and the issues in
+`docs/plans/ui-architecture.yaml` exist. Nothing is built by this record.
+
+Out of scope: building any page or component; the query layer (#57); the
+content of the string tables; the mail transport (0012).
+
+## Who decided what
+
+Marked per lesson L16.
+
+| Value | Decided by |
+| --- | --- |
+| One record covers site, desk, emails, share cards, catalog, guardrails | owner, 2026-11-26 |
+| The site's renderer is Preact | owner, 2026-11-26 |
+| Public pages do not have to work with JavaScript off | owner, 2026-11-26 |
+| Only the latest browser versions are supported | owner, 2026-11-26 |
+| No third-party component library; Tide Paper tokens | owner, ADR 0015 |
+| Emails are written with React Email, sent by `apps/pipeline` | owner, ADR 0012 |
+| Everything else in "Decision" below | agent's proposal; the owner accepts it by merging this record |
+
+## Constraints
+
+| # | Constraint | Source |
+| --- | --- | --- |
+| C1 | The site runs on Bun's own server in one `bun build --compile` executable; no Node, wrangler or workerd locally; the core uses ports and standard Web APIs | ADR 0018 |
+| C2 | The same core runs as a Cloudflare Worker | ADR 0018 |
+| C3 | Tide Paper only; values come from `design/system/tokens.json` | ADR 0015, `design/README.md` |
+| C4 | Interactive parts are client components; pages are server-rendered | ADR 0015 |
+| C5 | `apps/web` only reads; every source file is under a `check-deps` rule | `AGENTS.md` |
+| C6 | Fetched text is escaped before rendering | review checklist 6 |
+| C7 | Emails: React Email, rendered by `apps/pipeline`, 600px, light only | ADR 0012, #143 |
+| C8 | Share cards are drawn by `apps/pipeline` on first request | ADR 0009, #129 |
+| C9 | One page per language; strings in tables; the desk switches in place | #107, `design/system/README.md` |
+| C10 | The theme follows the system, remembers a choice, never flashes | #105 |
+| C11 | Nothing needs Node | ADR 0018, amendment #13 |
+| C12 | `design/` is an export, replaced wholesale when the design changes | `design/README.md` |
+
+## Probes
+
+Run on 2026-11-26 with Bun 1.4.2 on macOS arm64, in a scratch folder
+outside the repository.
+
+| Probe | Result |
+| --- | --- |
+| Render one page (a band, a 40-row list) with Preact 11.2.0, Hono JSX 4.13.22 and React 19.3.1: in Bun, in a compiled executable, and in workerd (Miniflare 5, no `nodejs_compat`) | all three work in all three places |
+| Client bundle for one small island, minified and gzipped | React 65.1 kB, Hono JSX 6.8 kB, Preact 5.6 kB |
+| Server render time for that page | React 150 µs, Hono JSX 55 µs, Preact 51 µs, template strings 19 µs |
+| Radix Tabs and React Aria components through an alias of `react` | `preact/compat`: server output matches React's, client bundles (48 kB gzip; not run in a browser). Hono JSX: the server build fails (`flushSync` is missing) |
+| The island mechanism below: `Bun.build` with `splitting`, files embedded with `bun build --compile --asset`, one custom-element loader | three islands hydrated and answered clicks in a real browser, served by the compiled executable |
+| `light-dark()` under `<html data-theme>` in that page | the dark value applied after the switch |
+| vinext 1.4.6, Node target, started under Bun | renders, but the production server is `node:http`, loads the build from disk at run time, and a minimal page ships 139 kB gzip of JavaScript |
+| React Email (`@react-email/components` 1.0.12, `@react-email/render` 2.3.1) | renders in Bun and in workerd; the Worker bundle with it is about 219 kB gzip |
+| `document.title` in server code, tsconfig without the DOM lib | type-checks once Preact is imported: types do not keep browser globals out of server components |
+| Front-page data of the `busy` fixture as JSON | 17.3 kB, 4.4 kB gzip |
+
+Facts read from primary sources the same day: `light-dark()`, `@layer`,
+nesting, container queries and `:has()` are Baseline Widely available;
+`@scope`, Popover, invoker commands, `@starting-style` and same-document
+view transitions are Newly available; anchor positioning's core is in all
+three engines since 2026-01; cross-document view transitions, `if()`,
+`@function`, customizable `<select>` and speculation rules still miss an
+engine (webstatus.dev). Astro has no official Bun adapter. Playwright 1.65
+runs on Bun as an opt-in (`bunx --bun playwright test`). Gmail strips CSS
+custom properties and `@font-face` (caniemail.com).
+
+## Use
+
+A page, in `apps/web`:
+
+```tsx
+export async function frontPage(ctx: RouteContext) {
+  const meta = await ctx.queries.siteMeta();
+  const edition = await ctx.queries.edition();
+  const s = strings(ctx.lang);
+  return (
+    <Document lang={ctx.lang} title={meta.siteName}>
+      <Band id="newsstand" name={s.newsstand}>
+        <Newsstand papers={papers(edition)} selected={slot} nextRunAt={meta.nextRunAt} labels={s.newsstandLabels} />
+      </Band>
+      <Band id="front" name={s.frontPage}>
+        <Button href="/echoes">{s.readAll(214)}</Button>
+      </Band>
+    </Document>
+  );
+}
+```
+
+An island, in `packages/ui`:
+
+```tsx
+// patterns/Newsstand/Newsstand.island.tsx
+export default island("Newsstand", function Newsstand(props: NewsstandProps) {
+  const [open, setOpen] = useState(false);
+  return <nav class="Newsstand">…</nav>;
+});
+```
+
+A component's states for the catalog, and a value in an email:
+
+```tsx
+// primitives/Button/Button.states.tsx
+export default states(Button, {
+  default: { children: "Read all 214 echoes" },
+  solid: { variant: "solid", children: "Subscribe" },
+});
+
+// packages/mail/src/Confirm.tsx
+<Text style={{ color: color("ink", "light"), fontFamily: typeStyle("body").family }}>…</Text>
+```
+
+## Shapes considered
+
+Both were sketched as code against the real callers, on local branches that
+are not pushed (`sketch/ui-architecture-a`, `sketch/ui-architecture-b`),
+and both type-check.
+
+**A. Server-rendered Preact with named islands (chosen).** The server owns
+the page. A component that needs the browser is wrapped with `island()`;
+only those ship JavaScript.
+
+**B. Whole-page hydration.** A page is `<name>.load.ts` (server) and
+`<name>.view.tsx` (both sides); the browser hydrates the whole tree from the
+data embedded as JSON. It lost because:
+
+- every page ships all of its components and its data a second time
+  (4.4 kB gzip for the busy front page), where A ships Preact and the
+  islands the page uses;
+- page state gets three holders (the URL, the server render, client state);
+- any import from a view reaches the browser bundle, so a server module can
+  leak into it; in A only `*.island.tsx` graphs are bundled;
+- a server/browser difference (time zone, number format) is a hydration
+  mismatch anywhere on the page, not inside one island;
+- its one advantage, changing the page without a load, is not asked for:
+  the selected edition has its own URL (#116).
+
+**C. Template strings and hand-written custom elements** (today's
+`layout.ts`, extended). Not sketched. Smallest client, but escaping stays a
+manual call at every interpolation (C6), props are untyped, and it has no
+path to a React library, which the owner asked to keep open.
+
+Renderers: React costs 65 kB gzip on every page with an island. Hono JSX is
+as small as Preact but cannot run React libraries. vinext fails C1. Astro
+has no supported route to C1.
+
+What the type check showed while sketching:
+
+- A function, a `Date` or a callback as an island prop is a compile error,
+  as intended.
+- `states(Component, {...})` inferred the props from the states and
+  rejected `variant: "solid"`; the states parameter is `NoInfer<P>`.
+- Browser globals type-check in server code (see Probes), so that rule
+  needs a check, not types.
+
+## Decision
+
+### 1. Renderer and routes
+
+Preact 11 with `preact-render-to-string`. No framework and no Vite. The
+site's routes are a table of `URLPattern`s in `apps/web/src/core`; a route
+reads through the read contracts and returns a document or a `Response`.
+HTML text is produced in one place, `renderDocument`, so escaping is the
+renderer's, not the caller's.
+
+```ts
+// apps/web/src/core/routes.ts
+export interface RouteContext {
+  request: Request;
+  url: URL;
+  params: Readonly<Record<string, string | undefined>>;
+  lang: Language;
+  queries: ReadQueries;
+}
+export interface Route {
+  pattern: URLPattern;
+  handle(ctx: RouteContext): Promise<VNode | Response>;
+}
+```
+
+### 2. Islands
+
+```ts
+// @bd/ui/runtime
+export type Json =
+  | string | number | boolean | null
+  | readonly Json[]
+  | { readonly [key: string]: Json | undefined };
+
+export interface Island<P> {
+  (props: P): JSX.Element;
+  islandName: string;
+  component: ComponentType<P>;
+}
+export function island<P extends { [K in keyof P]: Json | undefined }>(
+  name: string,
+  component: ComponentType<P>,
+): Island<P>;
+```
+
+- An island lives in `<Name>.island.tsx` and default-exports `island(...)`.
+  The name is the file name and the URL: `/client/<Name>.island.js`.
+- On the server it renders `<bd-island name="…">` holding the props as JSON
+  (with `<` escaped) and the component's HTML.
+- In the browser one loader defines the `bd-island` element, imports the
+  island's module and hydrates it. Shared code (Preact) is a shared chunk.
+- A component that is not an island runs on the server only. Browser
+  globals appear only inside an island's handlers and effects.
+- A React library, when one is worth its size, is used inside one island
+  through `preact/compat`. That is a decision per island, named in its PR
+  with the bundle size.
+
+### 3. `packages/ui` (`@bd/ui`)
+
+Four layers; each imports only the ones before it, and `check-deps`
+enforces it.
+
+| Layer | Holds | May import |
+| --- | --- | --- |
+| `tokens` | values and CSS variables from `tokens.json`, font files | `design/system/tokens.json` |
+| `runtime` | `Document`, `renderDocument`, `island`, `states`, the loader | `tokens`, `preact` |
+| `primitives` | Button, Menu, Tabs, Notice, form fields, Icon | the two above |
+| `patterns` | Band, Masthead, Newsstand, TicketStub and the other Tide Paper parts, one per `design/system/components/<Name>` | the three above, `@bd/contracts` types |
+
+One folder per component: `Name.tsx` or `Name.island.tsx`, `Name.css`,
+`Name.states.tsx`, `SPEC.md`. Nothing in `@bd/ui` imports an app.
+`apps/web` holds routes, pages and strings, and no component of its own.
+
+```ts
+// @bd/ui/runtime
+export const CLIENT = { css: "/client/ui.css", loader: "/client/loader.js", fonts: "/fonts" } as const;
+export interface DocumentProps {
+  lang: string;
+  title: string;
+  theme?: Theme;
+  head?: ComponentChildren;
+  children: ComponentChildren;
+}
+export function Document(props: DocumentProps): VNode;
+export function renderDocument(document: VNode): string;
+export function states<P>(component: ComponentType<P>, states: { readonly [name: string]: NoInfer<P> }): States<P>;
+```
+
+### 4. CSS
+
+- Plain `.css` files, one per component, written inside its layer:
+  `@layer tokens, base, primitives, patterns;`. Native nesting. The root
+  class is the component's name.
+- Themed colours are one declaration each with `light-dark()`;
+  `color-scheme` follows the system and `<html data-theme>` overrides it.
+  A small inline script in `<head>` applies a stored choice before first
+  paint (C10).
+- A build step joins the files in layer order into one `ui.css`, linked
+  from every page. Styles are no longer inlined in each page.
+- No Tailwind, no CSS-in-JS, no utility classes. `apps/*` holds no `.css`
+  and no `style=`.
+
+### 5. Tokens
+
+- `design/system/tokens.json` stays the source, in the design tool's own
+  format (C12). `@bd/ui/tokens` is its only reader, so a later change of
+  format touches one module. The DTCG format (2025.10) is not adopted now:
+  its tools need Node (C11), and the export is not ours to reshape.
+- A generator writes `tokens.gen.ts` with literal-union types and the
+  values; a test regenerates it and compares (L19).
+- The layer has no JSX, no DOM and no runtime API, so emails and share
+  cards can import it.
+
+```ts
+// @bd/ui/tokens
+export type Theme = "light" | "dark";
+export type ColorToken = "paper" | "ink" | "ink-2" /* … generated */;
+export function color(name: ColorToken, theme: Theme): string;
+export function size(name: SpaceToken | RadiusToken | RuleToken): string;
+export function typeStyle(name: TypeStyle): TypeValues;
+export function tokensCss(): string;
+export const FONT_FILES: readonly FontFile[];
+export function fontFaceCss(base: string): string;
+```
+
+### 6. Strings
+
+Components take their text as props. String tables live in `apps/web`, one
+per language; a missing key fails CI (#107). The desk's strings come from
+`design/strings`.
+
+### 7. Emails
+
+A new package, `packages/mail` (`@bd/mail`): React and React Email, with
+literal values from `@bd/ui/tokens` (light theme, inline styles; Gmail
+strips variables). It exports one function per template:
+`render<Name>(data): Promise<{ html: string; text: string }>`. Only
+`apps/pipeline` and the local catalog import it. React never reaches a
+browser.
+
+### 8. Share cards
+
+A card is an SVG built from the tokens' literal values by a function the
+pipeline calls (0009). Which engine turns it into a PNG in both a compiled
+Bun executable and a Worker is not known; a spike answers it before #129.
+
+### 9. Desk
+
+The same stack: server-rendered pages under `/admin`, islands where a tab
+needs them, forms that post to web routes which call the pipeline over the
+service binding (0010).
+
+### 10. Browser line
+
+The latest versions of Chrome, Edge, Firefox and Safari. A platform feature
+may be relied on once all three engines ship it (Baseline "Newly
+available"); a feature still missing an engine is used only where the page
+works without it.
+
+### 11. Build
+
+One script builds what the browser loads into `apps/web/public/client/`
+(git-ignored): `ui.css`, the loader and one module per island. It runs
+before local mode starts from source, before `bun build --compile` (which
+embeds the folder with `--asset`), and as wrangler's build command. A site
+that starts without the folder stops with the command to run. Fonts stay in
+`apps/web/public/fonts`.
+
+### 12. Catalog and guardrails
+
+- `/_catalog`, local only, renders every `*.states.tsx` (#258).
+  Screenshots run with Playwright on Bun.
+- `check-deps` holds the layer rules. A `check-ui` script (#259) fails on:
+  a literal colour or size in a `.css` file outside `tokens`; `document` or
+  `window` outside a `*.island.tsx`; a `.css` file or `style=` in `apps/*`;
+  a component folder without states or a spec.
+
+## One-way doors
+
+- **Preact as the component model.** Every component is written against
+  it. Moving to React later is mostly an import change (`preact/compat`
+  goes the other way); moving to anything else is a rewrite.
+- **The island contract**: JSON props, the `<bd-island>` element, and
+  `/client/<Name>.island.js`. Cached pages and the loader must agree, so a
+  change needs both to move together.
+- **Class names as the styling hook.** Pages and tests will select on them.
+- **`@bd/ui/tokens` function names**, once emails and share cards use them.
+
+## Risks
+
+- `preact/compat` with a React library was shown on the server and as a
+  bundle, not running in a browser.
+- The share-card engine is unknown (spike).
+- `@react-email/components` is deprecated in favour of `react-email` 6,
+  which also carries the CLI's dependencies; the mail issue picks the
+  import that keeps the Worker bundle small and records the size.
+- Playwright on Bun is opt-in and young.
+- There is no hot reload: a change needs a rebuild and a refresh.
+- Chinese and Japanese pages add two Noto families each (#147); their size
+  is not measured.
+
+## Signs the shape is wrong
+
+For whoever builds from this record. On any of these, stop and ask the
+owner; do not patch around it.
+
+- An island needs a prop that is not JSON, or two islands need to share
+  state.
+- A page needs CSS of its own, or a component needs a literal value.
+- A component needs to know whether it is on the server or in the browser
+  outside an island.
+- `apps/web` grows a component, or `@bd/ui` needs to read the query layer.
+- The same React library is wanted in a third island.
+- A page needs to change without a load in a way a link cannot do.
+
+## What this changes
+
+- #56: the choice is this record. Adopting it is the first two issues of
+  the plan; the database criteria stay with #57.
+- #257: replaced by the plan's issues, which split it by layer.
+- #258 and #259: unchanged in purpose; their "What to build" follows
+  sections 3, 11 and 12 here.
+- `AGENTS.md` (protected): the architecture map gains `packages/ui` and
+  `packages/mail`, and the enforcement table gains the UI rows. Each issue
+  that makes one of them true changes the file in the same PR.
