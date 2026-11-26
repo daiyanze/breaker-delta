@@ -116,13 +116,31 @@ could not place are left out, and batch boundaries can shift.
 ## Running
 
 ```sh
-bun scripts/eval.ts [--cases evals/cases] [--report eval.md] [--json eval.json]
+bun scripts/eval.ts [--cases evals/cases] [--report eval.md] [--json eval.json] [--min-contract 0.5]
 ```
 
 Keys come from the environment by the names in `providers.json`
 (`apiKeyRef`), as the pipeline reads them; a provider without its key is
-left out. Exit 0 when every shipped prompt was evaluated, 1 when one has no
-cases or no provider with a key, 2 on a bad case or providers file.
+left out.
+
+**Contract floor.** An evaluated task whose contract rate (answers that fit
+the contract, of its cases) is below `--min-contract` fails the run. The
+default is 0.5, the owner's floor of 3/6, and it applies to every task.
+Rounded up to whole cases: 6 cases need at least 3, and assign's 7 cases
+need at least 4 (3/7 fails). The value is a plain decimal from 0 to 1;
+anything else is refused with exit 2, as is a malformed command line (a
+missing value, an unknown option, or `--min-contract -0.5`, which the
+argument parser reads as an option). A task with no cases or no provider
+key is reported as not evaluated, as before, and the floor does not apply
+to it. The report says, per task below the floor, its count and the count
+it needed (`contract 3/7 is below the floor of 0.5 (at least 4/7)`), and
+the JSON holds the floor used (`minContract`). The floor is a flag of the
+eval script, not a pipeline setting: the eval reads no `settings` table.
+
+Exit 0 when every shipped prompt was evaluated and none is below the
+contract floor; 1 when one has no cases or no provider with a key, or when
+an evaluated task is below the floor; 2 on a bad case or providers file or
+a bad `--min-contract`.
 
 ## Metrics
 
@@ -185,7 +203,8 @@ Still by hand: spot checks of Chinese and Japanese readability.
 prompt, the judge, the eval or its cases, or the pipeline checks it scores
 with. It runs only for the owner's same-repository PRs, in the `evals`
 environment, and updates one comment on the PR (its bot's, found by a
-marker). A shipped prompt it could not evaluate fails the job.
+marker). A shipped prompt it could not evaluate, or a task below the
+contract floor, fails the job (the job runs the default floor).
 
 The owner sets up once: in the GitHub environment `evals`, the secrets
 `GROQ_API_KEY`, `GEMINI_API_KEY` and `OPENCODE_GO_API_KEY` (the keys in
