@@ -256,7 +256,7 @@ async function get(args: string[]) {
 
 /**
  * What `get` prints of a response: the first 2000 characters of an HTML
- * page's `<body>`, since `<head>` holds inline styles that would fill the
+ * page's `<body>`, since `<head>` holds links and metadata that would fill the
  * limit on their own; other bodies from the start. The full response is in
  * the saved file.
  */

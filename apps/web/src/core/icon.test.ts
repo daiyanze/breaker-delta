@@ -14,9 +14,15 @@ const DELTA = 'points="256,240 290,308 222,308"';
 const WINDOW_BAR = 'd="M256,104 V150"';
 const RAILING = 'd="M202,146 H310';
 
-// Every colour token's value in either theme, as the tokens layer writes them.
+// Every colour token's value in either theme, as the tokens layer writes them:
+// `light-dark(<light>,<dark>)`, or one value when both themes share it.
+const HEX = "#[0-9A-Fa-f]{6}";
 const tokenValues = new Set(
-  [...tokensCss().matchAll(/--[\w-]+:(#[0-9A-Fa-f]{6});/g)].map((m) => (m[1] ?? "").toUpperCase()),
+  [
+    ...tokensCss().matchAll(
+      new RegExp(`--[\\w-]+:(?:light-dark\\((${HEX}),(${HEX})\\)|(${HEX}));`, "g"),
+    ),
+  ].flatMap((m) => m.slice(1).flatMap((v) => (v ? [v.toUpperCase()] : []))),
 );
 const hexes = (svg: string) => [...svg.matchAll(/#[0-9A-Fa-f]{6}\b/g)].map((m) => m[0]);
 
