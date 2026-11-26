@@ -47,8 +47,12 @@ issues:
       Adopt the renderer of ADR 0020, sections 1 and 3. No client
       JavaScript yet.
 
-      - Add `preact` and `preact-render-to-string`. Set `jsx` and
-        `jsxImportSource` in `tsconfig.base.json`.
+      - Add `preact` and `preact-render-to-string`. Set `jsx: react-jsx`
+        in `tsconfig.base.json`; every `.tsx` starts with
+        `/** @jsxImportSource preact */`.
+      - `scripts/check-deps.ts`: `preact` and `preact-render-to-string`
+        allowed where the record's layers use them, and `preact` in
+        `apps/web`.
       - `@bd/ui/runtime`: `Document`, `renderDocument`, `states`, `CLIENT`.
       - `@bd/ui/patterns`: `Band`, moved from `apps/web/src/core/layout.ts`.
       - `apps/web/src/core/routes.ts`: the `URLPattern` route table with
@@ -59,13 +63,15 @@ issues:
       - Styles stay as they are served today (inline, from `style.ts`).
 
       Protected path: `AGENTS.md` (architecture map: the renderer and the
-      route table). Changes `tsconfig.base.json`, part of the check.
+      route table). Changes `tsconfig.base.json` and
+      `scripts/check-deps.ts`, both part of the check.
       Answers the "choose" half of #56.
     acceptance:
       - A test renders a page whose fixture text holds `<script>`, quotes and `&`, and the output contains none of them unescaped.
       - The existing band and page tests pass against the new components, with the same landmarks, ids and classes.
       - "`grep -rn 'escapeHtml' apps packages --include='*.ts' --include='*.tsx'` prints nothing."
       - "Every tsconfig that reaches a `.tsx` compiles: `bun run typecheck` passes with a page exported from `site.ts`."
+      - "`bun test` and `bun run local` work from the repository root, and a test fails on a `.tsx` whose first line is not its JSX pragma."
       - "The site renders in the Workers runtime: the `cloudflare` CI job's dry-run build and smoke run pass."
       - "`bun run build:local` produces an executable whose front page answers 200 with the fixture set `busy`, shown with the verify-local procedure."
 
@@ -90,7 +96,11 @@ issues:
         script in `<head>` applies a stored theme before first paint.
       - `apps/web/src/core/style.ts` is deleted.
 
-      Changes root `package.json` scripts (part of the check),
+      The build area uses Bun's API, so `packages/ui` gets a tsconfig
+      for it with Bun's types and its `typecheck` script runs it.
+
+      Changes root `package.json` scripts, `packages/ui`'s `typecheck`
+      script and a new tsconfig (all part of the check),
       `apps/web/wrangler.jsonc` and `.gitignore`.
     acceptance:
       - A test fails when a `.css` file under `packages/ui/src` is missing from `uiCss()`.
@@ -116,7 +126,7 @@ issues:
         its smallest form (a button that flips `data-theme` and stores the
         choice). #105 then finishes its design.
     acceptance:
-      - A type test shows that a function, a `Date`, a `Map` and a nested callback are compile errors as island props, and that `RankRow`, `SiteMeta` and `Edition` are accepted.
+      - A type test shows that a function, a `Date`, a `Map` and a nested callback are compile errors as island props, that `RankRow`, `SiteMeta` and `Edition` are accepted, and that a prop typed `unknown` is rejected.
       - A test renders an island whose prop text holds `</script>`, quotes and `&`; the HTML has no raw `<` inside the attribute and the props read back equal.
       - With the verify-local procedure and a browser, clicking the theme switch on the front page changes the theme and a reload keeps it; the steps and a screenshot are in the PR.
       - The same works from the compiled executable run from an empty folder.
@@ -133,7 +143,8 @@ issues:
       theme, inline styles).
 
       - Export `renderConfirm(data): Promise<{ html: string; text: string }>`.
-      - Every `.tsx` file starts with `/** @jsxImportSource react */`.
+      - Every `.tsx` file starts with `/** @jsxImportSource react */`; the
+        pragma test of `ui-server-render` covers this package too.
       - `check-deps`: a rule for `packages/mail/src`; only
         `apps/pipeline` may import `@bd/mail`.
       - Choose the React Email import that keeps the Worker bundle small

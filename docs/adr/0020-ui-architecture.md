@@ -66,6 +66,7 @@ outside the repository.
 | A `.css` file imported as text (`with { type: "text" }`) | a string in Bun and in the compiled executable: the stylesheet needs no build |
 | Island props as an attribute, with `</script>`, quotes, `&` and `<` in the text | the renderer escapes them and the JSON reads back equal |
 | The client build run in memory when the server starts | 5 files in 11 ms; skipped when files are embedded |
+| A `.tsx` file starting with `/** @jsxImportSource preact */`, with no tsconfig in reach | runs under `bun`, `bun test` and from another working directory |
 
 Facts read from primary sources the same day: `light-dark()`, `@layer`,
 nesting, container queries and `:has()` are Baseline Widely available;
@@ -231,6 +232,11 @@ export function island<P extends object>(
 - An island does not import another island, and imports `@bd/contracts`
   with `import type` only, so no schema code reaches the browser. Text
   reaches an island as finished strings, not as functions.
+- What the type does not catch: a prop typed `object`, `{}` or `any`
+  accepts anything, and `NaN` or an `undefined` inside an array reads back
+  as `null`. A prop typed `unknown` is rejected even when the data is JSON
+  (`DeskSettings.history[].changes[].from` is `z.unknown()`); such a value
+  reaches an island as text the server has already formatted.
 - A React library, when one is worth its size, is used inside one island
   through `preact/compat`. That is a decision per island, named in its PR
   with the bundle size.
@@ -258,9 +264,13 @@ One folder per component: `Name.tsx` or `Name.island.tsx`, `Name.css`,
 `Name.states.tsx`, `SPEC.md`. Nothing in `@bd/ui` imports an app.
 `apps/web` holds routes, pages and strings, and no component of its own.
 
-JSX is set once, in `tsconfig.base.json` (`jsx: react-jsx`,
-`jsxImportSource: preact`), because every program that reaches a `.tsx`
-needs it: the web adapters and `apps/local` as well as the core.
+Every `.tsx` file names its own JSX runtime on its first line:
+`/** @jsxImportSource preact */` (in `packages/mail`, `react`). Bun's
+runtime reads JSX settings from the tsconfig of the working directory, not
+of the file, so a setting in a tsconfig alone breaks `bun test` and local
+mode started from the repository root. `tsconfig.base.json` gets only
+`jsx: react-jsx`, which `tsc` needs in every program that reaches a `.tsx`:
+the web adapters and `apps/local` as well as the core.
 
 ```ts
 // @bd/ui/runtime
@@ -341,10 +351,8 @@ A new package, `packages/mail` (`@bd/mail`): React and React Email, with
 literal values from `@bd/ui/tokens` (light theme, inline styles; Gmail
 strips variables). It exports one function per template:
 `render<Name>(data): Promise<{ html: string; text: string }>`. Only
-`apps/pipeline` and the local catalog import it. React never reaches a
-browser. Each of its `.tsx` files starts with `/** @jsxImportSource react */`,
-because a program that also holds Preact files (`apps/local`) would
-otherwise compile them for Preact; a check requires the line.
+`apps/pipeline` imports it. React never reaches a browser, and emails are
+not part of `/_catalog`: each template has its own render test.
 
 ### 8. Share cards
 
@@ -391,13 +399,20 @@ export function buildClient(): Promise<readonly ClientFile[]>;
   `apps/web/public/client/` (git-ignored), served as static assets.
 - Files under `/client/` are revalidated on every load (ETag), not cached
   for long, so a page and its island modules come from the same deploy.
+- The build's root is the package folder, not the working directory, so
+  chunk names do not change with where it is run from.
 - Fonts stay in `apps/web/public/fonts`.
 
 ### 12. Catalog and guardrails
 
-- `/_catalog`, local only, renders every `*.states.tsx` (#258). Rendering
-  every state on the server is also the test that no island touches a
-  browser global while rendering.
+- `/_catalog` is a route of the local adapter (`apps/web/src/local`), so
+  the Cloudflare adapter never has it. It renders every `*.states.tsx`
+  (#258). Rendering every state on the server is also the test that no
+  island touches a browser global while rendering.
+- A state is a set of props. Hover and focus are not props: the screenshot
+  run moves the pointer and the focus. A component whose layout depends on
+  the language gets a named state per language with its own sample text;
+  `@bd/ui` holds no string table.
 - Screenshots run with Playwright on Bun, in a CI job of their own on one
   OS, which is also where baselines are made: a browser is not part of
   `bun install`, and a baseline made on macOS does not match Linux. `check`
@@ -407,8 +422,8 @@ export function buildClient(): Promise<readonly ClientFile[]>;
   breakpoint in a query excepted); `document` or `window` outside a
   `*.island.tsx`; `dangerouslySetInnerHTML` outside `Document`; an island
   importing an island, or a value from `@bd/contracts`; a `.css` file or
-  `style=` in `apps/*`; a mail `.tsx` without its pragma; a component
-  folder without states or a spec.
+  `style=` in `apps/*`; a `.tsx` whose first line is not its JSX pragma; a
+  component folder without states or a spec.
 
 ## One-way doors
 
@@ -437,6 +452,20 @@ A. Round 1 proved eight things; each is settled above.
 | The first prop constraint rejected interfaces with a misleading error and accepted a `Map` under `{}` | section 2: `Jsonable<T>` |
 | #257 contradicts this record | "What this changes" |
 
+Round 2, a new agent against the revised record, found nothing that
+breaks the shape and five things the record did not say; the round 1 fixes
+it re-probed held (the build in memory from source, embedded files in a
+compiled executable run from an empty folder, wrangler's build command,
+props in an attribute, `tsc` in every workspace).
+
+| Finding | Settled by |
+| --- | --- |
+| JSX settings in a tsconfig do not reach Bun's runtime when it starts from the repository root: `bun test` and local mode failed | section 3: a pragma on the first line of every `.tsx` |
+| `Jsonable<T>` rejects `unknown` (one desk contract) and accepts `object`, `{}` and `any` | section 2: stated as limits |
+| The build area needs Bun's types, and `apps/web` importing `preact` fails `check-deps`; the plan named neither | plan: `ui-server-render` and `ui-css` |
+| The record let the catalog import `@bd/mail`; the plan forbade `apps/web` from importing it | sections 7 and 12 |
+| #258 wants hover, focus and three languages per state; a state holds props only | section 12 |
+
 ## Risks
 
 Raised and not proven, or still open.
@@ -458,14 +487,19 @@ Raised and not proven, or still open.
   unless the desk shell is an island; unsaved form input would be lost.
 - The Mail tab's live preview (#156) is a round trip to the pipeline per
   edit.
+- On Windows, embedded file names may use `\`; the compiled executable was
+  probed on macOS only.
+- Preact 11's types reject an optional `href` passed straight to `<a>`
+  under `exactOptionalPropertyTypes`; components will spread it
+  conditionally.
 
 ## Signs the shape is wrong
 
 For whoever builds from this record. On any of these, stop and ask the
 owner; do not patch around it.
 
-- An island needs a prop that is not JSON, or two islands need to share
-  state.
+- An island needs a function or a class instance as a prop, or two islands
+  need to share state.
 - A page needs CSS of its own, or a component needs a literal value.
 - A component needs to know whether it is on the server or in the browser
   outside an island.
@@ -481,11 +515,13 @@ owner; do not patch around it.
   `@bd/contracts`, byte-identical output, string-rendering functions). The
   plan's first four issues replace it; the owner closes or rewrites it.
 - #258: its screenshot check moves out of `check` into a CI job of its own,
-  which changes `.github` (protected).
+  which changes `.github` (protected); hover, focus and languages follow
+  section 12.
 - #259: its check takes the list in section 12.
 - `AGENTS.md` (protected): the architecture map gains `packages/ui` and
   `packages/mail`, and the enforcement table gains the UI rows. Each issue
   that makes one of them true changes the file in the same PR.
-- `tsconfig.base.json` and root `package.json` scripts change; both are
-  part of how `bun run check` works (`docs/development.md`, "The gate
+- `tsconfig.base.json`, a new tsconfig in `packages/ui` for the build
+  area, root `package.json` scripts and `scripts/check-deps.ts` change; all
+  are part of how `bun run check` works (`docs/development.md`, "The gate
   here").
