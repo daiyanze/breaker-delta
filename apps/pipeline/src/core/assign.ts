@@ -139,10 +139,13 @@ export function nameCitesNoAddress(name: string, title: string): boolean {
  * - a Markdown link or image (`](`) or link definition (`[x]: ...` at a
  *   line's start);
  * - a link scheme with no `//`: `javascript:`, `data:`, `mailto:` and the
- *   like, followed directly by a non-space character (`data:text/html`,
- *   `mailto:x`); with a space after the colon it is a prose label ("Key
- *   data: ...", "The court file: ..."), which no autolinker reads as a link
- *   (`https://` and `www.` are `nameCitesNoAddress`'s);
+ *   like, unless one plain space follows the colon. With that space it is
+ *   read as a prose label ("Key data: ...", "The court file: ..."); a tab,
+ *   newline or any other character after the colon is refused, since
+ *   browsers drop tabs and newlines from URLs (`https://` and `www.` are
+ *   `nameCitesNoAddress`'s). A prose label could still become a link if
+ *   later code put model text into a URL attribute: model text must never
+ *   go into an `href` or `src`;
  * - an email address, which mail clients link even when its domain is in
  *   the echoes' own text.
  */
@@ -151,7 +154,7 @@ const MARKUP = [
   /&(?:#\d+|#x[0-9a-f]+|[a-z][a-z0-9]*);/iu,
   /\]\s*\(/u,
   /^\s*\[[^\]\n]*\]\s*:/mu,
-  /(?:^|[^\p{L}\p{N}+.-])(?:javascript|vbscript|data|mailto|tel|sms|file|blob|about|intent|ftp|wss?):(?=\S)/iu,
+  /(?:^|[^\p{L}\p{N}+.-])(?:javascript|vbscript|data|mailto|tel|sms|file|blob|about|intent|ftp|wss?):(?! )/iu,
   /[\p{L}\p{N}._%+-]+@[\p{L}\p{N}-]+(?:\.[\p{L}\p{N}-]+)+/u,
 ];
 

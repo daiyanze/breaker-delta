@@ -71,6 +71,8 @@ const LINKS: string[] = [
   "&#60;a href=x&#62;",
   "&#x3c;a href=x&#x3e;",
   "javascript:alert(1)",
+  "javascript:\talert(1)",
+  "javascript:\nalert(1)",
   "JavaScript:alert(1)",
   "click(javascript:alert(1))",
   "data:text/html,<b>x</b>",
