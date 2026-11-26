@@ -35,9 +35,9 @@ const PREACT = /^preact(\/hooks|\/jsx-runtime)?$/;
 const UI = "packages/ui/src";
 /**
  * The parts of `@bd/ui` the site's pages are made from (ADR 0020, sections 1
- * and 3): `primitives` and `catalog` arrive with later issues.
+ * and 3): `catalog` arrives with a later issue.
  */
-const UI_SITE = /^@bd\/ui\/(tokens|runtime|patterns)$/;
+const UI_SITE = /^@bd\/ui\/(tokens|runtime|primitives|patterns)$/;
 /** The local site adapter also builds and checks the client files (ADR 0020, section 11). */
 const UI_CLIENT = /^@bd\/ui\/(build|styles)$/;
 

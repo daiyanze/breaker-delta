@@ -6,6 +6,7 @@
   "exports": {
     "./tokens": "./src/tokens/index.ts",
     "./runtime": "./src/runtime/index.ts",
+    "./primitives": "./src/primitives/index.ts",
     "./patterns": "./src/patterns/index.ts",
     "./styles": "./src/styles/index.ts",
     "./build": "./src/build/index.ts"
@@ -15,6 +16,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.tokens.json && tsc --noEmit -p tsconfig.build.json"
   },
   "dependencies": {
+    "@bd/contracts": "workspace:*",
     "preact": "^11.2.0",
     "preact-render-to-string": "^6.8.3"
   }

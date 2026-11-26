@@ -8,6 +8,7 @@
  */
 
 import band from "../patterns/Band/Band.css" with { type: "text" };
+import themeSwitch from "../primitives/ThemeSwitch/ThemeSwitch.css" with { type: "text" };
 import { fontFaceCss, tokensCss, typeClassesCss } from "../tokens/index.ts";
 import base from "./base.css" with { type: "text" };
 
@@ -24,6 +25,7 @@ export const FONTS = "/fonts";
 /** Every `.css` file of the package, with its path under `src` and its layer, in layer order. */
 export const CSS_FILES: readonly { path: string; layer: Layer; text: string }[] = [
   { path: "styles/base.css", layer: "base", text: base },
+  { path: "primitives/ThemeSwitch/ThemeSwitch.css", layer: "primitives", text: themeSwitch },
   { path: "patterns/Band/Band.css", layer: "patterns", text: band },
 ];
 

@@ -23,7 +23,8 @@ other data file, not even one in `src/tokens`.
 | `build` | `buildClient()`: the client files, bundled with Bun | everything above, `bun`, `node:` |
 
 `tokens` (#269), `styles` and `build` (#270), `runtime` and `patterns`
-(#271) exist today; `patterns` holds `Band`. The others arrive with the
+(#271) and `primitives` (#272) exist today; `patterns` holds `Band`,
+`primitives` the `ThemeSwitch` island. `catalog` arrives with the
 plan in `docs/plans/ui-architecture.yaml`. A file directly under `src/` is
 under no rule and fails `check-deps`.
 
@@ -35,16 +36,35 @@ under no rule and fails `check-deps`.
   from the working directory's tsconfig, not the file's. This package's
   `tsconfig.json` extends the base (`jsx: react-jsx`); wrangler's bundler
   reads a file of that name.
-- `Document` is the whole page: `<html lang>`, the font preloads, the
-  stylesheet at `CLIENT.css`, the page's own `head`, then its children.
-  `renderDocument` turns it into HTML with its doctype. It is the only
-  place HTML text is made, so escaping is the renderer's: a page passes
-  plain strings.
+- `Document` is the whole page: `<html lang>`, the constant theme script
+  (`THEME_SCRIPT`: applies the theme stored under `THEME_KEY` before first
+  paint, the one `dangerouslySetInnerHTML`), the font preloads, the
+  stylesheet at `CLIENT.css`, the loader at `CLIENT.loader` as a module,
+  the page's own `head`, then its children. `renderDocument` turns it into
+  HTML with its doctype. It is the only place HTML text is made, so
+  escaping is the renderer's: a page passes plain strings.
+- Islands (ADR 0020, section 2): a component that runs in the browser
+  lives in `<Name>.island.tsx` and default-exports
+  `island("<Name>", Component)`; the name is the file name and the URL
+  `/client/<Name>.island.js` (`build/build.test.ts` checks both). On the
+  server it renders `<bd-island name props>` around the component, the
+  props as JSON in an attribute. Props must be JSON all the way down
+  (`Jsonable`): a function, a `Date`, a `Map`, `children` or `unknown` is
+  a compile error (`patterns/island-props.test.ts`). An island imports
+  `runtime/island.ts` and `runtime/theme.ts` directly, never the runtime's
+  index, so the renderer stays out of its bundle.
+- The loader (`runtime/loader.ts`, `/client/loader.js`) defines
+  `<bd-island>`. It imports nothing up front: Preact and an island's
+  module come by dynamic import, so a page without an island loads the
+  loader alone.
 - `states(Component, { name: props })` lists a component's states for the
   catalog; the props are checked against the component's.
 - `Band` (`patterns/Band`): a section with its name in the rail. Classes
   `.Band` and `.Band-rail`, `.Band-name`, `.Band-note`, `.Band-body`; the
   heading's id is `band-<id>`.
+- `ThemeSwitch` (`primitives/ThemeSwitch`, an island): a button that flips
+  `<html data-theme>` and stores the choice. Its smallest form; #105
+  finishes it. `SPEC.md` in its folder.
 
 ## `@bd/ui/styles` and `@bd/ui/build`
 
@@ -64,7 +84,10 @@ under no rule and fails `check-deps`.
 - `styles/checks.ts` holds the design rules the tests run on the sheet:
   tabular figures, no type under 13px, fonts preloaded and never swapped
   late, the band's columns.
-- `buildClient()` returns the files served under `/client/` (`ui.css`).
+- `buildClient()` returns the files served under `/client/`: `ui.css`,
+  `loader.js`, one `<Name>.island.js` per island and the shared
+  `chunk-<hash>.js` files (Preact), bundled with `Bun.build` from
+  the package folder (`packages/ui`), so the names do not depend on the working directory.
   `scripts/write-client.ts <dir>/client` writes them: `build:local` embeds
   `dist/client` in the executable, and wrangler's build command writes
   `apps/web/public/client` (git-ignored). Run from source, the local site
