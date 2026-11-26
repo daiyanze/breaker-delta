@@ -115,7 +115,7 @@ issues:
       `scripts/check-deps.ts` and `bun.lock`. This is the "adopt" half of
       #56; the record is the "choose" half.
     acceptance:
-      - "A test renders a page whose fixture text holds `<script>`, `&` and, in an attribute, `\"`; in the output they appear only as `&lt;script>`, `&amp;` and `&quot;`."
+      - 'A test renders a page whose fixture text holds `<script>`, `&` and, in an attribute, `"`; in the output they appear only as `&lt;script>`, `&amp;` and `&quot;`.'
       - The band and page tests are rewritten to assert the same landmarks, ids, headings and text as today; they no longer assert the old escape forms or line breaks.
       - "`grep -rn 'escapeHtml' apps packages --include='*.ts' --include='*.tsx'` prints nothing."
       - "Every tsconfig that reaches a `.tsx` compiles: `bun run typecheck` passes with a page exported from `site.ts`."
