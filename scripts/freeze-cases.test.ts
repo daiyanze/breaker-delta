@@ -234,7 +234,7 @@ describe("freeze-cases", () => {
     const init = spawnSync("git", ["init", "-q", repo]);
     expect(init.status).toBe(0);
     writeFileSync(join(repo, ".gitignore"), ".bd-data/\n");
-    // A committed case, as #43 and #44 will add.
+    // A committed case, like those #43 and #44 added.
     mkdirSync(join(repo, "evals", "cases", "assign"), { recursive: true });
     writeFileSync(join(repo, "evals", "cases", "assign", "synthetic.json"), "{}\n");
     return repo;
