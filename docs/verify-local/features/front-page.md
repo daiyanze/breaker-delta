@@ -6,7 +6,8 @@ its ranking and the classifieds. Without a query layer configured it is a
 placeholder.
 
 **How to reach it.** `up --fixtures <set>` makes the site read a fixture
-set; `?set=` picks another set per request and `?lang=` a language.
+set; `?set=` picks another set per request. Each language is its own
+page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
 
 **Correct looks like:**
 
@@ -15,12 +16,14 @@ set; `?set=` picks another set per request and `?lang=` a language.
 - `up --fixtures busy`, `get /`: "The ... edition. Sea state: ...", an
   ordered list of topics linking to `/topic/<slug>`, and a Classifieds list.
 - `get "/?set=fresh"`: "The sea is flat." and the next scan time.
-- `get "/?lang=ja"` on `busy`: `<html lang="ja">`, Japanese headlines where
+- `get /ja/` on `busy`: `<html lang="ja">`, Japanese headlines where
   the set has them, the source's own headline elsewhere.
-- `get "/?lang=ja"` on `quiet` (English only): falls back to `lang="en"`.
-- `get "/?set=nope"`: 404 "unknown fixture set". Any path other than `/`,
-  `/health`, `/_catalog` (`catalog.md`) and the files under `/fonts/`,
-  `/icons/` and `/client/`: 404.
+- `get "/ja/?set=quiet"` (English only): redirected to `/?set=quiet`,
+  `lang="en"`.
+- `get "/?set=nope"`: 404 "unknown fixture set". Any path other than `/`
+  (and its language versions, `languages.md`), `/health`, `/_catalog`
+  (`catalog.md`) and the files under `/fonts/`, `/icons/` and `/client/`:
+  404.
 - `get /client/ui.css`: 200 `text/css`, starting with
   `@layer tokens, base, primitives, patterns;`. Every page links it; no
   page holds a `<style>` (#270).
@@ -50,7 +53,7 @@ set; `?set=` picks another set per request and `?lang=` a language.
 ```sh
 bun scripts/verify-local.ts up --fixtures busy
 bun scripts/verify-local.ts get /
-bun scripts/verify-local.ts get "/?lang=ja"
+bun scripts/verify-local.ts get /ja/
 bun scripts/verify-local.ts get "/?set=fresh"
 bun scripts/verify-local.ts get "/?set=nope"
 bun scripts/verify-local.ts down

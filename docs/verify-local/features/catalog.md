@@ -14,11 +14,13 @@ page (default light, English); the links at its top go to the other five.
   `<body>`: "This page: light, en.", the links to the six pages, and a list
   of every component with its layer and state names (`ThemeSwitch
   (primitives): default, long, zh, ja`, `Band (patterns): default, note,
-  long, zh, ja`). The rest is in the file `get` saved: `<html lang="en"
+  long, zh, ja`, `LanguageMenu (patterns): default, open, long, zh, ja`).
+  The rest is in the file `get` saved: `<html lang="en"
   data-theme="light">`, and one section per component with one
   `data-shot="<Name>/<state>"` element per state.
-- `get "/_catalog?theme=dark&lang=ja"`: the same; it prints "This page:
-  dark, ja.", and the saved file has `<html lang="ja" data-theme="dark">`.
+- `get "/_catalog?theme=dark&lang=ja"`: the same, with the page's own
+  text in Japanese from the site's string tables ("カタログ", "このページ：
+  dark、ja。"); the saved file has `<html lang="ja" data-theme="dark">`.
 - `get "/_catalog?theme=light&lang=en&shot=Band/long"`: that one state
   alone, the page the screenshot run captures; an unknown component or
   state: 404.

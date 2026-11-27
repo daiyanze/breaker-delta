@@ -13,9 +13,10 @@ async function pages(): Promise<{ name: string; html: string }[]> {
     { name: "placeholder", html: await (await handle(new Request("http://x/"), {})).text() },
   ];
   for (const set of FIXTURE_SET_NAMES) {
-    const { languages } = await createFixtureReadQueries(set).siteMeta();
-    for (const lang of languages) {
-      const res = await handle(new Request(`http://x/?lang=${lang}`), {
+    const meta = await createFixtureReadQueries(set).siteMeta();
+    for (const lang of meta.languages) {
+      const path = lang === meta.defaultLanguage ? "/" : `/${lang}/`;
+      const res = await handle(new Request(`http://x${path}`), {
         READ_SOURCE: "fixtures",
         FIXTURE_SET: set,
       });
@@ -30,7 +31,7 @@ interface Head {
   inlineStyle: number;
   stylesheets: string[];
   fontPreloads: string[];
-  /** Every other `<link>` in the head, as `rel href sizes type`. */
+  /** Every other `<link>` in the head but the alternates, as `rel href sizes type`. */
   others: string[];
 }
 
@@ -54,7 +55,7 @@ async function head(html: string): Promise<Head> {
         const href = el.getAttribute("href") ?? "";
         if (rel === "stylesheet") found.stylesheets.push(href);
         if (rel === "preload" && el.getAttribute("as") === "font") found.fontPreloads.push(href);
-        else if (rel !== "stylesheet") {
+        else if (rel !== "stylesheet" && rel !== "alternate") {
           const attrs = ["rel", "href", "sizes", "type"].map((a) => el.getAttribute(a) ?? "");
           found.others.push(attrs.join(" ").trim());
         }

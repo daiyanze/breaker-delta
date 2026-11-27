@@ -42,6 +42,21 @@ describe("/_catalog", () => {
     expect(html).toContain('<html lang="en" data-theme="light">');
     expect(html).toContain("ThemeSwitch</a> (primitives): default, long, zh, ja");
     expect(html).toContain("Band</a> (patterns): default, note, long, zh, ja");
+    expect(html).toContain("LanguageMenu</a> (patterns): default, open, long, zh, ja");
+  });
+
+  test("its own text is in the page's language, from the string tables", async () => {
+    const en = await (await get(catalogHref("light", "en"))).text();
+    expect(en).toContain("<h1>Catalog</h1>");
+    expect(en).toContain("This page: light, en.");
+    expect(en).toContain("<p>patterns, 5 states</p>");
+    const ja = await (await get(catalogHref("dark", "ja"))).text();
+    expect(ja).toContain("<title>カタログ</title>");
+    expect(ja).toContain("<h1>カタログ</h1>");
+    expect(ja).toContain("このページ：dark、ja。");
+    const zh = await (await get(catalogHref("light", "zh"))).text();
+    expect(zh).toContain("<h1>组件目录</h1>");
+    expect(zh).toContain("<p>patterns，5 种状态</p>");
   });
 
   test("&shot= serves one state alone, for the screenshot run", async () => {

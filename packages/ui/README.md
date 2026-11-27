@@ -61,6 +61,13 @@ under no rule and fails `check-deps`.
 - `Band` (`patterns/Band`): a section with its name in the rail. Classes
   `.Band` and `.Band-rail`, `.Band-name`, `.Band-note`, `.Band-body`; the
   heading's id is `band-<id>`.
+- `LanguageMenu` (`patterns/LanguageMenu`, boards 01 and 02, #107): links to
+  the same page in each language inside a `<details>`, so it opens without
+  JavaScript; the current one has `aria-current`. It takes finished text:
+  the button's label and each language's own name. On phones the button is
+  the globe alone. `open` starts it open, for the catalog's `open` and
+  `long` states; pages leave it out. Classes `.LanguageMenu`, `-details`,
+  `-button`, `-icon`, `-current`, `-chevron`, `-list`, `-link`.
 - `ThemeSwitch` (`primitives/ThemeSwitch`, an island): a button that flips
   `<html data-theme>` and stores the choice. Its smallest form; #105
   finishes it. `SPEC.md` in its folder.
@@ -102,9 +109,10 @@ no Bun or Cloudflare types, so emails and share cards can import it.
   export changes, run `bun run --filter @bd/ui tokens` and commit the result;
   `scripts/generate-tokens.test.ts` fails while the two differ.
 - `supplement.ts` holds the values the design states only in prose or not at
-  all (the phone gutter and section size, the control height, the
-  two-column breakpoint), each with the text it comes from. No other file
-  holds a design value.
+  all (the phone gutter and section size, the control height, the icon
+  size and stroke, the two-column breakpoint), each with the text it comes
+  from. No other file holds a design value. All but the breakpoint are
+  also CSS variables: `--phone-*`, `--control-*`, `--icon-*`.
 - `fonts.ts` lists the self-hosted font files (in `apps/web/public/fonts`).
 - `index.ts` exports `colorOf`, `size`, `typeStyle`, `tokensCss`,
   `typeClassesCss`, `FONT_FILES` and `fontFaceCss`.

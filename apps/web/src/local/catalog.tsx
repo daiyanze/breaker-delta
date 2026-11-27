@@ -9,11 +9,14 @@
  * `&shot=<Name>/<state>` serves that state alone, which is what the
  * screenshot run (`apps/web/scripts/screens.ts`) captures. The page is
  * made of plain elements and the base styles: it has no CSS of its own.
+ * Its own text comes from the site's string tables (`catalog.*` keys), in
+ * the page's language; the states bring their own sample text.
  */
 import { type Language, LanguageSchema } from "@bd/contracts";
 import { CATALOG, THEMES } from "@bd/ui/catalog";
 import { Document, renderDocument } from "@bd/ui/runtime";
 import type { Theme } from "@bd/ui/tokens";
+import { translator } from "../core/strings/index.ts";
 
 export const CATALOG_PATH = "/_catalog";
 
@@ -40,7 +43,7 @@ function onePage(theme: Theme, lang: Language, shot: string): string | null {
   const entry = CATALOG.find((e) => e.name === name);
   if (entry === undefined || state === undefined || !entry.states.includes(state)) return null;
   return renderDocument(
-    <Document lang={lang} title={`Catalog: ${shot}`} theme={theme}>
+    <Document lang={lang} title={`${translator(lang)("catalog.name")}: ${shot}`} theme={theme}>
       <main class="page">
         <div data-shot={shot}>{entry.render(state)}</div>
       </main>
@@ -49,13 +52,19 @@ function onePage(theme: Theme, lang: Language, shot: string): string | null {
 }
 
 function page(theme: Theme, lang: Language): string {
+  const t = translator(lang);
   return renderDocument(
-    <Document lang={lang} title="Catalog" theme={theme}>
+    <Document lang={lang} title={t("catalog.name")} theme={theme}>
       <header class="page">
-        <h1>Catalog</h1>
+        <h1>{t("catalog.name")}</h1>
         <p>
-          {CATALOG.length} components, {THEMES.length} themes, {LANGUAGES.length} languages. This
-          page: {theme}, {lang}.
+          {t("catalog.summary", {
+            components: CATALOG.length,
+            themes: THEMES.length,
+            languages: LANGUAGES.length,
+            theme,
+            language: lang,
+          })}
         </p>
         <ul>
           {THEMES.flatMap((t) =>
@@ -83,9 +92,7 @@ function page(theme: Theme, lang: Language): string {
         {CATALOG.map((e) => (
           <section key={e.name} id={e.name} aria-labelledby={`catalog-${e.name}`}>
             <h2 id={`catalog-${e.name}`}>{e.name}</h2>
-            <p>
-              {e.layer}, {e.states.length} states
-            </p>
+            <p>{t("catalog.states", { layer: e.layer, count: e.states.length })}</p>
             {e.states.map((state) => (
               <div key={state}>
                 <h3>{state}</h3>
