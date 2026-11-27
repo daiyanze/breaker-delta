@@ -186,6 +186,32 @@ describe("the band: one column on phones, two from the breakpoint", () => {
   });
 });
 
+// Review of #278: the media queries hold the breakpoint as a literal (a
+// query cannot use a variable), so each one is tied to the supplement here.
+describe("every width query in every file is TWO_COLUMNS_FROM", () => {
+  const widthQueries = (text: string) =>
+    cssRules(parseCss(text)).flatMap((r) => r.media.filter((m) => m.includes("width")));
+
+  test("each .css file switches at the same width", () => {
+    const want = normalize(`(min-width: ${TWO_COLUMNS_FROM})`);
+    for (const f of CSS_FILES) {
+      const other = widthQueries(f.text).filter((m) => m !== want);
+      expect({ file: f.path, other }).toEqual({ file: f.path, other: [] });
+    }
+    const menu = CSS_FILES.find((f) => f.path === "patterns/LanguageMenu/LanguageMenu.css");
+    expect(widthQueries(menu?.text ?? "").length).toBeGreaterThan(0);
+  });
+
+  test("a file with another width is reported", () => {
+    const menu = CSS_FILES.find((f) => f.path === "patterns/LanguageMenu/LanguageMenu.css");
+    const moved = (menu?.text ?? "").replace(
+      `(min-width: ${TWO_COLUMNS_FROM})`,
+      "(min-width: 900px)",
+    );
+    expect(widthQueries(moved)).toContain(normalize("(min-width: 900px)"));
+  });
+});
+
 describe("page width and band spacing (moved from apps/web layout.test.ts)", () => {
   const at = (selector: string, wide: boolean) =>
     rules.find(

@@ -52,6 +52,14 @@ describe("design tokens as CSS", () => {
     expect(root).toContain(`--phone-section-size:${PHONE.sectionSize.value};`);
   });
 
+  test("the control height and the icon sizes are variables for the components' CSS", () => {
+    expect(root).toContain(`--control-min-height:${CONTROL.minHeight};`);
+    expect(root).toContain(`--control-height:${CONTROL.height};`);
+    expect(root).toContain(`--icon-size:${ICON.size};`);
+    expect(root).toContain(`--icon-stroke:${ICON.stroke};`);
+    expect(root).toContain(`--icon-theme-switch:${ICON.themeSwitch};`);
+  });
+
   test("sun is the same in both themes", () => {
     const sun = tokens.color.tokens.find((t) => t.name === "sun");
     expect(sun?.value.light).toBe(sun?.value.dark as string);
@@ -127,6 +135,11 @@ describe("supplement: values the design states only in prose", () => {
     expect(readme).toContain(`高度不小于 ${CONTROL.minHeight}，桌面默认 ${CONTROL.height}`);
   });
 
+  test("the icon size and stroke are the ones the design system README states", async () => {
+    const readme = await Bun.file(`${import.meta.dir}/../../../../design/system/README.md`).text();
+    expect(readme).toContain(`线宽约 ${ICON.stroke}，${ICON.size} 画板`);
+  });
+
   test("the theme switch's icon size is the one boards 01 and 02 draw", async () => {
     const px = Number.parseFloat(ICON.themeSwitch);
     for (const board of ["Front2", "FrontMobile"]) {
@@ -139,11 +152,5 @@ describe("supplement: values the design states only in prose", () => {
         svg: `width="${px}" height="${px}" viewBox="0 0 ${px} ${px}" aria-hidden="true"`,
       });
     }
-  });
-
-  test("the control height and the icon size are variables for the components' CSS", () => {
-    expect(root).toContain(`--control-min-height:${CONTROL.minHeight};`);
-    expect(root).toContain(`--control-height:${CONTROL.height};`);
-    expect(root).toContain(`--icon-theme-switch:${ICON.themeSwitch};`);
   });
 });

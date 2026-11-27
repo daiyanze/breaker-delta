@@ -1,0 +1,20 @@
+/** The site's interface strings in Japanese. Keys and `{names}`: `en.ts`. */
+import type { Table } from "./en.ts";
+
+export const ja: Table = {
+  "front.name": "一面",
+  "front.edition": "{label} 版。海況：{sea}。波は{waves}、きょう新たに{formed}。",
+  "front.flat.name": "海は凪いでいます。",
+  "front.flat.text": "まだ何もスキャンしていません。次のスキャン：{next}。",
+  "classifieds.name": "案内広告",
+  "fixture.note": "サンプルデータです。",
+  "sea.flat": "凪",
+  "sea.calm": "穏やか",
+  "sea.moderate": "やや波あり",
+  "sea.choppy": "波あり",
+  "language.menu": "言語：{language}",
+  "theme.toDark": "ダークモードに切り替える",
+  "theme.toLight": "ライトモードに切り替える",
+  "scaffold.name": "足場",
+  "scaffold.text": "2.0 の足場です。サイトはマイルストーン M3 で公開されます。",
+};
