@@ -301,6 +301,56 @@ describe("the theme switch", () => {
   });
 });
 
+describe("the echo stack", () => {
+  const own = rules.filter((r) => r.layer === "patterns" && r.selector.startsWith(".EchoStack"));
+  const decl = (selector: string, media: string[] = []) =>
+    Object.fromEntries(
+      own.find((r) => r.selector === selector && r.media.join() === media.join())?.declarations ??
+        [],
+    );
+
+  test("the sheets move only when motion is allowed, so at rest the whole stack shows", () => {
+    const moving = rules.filter(
+      (r) =>
+        r.selector.startsWith(".EchoStack") &&
+        r.declarations.some(([p]) => p.startsWith("animation")),
+    );
+    expect(moving.map((r) => [r.selector, r.media])).toEqual([
+      [".EchoStack-sheet", ["(prefers-reduced-motion: no-preference)"]],
+    ]);
+    expect(decl(".EchoStack-sheet", ["(prefers-reduced-motion: no-preference)"])).toEqual({
+      "transform-box": "fill-box",
+      animation: "echo-stack-drop var(--echo-stack-loop) ease-out infinite both",
+      "animation-delay": "calc(var(--echo-stack-k) * var(--echo-stack-step))",
+    });
+    // Each sheet's place from the bottom, up to the 15 sheets the frame holds
+    // (`MAX_LAYERS`; `EchoStack.test.tsx` checks the two agree).
+    const ECHO_STACK_MAX_LAYERS = 15;
+    expect(decl(".EchoStack-sheet")).toEqual({ "--echo-stack-k": "0" });
+    for (let k = 1; k < ECHO_STACK_MAX_LAYERS; k++) {
+      expect(decl(`.EchoStack-sheet:nth-of-type(${k + 1})`)).toEqual({ "--echo-stack-k": `${k}` });
+    }
+    expect(own.some((r) => r.selector.includes(`(${ECHO_STACK_MAX_LAYERS + 1})`))).toBe(false);
+    // No rule hides a sheet outside the animation.
+    for (const r of own) expect(cssValue(r, "opacity")).toBeUndefined();
+  });
+
+  test("blue and sky by turns, red on top, on an ink baseline", () => {
+    expect(decl(".EchoStack-blue")).toEqual({ fill: "var(--blue)" });
+    expect(decl(".EchoStack-sky")).toEqual({ fill: "var(--sky)" });
+    expect(decl(".EchoStack-top")).toEqual({ fill: "var(--red)" });
+    expect(decl(".EchoStack-base").stroke).toBe("var(--ink)");
+  });
+
+  test("the boards' sizes: the phone width, the desktop width from the breakpoint", () => {
+    expect(decl(".EchoStack")["inline-size"]).toBe("var(--echo-stack-phone-width)");
+    expect(decl(".EchoStack")["aspect-ratio"]).toBe("120 / 220");
+    expect(decl(".EchoStack", [normalize(`(min-width: ${TWO_COLUMNS_FROM})`)])).toEqual({
+      "inline-size": "var(--echo-stack-width)",
+    });
+  });
+});
+
 describe("the CSS reader", () => {
   test("reads statements, nesting with &, media inside a rule, comments and strings", () => {
     const read = cssRules(
@@ -324,22 +374,28 @@ describe("the CSS reader", () => {
 });
 
 // Design system: motion is decoration. Every animated rule stops for a
-// reader who asks for reduced motion (the ebb notice's ripple, #122). The
-// screenshot run captures with reduced motion and animations off, so it
-// cannot see a missing block; this test can.
+// reader who asks for reduced motion, in one of two ways: it applies only
+// under `(prefers-reduced-motion: no-preference)` (the echo stack), or a
+// `(prefers-reduced-motion: reduce)` rule turns it off (the ebb notice's
+// ripple, #122). The screenshot run captures with reduced motion and
+// animations off, so it cannot see a missing guard; this test can.
 describe("animations stop under reduced motion", () => {
   const REDUCE = "(prefers-reduced-motion: reduce)";
+  const ALLOWED = "(prefers-reduced-motion: no-preference)";
   const animated = rules.filter((r) => {
     const value = cssValue(r, "animation") ?? cssValue(r, "animation-name");
     return value !== undefined && value !== "none" && !r.media.includes(REDUCE);
   });
 
-  test("the sheet has animated rules to check", () => {
-    expect(animated.map((r) => r.selector)).toContain(".Notice-ripple-line");
+  test("the sheet has animated rules to check, guarded both ways", () => {
+    const selectors = animated.map((r) => r.selector);
+    expect(selectors).toContain(".Notice-ripple-line");
+    expect(selectors).toContain(".EchoStack-sheet");
   });
 
-  test("each animated rule has a reduced-motion rule that turns it off", () => {
+  test("each animated rule runs only when motion is allowed, or a reduced-motion rule turns it off", () => {
     for (const r of animated) {
+      if (r.media.includes(ALLOWED)) continue;
       const still = rules.find(
         (s) =>
           s.selector === r.selector &&

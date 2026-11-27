@@ -3,6 +3,13 @@
  * per `design/system/components/<Name>`.
  */
 export { Band, type BandProps } from "./Band/Band.tsx";
+export {
+  EchoStack,
+  type EchoStackProps,
+  echoStackLayers,
+  MAX_LAYERS as ECHO_STACK_MAX_LAYERS,
+  MIN_LAYERS as ECHO_STACK_MIN_LAYERS,
+} from "./EchoStack/EchoStack.tsx";
 export { FadingNotices, type FadingNoticesProps } from "./FadingNotices/FadingNotices.tsx";
 export {
   type LanguageLink,

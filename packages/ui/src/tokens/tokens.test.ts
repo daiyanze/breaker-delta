@@ -4,6 +4,7 @@ import {
   CJK,
   CONTROL,
   colorOf,
+  ECHO_STACK,
   FONT_FILES,
   fontFaceCss,
   ICON,
@@ -67,6 +68,13 @@ describe("design tokens as CSS", () => {
     expect(root).toContain(`--ripple-cycle:${RIPPLE.cycle};`);
     expect(root).toContain(`--illustration-stroke:${ILLUSTRATION.stroke};`);
     expect(root).toContain(`--cjk-emphasis-weight:${CJK.emphasisWeight};`);
+  });
+
+  test("the echo stack's sizes and timing are variables for its CSS", () => {
+    expect(root).toContain(`--echo-stack-width:${ECHO_STACK.width};`);
+    expect(root).toContain(`--echo-stack-phone-width:${ECHO_STACK.phoneWidth};`);
+    expect(root).toContain(`--echo-stack-loop:${ECHO_STACK.loop};`);
+    expect(root).toContain(`--echo-stack-step:${ECHO_STACK.step};`);
   });
 
   test("sun is the same in both themes", () => {
@@ -183,5 +191,23 @@ describe("supplement: values the design states only in prose", () => {
         svg: `width="${px}" height="${px}" viewBox="0 0 ${px} ${px}" aria-hidden="true"`,
       });
     }
+  });
+
+  test("the echo stack's sizes are the boards', its timing the README's", async () => {
+    const dir = `${import.meta.dir}/../../../../design`;
+    const svg = (size: string) =>
+      `<svg viewBox="0 0 120 220" role="img" aria-label="{{ lead.gaugeAria }}" style="flex: 0 0 auto; ${size}; display: block">`;
+    expect(await Bun.file(`${dir}/boards/Front2.dc.html`).text()).toContain(
+      svg(`width: ${ECHO_STACK.width}; height: 168px`),
+    );
+    expect(await Bun.file(`${dir}/boards/FrontMobile.dc.html`).text()).toContain(
+      svg(`width: ${ECHO_STACK.phoneWidth}; height: 125px`),
+    );
+    expect(await Bun.file(`${dir}/boards/Topic2.dc.html`).text()).toContain(
+      `viewBox="0 0 120 220" role="img" aria-label="Echoes stacking into a wave, 12 layers high" style="flex: 0 0 auto; width: ${ECHO_STACK.width}; height: 168px`,
+    );
+    const readme = await Bun.file(`${dir}/system/components/EchoStack/README.md`).text();
+    expect(readme).toContain(`每层间隔 ${Number.parseFloat(ECHO_STACK.step)} 秒`);
+    expect(readme).toContain(`${Number.parseFloat(ECHO_STACK.loop)} 秒一个循环`);
   });
 });

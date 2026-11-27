@@ -25,6 +25,7 @@ export const zh: Table = {
   "language.menu": "语言：{language}",
   "theme.toDark": "切换到深色模式",
   "theme.toLight": "切换到浅色模式",
+  "echoStack.label": "回波叠成浪，高 {layers} 层",
   "scaffold.name": "脚手架",
   "scaffold.text": "2.0 脚手架。网站将在 M3 里程碑上线。",
   "catalog.name": "组件目录",

@@ -8,6 +8,7 @@
  */
 
 import band from "../patterns/Band/Band.css" with { type: "text" };
+import echoStack from "../patterns/EchoStack/EchoStack.css" with { type: "text" };
 import fadingNotices from "../patterns/FadingNotices/FadingNotices.css" with { type: "text" };
 import languageMenu from "../patterns/LanguageMenu/LanguageMenu.css" with { type: "text" };
 import notice from "../primitives/Notice/Notice.css" with { type: "text" };
@@ -31,6 +32,7 @@ export const CSS_FILES: readonly { path: string; layer: Layer; text: string }[] 
   { path: "primitives/Notice/Notice.css", layer: "primitives", text: notice },
   { path: "primitives/ThemeSwitch/ThemeSwitch.css", layer: "primitives", text: themeSwitch },
   { path: "patterns/Band/Band.css", layer: "patterns", text: band },
+  { path: "patterns/EchoStack/EchoStack.css", layer: "patterns", text: echoStack },
   { path: "patterns/FadingNotices/FadingNotices.css", layer: "patterns", text: fadingNotices },
   { path: "patterns/LanguageMenu/LanguageMenu.css", layer: "patterns", text: languageMenu },
 ];
