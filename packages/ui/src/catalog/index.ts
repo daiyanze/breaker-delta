@@ -12,6 +12,7 @@
  */
 import { type ComponentType, h, type VNode } from "preact";
 import bandStates from "../patterns/Band/Band.states.tsx";
+import echoStackStates from "../patterns/EchoStack/EchoStack.states.tsx";
 import languageMenuStates from "../patterns/LanguageMenu/LanguageMenu.states.tsx";
 import buttonStates from "../primitives/Button/Button.states.tsx";
 import filtersStates from "../primitives/Filters/Filters.states.tsx";
@@ -63,5 +64,6 @@ export const CATALOG: readonly CatalogEntry[] = [
   entry("SearchEntry", "primitives", searchEntryStates),
   entry("ThemeSwitch", "primitives", themeSwitchStates),
   entry("Band", "patterns", bandStates),
+  entry("EchoStack", "patterns", echoStackStates),
   entry("LanguageMenu", "patterns", languageMenuStates),
 ];

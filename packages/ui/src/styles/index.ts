@@ -8,6 +8,7 @@
  */
 
 import band from "../patterns/Band/Band.css" with { type: "text" };
+import echoStack from "../patterns/EchoStack/EchoStack.css" with { type: "text" };
 import languageMenu from "../patterns/LanguageMenu/LanguageMenu.css" with { type: "text" };
 import button from "../primitives/Button/Button.css" with { type: "text" };
 import filters from "../primitives/Filters/Filters.css" with { type: "text" };
@@ -41,6 +42,7 @@ export const CSS_FILES: readonly { path: string; layer: Layer; text: string }[] 
   { path: "primitives/SearchEntry/SearchEntry.css", layer: "primitives", text: searchEntry },
   { path: "primitives/ThemeSwitch/ThemeSwitch.css", layer: "primitives", text: themeSwitch },
   { path: "patterns/Band/Band.css", layer: "patterns", text: band },
+  { path: "patterns/EchoStack/EchoStack.css", layer: "patterns", text: echoStack },
   { path: "patterns/LanguageMenu/LanguageMenu.css", layer: "patterns", text: languageMenu },
 ];
 
