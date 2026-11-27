@@ -7,7 +7,7 @@ const due = (day: number, label: string) => ({
   progress: { day, days: 14, label: `Day ${day} of 14` },
 });
 
-// Board 01's three due stubs; one stub alone, which takes the whole row;
+// Board 01's three due stubs; one stub alone, which keeps its column width;
 // and a row in each language, whose text sets the stubs' height.
 export default states(TicketStubs, {
   default: {

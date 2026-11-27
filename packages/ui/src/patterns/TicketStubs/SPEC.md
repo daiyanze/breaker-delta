@@ -11,8 +11,8 @@ band. A list, so a screen reader counts them. Not an island.
   three small stubs side by side on the front page), board 01
   (`design/boards/Front2.dc.html`).
 - Tokens: `space-5` between stubs; each at least two thirds of `rail`
-  wide (board 01's 230px), so three fit the content column on desktop and
-  a phone has one to a row.
+  wide (board 01's 230px) or the whole width: three to a row from a 728px column (board 01 at 1440 wide), two at narrower desktop widths and
+  one on phones. A stub left over keeps its column's width.
 
 ## Props
 
@@ -22,7 +22,7 @@ band. A list, so a screen reader counts them. Not an island.
 ## States
 
 - `default`: board 01's three due stubs.
-- `one`: one stub, which takes the whole row.
+- `one`: one stub, which keeps its column's width.
 - `zh`, `ja`: two stubs in each language, whose text sets their height.
 
 ## Do not
