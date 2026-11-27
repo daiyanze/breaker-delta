@@ -24,7 +24,7 @@ other data file, not even one in `src/tokens`.
 
 `tokens` (#269), `styles` and `build` (#270), `runtime` and `patterns`
 (#271) and `primitives` (#272) exist today; `patterns` holds `Band`,
-`primitives` the `ThemeSwitch` island; `catalog` (#258) lists them. A file directly under `src/` is
+`LanguageMenu` and the `SourceTile` island, `primitives` the `ThemeSwitch` island; `catalog` (#258) lists them. A file directly under `src/` is
 under no rule and fails `check-deps`.
 
 ## `@bd/ui/runtime` and `@bd/ui/patterns`
@@ -68,6 +68,15 @@ under no rule and fails `check-deps`.
   the globe alone. `open` starts it open, for the catalog's `open` and
   `long` states; pages leave it out. Classes `.LanguageMenu`, `-details`,
   `-button`, `-icon`, `-current`, `-chevron`, `-list`, `-link`.
+- `SourceTile` (`patterns/SourceTile`, an island, boards 01 and 03, #113):
+  the small square before a source's name, solid where the story started
+  and outlined for a later source, with the site's favicon or a generic
+  icon by kind (`kindOf(category)`). The generic icon is always in the
+  markup; in the browser a favicon that fails to load is removed so it
+  shows. Props `name`, `fill`, `kind`, `favicon`, `label` (finished text;
+  without it the tile is `aria-hidden`), `size` (`small` in the
+  classifieds). Classes `.SourceTile`, `-tile`, `-favicon`, `-glyph`,
+  `-name`. `SPEC.md` in its folder.
 - `ThemeSwitch` (`primitives/ThemeSwitch`, an island): the masthead's
   square icon button (#105) that flips `<html data-theme>` and stores the
   choice. Props `toDark` and `toLight`, its name in each theme, as finished
@@ -113,10 +122,10 @@ no Bun or Cloudflare types, so emails and share cards can import it.
   `scripts/generate-tokens.test.ts` fails while the two differ.
 - `supplement.ts` holds the values the design states only in prose or not at
   all (the phone gutter and section size, the control height, the icon
-  size and stroke, the theme switch's icon size, the two-column
-  breakpoint), each with the text it comes from. No other file holds a
-  design value. All but the breakpoint are also CSS variables: `--phone-*`,
-  `--control-*`, `--icon-*`.
+  size and stroke, the theme switch's icon size, the source tile's sizes,
+  the two-column breakpoint), each with the text it comes from. No other
+  file holds a design value. All but the breakpoint are also CSS
+  variables: `--phone-*`, `--control-*`, `--icon-*`, `--source-tile-*`.
 - `contrast.test.ts` computes the WCAG 2.2 contrast of every text and
   background pair the design uses, in both themes: 4.5:1 for text, 3:1 for
   a control's outline. A new colour token fails it until it is placed.

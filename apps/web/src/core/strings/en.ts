@@ -20,6 +20,8 @@ export const en = {
   "language.menu": "Language: {language}",
   "theme.toDark": "Switch to dark mode",
   "theme.toLight": "Switch to light mode",
+  "source.started": "Source where the story started",
+  "source.later": "Source that picked it up later",
   "scaffold.name": "Scaffold",
   "scaffold.text": "2.0 scaffold. The site arrives in milestone M3.",
   "catalog.name": "Catalog",

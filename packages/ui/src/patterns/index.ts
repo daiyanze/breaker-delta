@@ -8,3 +8,10 @@ export {
   LanguageMenu,
   type LanguageMenuProps,
 } from "./LanguageMenu/LanguageMenu.tsx";
+export {
+  default as SourceTile,
+  kindOf,
+  SOURCE_KINDS,
+  type SourceKind,
+  type SourceTileProps,
+} from "./SourceTile/SourceTile.island.tsx";

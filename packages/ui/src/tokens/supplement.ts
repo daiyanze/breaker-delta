@@ -43,6 +43,21 @@ export const ICON = {
 } as const;
 
 /**
+ * The source tile (#113): `design/system/components/SourceTile/README.md`,
+ * "尺寸 34px（分类广告里 30px），1.5px 描边" (34px, 30px in the classifieds,
+ * a 1.5px outline). Its icon is 20 × 20 in the 34px tile on board 03
+ * (`<svg width="20" height="20">`); in the 30px tile of board 01's
+ * classifieds it is 18 × 18, the interface icon size (`ICON.size`).
+ * `tokens.test.ts` checks that the README and both boards still say so.
+ */
+export const SOURCE_TILE = {
+  size: "34px",
+  smallSize: "30px",
+  border: "1.5px",
+  icon: "20px",
+} as const;
+
+/**
  * Below this width a band is one column: the rail becomes a heading above
  * the content. The design system names no breakpoint; this is the agent's
  * choice (#106): the narrowest width where the rail at its full `rail` width,

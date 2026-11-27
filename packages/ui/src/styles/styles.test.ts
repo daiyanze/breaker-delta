@@ -301,6 +301,50 @@ describe("the theme switch", () => {
   });
 });
 
+// The source tile (#113); its markup: `patterns/SourceTile/SourceTile.test.tsx`.
+describe("the source tile", () => {
+  const own = (selector: string) =>
+    Object.fromEntries(
+      rules
+        .filter((r) => r.layer === "patterns" && r.selector === selector && r.media.length === 0)
+        .flatMap((r) => r.declarations),
+    );
+
+  test("solid and outlined differ by a filled ground, kept in forced colours", () => {
+    expect(own('.SourceTile-tile[data-fill="solid"]')).toEqual({
+      "border-color": "var(--ink)",
+      background: "var(--ink)",
+      color: "var(--paper)",
+      "forced-color-adjust": "none",
+    });
+    const tile = own(".SourceTile-tile");
+    expect(tile.background).toBe("transparent");
+    expect(tile.color).toBe("inherit");
+    expect(tile.border).toBe("var(--source-tile-border) solid currentcolor");
+    expect(tile["border-radius"]).toBe("var(--radius-tile)");
+  });
+
+  test("34px with a 20px icon, or 30px with the interface icon in the classifieds", () => {
+    expect(own(".SourceTile")["--source-tile-box"]).toBe("var(--source-tile-size)");
+    expect(own(".SourceTile")["--source-tile-glyph"]).toBe("var(--source-tile-icon)");
+    const small = own('.SourceTile[data-size="small"]');
+    expect(small["--source-tile-box"]).toBe("var(--source-tile-small-size)");
+    expect(small["--source-tile-glyph"]).toBe("var(--icon-size)");
+    expect(own(".SourceTile-tile")["inline-size"]).toBe("var(--source-tile-box)");
+    expect(own(".SourceTile-tile")["block-size"]).toBe("var(--source-tile-box)");
+  });
+
+  test("a favicon hides the generic icon after it", () => {
+    expect(own(".SourceTile-favicon + .SourceTile-glyph")).toEqual({ display: "none" });
+  });
+
+  test("the tile keeps its size and the name may shrink, so a long name wraps", () => {
+    expect(own(".SourceTile-tile").flex).toBe("none");
+    expect(own(".SourceTile-name")["min-width"]).toBe("0");
+    expect(own(".SourceTile")["min-width"]).toBe("0");
+  });
+});
+
 describe("the CSS reader", () => {
   test("reads statements, nesting with &, media inside a rule, comments and strings", () => {
     const read = cssRules(

@@ -1,0 +1,76 @@
+/*
+ * The source tile (#113, `design/system/components/SourceTile`): a square
+ * with a `source-tile-border` outline and `radius-tile` corners before the
+ * source's name. Solid is an ink ground with a paper icon; outlined has no
+ * ground and draws in the text's colour, so it reads on paper and inside a
+ * filled classified alike (board 01). Solid and outlined differ by the
+ * filled ground, not by a hue; `forced-color-adjust` keeps the ground in a
+ * forced-colours mode, which would otherwise drop it. The markup is
+ * `SourceTile.island.tsx`.
+ */
+@layer patterns {
+  .SourceTile {
+    --source-tile-box: var(--source-tile-size);
+    --source-tile-glyph: var(--source-tile-icon);
+
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+    font-weight: bold;
+
+    &[data-size="small"] {
+      --source-tile-box: var(--source-tile-small-size);
+      --source-tile-glyph: var(--icon-size);
+
+      gap: var(--space-2);
+    }
+  }
+
+  .SourceTile-tile {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: var(--source-tile-box);
+    block-size: var(--source-tile-box);
+    border: var(--source-tile-border) solid currentcolor;
+    border-radius: var(--radius-tile);
+    background: transparent;
+    color: inherit;
+
+    &[data-fill="solid"] {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: var(--paper);
+      forced-color-adjust: none;
+    }
+  }
+
+  .SourceTile-glyph {
+    inline-size: var(--source-tile-glyph);
+    block-size: var(--source-tile-glyph);
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: var(--icon-stroke);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* While a favicon is there, it is the icon; removed, the glyph shows. */
+  .SourceTile-favicon {
+    display: block;
+    inline-size: var(--source-tile-glyph);
+    block-size: var(--source-tile-glyph);
+    object-fit: contain;
+
+    & + .SourceTile-glyph {
+      display: none;
+    }
+  }
+
+  .SourceTile-name {
+    min-width: 0;
+  }
+}
