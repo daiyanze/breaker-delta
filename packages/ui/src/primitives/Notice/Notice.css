@@ -31,7 +31,7 @@
       --notice-gap: var(--space-3);
       /* Board 01's 40px. */
       --notice-ripple-height: calc(var(--space-6) + var(--space-2));
-      --notice-title-size: var(--type-kicker-size);
+      --notice-title-size: var(--type-clip-headline-size);
       --notice-text-size: var(--type-body-size);
     }
   }
@@ -93,11 +93,11 @@
     line-height: var(--type-kicker-line);
     font-style: var(--type-kicker-style);
 
-    /* Chinese and Japanese have no italic: weight 500 where English uses italic (board 35). */
+    /* Chinese and Japanese have no italic: a weight instead (`--cjk-emphasis-weight`). */
     &:lang(zh),
     &:lang(ja) {
       font-style: normal;
-      font-weight: 500;
+      font-weight: var(--cjk-emphasis-weight);
     }
   }
 

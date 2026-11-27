@@ -74,3 +74,13 @@ export const RIPPLE = {
 export const ILLUSTRATION = {
   stroke: "2.5px",
 } as const;
+
+/**
+ * Chinese and Japanese have no italic: design system README, `display`,
+ * "英文用斜体的地方改用字重 500" (where English uses italic, weight 500
+ * instead); board 35 says the same. `tokens.test.ts` checks that the README
+ * still says so.
+ */
+export const CJK = {
+  emphasisWeight: 500,
+} as const;

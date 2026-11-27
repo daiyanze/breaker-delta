@@ -22,17 +22,20 @@ Not an island.
   one, and the amplitude keeps following the height.
 - `design/system/README.md`: "启事波纹振幅" and "图和动效清单" (9 seconds a
   cycle), from `RIPPLE` in `src/tokens/supplement.ts`; the line width
-  ("线宽 2 到 3px") from `ILLUSTRATION`. Board 35 (`Cjk2.dc.html`): no
-  italic in Chinese and Japanese, weight 500 instead.
+  ("线宽 2 到 3px") from `ILLUSTRATION`. The design system README's
+  `display` line and board 35 (`Cjk2.dc.html`): no italic in Chinese and
+  Japanese, weight 500 instead (`CJK.emphasisWeight`, `--cjk-emphasis-weight`).
 - Tokens: `ink`, `blue`, `red` (the title's hover underline), `rule-thin`,
-  `space-1` to `space-6`, type `kicker` (title size on desktop, the
-  sentence's line height and style), `clip-headline` (title weight and line
-  height), `body` and `small`.
-- Board departures (the design system's type scale wins): the title is 22px
-  on desktop (`kicker`) as on board 01 but 17px on phones (`body`, board 02
-  has 18); the sentence is 17px on desktop (`body`, board 01 has 18); the
-  padding is 24px and 16px (`space-5`, `space-4`; the boards have 20 and
-  14); the gap is 12px and 8px (`space-3`, `space-2`; the boards have 10).
+  `space-1` to `space-6`, type `clip-headline` for the title on desktop
+  (its usage in `tokens.json` names notices, 启事: size, weight and line
+  height), `kicker` for the sentence's line height and italic style,
+  `body` and `small`.
+- Board departures (the design system's tokens win): the title is 24px on
+  desktop (`clip-headline`, board 01 has 22) and 17px on phones (`body`,
+  board 02 has 18); the sentence is 17px on desktop (`body`, board 01 has
+  18); the padding is 24px and 16px (`space-5`, `space-4`; the boards have
+  20 and 14); the gap is 12px and 8px (`space-3`, `space-2`; the boards
+  have 10).
 
 ## Props
 

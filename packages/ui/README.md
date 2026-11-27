@@ -124,10 +124,11 @@ no Bun or Cloudflare types, so emails and share cards can import it.
   all (the phone gutter and section size, the control height, the icon
   size and stroke, the theme switch's icon size, the two-column
   breakpoint, the ebb notice's ripple rule and cycle, the illustration
-  line width), each with the text it comes from. No other file holds a
-  design value. All but the breakpoint and the ripple's numbers are also
-  CSS variables: `--phone-*`, `--control-*`, `--icon-*`, `--ripple-cycle`,
-  `--illustration-stroke`.
+  line width, the CJK weight in place of italic), each with the text it
+  comes from. No other file holds a design value. All but the breakpoint
+  and the ripple's numbers are also CSS variables: `--phone-*`,
+  `--control-*`, `--icon-*`, `--ripple-cycle`, `--illustration-stroke`,
+  `--cjk-emphasis-weight`.
 - `contrast.test.ts` computes the WCAG 2.2 contrast of every text and
   background pair the design uses, in both themes: 4.5:1 for text, 3:1 for
   a control's outline. A new colour token fails it until it is placed.

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import tokens from "../../../../design/system/tokens.json" with { type: "json" };
 import {
+  CJK,
   CONTROL,
   colorOf,
   FONT_FILES,
@@ -65,6 +66,7 @@ describe("design tokens as CSS", () => {
   test("the ripple's cycle and the illustration stroke are variables for the components' CSS", () => {
     expect(root).toContain(`--ripple-cycle:${RIPPLE.cycle};`);
     expect(root).toContain(`--illustration-stroke:${ILLUSTRATION.stroke};`);
+    expect(root).toContain(`--cjk-emphasis-weight:${CJK.emphasisWeight};`);
   });
 
   test("sun is the same in both themes", () => {
@@ -162,6 +164,11 @@ describe("supplement: values the design states only in prose", () => {
     expect(readme).toContain("线宽 2 到 3px");
     const px = Number.parseFloat(ILLUSTRATION.stroke);
     expect(px >= 2 && px <= 3).toBe(true);
+  });
+
+  test("the CJK weight in place of italic is the one the design system README states", async () => {
+    const readme = await Bun.file(`${import.meta.dir}/../../../../design/system/README.md`).text();
+    expect(readme).toContain(`英文用斜体的地方改用字重 ${CJK.emphasisWeight}`);
   });
 
   test("the theme switch's icon size is the one boards 01 and 02 draw", async () => {
