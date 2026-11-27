@@ -19,11 +19,15 @@ lands. Not an island: the motion is CSS only.
   one translucent colour).
 - `design/system/components/Button/README.md`: the solid button, only for
   subscribing.
-- Tokens: `rule-heavy` on top, `rule-dashed` (2px) for the field's and the
-  button's outlines, `headline-3` for the form's heading line, `small` for
-  the bar, `space-*`, `content`; colours `ink`, `paper`, `sun`, `solid`,
-  `sky`, `blue`, `red`. From `src/tokens/supplement.ts`: `--control-height`,
-  the phone gutter (`--page-gutter`) and `TWO_COLUMNS_FROM`.
+- Tokens: `rule-heavy` on top, `headline-3` for the form's heading line,
+  `small` for the bar, `space-*`, `content`; colours `ink`, `paper`, `sun`,
+  `solid`, `sky`, `blue`, `red`.
+- From `src/tokens/supplement.ts`: `--control-height` and
+  `--control-outline` (the Button README's 2px outline), the phone gutter
+  (`--page-gutter`), `TWO_COLUMNS_FROM`, and `FOOTER` as `--footer-*`: the
+  beam's opacity and sweep time (README), and the wave, beam and boat
+  timings and angles and the links' weight (boards 01 and 02 only, taken
+  as drawn: an agent's choice for the owner to accept, #111).
 - Where this differs from the boards: the heading line is `headline-3`
   (30px) at every width, as no token is board 01's 34px; the front wave's
   ripples are `sky` at full strength, not 40% (README: no translucent
@@ -62,4 +66,3 @@ not save) are #145's.
 - Animate it from script, or keep it moving under reduced motion.
 - Change the drawing's view box: the phone crop and the motion are shares
   of it (`Footer.css`).
-- Add a second footer to a page: the form's field id is fixed.

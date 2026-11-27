@@ -4,6 +4,7 @@ import {
   CONTROL,
   colorOf,
   FONT_FILES,
+  FOOTER,
   fontFaceCss,
   ICON,
   PHONE,
@@ -58,6 +59,14 @@ describe("design tokens as CSS", () => {
     expect(root).toContain(`--icon-size:${ICON.size};`);
     expect(root).toContain(`--icon-stroke:${ICON.stroke};`);
     expect(root).toContain(`--icon-theme-switch:${ICON.themeSwitch};`);
+    expect(root).toContain(`--control-outline:${CONTROL.outline};`);
+  });
+
+  test("the footer's values are variables for its CSS", () => {
+    expect(root).toContain(`--footer-beam-opacity:${FOOTER.beamOpacity};`);
+    expect(root).toContain(`--footer-beam-sweep:${FOOTER.beamSweep};`);
+    expect(root).toContain(`--footer-link-weight:${FOOTER.linkWeight};`);
+    expect(Object.keys(FOOTER)).toHaveLength(11);
   });
 
   test("sun is the same in both themes", () => {
@@ -133,6 +142,36 @@ describe("supplement: values the design states only in prose", () => {
       `${import.meta.dir}/../../../../design/system/components/Button/README.md`,
     ).text();
     expect(readme).toContain(`高度不小于 ${CONTROL.minHeight}，桌面默认 ${CONTROL.height}`);
+    expect(readme).toContain(`默认：${CONTROL.outline} \`ink\` 描边`);
+  });
+
+  test("the footer's beam is the one the design system README states", async () => {
+    const readme = await Bun.file(`${import.meta.dir}/../../../../design/system/README.md`).text();
+    expect(readme).toContain(
+      `灯塔光束的 ${Math.round(Number(FOOTER.beamOpacity) * 100)}% 黄色是唯一例外`,
+    );
+    expect(readme).toContain(`光束 ${Number.parseFloat(FOOTER.beamSweep)} 秒一个来回`);
+  });
+
+  test("the footer's other timings, angles and link weight are the ones boards 01 and 02 draw", async () => {
+    const f = FOOTER;
+    for (const board of ["Front2", "FrontMobile"]) {
+      const html = await Bun.file(
+        `${import.meta.dir}/../../../../design/boards/${board}.dc.html`,
+      ).text();
+      const lines = [
+        `@keyframes sweep{0%,100%{transform:rotate(${f.beamFrom})}50%{transform:rotate(${f.beamTo})}}`,
+        `@keyframes bob{0%,100%{transform:translateY(0) rotate(-${f.boatPitch})}50%{transform:translateY(${f.boatRise}) rotate(${f.boatPitch})}}`,
+        `.w1{animation:drift ${f.waveBack} linear infinite}`,
+        `.w2{animation:drift ${f.waveMid} linear infinite reverse}`,
+        `.w3{animation:drift ${f.waveFront} linear infinite}`,
+        `.beam{transform-box:view-box;transform-origin:1132px 92px;animation:sweep ${f.beamSweep} ease-in-out infinite}`,
+        `.boat{transform-box:fill-box;transform-origin:center;animation:bob ${f.boatBob} ease-in-out infinite}`,
+        `text-decoration:none;font-weight:${f.linkWeight}}`,
+      ];
+      for (const line of lines)
+        expect({ board, line, found: html.includes(line) }).toEqual({ board, line, found: true });
+    }
   });
 
   test("the icon size and stroke are the ones the design system README states", async () => {

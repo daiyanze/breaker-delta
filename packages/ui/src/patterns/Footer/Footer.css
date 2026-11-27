@@ -7,11 +7,12 @@
  * Motion (design system "图和动效清单", 页尾): the three wave layers drift
  * one period of their sine (240 of the view box's 1440 units) and start
  * again, so they loop without a seam; the middle one runs the other way.
- * The beam sweeps there and back in 7 seconds; the boat bobs. Timings other
- * than the beam's are board 01's. None of it moves under reduced motion.
+ * The beam sweeps there and back; the boat bobs. Every timing, angle and
+ * the boat's rise are `--footer-*` (`FOOTER` in `src/tokens/supplement.ts`,
+ * with the text each comes from). None of it moves under reduced motion.
  *
- * Lengths inside the drawing are the view box's units, written as shares of
- * the view box (1440 × 510) or of the boat (78 × 72), so no `px` is needed.
+ * The drawing's own geometry (the drift of one sine period, the beam's
+ * pivot at the lamp) is written as shares of the view box (1440 × 510).
  * On phones only the drawing's right half shows (board 02's view box,
  * x 700 to 1440): the drawing is 1440 / 740 of the page wide and moved left
  * by 700 / 740 of it, inside a box that clips it. The markup is `Footer.tsx`.
@@ -56,7 +57,7 @@
     min-width: 0;
     min-height: var(--control-height);
     padding-inline: var(--space-4);
-    border: var(--rule-dashed) solid var(--ink);
+    border: var(--control-outline) solid var(--ink);
     border-radius: var(--radius-none);
     background: var(--paper);
   }
@@ -66,7 +67,7 @@
     flex: none;
     min-height: var(--control-height);
     padding-inline: var(--space-5);
-    border: var(--rule-dashed) solid var(--ink);
+    border: var(--control-outline) solid var(--ink);
     border-radius: var(--radius-none);
     background: var(--ink);
     color: var(--paper);
@@ -92,7 +93,7 @@
     min-height: var(--control-height);
     color: var(--ink);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: var(--footer-link-weight);
 
     &:hover {
       color: var(--blue);
@@ -137,10 +138,10 @@
   /* The beam's 55% yellow is the one translucent colour the design allows (README, 颜色). */
   .Footer-beam {
     fill: var(--sun);
-    opacity: 0.55;
+    opacity: var(--footer-beam-opacity);
     transform-box: view-box;
     transform-origin: calc(1132 / 1440 * 100%) calc(92 / 510 * 100%);
-    animation: Footer-sweep 7s ease-in-out infinite;
+    animation: Footer-sweep var(--footer-beam-sweep) ease-in-out infinite;
   }
 
   .Footer-gulls,
@@ -197,21 +198,21 @@
   }
 
   .Footer-drift-back {
-    animation: Footer-drift 22s linear infinite;
+    animation: Footer-drift var(--footer-wave-back) linear infinite;
   }
 
   .Footer-drift-mid {
-    animation: Footer-drift 13s linear infinite reverse;
+    animation: Footer-drift var(--footer-wave-mid) linear infinite reverse;
   }
 
   .Footer-drift-front {
-    animation: Footer-drift 9s linear infinite;
+    animation: Footer-drift var(--footer-wave-front) linear infinite;
   }
 
   .Footer-boat {
     transform-box: fill-box;
     transform-origin: center;
-    animation: Footer-bob 4s ease-in-out infinite;
+    animation: Footer-bob var(--footer-boat-bob) ease-in-out infinite;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -269,22 +270,22 @@
   @keyframes Footer-sweep {
     0%,
     100% {
-      transform: rotate(-4deg);
+      transform: rotate(var(--footer-beam-from));
     }
 
     50% {
-      transform: rotate(6deg);
+      transform: rotate(var(--footer-beam-to));
     }
   }
 
   @keyframes Footer-bob {
     0%,
     100% {
-      transform: translateY(0) rotate(-2deg);
+      transform: translateY(0) rotate(calc(-1 * var(--footer-boat-pitch)));
     }
 
     50% {
-      transform: translateY(calc(6 / 72 * 100%)) rotate(2deg);
+      transform: translateY(var(--footer-boat-rise)) rotate(var(--footer-boat-pitch));
     }
   }
 }
