@@ -15,6 +15,7 @@ export const ja: Table = {
   "language.menu": "言語：{language}",
   "theme.toDark": "ダークモードに切り替える",
   "theme.toLight": "ライトモードに切り替える",
+  "echoStack.label": "エコーが重なって波に、{layers} 層の高さ",
   "scaffold.name": "足場",
   "scaffold.text": "2.0 の足場です。サイトはマイルストーン M3 で公開されます。",
   "catalog.name": "カタログ",
