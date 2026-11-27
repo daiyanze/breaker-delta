@@ -124,7 +124,7 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 | `@bd/ui` layers (ADR 0020, section 3) | `check-deps` rules per layer and area; `tokens` has no DOM, Bun or Cloudflare types (`packages/ui/tsconfig.tokens.json`); `tokens.gen.ts` matches `tokens.json` (`packages/ui/scripts/generate-tokens.test.ts`) | check, types, test |
 | Every `.tsx` names its JSX runtime on its first line (ADR 0020, section 3) | `scripts/jsx-pragma.test.ts` | test |
 | Every component folder has a states file and an entry in `CATALOG` (ADR 0020, section 12) | `packages/ui/src/catalog/catalog.test.tsx` | test |
-| UI from Tide Paper tokens and components (ADR 0020, section 12) | `scripts/check-ui.ts`: no literal colour, size or font name outside `packages/ui/src/tokens` (a listed breakpoint in a query excepted); `document` or `window` only in a `*.island.tsx`; `dangerouslySetInnerHTML` only in `Document`; an island imports no island and only types from `@bd/contracts`; no `.css` file, `style=`, `<style>` or class rule in `apps/*`; the JSX pragma; exceptions listed in the script with a reason each | check |
+| UI from Tide Paper tokens and components (ADR 0020, section 12) | `scripts/check-ui.ts`: no literal colour, size or font name in `apps/web/src` or in `packages/ui/src` outside `tokens` (a listed breakpoint in a query excepted); `document` or `window` only in a `*.island.tsx`; `dangerouslySetInnerHTML` only in `Document`; an island imports no island and only types from `@bd/contracts`; no `.css` file, `style=`, `<style>` or class rule in `apps/*`; the JSX pragma; exceptions listed in the script with a reason each | check |
 | Component specs (#259) | `scripts/check-ui.ts`: every component folder has `<Name>.states.tsx` and a `SPEC.md` with the sections of `packages/ui/SPEC.md` and a design file that exists | check |
 | `/_catalog` is local only (ADR 0020, section 12) | the `apps/web/src/cloudflare` rule in `check-deps` keeps `@bd/ui/catalog` out of the Worker; `apps/web/src/cloudflare/worker.test.ts` gets 404 | check, test |
 | A UI change shows in screenshots (#258) | `bun run ui:screens` against `apps/web/screenshots/linux`: the `screenshots` job in `ci.yml`, not `check` | CI |
@@ -165,10 +165,13 @@ It reads package imports with a pattern (import statements,
 template with no `${`). Neither sees paths built at run time. It does not
 look at globals (`fetch`, `Date.now`, `Bun`); `packages/core` typechecks
 with Bun's types.
-`check-ui` reads lines with patterns, comments blanked: in code, a size
-counts only inside a string, and a value built at run time or split across
-lines passes; tests are not read. It checks the files git tracks or would
-add, so ignored build output is left out.
+`check-ui` reads each file once with a small lexer (strings, template
+literals, regular expressions, comments), then matches patterns line by
+line: in code, a size, a font or a class rule counts only inside a string,
+and a value built at run time from parts passes. Other apps' source is
+read for `.css` files, `style=`, class rules, globals and
+`dangerouslySetInnerHTML`, not for sizes or fonts. Tests are not read, and
+only files git tracks or would add, so ignored build output is left out.
 
 ## Protected paths (CODEOWNERS)
 

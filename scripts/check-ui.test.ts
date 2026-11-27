@@ -165,6 +165,55 @@ describe("check-ui (issue 259)", () => {
     ]);
   });
 
+  test("a style string that spans lines is read on every line (#284 review)", () => {
+    const sheet = "export const sheet = `\n  .hero { display: grid; }\n  a { margin: 12px; }\n`;\n";
+    const r = tree({
+      "apps/web/src/core/pages/m.ts": sheet,
+      "packages/ui/src/styles/s.ts": sheet,
+    });
+    expect(uiProblems(r, undefined, none)).toEqual([
+      'apps/web/src/core/pages/m.ts:2: app-css: ".hero {" is CSS in an app: use a @bd/ui component',
+      'apps/web/src/core/pages/m.ts:3: size: "12px" (use a size token from tokens.json)',
+      'packages/ui/src/styles/s.ts:3: size: "12px" (use a size token from tokens.json)',
+    ]);
+  });
+
+  test("code, comments, regular expressions and template parts are not strings", () => {
+    const r = tree({
+      "packages/ui/src/styles/t.ts": [
+        "const a = 12; // 12px in a comment",
+        "/* .x { margin: 4px } */",
+        'const re = /"/;',
+        "const b = `${(() => 3)()}`; const c = 5;",
+        'const d = "gap: 2rem";',
+      ].join("\n"),
+    });
+    expect(uiProblems(r, undefined, none)).toEqual([
+      'packages/ui/src/styles/t.ts:5: size: "2rem" (use a size token from tokens.json)',
+    ]);
+  });
+
+  test("a font shorthand names a font too", () => {
+    const r = tree({
+      "packages/ui/src/styles/base.css":
+        '@layer base {\n  a { font: 1em "Newsreader", serif; }\n  b { font: inherit; }\n}\n',
+    });
+    expect(uiProblems(r, undefined, none)).toEqual([
+      'packages/ui/src/styles/base.css:2: font: "font: 1em "Newsreader", serif" (use a font token)',
+    ]);
+  });
+
+  test("an island re-exporting or bare-importing @bd/contracts fails", () => {
+    const r = tree({
+      ...component("A"),
+      "packages/ui/src/patterns/A/A.island.tsx": `${PRAGMA}export { LanguageSchema } from "@bd/contracts";\nimport "@bd/contracts";\nexport type { Echo } from "@bd/contracts";\n`,
+    });
+    expect(uiProblems(r, undefined, none)).toEqual([
+      "packages/ui/src/patterns/A/A.island.tsx:2: island-import: imports a value from @bd/contracts: an island takes types only (import type)",
+      "packages/ui/src/patterns/A/A.island.tsx:3: island-import: imports a value from @bd/contracts: an island takes types only (import type)",
+    ]);
+  });
+
   test("a .tsx without its pragma fails", () => {
     const r = tree({ "apps/web/src/core/pages/n.tsx": "export const n = 1;\n" });
     expect(uiProblems(r, undefined, none)).toEqual([

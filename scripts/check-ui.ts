@@ -2,16 +2,16 @@
  * Pages are built from Tide Paper, not next to it (issue #259, ADR 0020
  * section 12). Fails on:
  *
- * - `colour`: a literal colour outside `packages/ui/src/tokens`, read by
- *   `scripts/check-colors.ts`;
- * - `size`: a `px` or `rem` length outside `tokens`, in a `.css` file or a
- *   string in code. A width in a `@media` or `@container` query that the
+ * - `colour`: a literal colour in `apps/web/src` or in `packages/ui/src`
+ *   outside `tokens`, read by `scripts/check-colors.ts`;
+ * - `size`: a `px` or `rem` length in the same folders, in a `.css` file or
+ *   a string in code (`lex` reads strings across lines). A width in a `@media` or `@container` query that the
  *   tokens list as a breakpoint (`BREAKPOINTS`) is the one literal allowed;
- * - `font`: a `font-family` that is not a variable;
+ * - `font`: a `font-family` or `font` shorthand that is not a variable;
  * - `global`: `document` or `window` outside a `*.island.tsx`;
  * - `inner-html`: `dangerouslySetInnerHTML` outside `Document`;
  * - `island-import`: an island importing an island, or anything but types
- *   from `@bd/contracts`;
+ *   from `@bd/contracts` (a value import or re-export, or a bare import);
  * - `app-css`: a `.css` file in `apps/*`, or a `style` attribute, a
  *   `<style>` element or a class rule in an app's source: a page uses a
  *   `@bd/ui` component and the band layout;
@@ -70,6 +70,12 @@ export const EXCEPTIONS: readonly Exception[] = [
       'the design rule "no type under 13px" names its limit in the message it reports; it checks the sheet and styles nothing',
   },
   {
+    file: "packages/ui/src/styles/checks.ts",
+    rule: "font",
+    reason:
+      "the tabular-figures rule quotes the `font` shorthand it found in the message it reports; it checks the sheet and styles nothing",
+  },
+  {
     file: "apps/web/src/core/icon.ts",
     rule: "app-css",
     reason:
@@ -91,28 +97,124 @@ const CODE = /\.(ts|tsx)$/;
 const COMPONENT = /^packages\/ui\/src\/(primitives|patterns)\/([^/]+)\/(.+)$/;
 
 const SIZE = /(?<![\w.#-])-?\d*\.?\d+(?:px|rem)\b/g;
+// `font-family`, or a `font` shorthand, whose value is not a variable or a
+// keyword: either names a font.
 const FONT_FAMILY =
-  /\bfont-?family\b["']?\s*:\s*(?!\s*(?:var\(|inherit\b|initial\b|unset\b|revert\b))[^;}\n]+/gi;
+  /(?<![\w-])font(?:-?family)?\b["']?\s*:\s*(?!\s*(?:var\(|inherit\b|initial\b|unset\b|revert\b))[^;}\n"'`]*[^;}\n]*/gi;
 const GLOBAL =
   /(?<![\w.$])(?:document|window)\s*(?:\.|\?\.|\[)|\bglobalThis\.(?:document|window)\b/g;
 const INNER_HTML = /\bdangerouslySetInnerHTML\b/g;
 const STYLE_ATTR = /(?<![\w-])style\s*=|<style\b/g;
 const CLASS_RULE = /(?<![\w$)\]])\.[A-Za-z][\w-]*\s*\{|@(?:media|layer|font-face|container)\b/g;
 const QUERY = /@(?:media|container)\b/;
+// A value import or re-export, a bare import, or a dynamic import of
+// `@bd/contracts`; `import type` and `export type` are left out.
 const CONTRACTS_VALUE =
-  /\bimport\s+(?!type\b)[^;]*?\bfrom\s*["']@bd\/contracts(?:\/[^"']*)?["']|\bimport\s*\(\s*["']@bd\/contracts/g;
+  /\b(?:import|export)\s+(?!type\b)[^;]*?\bfrom\s*["']@bd\/contracts(?:\/[^"']*)?["']|\bimport\s*\(?\s*["']@bd\/contracts/g;
 
-// A comment line in code: `//`, `/*`, a JSDoc `* ` line or its `*/` end.
-const COMMENT_LINE = /^\s*(?:\/\/|\/\*|\*(?:\s|\/|$))/;
+interface Lexed {
+  /** The text with comments blanked, so line numbers and columns stay. */
+  text: string;
+  /** For each character: 1 inside a string or template literal (not its `${}`). */
+  inString: Uint8Array;
+}
 
-/** Lines of a file with comments blanked, so line numbers stay. */
-function codeLines(path: string, text: string): string[] {
+/**
+ * Reads code a character at a time: strings, template literals (with their
+ * `${}` parts as code), regular expression literals, and comments. A string
+ * that spans lines stays a string on every line (#259 review).
+ */
+export function lex(path: string, source: string): Lexed {
+  const out = source.split("");
+  const inString = new Uint8Array(source.length);
+  const blank = (from: number, to: number) => {
+    for (let k = from; k < to; k += 1) if (out[k] !== "\n") out[k] = " ";
+  };
   if (path.endsWith(".css")) {
-    return text.replace(/\/\*[\s\S]*?\*\//g, (c) => c.replace(/[^\n]/g, " ")).split("\n");
+    for (const m of source.matchAll(/\/\*[\s\S]*?\*\//g)) blank(m.index, m.index + m[0].length);
+    return { text: out.join(""), inString };
   }
-  return text
-    .split("\n")
-    .map((line) => (COMMENT_LINE.test(line) ? "" : line.replace(/(^|\s)\/\/.*$/, "")));
+  // A stack of open templates: each entry is the brace depth of its `${`.
+  const templates: number[] = [];
+  let depth = 0;
+  let last = "";
+  let i = 0;
+  const n = source.length;
+  const quoted = (q: string) => {
+    // Inside a string or a template's text, from i (after the opening quote).
+    while (i < n) {
+      const c = source[i] as string;
+      if (c === "\\") {
+        inString[i] = 1;
+        inString[i + 1] = 1;
+        i += 2;
+        continue;
+      }
+      if (q === "`" && c === "$" && source[i + 1] === "{") {
+        templates.push(depth);
+        depth += 1;
+        i += 2;
+        return;
+      }
+      if (c === q || (q !== "`" && c === "\n")) {
+        i += 1;
+        if (q === "`") last = "`";
+        else last = q;
+        return;
+      }
+      inString[i] = 1;
+      i += 1;
+    }
+  };
+  while (i < n) {
+    const c = source[i] as string;
+    const next = source[i + 1];
+    if (c === "/" && next === "/") {
+      const end = source.indexOf("\n", i);
+      const stop = end === -1 ? n : end;
+      blank(i, stop);
+      i = stop;
+    } else if (c === "/" && next === "*") {
+      const end = source.indexOf("*/", i + 2);
+      const stop = end === -1 ? n : end + 2;
+      blank(i, stop);
+      i = stop;
+    } else if (c === '"' || c === "'" || c === "`") {
+      i += 1;
+      quoted(c);
+    } else if (c === "/" && (last === "" || /[(,=:[!&|?{};+\-*%<>~^]/.test(last))) {
+      // A regular expression literal: skip to its closing slash.
+      i += 1;
+      let cls = false;
+      while (i < n && source[i] !== "\n") {
+        const r = source[i];
+        if (r === "\\") i += 1;
+        else if (r === "[") cls = true;
+        else if (r === "]") cls = false;
+        else if (r === "/" && !cls) break;
+        i += 1;
+      }
+      i += 1;
+      last = "/";
+    } else if (c === "{") {
+      depth += 1;
+      last = c;
+      i += 1;
+    } else if (c === "}") {
+      depth -= 1;
+      i += 1;
+      if (templates.length > 0 && templates[templates.length - 1] === depth) {
+        templates.pop();
+        quoted("`");
+      } else {
+        last = c;
+      }
+    } else {
+      if (!/\s/.test(c)) last = /[\w$)\]]/.test(c) ? "a" : c;
+      i += 1;
+    }
+  }
+  return { text: out.join(""), inString };
 }
 
 const SKIP = new Set(["node_modules", ".git", "dist", ".wrangler", ".wrangler-dist", "public"]);
@@ -170,17 +272,22 @@ function scan(root: string, files: readonly string[]): Found[] {
     if (!(inUi || inApp) || !(isCss || isCode)) continue;
 
     const text = readFileSync(join(root, file), "utf8");
-    const lines = codeLines(file, text);
-    lines.forEach((line, i) => {
+    const lexed = lex(file, text);
+    let offset = 0;
+    lexed.text.split("\n").forEach((line, i) => {
       const at = i + 1;
+      const start = offset;
+      offset += line.length + 1;
+      // In code, only text inside a string is a style value.
+      const str = (index: number | undefined) => lexed.inString[start + (index ?? 0)] === 1;
       if (inUi) {
         for (const m of line.matchAll(SIZE)) {
           if (QUERY.test(line) && BREAKPOINTS.includes(m[0])) continue;
-          // In code, only a length inside a string is a style value.
-          if (isCode && !insideString(line, m.index ?? 0)) continue;
+          if (isCode && !str(m.index)) continue;
           add(file, at, "size", `"${m[0]}" (use a size token from tokens.json)`);
         }
         for (const m of line.matchAll(FONT_FAMILY)) {
+          if (isCode && !str(m.index)) continue;
           add(file, at, "font", `"${m[0].trim()}" (use a font token)`);
         }
       }
@@ -204,7 +311,7 @@ function scan(root: string, files: readonly string[]): Found[] {
           add(file, at, "app-css", `"${m[0]}" in an app: use a @bd/ui component`);
         }
         for (const m of line.matchAll(CLASS_RULE)) {
-          if (!insideString(line, m.index ?? 0)) continue;
+          if (!str(m.index)) continue;
           add(file, at, "app-css", `"${m[0].trim()}" is CSS in an app: use a @bd/ui component`);
         }
       }
@@ -215,22 +322,6 @@ function scan(root: string, files: readonly string[]): Found[] {
     }
   }
   return found;
-}
-
-/** True when `index` in `line` sits inside a quoted or template string. */
-function insideString(line: string, index: number): boolean {
-  let quote: string | undefined;
-  for (let i = 0; i < index; i += 1) {
-    const c = line[i];
-    if (c === "\\") {
-      i += 1;
-    } else if (quote === undefined) {
-      if (c === '"' || c === "'" || c === "`") quote = c;
-    } else if (c === quote) {
-      quote = undefined;
-    }
-  }
-  return quote !== undefined;
 }
 
 const transpiler = new Bun.Transpiler({ loader: "tsx" });
