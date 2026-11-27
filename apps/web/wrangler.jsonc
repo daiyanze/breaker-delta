@@ -9,6 +9,13 @@
   // Fonts (issue #104). Files here are served before the Worker runs; the
   // local adapter serves the same files from src/local/fonts.ts.
   "assets": { "directory": "./public" },
+  // The client files (ADR 0020, section 11): `ui.css` into public/client
+  // (git-ignored) before every build, deploy and preview. The local adapter
+  // builds the same files in memory (src/local/client.ts).
+  "build": {
+    "command": "bun ../../packages/ui/scripts/write-client.ts public/client",
+    "watch_dir": "../../packages/ui/src"
+  },
 
   // Per-PR previews (#11). Bindings are not inherited from the top level; any
   // binding added here must name a preview resource

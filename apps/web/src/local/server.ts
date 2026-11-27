@@ -5,6 +5,7 @@
 import type { PurgeRequest, PurgeResult, SiteCache } from "@bd/ports";
 import { purgeCaches } from "../core/purge.ts";
 import { handle, type SiteVars } from "../select.ts";
+import { clientServer } from "./client.ts";
 import { serveFont } from "./fonts.ts";
 import { serveIcon } from "./icons.ts";
 
@@ -28,10 +29,15 @@ export interface LocalSite extends SiteCache {
 
 export function startSite(options: LocalSiteOptions): LocalSite {
   const log = options.log ?? ((line: string) => console.log(line));
+  const client = clientServer();
   const server = Bun.serve({
     port: options.port,
     hostname: options.hostname ?? "127.0.0.1",
-    fetch: (request) => serveFont(request) ?? serveIcon(request) ?? handle(request, options.vars),
+    fetch: (request) =>
+      client.serve(request) ??
+      serveFont(request) ??
+      serveIcon(request) ??
+      handle(request, options.vars),
   });
   return {
     url: `http://${server.hostname}:${server.port}`,

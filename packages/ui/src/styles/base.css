@@ -1,0 +1,72 @@
+/*
+ * Page defaults (issue #104, ADR 0015). Every value comes from the tokens
+ * layer's variables. Numbers use tabular figures everywhere (inherited);
+ * form controls inherit the page font instead of the browser's.
+ */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: var(--type-body-size);
+    line-height: var(--type-body-line);
+    font-variant-numeric: tabular-nums;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    overflow-wrap: break-word;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+  }
+
+  a {
+    color: var(--blue);
+  }
+
+  img,
+  svg {
+    max-width: 100%;
+  }
+
+  /*
+   * The page width (design system "版式"): at most `content` wide, the side
+   * margins outside it. Phone gutter first; from the two-column breakpoint
+   * (`TWO_COLUMNS_FROM`) the desktop one. Nothing here is wider than the
+   * viewport, so no page scrolls sideways.
+   */
+  :root {
+    --page-gutter: var(--phone-gutter);
+
+    @media (min-width: 960px) {
+      --page-gutter: var(--space-6);
+    }
+  }
+
+  .page {
+    box-sizing: content-box;
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--page-gutter);
+  }
+}

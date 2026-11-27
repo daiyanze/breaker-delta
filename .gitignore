@@ -10,3 +10,8 @@ node_modules/
 
 # Claude Code agent worktrees: full checkouts, each with its own biome.json
 .claude/worktrees/
+
+# The client files wrangler's build command writes (ADR 0020, section 11)
+apps/web/public/client/
+# Bun 1.4 leaves one of these in the working folder after each `bun build --compile`
+.*.bun-build

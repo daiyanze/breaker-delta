@@ -11,6 +11,7 @@ in `../README.md`.
 | Run the current slot again | `tick.md` | `verify-local-selftest.sh` (tick) |
 | Read the run report | `report.md` | not driven in CI; the route: `apps/pipeline/test/report.test.ts` (`bun run check`) |
 | Read the front page | `front-page.md` | `verify-local-selftest.sh` (get /) |
+| Read the site in another language | `languages.md` | not driven in CI; the routes: `apps/web/src/local/languages.test.ts` (`bun run check`) |
 | Answer model calls through the local bridge | `model-bridge.md` | not driven in CI; the bridge's behaviour: `apps/local/test/bridge.test.ts`, a run through it: `scripts/local-bridge.test.ts` (`bun run check`) |
 
 Not driven by this procedure, and where each is checked instead:

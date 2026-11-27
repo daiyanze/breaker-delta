@@ -5,9 +5,10 @@
  * (`supplement.ts`). No JSX, no DOM and no runtime API, so emails and share
  * cards can import it.
  *
- * Themes: light by default, dark when the system asks for it, and
- * `<html data-theme="light|dark">` overrides the system either way.
+ * Themes: the system's choice by default, and `<html data-theme="light|dark">`
+ * overrides it either way.
  */
+import { CONTROL, ICON, PHONE } from "./supplement.ts";
 import {
   COLORS,
   type ColorToken,
@@ -24,7 +25,7 @@ import {
 } from "./tokens.gen.ts";
 
 export { FONT_FILES, type FontFile, fontFaceCss } from "./fonts.ts";
-export { CONTROL, PHONE, TWO_COLUMNS_FROM } from "./supplement.ts";
+export { CONTROL, ICON, PHONE, TWO_COLUMNS_FROM } from "./supplement.ts";
 export type {
   ColorToken,
   FontFamily,
@@ -72,11 +73,26 @@ export function typeStyle(name: TypeStyle): TypeValues {
 
 const decl = (name: string, value: string | number) => `--${name}:${value};`;
 
-function themeVars(theme: Theme): string {
-  const colors = Object.entries(COLORS).map(([name, v]) => decl(name, v[theme]));
-  const shadows = Object.entries(SHADOWS).map(([name, v]) => decl(name, v[theme]));
-  return `color-scheme:${theme};${colors.join("")}${shadows.join("")}`;
+/**
+ * Each themed colour once, as `light-dark()`, which picks by the element's
+ * `color-scheme`. A colour that is the same in both themes is written plain.
+ */
+function colorVars(): string {
+  return Object.entries(COLORS)
+    .map(([name, v]) =>
+      decl(name, v.light === v.dark ? v.light : `light-dark(${v.light},${v.dark})`),
+    )
+    .join("");
 }
+
+/** `light-dark()` takes colours only, so each shadow keeps one value per theme block. */
+function shadowVars(theme: Theme): string {
+  return Object.entries(SHADOWS)
+    .map(([name, v]) => decl(name, v[theme]))
+    .join("");
+}
+
+const kebab = (name: string) => name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 
 function staticVars(): string {
   const out: string[] = [];
@@ -93,15 +109,25 @@ function staticVars(): string {
   for (const group of [SPACING, RADII, RULES]) {
     for (const [name, value] of Object.entries(group)) out.push(decl(name, value));
   }
+  // The values of `supplement.ts`, for the components' CSS files.
+  for (const [name, v] of Object.entries(PHONE)) out.push(decl(`phone-${kebab(name)}`, v.value));
+  for (const [name, v] of Object.entries(CONTROL)) out.push(decl(`control-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(ICON)) out.push(decl(`icon-${kebab(name)}`, v));
   return out.join("");
 }
 
-/** CSS variables for every token, in both themes: one block per line. */
+/**
+ * CSS variables for every token, one block per line. The page takes the
+ * system's theme (`color-scheme: light dark`) unless `<html data-theme>`
+ * picks one. The shadows have three blocks: the root (light), dark from
+ * the system, dark by choice.
+ */
 export function tokensCss(): string {
   return [
-    `:root{${staticVars()}${themeVars("light")}}`,
-    `@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){${themeVars("dark")}}}`,
-    `:root[data-theme="dark"]{${themeVars("dark")}}`,
+    `:root{${staticVars()}color-scheme:light dark;${colorVars()}${shadowVars("light")}}`,
+    `:root[data-theme="light"]{color-scheme:light}`,
+    `@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){${shadowVars("dark")}}}`,
+    `:root[data-theme="dark"]{color-scheme:dark;${shadowVars("dark")}}`,
   ].join("\n");
 }
 

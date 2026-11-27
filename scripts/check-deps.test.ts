@@ -490,12 +490,30 @@ describe("check-deps", () => {
       );
     });
 
-    test("the site may import @bd/ui/tokens and nothing else of @bd/ui yet", () => {
+    test("site pages may use tokens, runtime, patterns and preact, not the renderer itself (#271)", () => {
       file("apps/web/src/core/ui-ok.ts", 'import { colorOf } from "@bd/ui/tokens";');
+      file(
+        "apps/web/src/core/pages/ok.tsx",
+        [
+          'import { Band } from "@bd/ui/patterns";',
+          'import { Document } from "@bd/ui/runtime";',
+          'import type { VNode } from "preact";',
+          'import { jsx } from "preact/jsx-runtime";',
+        ].join("\n"),
+      );
       file("apps/web/src/core/ui-build.ts", 'import { buildClient } from "@bd/ui/build";');
+      file("apps/web/src/core/ui-styles.ts", 'import { uiCss } from "@bd/ui/styles";');
+      file("apps/web/src/core/render.ts", 'import { render } from "preact-render-to-string";');
+      file("apps/web/src/core/compat.ts", 'import { useState } from "preact/compat";');
+      file("apps/web/src/local/render.ts", 'import { render } from "preact-render-to-string";');
       const found = all();
       expect(found).not.toContain("core/ui-ok.ts");
+      expect(found).not.toContain("pages/ok.tsx");
       expect(found).toContain('web/src/core/ui-build.ts imports "@bd/ui/build"');
+      expect(found).toContain('web/src/core/ui-styles.ts imports "@bd/ui/styles"');
+      expect(found).toContain('web/src/core/render.ts imports "preact-render-to-string"');
+      expect(found).toContain('web/src/core/compat.ts imports "preact/compat"');
+      expect(found).toContain('web/src/local/render.ts imports "preact-render-to-string"');
     });
   });
 
