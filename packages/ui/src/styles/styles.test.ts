@@ -310,8 +310,31 @@ describe("the echo stack", () => {
     );
 
   test("the sheets move only when motion is allowed, so at rest the whole stack shows", () => {
-    // The echo stack's own rules: the masthead's motion has its own test
-    // (`masthead.test.ts`), which stops it under reduced motion instead.
+    // Every animated rule in the sheet is still under reduced motion: it
+    // either waits for `no-preference` (the echo stack's way) or a `reduce`
+    // rule sets `animation: none` on its selector (the masthead's way).
+    const ALLOWED = "(prefers-reduced-motion: no-preference)";
+    const REDUCED = "(prefers-reduced-motion: reduce)";
+    const animates = (r: (typeof rules)[number]) =>
+      r.declarations.some(([p]) => p.startsWith("animation"));
+    const stops = (r: (typeof rules)[number]) =>
+      r.media.includes(REDUCED) &&
+      r.declarations.some(([p, v]) => p === "animation" && v === "none");
+    const stopped = new Set(
+      rules.filter(stops).flatMap((r) => r.selector.split(",").map((s) => s.trim())),
+    );
+    const animated = rules.filter((r) => animates(r) && !stops(r));
+    expect(animated.length).toBeGreaterThan(0);
+    for (const r of animated) {
+      const still =
+        r.media.includes(ALLOWED) || r.selector.split(",").every((s) => stopped.has(s.trim()));
+      expect({ selector: r.selector, media: r.media, still }).toEqual({
+        selector: r.selector,
+        media: r.media,
+        still: true,
+      });
+    }
+    // And the echo stack's own animated rule is its sheet, waiting for motion.
     const moving = own.filter((r) => r.declarations.some(([p]) => p.startsWith("animation")));
     expect(moving.map((r) => [r.selector, r.media])).toEqual([
       [".EchoStack-sheet", ["(prefers-reduced-motion: no-preference)"]],
