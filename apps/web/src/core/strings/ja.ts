@@ -23,6 +23,7 @@ export const ja: Table = {
   "nav.record": "的中記録",
   "nav.sources": "ソース",
   "nav.about": "概要",
+  "echoStack.label": "エコーが重なって波に、{layers} 層の高さ",
   "scaffold.name": "足場",
   "scaffold.text": "2.0 の足場です。サイトはマイルストーン M3 で公開されます。",
   "catalog.name": "カタログ",

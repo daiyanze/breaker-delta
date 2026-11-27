@@ -23,6 +23,7 @@ export const zh: Table = {
   "nav.record": "战绩",
   "nav.sources": "来源",
   "nav.about": "关于",
+  "echoStack.label": "回波叠成浪，高 {layers} 层",
   "scaffold.name": "脚手架",
   "scaffold.text": "2.0 脚手架。网站将在 M3 里程碑上线。",
   "catalog.name": "组件目录",

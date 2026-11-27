@@ -62,6 +62,12 @@ under no rule and fails `check-deps`.
 - `Band` (`patterns/Band`): a section with its name in the rail. Classes
   `.Band` and `.Band-rail`, `.Band-name`, `.Band-note`, `.Band-body`; the
   heading's id is `band-<id>`.
+- `EchoStack` (`patterns/EchoStack`, boards 01 to 03, #114): the stack of
+  sheets beside a wave-height number, an SVG of `echoStackLayers(height)`
+  sheets (height ÷ 200 × 12, 3 to 15) that drop in on a CSS loop when
+  motion is allowed. It takes the height and a finished `label` that names
+  the number of sheets. Classes `.EchoStack`, `-sheet`, `-blue`, `-sky`,
+  `-top`, `-base`.
 - `LanguageMenu` (`patterns/LanguageMenu`, boards 01 and 02, #107): links to
   the same page in each language inside a `<details>`, so it opens without
   JavaScript; the current one has `aria-current`. It takes finished text:

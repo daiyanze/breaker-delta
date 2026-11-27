@@ -5,9 +5,11 @@
  * Interface text comes from the string tables in the page's language (#107),
  * the theme switch's two names included. The switch is its one island
  * (#105), in the masthead's row of tools with the language menu (#110).
+ * The tallest wave has the echo stack beside its height (#114, board
+ * 01); the lead's own layout comes with the headlines (#119).
  */
 import type { Language, RankRow } from "@bd/contracts";
-import { Band } from "@bd/ui/patterns";
+import { Band, EchoStack, echoStackLayers } from "@bd/ui/patterns";
 import { ThemeSwitch } from "@bd/ui/primitives";
 import { Document } from "@bd/ui/runtime";
 import type { VNode } from "preact";
@@ -51,10 +53,16 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
             })}
           </p>
           <ol>
-            {edition.ranking.map((row) => {
+            {edition.ranking.map((row, i) => {
               const h = headline(row, ctx.lang);
               return (
                 <li key={row.slug}>
+                  {i === 0 ? (
+                    <EchoStack
+                      height={row.height}
+                      label={t("echoStack.label", { layers: echoStackLayers(row.height) })}
+                    />
+                  ) : null}
                   <a href={pathIn(`/topic/${row.slug}`, ctx.lang, meta)} lang={h.lang}>
                     {h.text}
                   </a>{" "}

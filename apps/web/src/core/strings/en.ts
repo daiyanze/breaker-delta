@@ -28,6 +28,7 @@ export const en = {
   "nav.record": "Track record",
   "nav.sources": "Sources",
   "nav.about": "About",
+  "echoStack.label": "Echoes stacking into a wave, {layers} layers high",
   "scaffold.name": "Scaffold",
   "scaffold.text": "2.0 scaffold. The site arrives in milestone M3.",
   "catalog.name": "Catalog",
