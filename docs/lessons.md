@@ -13,7 +13,7 @@ Each rule applies only within its scope.
   had caught passed. The independent review found it with a probe.
 - **Rule:** When a check stops matching text and starts reading a syntax
   tree, list the node shapes that hold the same text (wrappers such as
-  `as`, `satisfies`, `!`, parentheses) and test each one, against the old
+  `as`, `satisfies`, `<const>`, `!`) and test each one, against the old
   check as well as the new.
 - **Scope:** scripts under `scripts/` that read source code.
 - **Check:** `scripts/check-ui.test.ts` ("a style object's font is read
