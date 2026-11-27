@@ -1,0 +1,84 @@
+/*
+ * The theme switch (#105): the secondary button of
+ * `design/system/components/Button` ("次要": a 1px outline), square at the
+ * control's smallest height, as on boards 01 and 02; inverted on hover like
+ * every button. The markup is `ThemeSwitch.island.tsx`.
+ */
+@layer primitives {
+  .ThemeSwitch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--control-min-height);
+    block-size: var(--control-min-height);
+    padding: 0;
+    border: var(--rule-thin) solid var(--ink);
+    border-radius: var(--radius-none);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--ink);
+      color: var(--paper);
+    }
+  }
+
+  .ThemeSwitch-icon {
+    inline-size: var(--icon-theme-switch);
+    block-size: var(--icon-theme-switch);
+  }
+
+  .ThemeSwitch-ring {
+    fill: none;
+    stroke: currentcolor;
+  }
+
+  .ThemeSwitch-half {
+    fill: currentcolor;
+  }
+
+  /*
+   * The button's name: read out, not shown. It covers the button and is
+   * clipped to nothing, so it never widens the page.
+   */
+  .ThemeSwitch-name {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /*
+   * One name applies: "to light" while the dark theme shows, by the same
+   * rules as the tokens layer's theme blocks (the system's choice unless
+   * `data-theme` picks one).
+   */
+  .ThemeSwitch-to-light {
+    display: none;
+  }
+
+  :root[data-theme="dark"] {
+    .ThemeSwitch-to-dark {
+      display: none;
+    }
+
+    .ThemeSwitch-to-light {
+      display: block;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      .ThemeSwitch-to-dark {
+        display: none;
+      }
+
+      .ThemeSwitch-to-light {
+        display: block;
+      }
+    }
+  }
+}

@@ -1,38 +1,78 @@
 import { describe, expect, test } from "bun:test";
+import type { ReadQueries } from "@bd/contracts";
 import { createFixtureReadQueries } from "@bd/fixtures";
-import { createSite, renderFront } from "../core/site.ts";
+import { createSite } from "../core/site.ts";
 
 // The site core cannot import fixtures (check-deps), so the pages it renders
-// from fixture data are checked here.
+// from fixture data are checked here. The pages are Preact (#271): the
+// renderer writes no line breaks and escapes `<`, `&` and, in attributes, `"`.
+
+/** The front page the site serves from `q`, as HTML; `/` is English, the default. */
+async function front(q: ReadQueries | null, lang?: string): Promise<string> {
+  const path = lang === undefined || lang === "en" ? "/" : `/${lang}/`;
+  return (await createSite(() => q).fetch(new Request(`http://x${path}`))).text();
+}
+
+/** The page after its `<head>`, which holds the document's own two scripts (#272). */
+const body = (html: string) => html.slice(html.indexOf("</head>"));
+
 describe("every page uses the band", () => {
-  const pages = async () => {
-    const placeholder = await createSite(() => null).fetch(new Request("http://x/"));
-    return {
-      placeholder: await placeholder.text(),
-      busy: await renderFront(createFixtureReadQueries("busy"), null),
-      fresh: await renderFront(createFixtureReadQueries("fresh"), null),
-    };
-  };
+  const pages = async () => ({
+    placeholder: await front(null),
+    busy: await front(createFixtureReadQueries("busy")),
+    fresh: await front(createFixtureReadQueries("fresh")),
+  });
 
   test("all page content sits in bands inside the page width", async () => {
     for (const [name, html] of Object.entries(await pages())) {
-      const body = html.slice(html.indexOf("<body>") + 6, html.indexOf("</body>")).trim();
+      const body = html.slice(html.indexOf("<body>") + 6, html.indexOf("</body>"));
       const outside = body
-        .replace(/<header class="page">[\s\S]*?<\/header>/, "")
         .replace(
-          /<main class="page">\n(?:<section class="band"[\s\S]*?<\/section>\n?)+<\/main>/,
+          /^<header class="page">(?:<div class="LanguageMenu">[\s\S]*?<\/details><\/div>)?<h1>[^<]+<\/h1>(?:<bd-island name="ThemeSwitch"[^>]*>[\s\S]*?<\/bd-island>)?<\/header>/,
           "",
         )
-        .trim();
+        .replace(/^<main class="page">(?:<section class="Band"[\s\S]*?<\/section>)+<\/main>$/, "");
       expect({ name, outside }).toEqual({ name, outside: "" });
     }
   });
 
-  test("the busy front page has the front page and classifieds bands", async () => {
-    const { busy } = await pages();
+  test("each page has its heading and its bands, named by their rail headings", async () => {
+    const { placeholder, busy, fresh } = await pages();
+    expect(placeholder).toContain('<html lang="en">');
+    expect(placeholder).toContain("<h1>Breaker Delta</h1>");
+    expect(placeholder).toContain('aria-labelledby="band-scaffold"');
+    expect(placeholder).toContain("2.0 scaffold. The site arrives in milestone M3.");
     expect(busy).toContain('aria-labelledby="band-front"');
-    expect(busy).toContain('aria-labelledby="band-classifieds"');
+    expect(busy).toContain('<h2 id="band-front" class="Band-name">Front page</h2>');
+    expect(busy).toContain('<h2 id="band-classifieds" class="Band-name">Classifieds</h2>');
     expect(busy).toContain("edition. Sea state");
+    expect(busy).toContain("16 waves up");
+    expect(fresh).toContain('<h2 id="band-front" class="Band-name">The sea is flat.</h2>');
+    expect(fresh).toContain("Nothing has been scanned yet. Next scan: ");
+  });
+
+  test("the front page holds the theme switch island; the placeholder holds no island, issues 272 and 105", async () => {
+    const { placeholder, busy, fresh } = await pages();
+    for (const html of [busy, fresh]) {
+      expect(html).toContain(
+        '<h1>Breaker Delta</h1><bd-island name="ThemeSwitch" props="{&quot;toDark&quot;:&quot;Switch to dark mode&quot;,&quot;toLight&quot;:&quot;Switch to light mode&quot;}"><button type="button" class="ThemeSwitch">',
+      );
+      expect(html).toContain(
+        '<span class="ThemeSwitch-name ThemeSwitch-to-dark">Switch to dark mode</span><span class="ThemeSwitch-name ThemeSwitch-to-light">Switch to light mode</span></button></bd-island></header>',
+      );
+    }
+    // Its names come from the string tables (#107), so they follow the page's language.
+    const zh = await front(createFixtureReadQueries("busy"), "zh");
+    expect(zh).toContain(
+      '<bd-island name="ThemeSwitch" props="{&quot;toDark&quot;:&quot;切换到深色模式&quot;,&quot;toLight&quot;:&quot;切换到浅色模式&quot;}"><button type="button" class="ThemeSwitch">',
+    );
+    expect(zh).toContain(
+      '<span class="ThemeSwitch-name ThemeSwitch-to-dark">切换到深色模式</span><span class="ThemeSwitch-name ThemeSwitch-to-light">切换到浅色模式</span></button></bd-island>',
+    );
+    expect(placeholder).not.toContain("<bd-island");
+    for (const html of [placeholder, busy]) {
+      expect(html).toContain('<script type="module" src="/client/loader.js"></script>');
+    }
   });
 });
 
@@ -54,15 +94,40 @@ describe("model text renders as text", () => {
       ...row,
       headlines: row.headlines.map((h) => ({ ...h, text: injected[i % injected.length] ?? "" })),
     }));
-    const q = { ...base, edition: async () => ({ ...plain, ranking }) };
-    const html = await renderFront(q, "en");
-    const before = await renderFront(base, "en");
+    const html = await front({ ...base, edition: async () => ({ ...plain, ranking }) }, "en");
+    const before = await front(base, "en");
     const count = (s: string, re: RegExp) => (s.match(re) ?? []).length;
     expect(count(html, /<a\b/g)).toBe(count(before, /<a\b/g));
-    expect(html).not.toContain("<script");
+    expect(body(html)).not.toContain("<script");
     expect(html).not.toContain("<img");
     expect(html.slice(html.indexOf("<main"))).not.toMatch(/href="(?!\/topic\/|https:\/\/)/);
     expect(html).not.toContain('" onmouseover');
-    expect(html).toContain("&#60;img src=x onerror=alert(1)&#62;");
+    expect(html).toContain("&lt;img src=x onerror=alert(1)>");
+  });
+});
+
+// #271: escaping is the renderer's. Fixture text with `<script>` and `&`, and
+// an attribute with `"`, appear only in their escaped forms.
+describe("the renderer escapes fixture text", () => {
+  test("<script>, & and an attribute's quote appear only escaped", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    if (plain === null) throw new Error("busy has an edition");
+    const [first, ...rest] = plain.classifieds.items;
+    if (first === undefined) throw new Error("busy has classifieds");
+    const marked = {
+      ...first,
+      groupName: "Group & <script>one</script>",
+      url: 'https://example.test/?q="quoted"',
+      title: { ...first.title, text: "A <script>x</script> & b" },
+    };
+    const edition = { ...plain, classifieds: { ...plain.classifieds, items: [marked, ...rest] } };
+    const html = await front({ ...base, edition: async () => edition }, "en");
+    expect(html).toContain("Group &amp; &lt;script>one&lt;/script>: ");
+    expect(html).toContain('href="https://example.test/?q=&quot;quoted&quot;"');
+    expect(html).toContain(">A &lt;script>x&lt;/script> &amp; b</a>");
+    expect(body(html)).not.toContain("<script");
+    expect(html).not.toContain(" & ");
+    expect(html).not.toContain('"quoted"');
   });
 });

@@ -1,0 +1,104 @@
+/** @jsxImportSource preact */
+import { describe, expect, test } from "bun:test";
+import { Document, renderDocument } from "../runtime/index.ts";
+import { catalogProblems } from "./check.ts";
+import { CATALOG, type CatalogEntry } from "./index.ts";
+
+const SRC = `${import.meta.dir}/..`;
+
+/** Every file under `src`, relative to it. */
+async function srcFiles(): Promise<string[]> {
+  const out: string[] = [];
+  for await (const path of new Bun.Glob("**/*").scan({ cwd: SRC })) out.push(path);
+  return out.map((p) => p.replaceAll("\\", "/"));
+}
+
+const listed = (name: string, layer: CatalogEntry["layer"]): CatalogEntry => ({
+  name,
+  layer,
+  componentName: name,
+  states: ["default"],
+  render: () => <p />,
+});
+
+describe("the catalog (issue 258)", () => {
+  test("lists every component folder of the package, each with its states file", async () => {
+    expect(catalogProblems(await srcFiles(), CATALOG)).toEqual([]);
+  });
+
+  test("a component folder without a states file fails", () => {
+    const files = [
+      "patterns/Band/Band.tsx",
+      "patterns/Band/Band.states.tsx",
+      "patterns/Gull/Gull.tsx",
+    ];
+    expect(catalogProblems(files, [listed("Band", "patterns")])).toEqual([
+      "patterns/Gull has no Gull.states.tsx: every component declares its states (issue 258)",
+    ]);
+  });
+
+  test("a states file missing from the list fails, and so does a listed folder that is gone", () => {
+    const files = ["primitives/Menu/Menu.tsx", "primitives/Menu/Menu.states.tsx"];
+    expect(catalogProblems(files, [listed("Band", "patterns")])).toEqual([
+      "primitives/Menu/Menu.states.tsx is not in CATALOG (packages/ui/src/catalog/index.ts)",
+      "CATALOG lists patterns/Band, which has no folder",
+    ]);
+  });
+
+  test("a component listed under the wrong layer, or with no states, fails", () => {
+    const files = ["primitives/Menu/Menu.tsx", "primitives/Menu/Menu.states.tsx"];
+    const empty = { ...listed("Menu", "patterns"), states: [] };
+    expect(catalogProblems(files, [empty])).toEqual([
+      "primitives/Menu/Menu.states.tsx is not in CATALOG (packages/ui/src/catalog/index.ts)",
+      "CATALOG lists patterns/Menu, which has no folder",
+      "Menu declares no states",
+    ]);
+  });
+
+  test("the same name in both layers is matched by layer, and listed twice fails", () => {
+    const files = [
+      "primitives/X/X.tsx",
+      "primitives/X/X.states.tsx",
+      "patterns/X/X.tsx",
+      "patterns/X/X.states.tsx",
+    ];
+    expect(catalogProblems(files, [listed("X", "primitives"), listed("X", "patterns")])).toEqual([
+      "CATALOG lists X twice: names must be unique",
+    ]);
+    const band = ["patterns/Band/Band.tsx", "patterns/Band/Band.states.tsx"];
+    const twice = [listed("Band", "patterns"), listed("Band", "patterns")];
+    expect(catalogProblems(band, twice)).toEqual([
+      "CATALOG lists Band twice: names must be unique",
+    ]);
+  });
+
+  test("an entry built from another folder's states fails", () => {
+    const files = ["patterns/Band/Band.tsx", "patterns/Band/Band.states.tsx"];
+    const wrong = { ...listed("Band", "patterns"), componentName: "ThemeSwitch" };
+    expect(catalogProblems(files, [wrong])).toEqual([
+      "CATALOG's Band entry renders ThemeSwitch: states from another folder",
+    ]);
+  });
+
+  // ADR 0020 section 12: rendering every state on the server is also the
+  // test that no island touches a browser global while rendering.
+  // The root class is the component's name (ADR 0020, section 4), so each
+  // state renders its own component.
+  test("every state renders its own component on the server", () => {
+    for (const e of CATALOG) {
+      for (const state of e.states) {
+        const html = renderDocument(
+          <Document lang="en" title="T">
+            {e.render(state)}
+          </Document>,
+        );
+        expect(html).toContain("<body>");
+        expect(html).toContain(`class="${e.name}"`);
+      }
+    }
+  });
+
+  test("an unknown state is an error, not an empty render", () => {
+    expect(() => CATALOG[0]?.render("nope")).toThrow('has no state "nope"');
+  });
+});

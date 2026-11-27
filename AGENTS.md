@@ -50,12 +50,21 @@ bun run local        # run locally, no cloud account
 - `packages/ports` - interfaces the app cores need from a runtime (database,
   blobs, clock), plus conformance checks every adapter passes. Types only, no
   imports (ADR 0018).
+- `packages/ui` - the UI package (ADR 0020): layers `tokens`, `runtime`,
+  `primitives`, `patterns`, each importing only the ones before it, and the
+  areas `styles`, `catalog`, `build`. `tokens` is the only reader of
+  `design/system/tokens.json`. `runtime` holds `Document` and
+  `renderDocument`, the one place HTML text is made (Preact rendered on the
+  server, so escaping is the renderer's). Imports no app. See its README.
 - `apps/pipeline` - the only writer. Ticker -> step runner -> steps. The step
   runner (`src/core/runner.ts`) records each step in `run_steps`, so a run
   resumes where it stopped; no Cloudflare Workflows.
 - `apps/web` - read-only site and API. Never writes, never binds the private
   database. Share cards and the desk's mail and subscriber actions are done by
-  `apps/pipeline` over the service binding (ADR 0009, 0010).
+  `apps/pipeline` over the service binding (ADR 0009, 0010). Its routes are
+  a table of `URLPattern`s (`src/core/routes.ts`); a route reads through the
+  read contracts and returns a Preact document (`src/core/pages`) or a
+  `Response`. It holds no component of its own.
 - `apps/local` - launcher and model bridge for local mode.
 
 Both apps are split the same way (ADR 0018):
@@ -110,8 +119,13 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 
 | Rule | Enforced by | Kind |
 | --- | --- | --- |
-| Dependency direction (architecture map) | `scripts/check-deps.ts`: package imports by each rule's `allow`; relative imports into another package fail, and between areas of one package pass only along a rule's `reach`; every file under a `src` folder is under a rule, and a ruled file may not import code no rule covers; code outside every rule (tests, scripts): review checklist 13 | check, review |
+| Dependency direction (architecture map) | `scripts/check-deps.ts`: package imports by each rule's `allow`; relative imports into another package fail, and between areas of one package pass only along a rule's `reach`; a data file outside the areas a rule reaches passes only when the rule's `data` lists it; every file under a `src` folder is under a rule, and a ruled file may not import code no rule covers; code outside every rule (tests, scripts): review checklist 13 | check, review |
 | App cores use no Bun or Cloudflare API | `src/core` tsconfig without those types; `check-deps` | types |
+| `@bd/ui` layers (ADR 0020, section 3) | `check-deps` rules per layer and area; `tokens` has no DOM, Bun or Cloudflare types (`packages/ui/tsconfig.tokens.json`); `tokens.gen.ts` matches `tokens.json` (`packages/ui/scripts/generate-tokens.test.ts`) | check, types, test |
+| Every `.tsx` names its JSX runtime on its first line (ADR 0020, section 3) | `scripts/jsx-pragma.test.ts` | test |
+| Every component folder has a states file and an entry in `CATALOG` (ADR 0020, section 12) | `packages/ui/src/catalog/catalog.test.tsx` | test |
+| `/_catalog` is local only (ADR 0020, section 12) | the `apps/web/src/cloudflare` rule in `check-deps` keeps `@bd/ui/catalog` out of the Worker; `apps/web/src/cloudflare/worker.test.ts` gets 404 | check, test |
+| A UI change shows in screenshots (#258) | `bun run ui:screens` against `apps/web/screenshots/linux`: the `screenshots` job in `ci.yml`, not `check` | CI |
 | 1. Code decides | model result schemas have no wave, height or rank fields (`packages/contracts/src/model.ts`); core's imports, package and relative (`check-deps`); no IO or clock in core: review checklist 13 | types, check, review |
 | 2. Sources are referenced | model schemas cite echo IDs only (`model.ts`); storing and rendering: review checklist 3 | types, review |
 | 3. Independent sources per fetch group | `packages/core` tests | test |
@@ -140,7 +154,10 @@ it names a path the rules forbid, and a file Bun cannot parse (an `accessor`
 field) fails. These are false failures, loud and by name; the owner chose
 them over a reader that could miss an import silently (#215). A `#!` line is
 blanked before parsing. A relative import that resolves to no TypeScript
-file and has another extension counts as data (JSON, SQL, fonts) and passes.
+file and has another extension counts as data (JSON, SQL, fonts): it passes
+when it is in the importer's own area or one its rule reaches, and otherwise
+only when a glob in the rule's `data` matches it, in the same package or not
+(#269). The `tokens` rule takes listed data only, even from its own folder.
 It reads package imports with a pattern (import statements,
 `import.meta.require()`, and `import()` or `require()` with a string or a
 template with no `${`). Neither sees paths built at run time. It does not

@@ -45,6 +45,11 @@
         "@bd/contracts": "workspace:*",
         "@bd/fixtures": "workspace:*",
         "@bd/ports": "workspace:*",
+        "@bd/ui": "workspace:*",
+        "preact": "^11.2.0",
+      },
+      "devDependencies": {
+        "playwright-core": "1.65.1",
       },
     },
     "packages/contracts": {
@@ -96,6 +101,15 @@
         "drizzle-orm": "^0.45.4",
       },
     },
+    "packages/ui": {
+      "name": "@bd/ui",
+      "version": "0.0.0",
+      "dependencies": {
+        "@bd/contracts": "workspace:*",
+        "preact": "^11.2.0",
+        "preact-render-to-string": "^6.8.3",
+      },
+    },
   },
   "packages": {
     "@bd/contracts": ["@bd/contracts@workspace:packages/contracts"],
@@ -115,6 +129,8 @@
     "@bd/ports": ["@bd/ports@workspace:packages/ports"],
 
     "@bd/private-db": ["@bd/private-db@workspace:packages/private-db"],
+
+    "@bd/ui": ["@bd/ui@workspace:packages/ui"],
 
     "@bd/web": ["@bd/web@workspace:apps/web"],
 
@@ -387,6 +403,12 @@
     "path-to-regexp": ["path-to-regexp@6.3.0", "", {}, "sha512-Yhpw4T9C6hPpgPeA28us07OJeqZ5EzQTkbfwuhsUg0c237RomFoETJgmp2sa3F/41gfLE6G5cqcYwznmeEeOlQ=="],
 
     "pathe": ["pathe@2.0.3", "", {}, "sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w=="],
+
+    "playwright-core": ["playwright-core@1.65.1", "", { "bin": { "playwright-core": "cli.js" } }, "sha512-hqPpz7blSMPxWVdoeE1yiBSzXsKiVOd2k+kjCvmUywD2GPO2Dd9HfcWnq9NN0GHbNZDFgZ9JfBFr+X5/BLo0qw=="],
+
+    "preact": ["preact@11.2.0", "", { "peerDependencies": { "preact-render-to-string": ">=6.7.0" }, "optionalPeers": ["preact-render-to-string"] }, "sha512-/HfHI/7N84e6GrWBJ3J280z3mLaRJiDcSvj/A+y/4AbLnND/1UlGHe1sR6oYuTGwId0nP7dqDU9OnLxMPZ7xBg=="],
+
+    "preact-render-to-string": ["preact-render-to-string@6.8.3", "", { "peerDependencies": { "preact": ">=10 || >= 11.0.0-0" } }, "sha512-yg04edGH7f5yfBUV4uyL2brzPB3e26AimLO5WNfUtwoCv8LBJ7Z+dElG8P5v+o8UqMUM6kZhnn4I/HEXNyP0ZQ=="],
 
     "semver": ["semver@7.8.6", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-9lpSSU4Mly3mrtruwLs1eLK6+gzbzqeBFwRNjIjE+9LuDpWdYctrQlQ3ej1Ilgi7gknpsTRnPoLP8DpCHqHIJw=="],
 

@@ -30,8 +30,8 @@ describe("bd-web", () => {
     expect(body).toContain("Fixture data.");
   });
 
-  test("picks the language and falls back to the source headline", async () => {
-    const body = await (await get("/?lang=ja", { READ_SOURCE: "fixtures" })).text();
+  test("serves the language of the path and falls back to the source headline", async () => {
+    const body = await (await get("/ja/", { READ_SOURCE: "fixtures" })).text();
     expect(body).toContain('<html lang="ja">');
     expect(body).toContain("半導体大手の取締役会");
     // No model headline yet for this wave: the source's own headline shows.
@@ -41,6 +41,16 @@ describe("bd-web", () => {
   test("renders a fresh install", async () => {
     const body = await (await get("/?set=fresh", { READ_SOURCE: "fixtures" })).text();
     expect(body).toContain("The sea is flat.");
+  });
+
+  test("has no component catalog: /_catalog is a local route only (issue 258)", async () => {
+    for (const env of [{}, { READ_SOURCE: "fixtures" }]) {
+      for (const path of ["/_catalog", "/_catalog?theme=dark&lang=ja"]) {
+        const res = await get(path, env);
+        expect(res.status).toBe(404);
+        expect(await res.text()).not.toContain("data-shot");
+      }
+    }
   });
 
   test("rejects an unknown fixture set", async () => {

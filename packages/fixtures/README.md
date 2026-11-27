@@ -34,7 +34,7 @@ const edition = await q.edition();
 
 ```sh
 cd apps/web && bun run dev -- --var READ_SOURCE:fixtures
-# then open /?set=quiet or /?lang=ja
+# then open /?set=quiet or /ja/
 ```
 
 ## Contract checks

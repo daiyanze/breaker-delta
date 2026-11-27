@@ -31,6 +31,21 @@ describe("check-colors", () => {
     expect(found).toContain('apps/web/src/core/d.css:1: "hsla("');
   });
 
+  test("reports a colour literal in @bd/ui outside tokens, and not in tokens (#270)", () => {
+    file(
+      "packages/ui/src/patterns/Band/Band.css",
+      "@layer patterns {\n  .band {\n    border-color: #14263b;\n  }\n}",
+    );
+    file("packages/ui/src/styles/base.css", "@layer base {\n  a {\n    color: white;\n  }\n}");
+    file("packages/ui/src/primitives/Button/Button.tsx", 'const c = "rgb(0 0 0)";');
+    file("packages/ui/src/tokens/tokens.gen.ts", 'export const C = { ink: "#14263B" };');
+    const found = hardCodedColors(root).join("\n");
+    expect(found).toContain('packages/ui/src/patterns/Band/Band.css:3: "#14263b"');
+    expect(found).toContain('packages/ui/src/styles/base.css:3: "color: white"');
+    expect(found).toContain('packages/ui/src/primitives/Button/Button.tsx:1: "rgb("');
+    expect(found).not.toContain("packages/ui/src/tokens");
+  });
+
   test("reports CSS lines that start with * and named colours (#198 review)", () => {
     file(
       "apps/z/src/a.ts",
@@ -40,7 +55,7 @@ describe("check-colors", () => {
       "apps/z/src/b.css",
       "a{border-color: Black}\nb{color:var(--ink);fill:currentColor;stroke:none}",
     );
-    const found = hardCodedColors(root, "apps/z/src").join("\n");
+    const found = hardCodedColors(root, ["apps/z/src"]).join("\n");
     expect(found).toContain('apps/z/src/a.ts:2: "#C8351D"');
     expect(found).toContain('apps/z/src/a.ts:3: "background:white"');
     expect(found).toContain('apps/z/src/b.css:1: "border-color: Black"');
@@ -56,6 +71,6 @@ describe("check-colors", () => {
         " * #fff in a comment",
       ].join("\n"),
     );
-    expect(hardCodedColors(root, "apps/x/src")).toEqual([]);
+    expect(hardCodedColors(root, ["apps/x/src"])).toEqual([]);
   });
 });

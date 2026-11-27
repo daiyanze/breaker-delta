@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import tokens from "../../../../design/system/tokens.json" with { type: "json" };
+import { colorOf, tokensCss } from "@bd/ui/tokens";
 import {
   ICON_FILES,
   ICON_LINKS,
@@ -8,14 +8,20 @@ import {
   oneInkMark,
   oneInkMarkFile,
 } from "./icon.ts";
-import { renderPage } from "./layout.ts";
 
 const DELTA = 'points="256,240 290,308 222,308"';
 const WINDOW_BAR = 'd="M256,104 V150"';
 const RAILING = 'd="M202,146 H310';
 
+// Every colour token's value in either theme, as the tokens layer writes them:
+// `light-dark(<light>,<dark>)`, or one value when both themes share it.
+const HEX = "#[0-9A-Fa-f]{6}";
 const tokenValues = new Set(
-  tokens.color.tokens.flatMap((t) => [t.value.light, t.value.dark].map((v) => v.toUpperCase())),
+  [
+    ...tokensCss().matchAll(
+      new RegExp(`--[\\w-]+:(?:light-dark\\((${HEX}),(${HEX})\\)|(${HEX}));`, "g"),
+    ),
+  ].flatMap((m) => m.slice(1).flatMap((v) => (v ? [v.toUpperCase()] : []))),
 );
 const hexes = (svg: string) => [...svg.matchAll(/#[0-9A-Fa-f]{6}\b/g)].map((m) => m[0]);
 
@@ -73,8 +79,7 @@ describe("colours", () => {
 
   test("the One ink file sets ink and paper for each colour scheme", () => {
     const svg = oneInkMarkFile({ size: 512 });
-    const value = (name: string, theme: "light" | "dark") =>
-      tokens.color.tokens.find((t) => t.name === name)?.value[theme];
+    const value = colorOf;
     expect(svg).toContain(
       `:root{--ink:${value("ink", "light")};--paper:${value("paper", "light")}}`,
     );
@@ -128,22 +133,17 @@ describe("files and links", () => {
   });
 
   test("every link and manifest entry points at a file that exists, at its size", () => {
-    const hrefs = [...ICON_LINKS.matchAll(/href="\/icons\/([^"]+)"/g)].map((m) => m[1] ?? "");
-    expect(hrefs.length).toBe(5);
-    for (const h of hrefs) expect(byName.has(h)).toBeTrue();
-    for (const m of ICON_LINKS.matchAll(/href="\/icons\/([^"]+)" sizes="(\d+)x\2"/g)) {
-      expect(byName.get(m[1] ?? "")?.size).toBe(Number(m[2]));
+    expect(ICON_LINKS.length).toBe(5);
+    for (const link of ICON_LINKS) {
+      expect(link.href).toStartWith("/icons/");
+      const file = byName.get(link.href.replace("/icons/", ""));
+      expect(file).toBeDefined();
+      if (link.sizes !== undefined) expect(link.sizes).toBe(`${file?.size}x${file?.size}`);
     }
     const manifest = JSON.parse(byName.get("manifest.webmanifest")?.source ?? "");
     for (const icon of manifest.icons) {
       const file = byName.get(icon.src.replace("/icons/", ""));
       expect(icon.sizes).toBe(`${file?.size}x${file?.size}`);
     }
-  });
-
-  test("every page's head carries the links", () => {
-    const html = renderPage({ lang: "en", title: "T", heading: "H", bands: [] });
-    const head = html.slice(html.indexOf("<head>"), html.indexOf("</head>"));
-    expect(head).toContain(ICON_LINKS);
   });
 });

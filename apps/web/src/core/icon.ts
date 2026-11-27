@@ -9,18 +9,9 @@
  *   so it follows the page's theme.
  *
  * Three levels of detail, by the size the icon is shown at (`iconDetail`).
- * Every colour comes from `design/system/tokens.json` by name.
+ * Every colour comes from `@bd/ui/tokens` by name.
  */
-import tokens from "../../../../design/system/tokens.json" with { type: "json" };
-
-type Theme = "light" | "dark";
-
-/** A token's value in one theme. Throws on a name tokens.json does not have. */
-function token(name: string, theme: Theme): string {
-  const t = tokens.color.tokens.find((c) => c.name === name);
-  if (t === undefined) throw new Error(`no colour token "${name}"`);
-  return t.value[theme];
-}
+import { type Theme, colorOf as token } from "@bd/ui/tokens";
 
 /**
  * - `full`: 100px and up, every part.
@@ -314,11 +305,19 @@ export const ICON_FILES: readonly IconFile[] = [
   },
 ];
 
+/** One `<link>` in the `<head>`: its attributes. */
+export interface IconLink {
+  rel: "icon" | "apple-touch-icon" | "manifest";
+  href: string;
+  sizes?: string;
+  type?: string;
+}
+
 /** The `<head>` links that point browsers and home screens at the icons. */
-export const ICON_LINKS = [
-  '<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">',
-  '<link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">',
-  '<link rel="icon" href="/icons/favicon-16.png" sizes="16x16" type="image/png">',
-  '<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">',
-  '<link rel="manifest" href="/icons/manifest.webmanifest">',
-].join("\n");
+export const ICON_LINKS: readonly IconLink[] = [
+  { rel: "icon", href: "/icons/favicon.svg", type: "image/svg+xml" },
+  { rel: "icon", href: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+  { rel: "icon", href: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
+  { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+  { rel: "manifest", href: "/icons/manifest.webmanifest" },
+];

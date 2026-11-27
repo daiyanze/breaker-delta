@@ -6,7 +6,8 @@ its ranking and the classifieds. Without a query layer configured it is a
 placeholder.
 
 **How to reach it.** `up --fixtures <set>` makes the site read a fixture
-set; `?set=` picks another set per request and `?lang=` a language.
+set; `?set=` picks another set per request. Each language is its own
+page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
 
 **Correct looks like:**
 
@@ -15,18 +16,51 @@ set; `?set=` picks another set per request and `?lang=` a language.
 - `up --fixtures busy`, `get /`: "The ... edition. Sea state: ...", an
   ordered list of topics linking to `/topic/<slug>`, and a Classifieds list.
 - `get "/?set=fresh"`: "The sea is flat." and the next scan time.
-- `get "/?lang=ja"` on `busy`: `<html lang="ja">`, Japanese headlines where
+- `get /ja/` on `busy`: `<html lang="ja">`, Japanese headlines where
   the set has them, the source's own headline elsewhere.
-- `get "/?lang=ja"` on `quiet` (English only): falls back to `lang="en"`.
+- `get "/ja/?set=quiet"` (English only): redirected to `/?set=quiet`,
+  `lang="en"`.
 - `get "/?set=nope"`: 404 "unknown fixture set". Any path other than `/`
-  and `/health`: 404.
+  (and its language versions, `languages.md`), `/health`, `/_catalog`
+  (`catalog.md`) and the files under `/fonts/`, `/icons/` and `/client/`:
+  404.
+- `get /client/ui.css`: 200 `text/css`, starting with
+  `@layer tokens, base, primitives, patterns;`. Every page links it; no
+  page holds a `<style>` (#270).
+- Every page is rendered by Preact on the server (#271): one line of HTML,
+  each section a `<section class="Band" aria-labelledby="band-<id>">`, and
+  text escaped by the renderer (`&lt;`, `&amp;`, `&quot;` in attributes).
+- In a browser, the page follows the system's light or dark theme;
+  `document.documentElement.dataset.theme = "dark"` (or `"light"`) set by
+  hand overrides it: `getComputedStyle(document.documentElement)`
+  gives the `paper` and `ink` colours of that theme.
+- Every page's head holds the constant theme script and
+  `<script type="module" src="/client/loader.js">` (#272). `get
+  /client/loader.js` and `get /client/ThemeSwitch.island.js`: 200
+  `text/javascript`.
+- The front page's header holds the theme switch island (#105),
+  `<bd-island name="ThemeSwitch" props="…"><button class="ThemeSwitch">`:
+  a 44px square with a 1px outline and a half-filled circle (boards 01 and
+  02), named "Switch to dark mode" in the light theme and "Switch to light
+  mode" in the dark one (the other name has `display: none`); on `/zh/`
+  and `/ja/` both names are in that language, from the string tables.
+  In a browser: clicking it flips `data-theme` on `<html>` and stores the
+  choice under `localStorage["bd-theme"]`; a reload keeps it, and the
+  theme script sets `data-theme` before the first paint, so the other
+  theme never shows first. The network list then has `loader.js`,
+  `ThemeSwitch.island.js` and the `chunk-*.js` files (Preact).
+- `--sun` computes to the same colour in both themes. At 1440 and 390
+  wide, `document.documentElement.scrollWidth` equals the window's
+  `innerWidth`: no horizontal scrollbar.
+- The placeholder (`up` with no fixtures) has no island: its network list
+  holds `loader.js` and no other JavaScript.
 
 **Check it:**
 
 ```sh
 bun scripts/verify-local.ts up --fixtures busy
 bun scripts/verify-local.ts get /
-bun scripts/verify-local.ts get "/?lang=ja"
+bun scripts/verify-local.ts get /ja/
 bun scripts/verify-local.ts get "/?set=fresh"
 bun scripts/verify-local.ts get "/?set=nope"
 bun scripts/verify-local.ts down

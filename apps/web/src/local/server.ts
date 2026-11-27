@@ -1,10 +1,13 @@
 /**
  * The local adapter for bd-web (ADR 0018): Bun's HTTP server around the same
- * site core that runs on Cloudflare. The site only reads.
+ * site core that runs on Cloudflare. The site only reads. It also serves
+ * `/_catalog` (#258), which the Cloudflare adapter does not have.
  */
 import type { PurgeRequest, PurgeResult, SiteCache } from "@bd/ports";
 import { purgeCaches } from "../core/purge.ts";
 import { handle, type SiteVars } from "../select.ts";
+import { serveCatalog } from "./catalog.tsx";
+import { clientServer } from "./client.ts";
 import { serveFont } from "./fonts.ts";
 import { serveIcon } from "./icons.ts";
 
@@ -28,10 +31,16 @@ export interface LocalSite extends SiteCache {
 
 export function startSite(options: LocalSiteOptions): LocalSite {
   const log = options.log ?? ((line: string) => console.log(line));
+  const client = clientServer();
   const server = Bun.serve({
     port: options.port,
     hostname: options.hostname ?? "127.0.0.1",
-    fetch: (request) => serveFont(request) ?? serveIcon(request) ?? handle(request, options.vars),
+    fetch: (request) =>
+      client.serve(request) ??
+      serveFont(request) ??
+      serveIcon(request) ??
+      serveCatalog(request) ??
+      handle(request, options.vars),
   });
   return {
     url: `http://${server.hostname}:${server.port}`,

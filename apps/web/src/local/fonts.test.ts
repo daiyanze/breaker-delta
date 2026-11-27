@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, test } from "bun:test";
-import { FONT_FILES } from "../core/style.ts";
+import { FONT_FILES } from "@bd/ui/tokens";
 import { startSite } from "./server.ts";
 
 const site = startSite({ port: 0, vars: {} });
