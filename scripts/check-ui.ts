@@ -97,10 +97,28 @@ const CODE = /\.(ts|tsx)$/;
 const COMPONENT = /^packages\/ui\/src\/(primitives|patterns)\/([^/]+)\/(.+)$/;
 
 const SIZE = /(?<![\w.#-])-?\d*\.?\d+(?:px|rem)\b/g;
-// `font-family`, or a `font` shorthand, whose value is not a variable or a
-// keyword: either names a font.
+// `font-family` (or `fontFamily` in a style object) whose value is not a
+// variable or a keyword names a font.
 const FONT_FAMILY =
-  /(?<![\w-])font(?:-?family)?\b["']?\s*:\s*(?!\s*(?:var\(|inherit\b|initial\b|unset\b|revert\b))[^;}\n"'`]*[^;}\n]*/gi;
+  /(?<![\w-])font-?family\b["']?\s*:\s*(?!\s*["'`]?\s*(?:var\(|inherit\b|initial\b|unset\b|revert\b))[^;}\n]*/gi;
+// A `font` shorthand: it names a font when anything is left once variables,
+// sizes, numbers and the shorthand's keywords are taken out (`fontNamed`).
+const FONT_SHORTHAND = /(?<![\w-])font\s*:\s*([^;}\n]*)/gi;
+const FONT_KEYWORDS =
+  /\b(?:normal|italic|oblique|small-caps|bold|bolder|lighter|inherit|initial|unset|revert|caption|icon|menu|message-box|small-caption|status-bar|(?:ultra-|extra-|semi-)?(?:condensed|expanded))\b/gi;
+
+/** True when a `font` shorthand's value names a font. */
+export function fontNamed(value: string): boolean {
+  const rest = value
+    .replace(/var\([^)]*\)/g, " ")
+    .replace(/calc\([^)]*\)/g, " ")
+    .replace(/-?\d*\.?\d+[a-z%]*/gi, " ")
+    .replace(FONT_KEYWORDS, " ")
+    .replace(/["'`]\s*$|^\s*["'`]/g, " ")
+    .replace(/[/,\s]/g, "");
+  return rest !== "";
+}
+
 const GLOBAL =
   /(?<![\w.$])(?:document|window)\s*(?:\.|\?\.|\[)|\bglobalThis\.(?:document|window)\b/g;
 const INNER_HTML = /\bdangerouslySetInnerHTML\b/g;
@@ -182,8 +200,9 @@ export function lex(path: string, source: string): Lexed {
     } else if (c === '"' || c === "'" || c === "`") {
       i += 1;
       quoted(c);
-    } else if (c === "/" && (last === "" || /[(,=:[!&|?{};+\-*%<>~^]/.test(last))) {
-      // A regular expression literal: skip to its closing slash.
+    } else if (c === "/" && next !== ">" && (last === "" || /[(,=:[!&|?{};+\-*%~^]/.test(last))) {
+      // A regular expression literal: skip to its closing slash. Not after
+      // `<` (a JSX closing tag, `</b>`) and not `/>` (a self-closing tag).
       i += 1;
       let cls = false;
       while (i < n && source[i] !== "\n") {
@@ -287,8 +306,16 @@ function scan(root: string, files: readonly string[]): Found[] {
           add(file, at, "size", `"${m[0]}" (use a size token from tokens.json)`);
         }
         for (const m of line.matchAll(FONT_FAMILY)) {
-          if (isCode && !str(m.index)) continue;
+          // In code, the declaration is in a string, or it is a style
+          // object's key whose value is a string.
+          const value = (m.index ?? 0) + m[0].length - m[0].replace(/^[^:]*:\s*/, "").length;
+          if (isCode && !str(m.index) && !str(value + 1)) continue;
           add(file, at, "font", `"${m[0].trim()}" (use a font token)`);
+        }
+        for (const m of line.matchAll(FONT_SHORTHAND)) {
+          if (isCode && !str(m.index)) continue;
+          if (!fontNamed(m[1] ?? "")) continue;
+          add(file, at, "font", `"${m[0].trim()}" names a font (use a font token)`);
         }
       }
       if (isCode && (inUi || inApp)) {

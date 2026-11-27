@@ -184,7 +184,7 @@ describe("check-ui (issue 259)", () => {
         "const a = 12; // 12px in a comment",
         "/* .x { margin: 4px } */",
         'const re = /"/;',
-        "const b = `${(() => 3)()}`; const c = 5;",
+        "const b = `$" + "{(() => 3)()}`; const c = 5;",
         'const d = "gap: 2rem";',
       ].join("\n"),
     });
@@ -196,10 +196,10 @@ describe("check-ui (issue 259)", () => {
   test("a font shorthand names a font too", () => {
     const r = tree({
       "packages/ui/src/styles/base.css":
-        '@layer base {\n  a { font: 1em "Newsreader", serif; }\n  b { font: inherit; }\n}\n',
+        '@layer base {\n  a { font: 1em "Newsreader", serif; }\n  b { font: inherit; }\n  c { font: 600 var(--size-s) / 1.4 var(--font-serif); }\n  d { font: italic bold 1em/2 var(--x); }\n}\n',
     });
     expect(uiProblems(r, undefined, none)).toEqual([
-      'packages/ui/src/styles/base.css:2: font: "font: 1em "Newsreader", serif" (use a font token)',
+      'packages/ui/src/styles/base.css:2: font: "font: 1em "Newsreader", serif" names a font (use a font token)',
     ]);
   });
 
@@ -211,6 +211,26 @@ describe("check-ui (issue 259)", () => {
     expect(uiProblems(r, undefined, none)).toEqual([
       "packages/ui/src/patterns/A/A.island.tsx:2: island-import: imports a value from @bd/contracts: an island takes types only (import type)",
       "packages/ui/src/patterns/A/A.island.tsx:3: island-import: imports a value from @bd/contracts: an island takes types only (import type)",
+    ]);
+  });
+
+  test("JSX closing tags are not regular expressions (#284 review, round 2)", () => {
+    const r = tree({
+      "apps/web/src/core/pages/j.tsx": `${PRAGMA}export const a = <p><b>a</b>{"margin: 12px"}</p>;\nexport const b = <><Foo a={x} /><i title="3rem" /></>;\n`,
+    });
+    expect(uiProblems(r, undefined, none)).toEqual([
+      'apps/web/src/core/pages/j.tsx:2: size: "12px" (use a size token from tokens.json)',
+      'apps/web/src/core/pages/j.tsx:3: size: "3rem" (use a size token from tokens.json)',
+    ]);
+  });
+
+  test("fontFamily in a style object names a font", () => {
+    const r = tree({
+      "packages/ui/src/styles/o.ts":
+        'export const o = { fontFamily: "Georgia, serif" };\nexport const v = { fontFamily: "var(--font-serif)" };\n',
+    });
+    expect(uiProblems(r, undefined, none)).toEqual([
+      'packages/ui/src/styles/o.ts:1: font: "fontFamily: "Georgia, serif"" (use a font token)',
     ]);
   });
 

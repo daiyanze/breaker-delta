@@ -166,9 +166,12 @@ template with no `${`). Neither sees paths built at run time. It does not
 look at globals (`fetch`, `Date.now`, `Bun`); `packages/core` typechecks
 with Bun's types.
 `check-ui` reads each file once with a small lexer (strings, template
-literals, regular expressions, comments), then matches patterns line by
-line: in code, a size, a font or a class rule counts only inside a string,
-and a value built at run time from parts passes. Other apps' source is
+literals, regular expressions, JSX closing tags, comments), then matches
+patterns line by line: in code, a size, a class rule or a `font` shorthand
+counts only inside a string, a `fontFamily` key also when its value is one,
+and a value built at run time from parts passes. A `font` shorthand fails
+only when something other than variables, sizes and its keywords is left.
+Other apps' source is
 read for `.css` files, `style=`, class rules, globals and
 `dangerouslySetInnerHTML`, not for sizes or fonts. Tests are not read, and
 only files git tracks or would add, so ignored build output is left out.
