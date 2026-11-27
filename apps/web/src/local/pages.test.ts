@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { ReadQueries } from "@bd/contracts";
 import { createFixtureReadQueries } from "@bd/fixtures";
+import { echoStackLayers } from "@bd/ui/patterns";
 import { localClock } from "../core/pages/tide.tsx";
 import { createSite } from "../core/site.ts";
 
@@ -74,6 +75,33 @@ describe("every page uses the band", () => {
     for (const html of [placeholder, busy]) {
       expect(html).toContain('<script type="module" src="/client/loader.js"></script>');
     }
+  });
+});
+
+describe("the echo stack, issue 114", () => {
+  test("the tallest wave has one, its sheets following its height, its label in the page's language", async () => {
+    const q = createFixtureReadQueries("busy");
+    const edition = await q.edition();
+    const top = edition?.ranking[0];
+    if (top === undefined) throw new Error("the busy set has a ranking");
+    const layers = echoStackLayers(top.height);
+    const en = await front(q);
+    expect(en.match(/<svg class="EchoStack"/g)).toHaveLength(1);
+    expect(en).toContain(
+      `<svg class="EchoStack" viewBox="0 0 120 220" role="img" aria-label="Echoes stacking into a wave, ${layers} layers high">`,
+    );
+    const start = en.indexOf('<svg class="EchoStack"');
+    const stack = en.slice(start, en.indexOf("</svg>", start));
+    expect(stack.match(/<rect /g)).toHaveLength(layers);
+    // It sits in the tallest wave's row, before its height.
+    expect(en.indexOf('<svg class="EchoStack"')).toBeGreaterThan(en.indexOf("<ol><li>"));
+    expect(en.indexOf('<svg class="EchoStack"')).toBeLessThan(en.indexOf("<data "));
+    expect(await front(q, "zh")).toContain(`aria-label="回波叠成浪，高 ${layers} 层"`);
+    expect(await front(q, "ja")).toContain(`aria-label="エコーが重なって波に、${layers} 層の高さ"`);
+  });
+
+  test("a flat sea has none", async () => {
+    expect(await front(createFixtureReadQueries("fresh"))).not.toContain("EchoStack");
   });
 });
 

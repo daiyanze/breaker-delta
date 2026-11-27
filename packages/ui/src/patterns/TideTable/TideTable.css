@@ -42,10 +42,10 @@
   .TideTable-crest {
     transform-box: fill-box;
     transform-origin: 50% 100%;
-    animation: TideTable-rise 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 
-    @media (prefers-reduced-motion: reduce) {
-      animation: none;
+    /* Only when motion is allowed, so at rest the sea is already up. */
+    @media (prefers-reduced-motion: no-preference) {
+      animation: TideTable-rise 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
     }
   }
 

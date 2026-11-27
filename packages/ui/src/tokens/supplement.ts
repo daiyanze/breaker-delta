@@ -43,6 +43,21 @@ export const ICON = {
 } as const;
 
 /**
+ * The echo stack beside a wave-height number (#114): boards 01 and 03 draw
+ * it `width: 92px; height: 168px`, board 02 (phones) `width: 68px; height:
+ * 125px`, both over a `viewBox="0 0 120 220"`, so the height follows from
+ * the width. The motion is the component README's: "每层间隔 0.14 秒" (one
+ * sheet every 0.14 s) and "7 秒一个循环" (a 7-second loop). `tokens.test.ts`
+ * checks that the boards and the README still say so.
+ */
+export const ECHO_STACK = {
+  width: "92px",
+  phoneWidth: "68px",
+  loop: "7s",
+  step: "0.14s",
+} as const;
+
+/**
  * The tide table's chart (#121): boards 01 and 02 draw it in an SVG 270
  * high (`viewBox="0 0 860 270"`), the sea surface with `stroke-width: 3`
  * and each wave's dot with `r="5.5"` (board 01). The design system names

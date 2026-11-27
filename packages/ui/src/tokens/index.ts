@@ -8,7 +8,7 @@
  * Themes: the system's choice by default, and `<html data-theme="light|dark">`
  * overrides it either way.
  */
-import { CONTROL, ICON, PHONE, TIDE } from "./supplement.ts";
+import { CONTROL, ECHO_STACK, ICON, PHONE, TIDE } from "./supplement.ts";
 import {
   COLORS,
   type ColorToken,
@@ -25,7 +25,7 @@ import {
 } from "./tokens.gen.ts";
 
 export { FONT_FILES, type FontFile, fontFaceCss } from "./fonts.ts";
-export { CONTROL, ICON, PHONE, TIDE, TWO_COLUMNS_FROM } from "./supplement.ts";
+export { CONTROL, ECHO_STACK, ICON, PHONE, TIDE, TWO_COLUMNS_FROM } from "./supplement.ts";
 export type {
   ColorToken,
   FontFamily,
@@ -113,6 +113,9 @@ function staticVars(): string {
   for (const [name, v] of Object.entries(PHONE)) out.push(decl(`phone-${kebab(name)}`, v.value));
   for (const [name, v] of Object.entries(CONTROL)) out.push(decl(`control-${kebab(name)}`, v));
   for (const [name, v] of Object.entries(ICON)) out.push(decl(`icon-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(ECHO_STACK)) {
+    out.push(decl(`echo-stack-${kebab(name)}`, v));
+  }
   for (const [name, v] of Object.entries(TIDE)) out.push(decl(`tide-${kebab(name)}`, v));
   return out.join("");
 }

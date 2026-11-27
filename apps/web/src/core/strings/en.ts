@@ -27,6 +27,7 @@ export const en = {
   "language.menu": "Language: {language}",
   "theme.toDark": "Switch to dark mode",
   "theme.toLight": "Switch to light mode",
+  "echoStack.label": "Echoes stacking into a wave, {layers} layers high",
   "scaffold.name": "Scaffold",
   "scaffold.text": "2.0 scaffold. The site arrives in milestone M3.",
   "catalog.name": "Catalog",

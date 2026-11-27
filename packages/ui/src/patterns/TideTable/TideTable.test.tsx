@@ -257,8 +257,12 @@ describe("tide table", () => {
   test("the surface rises once over 1.2 seconds, and stands still with reduced motion", async () => {
     const css = await Bun.file(`${import.meta.dir}/TideTable.css`).text();
     const crest = css.slice(css.indexOf(".TideTable-crest {"));
-    expect(crest).toMatch(/^\.TideTable-crest \{[^}]*animation: TideTable-rise 1\.2s [^;]* both;/);
-    expect(crest).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*animation: none;\s*\}/);
+    // The animation is only inside the query that allows motion: with
+    // reduced motion the sea is simply up.
+    expect(crest).toMatch(
+      /^\.TideTable-crest \{[^}]*@media \(prefers-reduced-motion: no-preference\) \{\s*animation: TideTable-rise 1\.2s [^;]* both;\s*\}/,
+    );
+    expect(css.match(/animation:/g)?.length).toBe(1);
     expect(css).toContain("vector-effect: non-scaling-stroke;");
   });
 });
