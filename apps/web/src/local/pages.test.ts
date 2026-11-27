@@ -193,6 +193,40 @@ describe("the fading notices", () => {
     expect(html).toContain('<p class="Notice-now">Now 144</p>');
   });
 
+  test("a wave that rose in 24 hours shows its height and no fall", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    const first = plain?.ebb.notices[0];
+    if (plain === null || first === undefined) throw new Error("busy has ebb notices");
+    const ebb = { wentFlat24h: 0, notices: [{ ...first, change24h: 5 }] };
+    const html = notices(await front({ ...base, edition: async () => ({ ...plain, ebb }) }));
+    expect(html).toContain(`<p class="Notice-now">Now ${Math.round(first.height)}</p>`);
+    expect(html).not.toContain("down");
+  });
+
+  test("the day a wave formed is the site's day, not the machine's", async () => {
+    // 09:00 in Tokyo is 13:00 the day before in Pago Pago (UTC-11): a page
+    // that formatted the day in the machine's zone (JST or UTC here and in
+    // CI) would print Nov 13.
+    const base = createFixtureReadQueries("busy");
+    const meta = await base.siteMeta();
+    const plain = await base.edition();
+    const first = plain?.ebb.notices[0];
+    if (plain === null || first === undefined) throw new Error("busy has ebb notices");
+    const ebb = {
+      wentFlat24h: 0,
+      notices: [{ ...first, formedAt: "2026-11-13T09:00:00+09:00" }],
+    };
+    const html = notices(
+      await front({
+        ...base,
+        siteMeta: async () => ({ ...meta, timeZone: "Pacific/Pago_Pago" }),
+        edition: async () => ({ ...plain, ebb }),
+      }),
+    );
+    expect(html).toContain('<p class="Notice-text">A wave since Nov 12.');
+  });
+
   test("when no wave is going out, the whole section is one sentence", async () => {
     const base = createFixtureReadQueries("busy");
     const plain = await base.edition();
