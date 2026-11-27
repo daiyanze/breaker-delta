@@ -4,7 +4,8 @@
  * alone. Every piece of text is a plain string; the renderer escapes it.
  * Interface text comes from the string tables in the page's language (#107),
  * the theme switch's two names included. The switch is its one island
- * (#105); it moves into the masthead's top bar with #110.
+ * (#105); it moves into the masthead's top bar with #110. The tide table
+ * (#121) follows the front band.
  */
 import type { Language, RankRow } from "@bd/contracts";
 import { Band } from "@bd/ui/patterns";
@@ -15,6 +16,7 @@ import { pathIn } from "../languages.ts";
 import type { RouteContext } from "../routes.ts";
 import { type Translate, translator } from "../strings/index.ts";
 import { pageLanguages } from "./head.tsx";
+import { tideBand } from "./tide.tsx";
 
 /** The model headline in `lang` when there is one, else the source's own headline. */
 function headline(row: Pick<RankRow, "headlines" | "sourceHeadline">, lang: Language) {
@@ -63,6 +65,7 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
             })}
           </ol>
         </Band>
+        {tideBand(edition, meta, ctx.lang, t, (row) => headline(row, ctx.lang))}
         <Band id="classifieds" name={t("classifieds.name")}>
           <ul>
             {edition.classifieds.items.map((echo) => (

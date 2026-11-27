@@ -7,6 +7,13 @@ export const ja: Table = {
   "front.flat.name": "海は凪いでいます。",
   "front.flat.text": "まだ何もスキャンしていません。次のスキャン：{next}。",
   "classifieds.name": "案内広告",
+  "tide.name": "潮汐表",
+  "tide.note":
+    "きょう波になった話題を、波になった時刻に描いています。近い時刻にいくつも波になると、海面が高くなります。",
+  "tide.summary": "きょう {count} 件の話題が波になりました。{first} から {last} まで。",
+  "tide.now": "いま",
+  "tide.later": "これから",
+  "tide.high": "満潮 {time}",
   "fixture.note": "サンプルデータです。",
   "sea.flat": "凪",
   "sea.calm": "穏やか",

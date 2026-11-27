@@ -24,6 +24,7 @@ other data file, not even one in `src/tokens`.
 
 `tokens` (#269), `styles` and `build` (#270), `runtime` and `patterns`
 (#271) and `primitives` (#272) exist today; `patterns` holds `Band`,
+`LanguageMenu` and `TideTable`,
 `primitives` the `ThemeSwitch` island; `catalog` (#258) lists them. A file directly under `src/` is
 under no rule and fails `check-deps`.
 
@@ -113,10 +114,10 @@ no Bun or Cloudflare types, so emails and share cards can import it.
   `scripts/generate-tokens.test.ts` fails while the two differ.
 - `supplement.ts` holds the values the design states only in prose or not at
   all (the phone gutter and section size, the control height, the icon
-  size and stroke, the theme switch's icon size, the two-column
-  breakpoint), each with the text it comes from. No other file holds a
-  design value. All but the breakpoint are also CSS variables: `--phone-*`,
-  `--control-*`, `--icon-*`.
+  size and stroke, the theme switch's icon size, the tide table's height,
+  surface and dot, the two-column breakpoint), each with the text it comes
+  from. No other file holds a design value. All but the breakpoint are also
+  CSS variables: `--phone-*`, `--control-*`, `--icon-*`, `--tide-*`.
 - `contrast.test.ts` computes the WCAG 2.2 contrast of every text and
   background pair the design uses, in both themes: 4.5:1 for text, 3:1 for
   a control's outline. A new colour token fails it until it is placed.

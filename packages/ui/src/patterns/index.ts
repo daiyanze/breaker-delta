@@ -8,3 +8,4 @@ export {
   LanguageMenu,
   type LanguageMenuProps,
 } from "./LanguageMenu/LanguageMenu.tsx";
+export { TideTable, type TideTableProps, type TideWave } from "./TideTable/TideTable.tsx";

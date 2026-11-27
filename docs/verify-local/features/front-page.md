@@ -52,6 +52,17 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
 - `--sun` computes to the same colour in both themes. At 1440 and 390
   wide, `document.documentElement.scrollWidth` equals the window's
   `innerWidth`: no horizontal scrollbar.
+- The tide table (#121), on `busy` after the front band: `<h2
+  id="band-tide">Tide table</h2>`, a chart `<svg class="TideTable-svg"
+  role="img" aria-label="5 stories became waves today, between 08:00 and
+  14:00.">` with five red dots, and under it an `<ol>` of the same five
+  waves, latest first, each linking to `/topic/<slug>`. On `/zh/` and
+  `/ja/` its text is in that language ("潮汐表", "满潮 09:30"). Not on
+  `quiet` (one new wave, board 19) or `fresh`. In a browser: the sea
+  rises from the waterline over 1.2 seconds on load, its surface one smooth
+  curve; at 1440, 1000 and 390 wide no horizontal scrollbar, and the
+  labels keep their size (heights on the chart and the 03:00, 09:00, ...
+  labels from the two-column width only).
 - The placeholder (`up` with no fixtures) has no island: its network list
   holds `loader.js` and no other JavaScript.
 

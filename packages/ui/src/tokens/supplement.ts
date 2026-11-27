@@ -43,6 +43,18 @@ export const ICON = {
 } as const;
 
 /**
+ * The tide table's chart (#121): boards 01 and 02 draw it in an SVG 270
+ * high (`viewBox="0 0 860 270"`), the sea surface with `stroke-width: 3`
+ * and each wave's dot with `r="5.5"` (board 01). The design system names
+ * none of them. `tokens.test.ts` checks that board 01 still says so.
+ */
+export const TIDE = {
+  height: "270px",
+  surface: "3px",
+  dot: "5.5px",
+} as const;
+
+/**
  * Below this width a band is one column: the rail becomes a heading above
  * the content. The design system names no breakpoint; this is the agent's
  * choice (#106): the narrowest width where the rail at its full `rail` width,

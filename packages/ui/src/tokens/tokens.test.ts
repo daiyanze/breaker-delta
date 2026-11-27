@@ -8,6 +8,7 @@ import {
   ICON,
   PHONE,
   size,
+  TIDE,
   tokensCss,
   typeClassesCss,
   typeStyle,
@@ -58,6 +59,9 @@ describe("design tokens as CSS", () => {
     expect(root).toContain(`--icon-size:${ICON.size};`);
     expect(root).toContain(`--icon-stroke:${ICON.stroke};`);
     expect(root).toContain(`--icon-theme-switch:${ICON.themeSwitch};`);
+    expect(root).toContain(`--tide-height:${TIDE.height};`);
+    expect(root).toContain(`--tide-surface:${TIDE.surface};`);
+    expect(root).toContain(`--tide-dot:${TIDE.dot};`);
   });
 
   test("sun is the same in both themes", () => {
@@ -152,5 +156,19 @@ describe("supplement: values the design states only in prose", () => {
         svg: `width="${px}" height="${px}" viewBox="0 0 ${px} ${px}" aria-hidden="true"`,
       });
     }
+  });
+
+  test("the tide table's height, surface and dot are the ones board 01 draws", async () => {
+    const html = await Bun.file(
+      `${import.meta.dir}/../../../../design/boards/Front2.dc.html`,
+    ).text();
+    const n = (v: string) => Number.parseFloat(v);
+    expect(html).toContain(
+      `<svg viewBox="0 0 860 ${n(TIDE.height)}" role="img" aria-label="{{ tideAria }}"`,
+    );
+    expect(html).toContain(
+      `<path d="{{ tideLine }}" style="fill: none; stroke: var(--blue); stroke-width: ${n(TIDE.surface)};`,
+    );
+    expect(html).toContain(`<circle cx="{{ c.x }}" cy="{{ c.y }}" r="${n(TIDE.dot)}"`);
   });
 });

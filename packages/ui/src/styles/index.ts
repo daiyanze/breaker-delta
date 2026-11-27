@@ -9,6 +9,7 @@
 
 import band from "../patterns/Band/Band.css" with { type: "text" };
 import languageMenu from "../patterns/LanguageMenu/LanguageMenu.css" with { type: "text" };
+import tideTable from "../patterns/TideTable/TideTable.css" with { type: "text" };
 import themeSwitch from "../primitives/ThemeSwitch/ThemeSwitch.css" with { type: "text" };
 import { fontFaceCss, tokensCss, typeClassesCss } from "../tokens/index.ts";
 import base from "./base.css" with { type: "text" };
@@ -29,6 +30,7 @@ export const CSS_FILES: readonly { path: string; layer: Layer; text: string }[] 
   { path: "primitives/ThemeSwitch/ThemeSwitch.css", layer: "primitives", text: themeSwitch },
   { path: "patterns/Band/Band.css", layer: "patterns", text: band },
   { path: "patterns/LanguageMenu/LanguageMenu.css", layer: "patterns", text: languageMenu },
+  { path: "patterns/TideTable/TideTable.css", layer: "patterns", text: tideTable },
 ];
 
 /**
