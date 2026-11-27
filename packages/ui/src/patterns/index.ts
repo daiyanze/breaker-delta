@@ -4,6 +4,12 @@
  */
 export { Band, type BandProps } from "./Band/Band.tsx";
 export {
+  Footer,
+  type FooterLink,
+  type FooterProps,
+  type FooterSubscribe,
+} from "./Footer/Footer.tsx";
+export {
   type LanguageLink,
   LanguageMenu,
   type LanguageMenuProps,

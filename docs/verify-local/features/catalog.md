@@ -14,7 +14,8 @@ page (default light, English); the links at its top go to the other five.
   `<body>`: "This page: light, English.", the links to the six pages, and a list
   of every component with its layer and state names (`ThemeSwitch
   (primitives): default, long, zh, ja`, `Band (patterns): default, note,
-  long, zh, ja`, `LanguageMenu (patterns): default, open, long, zh, ja`).
+  long, zh, ja`, `LanguageMenu (patterns): default, open, long, zh, ja`,
+  `Footer (patterns): default, no-form, long, zh, ja`).
   The rest is in the file `get` saved: `<html lang="en"
   data-theme="light">`, and one section per component with one
   `data-shot="<Name>/<state>"` element per state.

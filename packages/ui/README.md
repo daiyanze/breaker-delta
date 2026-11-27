@@ -68,6 +68,13 @@ under no rule and fails `check-deps`.
   the globe alone. `open` starts it open, for the catalog's `open` and
   `long` states; pages leave it out. Classes `.LanguageMenu`, `-details`,
   `-button`, `-icon`, `-current`, `-chevron`, `-list`, `-link`.
+- `Footer` (`patterns/Footer`, boards 01 and 02, #111): the footer every
+  public page ends with: the subscribe form (left out with no `subscribe`
+  prop, when the site sends no email), the links, the lighthouse drawing
+  with its CSS-only motion (still under reduced motion), and the solid
+  bar. On phones the drawing shows its right half. Classes `.Footer`,
+  `-top`, `-form`, `-label`, `-field`, `-submit`, `-nav`, `-link`, `-art`,
+  `-svg`, `-bar`, `-notes`, `-note`. `SPEC.md` in its folder.
 - `ThemeSwitch` (`primitives/ThemeSwitch`, an island): the masthead's
   square icon button (#105) that flips `<html data-theme>` and stores the
   choice. Props `toDark` and `toLight`, its name in each theme, as finished

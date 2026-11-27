@@ -322,3 +322,66 @@ describe("the CSS reader", () => {
     expect(() => parseCss('.a { content: "x }')).toThrow("not closed");
   });
 });
+
+// #111: the footer's motion and its phone crop, in the view box's units
+// (1440 × 510, from x = 0). The drawing's geometry: `Footer.test.tsx`.
+describe("the footer", () => {
+  const footer = (selector: string, media: string[] = []) =>
+    rules.find(
+      (r) => r.layer === "patterns" && r.selector === selector && r.media.join() === media.join(),
+    ) ?? { declarations: [] };
+  const keyframes = (name: string) =>
+    CSS_FILES.find((f) => f.path === "patterns/Footer/Footer.css")
+      ?.text.split(`@keyframes ${name} {`)[1]
+      ?.split("\n  }\n")[0] ?? "";
+
+  test("the waves drift one period of their sine, 240 of 1440, so they loop without a gap", () => {
+    expect(normalize(keyframes("Footer-drift"))).toContain(
+      normalize("transform: translateX(calc(-240 / 1440 * 100%))"),
+    );
+    expect(cssValue(footer(".Footer-drift"), "transform-box")).toBe("view-box");
+  });
+
+  test("the beam turns about the lamp, 1132,92, from -4 to 6 degrees", () => {
+    const beam = footer(".Footer-beam");
+    expect(cssValue(beam, "transform-box")).toBe("view-box");
+    expect(cssValue(beam, "transform-origin")).toBe(
+      normalize("calc(1132 / 1440 * 100%) calc(92 / 510 * 100%)"),
+    );
+    const sweep = normalize(keyframes("Footer-sweep"));
+    expect(sweep).toContain("rotate(-4deg)");
+    expect(sweep).toContain("rotate(6deg)");
+  });
+
+  test("on phones only the right half shows (x 700 to 1440); from the breakpoint all of it", () => {
+    expect(cssValue(footer(".Footer-art"), "overflow")).toBe("hidden");
+    const phone = footer(".Footer-svg");
+    expect(cssValue(phone, "max-width")).toBe("none");
+    expect(cssValue(phone, "width")).toBe(normalize("calc(1440 / 740 * 100%)"));
+    expect(cssValue(phone, "margin-inline-start")).toBe(normalize("calc(-700 / 740 * 100%)"));
+    const wide = footer(".Footer-svg", [normalize(`(min-width: ${TWO_COLUMNS_FROM})`)]);
+    expect(cssValue(wide, "width")).toBe("100%");
+    expect(cssValue(wide, "margin-inline-start")).toBe("0");
+  });
+
+  test("nothing moves under reduced motion", () => {
+    const still = rules.find(
+      (r) =>
+        r.media.join() === normalize("(prefers-reduced-motion: reduce)") &&
+        r.selector.includes(".Footer-beam"),
+    );
+    expect(still?.selector.split(/,\s*/).sort()).toEqual([
+      ".Footer-beam",
+      ".Footer-boat",
+      ".Footer-drift",
+    ]);
+    expect(cssValue(still ?? { declarations: [] }, "animation")).toBe("none");
+  });
+
+  test("the bar's text is the light paper in both themes, on the page's solid", () => {
+    expect(cssValue(footer(".Footer-bar"), "background")).toBe("var(--solid)");
+    const notes = footer(".Footer-notes");
+    expect(cssValue(notes, "color-scheme")).toBe("light");
+    expect(cssValue(notes, "color")).toBe("var(--paper)");
+  });
+});
