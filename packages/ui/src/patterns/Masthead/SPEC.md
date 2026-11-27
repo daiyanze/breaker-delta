@@ -27,7 +27,7 @@ island: the wave and the boat move by CSS alone. The desk does not use it.
   them.
 - Tokens: `masthead` (size, line, weight, tracking), `ink`, `paper`,
   `red`, `blue`, `tint`, `rule-heavy`, `rule-thin`, `rail`, `space-1` to
-  `space-5`. The navigation's items have `space-3` each side where the
+  `space-5`. The navigation's items have `space-2` each side where the
   boards draw 16px: with 16px the English navigation and the full-size
   wordmark do not fit on one 1280px line. Where they do not fit, the
   navigation goes to the line under the wordmark, still at the end. On a

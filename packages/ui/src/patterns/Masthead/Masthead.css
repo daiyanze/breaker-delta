@@ -147,15 +147,16 @@
   }
 
   /*
-   * `space-3` each side, where the boards draw 16px: with 16px, the English
+   * `space-2` each side, where the boards draw 16px: with 16px, the English
    * navigation and the full-size wordmark do not fit on one line of the
-   * `content` width the boards draw them on.
+   * `content` width the boards draw them on (1332px of 1280 measured), and
+   * with `space-3` they fit by a few pixels on one platform and not another.
    */
   .Masthead-link {
     display: flex;
     align-items: center;
     min-height: var(--control-height);
-    padding-inline: var(--space-3);
+    padding-inline: var(--space-2);
     color: var(--ink);
     text-decoration: none;
 
