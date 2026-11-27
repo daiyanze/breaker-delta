@@ -35,11 +35,11 @@ describe("the ripple's amplitude: height ÷ 200 × 16, at least 2", () => {
 });
 
 describe("the ripple's path", () => {
-  test("starts a board to the left and runs two boards to the right, so it drifts without a seam", () => {
+  test("starts at the left edge and runs in whole periods, so it drifts without a seam", () => {
     const d = ripplePath(8);
-    expect(d).toStartWith("M-240,20 q15,-8 30,0 t30,0");
-    // 12 periods of 60: from -240 to 480.
-    expect(d.match(/ q/g)?.length).toBe(12);
+    expect(d).toStartWith("M0,20 q15,-8 30,0 t30,0");
+    // 40 periods of 60: 2400 units, past any notice at the content's width plus the drift.
+    expect(d.match(/ q/g)?.length).toBe(40);
   });
 
   test("its amplitude is the curves' control offset", () => {
@@ -53,7 +53,7 @@ describe("notice", () => {
     if (props === undefined) throw new Error("the default state");
     const out = html(<Notice {...props} />);
     expect(out).toStartWith(
-      '<article class="Notice"><svg class="Notice-ripple" viewBox="0 0 240 40" preserveAspectRatio="xMidYMid slice" role="img" aria-label="A wave line flattening, now at 144">',
+      '<article class="Notice"><svg class="Notice-ripple" viewBox="0 0 60 40" preserveAspectRatio="xMinYMid meet" role="img" aria-label="A wave line flattening, now at 144">',
     );
     expect(out).toContain(`<path class="Notice-ripple-line" d="${ripplePath(11.52)}"></path>`);
     expect(out).toContain(

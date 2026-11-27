@@ -9,14 +9,24 @@
 import type { VNode } from "preact";
 import { RIPPLE } from "../../tokens/index.ts";
 
-/** The ripple's drawing board, as on boards 01 and 02: 240 × 40. */
-const BOARD = { width: 240, height: 40 } as const;
-/** The ripple's line sits in the middle of the board. */
-const BASELINE = BOARD.height / 2;
-/** One crest and one trough of the ripple, in board units (boards 01 and 02). */
+/**
+ * One crest and one trough of the ripple, in drawing units, and the
+ * drawing's height: boards 01 and 02 draw it on a 240 × 40 board.
+ */
 const PERIOD = 60;
+const HEIGHT = 40;
+/**
+ * The viewBox is one period wide, so `meet` scales the drawing by the
+ * box's height alone (wider than tall, every notice is): the amplitude
+ * keeps its size however wide the notice is, and the line simply runs on.
+ */
+const VIEWBOX = `0 0 ${PERIOD} ${HEIGHT}`;
+/** How far the line runs: wider than any notice at the content's width, plus the drift. */
+const LENGTH = 40 * PERIOD;
+/** The ripple's line sits in the middle of the board. */
+const BASELINE = HEIGHT / 2;
 /** The tallest amplitude whose crest and trough still fit on the board with the line's width. */
-const MAX_AMPLITUDE = BOARD.height - 6;
+const MAX_AMPLITUDE = HEIGHT - 6;
 
 /**
  * The ripple's amplitude for a wave of `height` (design system README,
@@ -29,16 +39,16 @@ export function rippleAmplitude(height: number): number {
 }
 
 /**
- * The ripple's path: a line of quadratic curves from one board's width to
- * the left of the board to two to the right, so it can drift left by one
- * board's width and start again without a seam. A curve's control point is
- * `amplitude` off the line, so the line itself swings half of it each way.
+ * The ripple's path: a line of quadratic curves from the left edge for
+ * `LENGTH`, whole periods, so it can drift left by whole periods and start
+ * again without a seam. A curve's control point is `amplitude` off the
+ * line, so the line itself swings half of it each way (boards 01 and 02).
  */
 export function ripplePath(amplitude: number): string {
   const half = PERIOD / 2;
   const a = Number(amplitude.toFixed(2));
-  let d = `M${-BOARD.width},${BASELINE}`;
-  for (let x = -BOARD.width; x < 2 * BOARD.width; x += PERIOD) {
+  let d = `M0,${BASELINE}`;
+  for (let x = 0; x < LENGTH; x += PERIOD) {
     d += ` q${half / 2},${-a} ${half},0 t${half},0`;
   }
   return d;
@@ -62,8 +72,8 @@ export function Notice(props: NoticeProps): VNode {
     <article class="Notice">
       <svg
         class="Notice-ripple"
-        viewBox={`0 0 ${BOARD.width} ${BOARD.height}`}
-        preserveAspectRatio="xMidYMid slice"
+        viewBox={VIEWBOX}
+        preserveAspectRatio="xMinYMid meet"
         role="img"
         aria-label={props.ripple.label}
       >

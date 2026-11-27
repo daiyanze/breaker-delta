@@ -40,6 +40,7 @@
     display: block;
     width: 100%;
     height: var(--notice-ripple-height);
+    overflow: hidden;
   }
 
   .Notice-ripple-line {
@@ -47,7 +48,11 @@
     stroke: var(--blue);
     stroke-width: var(--illustration-stroke);
     stroke-linecap: round;
-    /* `-100%` is the board's width: the path is drawn one board to each side. */
+    /*
+     * `100%` is the viewBox's width, one period: `-400%` moves the line by
+     * four periods a cycle, board 01's 240 units in 9 seconds, and the line
+     * runs on past every notice's edge (`Notice.tsx`).
+     */
     transform-box: view-box;
     animation: Notice-drift var(--ripple-cycle) linear infinite;
 
@@ -58,7 +63,7 @@
 
   @keyframes Notice-drift {
     to {
-      transform: translateX(-100%);
+      transform: translateX(-400%);
     }
   }
 

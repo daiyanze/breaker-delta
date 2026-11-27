@@ -17,7 +17,9 @@ Not an island.
   height now and its 24-hour fall.
 - `design/boards/Front2.dc.html` and `design/boards/FrontMobile.dc.html`
   (boards 01 and 02): the ripple on a 240 × 40 board, 40px tall on desktop
-  and 32px on phones, cropped to the box's width.
+  and 32px on phones. It is scaled by the box's height only (a viewBox one
+  period wide, `meet`), so a wide notice gets a longer line, not a taller
+  one, and the amplitude keeps following the height.
 - `design/system/README.md`: "启事波纹振幅" and "图和动效清单" (9 seconds a
   cycle), from `RIPPLE` in `src/tokens/supplement.ts`; the line width
   ("线宽 2 到 3px") from `ILLUSTRATION`. Board 35 (`Cjk2.dc.html`): no
