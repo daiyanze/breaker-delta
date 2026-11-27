@@ -23,7 +23,7 @@ other data file, not even one in `src/tokens`.
 | `build` | `buildClient()`: the client files, bundled with Bun | everything above, `bun`, `node:` |
 
 `tokens` (#269), `styles` and `build` (#270), `runtime` and `patterns`
-(#271) and `primitives` (#272) exist today; `patterns` holds `Band`, `DateStrip`, `LanguageMenu`,
+(#271) and `primitives` (#272) exist today; `patterns` holds `Band`, `DateStrip`, `EchoStack`, `LanguageMenu`,
 `primitives` the `ThemeSwitch` island; `catalog` (#258) lists them. A file directly under `src/` is
 under no rule and fails `check-deps`.
 
@@ -70,6 +70,12 @@ under no rule and fails `check-deps`.
   line. Classes `.DateStrip` and `-when`, `-calendar`, `-month`, `-day`,
   `-text`, `-date`, `-line`, `-tag`, `-count`, `-note`, `-short`,
   `-controls`, `-search`. `SPEC.md` in its folder.
+- `EchoStack` (`patterns/EchoStack`, boards 01 to 03, #114): the stack of
+  sheets beside a wave-height number, an SVG of `echoStackLayers(height)`
+  sheets (height ÷ 200 × 12, 3 to 15) that drop in on a CSS loop when
+  motion is allowed. It takes the height and a finished `label` that names
+  the number of sheets. Classes `.EchoStack`, `-sheet`, `-blue`, `-sky`,
+  `-top`, `-base`.
 - `LanguageMenu` (`patterns/LanguageMenu`, boards 01 and 02, #107): links to
   the same page in each language inside a `<details>`, so it opens without
   JavaScript; the current one has `aria-current`. It takes finished text:

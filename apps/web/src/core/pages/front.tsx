@@ -4,10 +4,12 @@
  * alone. Every piece of text is a plain string; the renderer escapes it.
  * Interface text comes from the string tables in the page's language (#107).
  * The date strip (#109) opens the header and holds the language menu and
- * the theme switch, the page's one island (#105).
+ * the theme switch, the page's one island (#105). The tallest wave has the
+ * echo stack beside its height (#114, board 01); the lead's own layout
+ * comes with the headlines (#119).
  */
 import type { Language, RankRow } from "@bd/contracts";
-import { Band } from "@bd/ui/patterns";
+import { Band, EchoStack, echoStackLayers } from "@bd/ui/patterns";
 import { Document } from "@bd/ui/runtime";
 import type { VNode } from "preact";
 import { pathIn } from "../languages.ts";
@@ -50,10 +52,16 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
             })}
           </p>
           <ol>
-            {edition.ranking.map((row) => {
+            {edition.ranking.map((row, i) => {
               const h = headline(row, ctx.lang);
               return (
                 <li key={row.slug}>
+                  {i === 0 ? (
+                    <EchoStack
+                      height={row.height}
+                      label={t("echoStack.label", { layers: echoStackLayers(row.height) })}
+                    />
+                  ) : null}
                   <a href={pathIn(`/topic/${row.slug}`, ctx.lang, meta)} lang={h.lang}>
                     {h.text}
                   </a>{" "}

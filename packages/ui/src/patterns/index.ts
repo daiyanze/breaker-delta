@@ -5,6 +5,13 @@
 export { Band, type BandProps } from "./Band/Band.tsx";
 export { DateStrip, type DateStripProps } from "./DateStrip/DateStrip.tsx";
 export {
+  EchoStack,
+  type EchoStackProps,
+  echoStackLayers,
+  MAX_LAYERS as ECHO_STACK_MAX_LAYERS,
+  MIN_LAYERS as ECHO_STACK_MIN_LAYERS,
+} from "./EchoStack/EchoStack.tsx";
+export {
   type LanguageLink,
   LanguageMenu,
   type LanguageMenuProps,
