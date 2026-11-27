@@ -8,7 +8,9 @@
  */
 
 import band from "../patterns/Band/Band.css" with { type: "text" };
+import fadingNotices from "../patterns/FadingNotices/FadingNotices.css" with { type: "text" };
 import languageMenu from "../patterns/LanguageMenu/LanguageMenu.css" with { type: "text" };
+import notice from "../primitives/Notice/Notice.css" with { type: "text" };
 import themeSwitch from "../primitives/ThemeSwitch/ThemeSwitch.css" with { type: "text" };
 import { fontFaceCss, tokensCss, typeClassesCss } from "../tokens/index.ts";
 import base from "./base.css" with { type: "text" };
@@ -26,8 +28,10 @@ export const FONTS = "/fonts";
 /** Every `.css` file of the package, with its path under `src` and its layer, in layer order. */
 export const CSS_FILES: readonly { path: string; layer: Layer; text: string }[] = [
   { path: "styles/base.css", layer: "base", text: base },
+  { path: "primitives/Notice/Notice.css", layer: "primitives", text: notice },
   { path: "primitives/ThemeSwitch/ThemeSwitch.css", layer: "primitives", text: themeSwitch },
   { path: "patterns/Band/Band.css", layer: "patterns", text: band },
+  { path: "patterns/FadingNotices/FadingNotices.css", layer: "patterns", text: fadingNotices },
   { path: "patterns/LanguageMenu/LanguageMenu.css", layer: "patterns", text: languageMenu },
 ];
 

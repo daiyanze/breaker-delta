@@ -13,6 +13,8 @@ export interface BandProps {
   name: string;
   /** One sentence under the name. */
   note?: string;
+  /** More of the rail under the note: a link, an illustration (the fading notices' sunset). */
+  rail?: ComponentChildren;
   children?: ComponentChildren;
 }
 
@@ -25,6 +27,7 @@ export function Band(props: BandProps): VNode {
           {props.name}
         </h2>
         {props.note === undefined ? null : <p class="Band-note">{props.note}</p>}
+        {props.rail}
       </div>
       <div class="Band-body">{props.children}</div>
     </section>

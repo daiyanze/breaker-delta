@@ -15,6 +15,18 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
   milestone M3".
 - `up --fixtures busy`, `get /`: "The ... edition. Sea state: ...", an
   ordered list of topics linking to `/topic/<slug>`, and a Classifieds list.
+- On `busy`, a "Fading notices" band (#122) between the front page and
+  the classifieds: one `<article class="Notice">` per wave in the
+  edition's `ebb.notices`, each "A wave since Nov 13. Peaked at 188.
+  Survived by 22 echoes." and "Now 144, down 18% in 24 hours" from the
+  data, its title linking to `/topic/<slug>`; in the rail "Read the 1
+  that went flat" (`/changes?type=went_flat`) and a sunset. On `/zh/` and
+  `/ja/` the sentence is the same pattern in that language ("11月13日成浪。
+  最高 188。身后留下 22 条回波。"). In a browser: the ripple drifts (none
+  with reduced motion); three notices to a row at 1440 wide, two at 390;
+  no horizontal scrollbar. An edition with no notice: the band is its name
+  and "No wave is going out." (`apps/web/src/local/pages.test.ts`; no
+  fixture set has one).
 - `get "/?set=fresh"`: "The sea is flat." and the next scan time.
 - `get /ja/` on `busy`: `<html lang="ja">`, Japanese headlines where
   the set has them, the source's own headline elsewhere.

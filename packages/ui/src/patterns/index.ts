@@ -3,6 +3,7 @@
  * per `design/system/components/<Name>`.
  */
 export { Band, type BandProps } from "./Band/Band.tsx";
+export { FadingNotices, type FadingNoticesProps } from "./FadingNotices/FadingNotices.tsx";
 export {
   type LanguageLink,
   LanguageMenu,

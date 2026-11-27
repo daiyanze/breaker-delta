@@ -1,0 +1,104 @@
+/*
+ * The notice (design system component Notice, boards 01 and 02, #122): a
+ * 1px `ink` frame with a second 1px outline 3px outside it, square corners.
+ * The ebb form: a `blue` ripple that drifts one cycle in `--ripple-cycle`
+ * (still when the reader asks for reduced motion), the topic's name, an
+ * italic sentence, and a bold line pushed to the bottom so notices side by
+ * side end level. Phone sizes first; from the two-column breakpoint
+ * (`TWO_COLUMNS_FROM`) the desktop ones. The markup is `Notice.tsx`.
+ */
+@layer primitives {
+  .Notice {
+    --notice-pad: var(--space-4);
+    --notice-gap: var(--space-2);
+    --notice-ripple-height: var(--space-6);
+    --notice-title-size: var(--type-body-size);
+    --notice-text-size: var(--type-small-size);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--notice-gap);
+    min-width: 0;
+    /* Room for the outline, which is drawn outside the box. */
+    margin: var(--space-1);
+    padding: var(--notice-pad);
+    border: var(--rule-thin) solid var(--ink);
+    outline: var(--rule-thin) solid var(--ink);
+    outline-offset: calc(var(--space-1) - var(--rule-thin));
+
+    @media (min-width: 960px) {
+      --notice-pad: var(--space-5);
+      --notice-gap: var(--space-3);
+      /* Board 01's 40px. */
+      --notice-ripple-height: calc(var(--space-6) + var(--space-2));
+      --notice-title-size: var(--type-kicker-size);
+      --notice-text-size: var(--type-body-size);
+    }
+  }
+
+  .Notice-ripple {
+    display: block;
+    width: 100%;
+    height: var(--notice-ripple-height);
+  }
+
+  .Notice-ripple-line {
+    fill: none;
+    stroke: var(--blue);
+    stroke-width: var(--illustration-stroke);
+    stroke-linecap: round;
+    /* `-100%` is the board's width: the path is drawn one board to each side. */
+    transform-box: view-box;
+    animation: Notice-drift var(--ripple-cycle) linear infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+
+  @keyframes Notice-drift {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+
+  .Notice-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--notice-title-size);
+    line-height: var(--type-clip-headline-line);
+    font-weight: var(--type-clip-headline-weight);
+    text-wrap: pretty;
+  }
+
+  .Notice-link {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+      text-decoration-color: var(--red);
+    }
+  }
+
+  .Notice-text {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--notice-text-size);
+    line-height: var(--type-kicker-line);
+    font-style: var(--type-kicker-style);
+
+    /* Chinese and Japanese have no italic: weight 500 where English uses italic (board 35). */
+    &:lang(zh),
+    &:lang(ja) {
+      font-style: normal;
+      font-weight: 500;
+    }
+  }
+
+  .Notice-now {
+    margin: auto 0 0;
+    font-size: var(--notice-text-size);
+    font-weight: bold;
+  }
+}

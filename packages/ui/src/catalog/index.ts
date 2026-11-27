@@ -12,7 +12,9 @@
  */
 import { type ComponentType, h, type VNode } from "preact";
 import bandStates from "../patterns/Band/Band.states.tsx";
+import fadingNoticesStates from "../patterns/FadingNotices/FadingNotices.states.tsx";
 import languageMenuStates from "../patterns/LanguageMenu/LanguageMenu.states.tsx";
+import noticeStates from "../primitives/Notice/Notice.states.tsx";
 import themeSwitchStates from "../primitives/ThemeSwitch/ThemeSwitch.states.tsx";
 import type { States } from "../runtime/index.ts";
 import type { Theme } from "../tokens/index.ts";
@@ -55,7 +57,9 @@ function entry<P>(name: string, layer: ComponentLayer, declared: States<P>): Cat
 
 /** Every component with its states, primitives first. */
 export const CATALOG: readonly CatalogEntry[] = [
+  entry("Notice", "primitives", noticeStates),
   entry("ThemeSwitch", "primitives", themeSwitchStates),
   entry("Band", "patterns", bandStates),
+  entry("FadingNotices", "patterns", fadingNoticesStates),
   entry("LanguageMenu", "patterns", languageMenuStates),
 ];

@@ -6,7 +6,9 @@ import {
   FONT_FILES,
   fontFaceCss,
   ICON,
+  ILLUSTRATION,
   PHONE,
+  RIPPLE,
   size,
   tokensCss,
   typeClassesCss,
@@ -58,6 +60,11 @@ describe("design tokens as CSS", () => {
     expect(root).toContain(`--icon-size:${ICON.size};`);
     expect(root).toContain(`--icon-stroke:${ICON.stroke};`);
     expect(root).toContain(`--icon-theme-switch:${ICON.themeSwitch};`);
+  });
+
+  test("the ripple's cycle and the illustration stroke are variables for the components' CSS", () => {
+    expect(root).toContain(`--ripple-cycle:${RIPPLE.cycle};`);
+    expect(root).toContain(`--illustration-stroke:${ILLUSTRATION.stroke};`);
   });
 
   test("sun is the same in both themes", () => {
@@ -138,6 +145,23 @@ describe("supplement: values the design states only in prose", () => {
   test("the icon size and stroke are the ones the design system README states", async () => {
     const readme = await Bun.file(`${import.meta.dir}/../../../../design/system/README.md`).text();
     expect(readme).toContain(`线宽约 ${ICON.stroke}，${ICON.size} 画板`);
+  });
+
+  test("the ripple's amplitude and cycle are the ones the design system README states", async () => {
+    const readme = await Bun.file(`${import.meta.dir}/../../../../design/system/README.md`).text();
+    expect(readme).toContain(
+      `| 启事波纹振幅 | 浪高 ÷ ${RIPPLE.per} × ${RIPPLE.scale}，最小 ${RIPPLE.min} |`,
+    );
+    expect(readme).toContain(
+      `| 退潮启事 | 波纹缓慢流动；左栏有落日插画 | ${Number.parseFloat(RIPPLE.cycle)} 秒一循环 |`,
+    );
+  });
+
+  test("the illustration stroke is in the range the design system README states", async () => {
+    const readme = await Bun.file(`${import.meta.dir}/../../../../design/system/README.md`).text();
+    expect(readme).toContain("线宽 2 到 3px");
+    const px = Number.parseFloat(ILLUSTRATION.stroke);
+    expect(px >= 2 && px <= 3).toBe(true);
   });
 
   test("the theme switch's icon size is the one boards 01 and 02 draw", async () => {

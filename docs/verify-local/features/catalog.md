@@ -12,9 +12,11 @@ page (default light, English); the links at its top go to the other five.
 
 - `get /_catalog`: 200. `get` prints the first 2000 characters from
   `<body>`: "This page: light, English.", the links to the six pages, and a list
-  of every component with its layer and state names (`ThemeSwitch
+  of every component with its layer and state names (`Notice
+  (primitives): default, low, tall, long, zh, ja`, `ThemeSwitch
   (primitives): default, long, zh, ja`, `Band (patterns): default, note,
-  long, zh, ja`, `LanguageMenu (patterns): default, open, long, zh, ja`).
+  long, zh, ja`, `FadingNotices (patterns): default, one, none, long, zh,
+  ja`, `LanguageMenu (patterns): default, open, long, zh, ja`).
   The rest is in the file `get` saved: `<html lang="en"
   data-theme="light">`, and one section per component with one
   `data-shot="<Name>/<state>"` element per state.

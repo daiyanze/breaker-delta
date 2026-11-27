@@ -68,6 +68,15 @@ under no rule and fails `check-deps`.
   the globe alone. `open` starts it open, for the catalog's `open` and
   `long` states; pages leave it out. Classes `.LanguageMenu`, `-details`,
   `-button`, `-icon`, `-current`, `-chevron`, `-list`, `-link`.
+- `Notice` (`primitives/Notice`, #122): the double-ruled notice, in its
+  ebb form: a ripple whose amplitude follows the height (`RIPPLE`), the
+  topic's name, an obituary-style sentence and the height now, all as
+  finished text. `FadingNotices` (`patterns/FadingNotices`) is the front
+  page's section of them in a `Band`, the rail's link and sunset passed
+  through the band's `rail`; with no notice it is one sentence. Classes
+  `.Notice`, `-ripple`, `-ripple-line`, `-title`, `-link`, `-text`,
+  `-now`; `.FadingNotices`, `-rail`, `-flat`, `-sunset`, `-list`,
+  `-item`, `-none`.
 - `ThemeSwitch` (`primitives/ThemeSwitch`, an island): the masthead's
   square icon button (#105) that flips `<html data-theme>` and stores the
   choice. Props `toDark` and `toLight`, its name in each theme, as finished
@@ -114,9 +123,11 @@ no Bun or Cloudflare types, so emails and share cards can import it.
 - `supplement.ts` holds the values the design states only in prose or not at
   all (the phone gutter and section size, the control height, the icon
   size and stroke, the theme switch's icon size, the two-column
-  breakpoint), each with the text it comes from. No other file holds a
-  design value. All but the breakpoint are also CSS variables: `--phone-*`,
-  `--control-*`, `--icon-*`.
+  breakpoint, the ebb notice's ripple rule and cycle, the illustration
+  line width), each with the text it comes from. No other file holds a
+  design value. All but the breakpoint and the ripple's numbers are also
+  CSS variables: `--phone-*`, `--control-*`, `--icon-*`, `--ripple-cycle`,
+  `--illustration-stroke`.
 - `contrast.test.ts` computes the WCAG 2.2 contrast of every text and
   background pair the design uses, in both themes: 4.5:1 for text, 3:1 for
   a control's outline. A new colour token fails it until it is placed.
