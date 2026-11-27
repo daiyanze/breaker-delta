@@ -310,7 +310,14 @@ describe("the echo stack", () => {
     );
 
   test("the sheets move only when motion is allowed, so at rest the whole stack shows", () => {
-    // The echo stack's own rules; the footer's motion is checked under "the footer".
+    const animated = rules.filter((r) => r.declarations.some(([p]) => p.startsWith("animation")));
+    // Every animated rule in the sheet waits for motion to be allowed.
+    for (const r of animated) {
+      expect([r.selector, r.media]).toEqual([
+        r.selector,
+        ["(prefers-reduced-motion: no-preference)"],
+      ]);
+    }
     const moving = own.filter((r) => r.declarations.some(([p]) => p.startsWith("animation")));
     expect(moving.map((r) => [r.selector, r.media])).toEqual([
       [".EchoStack-sheet", ["(prefers-reduced-motion: no-preference)"]],
@@ -373,6 +380,7 @@ describe("the CSS reader", () => {
 // #111: the footer's motion and its phone crop, in the view box's units
 // (1440 × 510, from x = 0). The drawing's geometry: `Footer.test.tsx`.
 describe("the footer", () => {
+  const MOTION = normalize("(prefers-reduced-motion: no-preference)");
   const footer = (selector: string, media: string[] = []) =>
     rules.find(
       (r) => r.layer === "patterns" && r.selector === selector && r.media.join() === media.join(),
@@ -396,7 +404,7 @@ describe("the footer", () => {
       normalize("calc(1132 / 1440 * 100%) calc(92 / 510 * 100%)"),
     );
     expect(cssValue(beam, "opacity")).toBe("var(--footer-beam-opacity)");
-    expect(cssValue(beam, "animation")).toBe(
+    expect(cssValue(footer(".Footer-beam", [MOTION]), "animation")).toBe(
       "Footer-sweep var(--footer-beam-sweep) ease-in-out infinite",
     );
     const sweep = normalize(keyframes("Footer-sweep"));
@@ -405,7 +413,7 @@ describe("the footer", () => {
   });
 
   test("each wave layer and the boat take their own timing; the middle layer runs the other way", () => {
-    const anim = (s: string) => cssValue(footer(s), "animation");
+    const anim = (s: string) => cssValue(footer(s, [MOTION]), "animation");
     expect(anim(".Footer-drift-back")).toBe("Footer-drift var(--footer-wave-back) linear infinite");
     expect(anim(".Footer-drift-mid")).toBe(
       "Footer-drift var(--footer-wave-mid) linear infinite reverse",
@@ -445,18 +453,20 @@ describe("the footer", () => {
     expect(cssValue(wide, "margin-inline-start")).toBe("0");
   });
 
-  test("nothing moves under reduced motion", () => {
-    const still = rules.find(
+  test("each of the footer's animations waits for motion to be allowed, so at rest nothing moves", () => {
+    const animated = rules.filter(
       (r) =>
-        r.media.join() === normalize("(prefers-reduced-motion: reduce)") &&
-        r.selector.includes(".Footer-beam"),
+        r.selector.startsWith(".Footer") && r.declarations.some(([p]) => p.startsWith("animation")),
     );
-    expect(still?.selector.split(/,\s*/).sort()).toEqual([
-      ".Footer-beam",
-      ".Footer-boat",
-      ".Footer-drift",
-    ]);
-    expect(cssValue(still ?? { declarations: [] }, "animation")).toBe("none");
+    expect(animated.map((r) => [r.selector, r.media])).toEqual(
+      [
+        ".Footer-beam",
+        ".Footer-drift-back",
+        ".Footer-drift-mid",
+        ".Footer-drift-front",
+        ".Footer-boat",
+      ].map((s) => [s, [MOTION]]),
+    );
   });
 
   test("the bar's text is the light paper in both themes, on the page's solid", () => {

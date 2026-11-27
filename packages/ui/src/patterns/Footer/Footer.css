@@ -9,7 +9,8 @@
  * again, so they loop without a seam; the middle one runs the other way.
  * The beam sweeps there and back; the boat bobs. Every timing, angle and
  * the boat's rise are `--footer-*` (`FOOTER` in `src/tokens/supplement.ts`,
- * with the text each comes from). None of it moves under reduced motion.
+ * with the text each comes from). Each animation sits under
+ * `prefers-reduced-motion: no-preference`, so at rest nothing moves.
  *
  * The drawing's own geometry (the drift of one sine period, the beam's
  * pivot at the lamp) is written as shares of the view box (1440 × 510).
@@ -141,7 +142,9 @@
     opacity: var(--footer-beam-opacity);
     transform-box: view-box;
     transform-origin: calc(1132 / 1440 * 100%) calc(92 / 510 * 100%);
-    animation: Footer-sweep var(--footer-beam-sweep) ease-in-out infinite;
+    @media (prefers-reduced-motion: no-preference) {
+      animation: Footer-sweep var(--footer-beam-sweep) ease-in-out infinite;
+    }
   }
 
   .Footer-gulls,
@@ -198,28 +201,28 @@
   }
 
   .Footer-drift-back {
-    animation: Footer-drift var(--footer-wave-back) linear infinite;
+    @media (prefers-reduced-motion: no-preference) {
+      animation: Footer-drift var(--footer-wave-back) linear infinite;
+    }
   }
 
   .Footer-drift-mid {
-    animation: Footer-drift var(--footer-wave-mid) linear infinite reverse;
+    @media (prefers-reduced-motion: no-preference) {
+      animation: Footer-drift var(--footer-wave-mid) linear infinite reverse;
+    }
   }
 
   .Footer-drift-front {
-    animation: Footer-drift var(--footer-wave-front) linear infinite;
+    @media (prefers-reduced-motion: no-preference) {
+      animation: Footer-drift var(--footer-wave-front) linear infinite;
+    }
   }
 
   .Footer-boat {
     transform-box: fill-box;
     transform-origin: center;
-    animation: Footer-bob var(--footer-boat-bob) ease-in-out infinite;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .Footer-beam,
-    .Footer-drift,
-    .Footer-boat {
-      animation: none;
+    @media (prefers-reduced-motion: no-preference) {
+      animation: Footer-bob var(--footer-boat-bob) ease-in-out infinite;
     }
   }
 
