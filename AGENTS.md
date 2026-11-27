@@ -171,6 +171,11 @@ patterns line by line: in code, a size, a class rule or a `font` shorthand
 counts only inside a string, a `fontFamily` key also when its value is one,
 and a value built at run time from parts passes. A `font` shorthand fails
 only when something other than variables, sizes and its keywords is left.
+The lexer is not a parser, and it can miss a value: an apostrophe in JSX
+text (`don't`) opens a string to the end of its line; a regular expression
+right after `=>`, or a `/` in JSX text, can make it misread the strings
+after it on that line. A `font` shorthand with nested `var()`, a size
+keyword (`large`) or a `${}` part is reported though it names no font.
 Other apps' source is
 read for `.css` files, `style=`, class rules, globals and
 `dangerouslySetInnerHTML`, not for sizes or fonts. Tests are not read, and
