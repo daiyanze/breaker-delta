@@ -48,12 +48,12 @@ describe("/_catalog", () => {
   test("its own text is in the page's language, from the string tables", async () => {
     const en = await (await get(catalogHref("light", "en"))).text();
     expect(en).toContain("<h1>Catalog</h1>");
-    expect(en).toContain("This page: light, en.");
+    expect(en).toContain("This page: light, English.");
     expect(en).toContain("<p>patterns, 5 states</p>");
     const ja = await (await get(catalogHref("dark", "ja"))).text();
     expect(ja).toContain("<title>カタログ</title>");
     expect(ja).toContain("<h1>カタログ</h1>");
-    expect(ja).toContain("このページ：dark、ja。");
+    expect(ja).toContain("このページ：ダーク、日本語。");
     const zh = await (await get(catalogHref("light", "zh"))).text();
     expect(zh).toContain("<h1>组件目录</h1>");
     expect(zh).toContain("<p>patterns，5 种状态</p>");
@@ -68,7 +68,7 @@ describe("/_catalog", () => {
         expect(html).toContain(`data-shot="${e.name}/${state}"`);
       }
     }
-    for (const shot of ["Band/nope", "Nope/default", "Band"]) {
+    for (const shot of ["Band/nope", "Nope/default", "Band", "Band/long/extra", "Band/long/"]) {
       expect((await get(catalogHref("light", "en", shot))).status).toBe(404);
     }
   });

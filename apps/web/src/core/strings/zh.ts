@@ -20,4 +20,6 @@ export const zh: Table = {
   "catalog.summary":
     "{components} 个组件，{themes} 种主题，{languages} 种语言。本页：{theme}，{language}。",
   "catalog.states": "{layer}，{count} 种状态",
+  "catalog.theme.light": "浅色",
+  "catalog.theme.dark": "深色",
 };

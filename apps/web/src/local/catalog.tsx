@@ -16,7 +16,7 @@ import { type Language, LanguageSchema } from "@bd/contracts";
 import { CATALOG, THEMES } from "@bd/ui/catalog";
 import { Document, renderDocument } from "@bd/ui/runtime";
 import type { Theme } from "@bd/ui/tokens";
-import { translator } from "../core/strings/index.ts";
+import { LANGUAGE_NAMES, translator } from "../core/strings/index.ts";
 
 export const CATALOG_PATH = "/_catalog";
 
@@ -39,7 +39,9 @@ export function catalogHref(theme: Theme, lang: Language, shot?: string): string
  * the shots of the others.
  */
 function onePage(theme: Theme, lang: Language, shot: string): string | null {
-  const [name, state] = shot.split("/");
+  const parts = shot.split("/");
+  if (parts.length !== 2) return null;
+  const [name, state] = parts;
   const entry = CATALOG.find((e) => e.name === name);
   if (entry === undefined || state === undefined || !entry.states.includes(state)) return null;
   return renderDocument(
@@ -62,8 +64,8 @@ function page(theme: Theme, lang: Language): string {
             components: CATALOG.length,
             themes: THEMES.length,
             languages: LANGUAGES.length,
-            theme,
-            language: lang,
+            theme: t(theme === "dark" ? "catalog.theme.dark" : "catalog.theme.light"),
+            language: LANGUAGE_NAMES[lang],
           })}
         </p>
         <ul>

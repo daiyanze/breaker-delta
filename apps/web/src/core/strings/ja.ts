@@ -20,4 +20,6 @@ export const ja: Table = {
   "catalog.summary":
     "コンポーネント {components} 個、テーマ {themes} 種、言語 {languages} 種。このページ：{theme}、{language}。",
   "catalog.states": "{layer}、状態 {count} 個",
+  "catalog.theme.light": "ライト",
+  "catalog.theme.dark": "ダーク",
 };

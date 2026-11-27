@@ -25,6 +25,8 @@ export const en = {
   "catalog.summary":
     "{components} components, {themes} themes, {languages} languages. This page: {theme}, {language}.",
   "catalog.states": "{layer}, {count} states",
+  "catalog.theme.light": "light",
+  "catalog.theme.dark": "dark",
 } as const;
 
 export type StringKey = keyof typeof en;
