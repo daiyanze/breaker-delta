@@ -6,7 +6,6 @@
  * the theme switch's two names included. The switch is its one island
  * (#105); it moves into the masthead's top bar with #110.
  */
-import type { Language, RankRow } from "@bd/contracts";
 import { Band } from "@bd/ui/patterns";
 import { ThemeSwitch } from "@bd/ui/primitives";
 import { Document } from "@bd/ui/runtime";
@@ -15,11 +14,8 @@ import { pathIn } from "../languages.ts";
 import type { RouteContext } from "../routes.ts";
 import { type Translate, translator } from "../strings/index.ts";
 import { pageLanguages } from "./head.tsx";
-
-/** The model headline in `lang` when there is one, else the source's own headline. */
-function headline(row: Pick<RankRow, "headlines" | "sourceHeadline">, lang: Language) {
-  return row.headlines.find((h) => h.lang === lang) ?? row.sourceHeadline;
-}
+import { headline } from "./topic-name.ts";
+import { verdictsBand } from "./verdicts.tsx";
 
 const fixtureNote = (t: Translate) => (
   <p>
@@ -63,6 +59,7 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
             })}
           </ol>
         </Band>
+        {verdictsBand(edition, meta, ctx.lang, t)}
         <Band id="classifieds" name={t("classifieds.name")}>
           <ul>
             {edition.classifieds.items.map((echo) => (

@@ -43,6 +43,43 @@ export const ICON = {
 } as const;
 
 /**
+ * The stamp on a ticket stub (#115): `design/system/components/TicketStub/README.md`,
+ * "印章：3px 框" (a 3px frame), "旋转 -4°" (turned -4°) for a verdict, and
+ * "待到期的章用 `red` 框并旋转 -5°" on the front and topic pages. Its hover
+ * is the design system README's motion list, "悬停时印章晃一下 | 0.2 秒"
+ * (the stamp wobbles once, 0.2 seconds), swinging to the turn and size that
+ * boards 01, 03 and 06 give a hovered stamp (`rotate(3deg) scale(1.06)`).
+ * `tokens.test.ts` checks that the READMEs and the boards still say so.
+ */
+export const STAMP = {
+  border: "3px",
+  tilt: "-4deg",
+  dueTilt: "-5deg",
+  wobble: "0.2s",
+  swing: "3deg",
+  swingScale: "1.06",
+} as const;
+
+/**
+ * The large stub's day ticks: board 03 draws them in a 312-wide `viewBox`
+ * at `max-width: 312px`. `tokens.test.ts` checks that the board still does.
+ */
+export const STUB = {
+  ticksWidth: "312px",
+} as const;
+
+/**
+ * A verdict mark: `design/system/components/VerdictMark/README.md`,
+ * "直径 26px，间隔 8px，桌面每行 14 个，手机每行 10 个" (26px across, 8px
+ * apart, 14 to a row on desktop and 10 on phones). The gap is `space-2`;
+ * the counts are the grid's columns in `VerdictMark.css`.
+ * `tokens.test.ts` checks that the README still says so.
+ */
+export const MARK = {
+  size: "26px",
+} as const;
+
+/**
  * Below this width a band is one column: the rail becomes a heading above
  * the content. The design system names no breakpoint; this is the agent's
  * choice (#106): the narrowest width where the rail at its full `rail` width,

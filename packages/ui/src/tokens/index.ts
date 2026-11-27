@@ -8,7 +8,7 @@
  * Themes: the system's choice by default, and `<html data-theme="light|dark">`
  * overrides it either way.
  */
-import { CONTROL, ICON, PHONE } from "./supplement.ts";
+import { CONTROL, ICON, MARK, PHONE, STAMP, STUB } from "./supplement.ts";
 import {
   COLORS,
   type ColorToken,
@@ -25,7 +25,15 @@ import {
 } from "./tokens.gen.ts";
 
 export { FONT_FILES, type FontFile, fontFaceCss } from "./fonts.ts";
-export { CONTROL, ICON, PHONE, TWO_COLUMNS_FROM } from "./supplement.ts";
+export {
+  CONTROL,
+  ICON,
+  MARK,
+  PHONE,
+  STAMP,
+  STUB,
+  TWO_COLUMNS_FROM,
+} from "./supplement.ts";
 export type {
   ColorToken,
   FontFamily,
@@ -113,6 +121,9 @@ function staticVars(): string {
   for (const [name, v] of Object.entries(PHONE)) out.push(decl(`phone-${kebab(name)}`, v.value));
   for (const [name, v] of Object.entries(CONTROL)) out.push(decl(`control-${kebab(name)}`, v));
   for (const [name, v] of Object.entries(ICON)) out.push(decl(`icon-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(STAMP)) out.push(decl(`stamp-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(STUB)) out.push(decl(`stub-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(MARK)) out.push(decl(`mark-${kebab(name)}`, v));
   return out.join("");
 }
 

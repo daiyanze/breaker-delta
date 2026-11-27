@@ -1,0 +1,26 @@
+/*
+ * Stubs side by side (#115, board 01): they wrap, each at least two thirds
+ * of the rail wide (board 01's 230px), so three fit the content column on
+ * desktop and phones get one to a row. Stubs in a row are equally tall.
+ * The markup is `TicketStubs.tsx`.
+ */
+@layer patterns {
+  .TicketStubs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .TicketStubs-item {
+    display: flex;
+    flex: 1 1 calc(var(--rail) * 2 / 3);
+    min-width: 0;
+
+    & > .TicketStub {
+      flex: 1 1 auto;
+    }
+  }
+}
