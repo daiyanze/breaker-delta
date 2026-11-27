@@ -45,8 +45,8 @@ const empty = (b: Box) => b.width <= 0 || b.height <= 0;
  * menu's absolutely positioned list) is then inside the shot; clipping to
  * the wrapper alone left it out (#258, review round 3). Boxes with no area
  * (`display: none`, a closed `<details>`'s content) are skipped. The first
- * box is the wrapper's, so a state that paints inside it keeps exactly that
- * box.
+ * box is the wrapper's, so a state that paints inside it keeps that box,
+ * rounded out to whole pixels.
  */
 export function paintedBox(boxes: readonly Box[]): Box {
   const drawn = boxes.filter((b) => !empty(b));
@@ -59,6 +59,9 @@ export function paintedBox(boxes: readonly Box[]): Box {
     x1 = Math.max(x1, b.x + b.width);
     y1 = Math.max(y1, b.y + b.height);
   }
+  // Whole pixels, outward, so a fractional edge is never cut off (as an
+  // element screenshot rounds it).
+  [x0, y0, x1, y1] = [Math.floor(x0), Math.floor(y0), Math.ceil(x1), Math.ceil(y1)];
   return { x: x0, y: y0, width: x1 - x0, height: y1 - y0 };
 }
 

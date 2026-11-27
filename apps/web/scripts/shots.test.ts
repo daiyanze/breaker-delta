@@ -73,6 +73,11 @@ describe("what a shot covers (#258)", () => {
     expect(paintedBox([wrapper, button, hidden])).toEqual(wrapper);
     expect(paintedBox([wrapper])).toEqual(wrapper);
   });
+
+  test("a fractional box is rounded out to whole pixels, never cut", () => {
+    const band = { x: 80, y: 40.25, width: 1280, height: 188.5 };
+    expect(paintedBox([band])).toEqual({ x: 80, y: 40, width: 1280, height: 189 });
+  });
 });
 
 describe("the screenshot report (#258)", () => {
