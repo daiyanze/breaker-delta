@@ -20,6 +20,7 @@ export const en = {
   "language.menu": "Language: {language}",
   "theme.toDark": "Switch to dark mode",
   "theme.toLight": "Switch to light mode",
+  "echoStack.label": "Echoes stacking into a wave, {layers} layers high",
   "footer.subscribe": "One email a day, with the new waves.",
   "footer.email": "you@example.com",
   "footer.submit": "Subscribe",

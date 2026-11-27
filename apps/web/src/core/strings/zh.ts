@@ -15,6 +15,7 @@ export const zh: Table = {
   "language.menu": "语言：{language}",
   "theme.toDark": "切换到深色模式",
   "theme.toLight": "切换到浅色模式",
+  "echoStack.label": "回波叠成浪，高 {layers} 层",
   "footer.subscribe": "每天一封邮件，带来新成的浪。",
   "footer.email": "you@example.com",
   "footer.submit": "订阅",

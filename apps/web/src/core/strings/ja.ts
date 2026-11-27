@@ -15,6 +15,7 @@ export const ja: Table = {
   "language.menu": "言語：{language}",
   "theme.toDark": "ダークモードに切り替える",
   "theme.toLight": "ライトモードに切り替える",
+  "echoStack.label": "エコーが重なって波に、{layers} 層の高さ",
   "footer.subscribe": "新しい波を、毎日一通のメールで。",
   "footer.email": "you@example.com",
   "footer.submit": "購読する",

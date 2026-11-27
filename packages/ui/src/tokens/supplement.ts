@@ -78,6 +78,21 @@ export const ICON = {
 } as const;
 
 /**
+ * The echo stack beside a wave-height number (#114): boards 01 and 03 draw
+ * it `width: 92px; height: 168px`, board 02 (phones) `width: 68px; height:
+ * 125px`, both over a `viewBox="0 0 120 220"`, so the height follows from
+ * the width. The motion is the component README's: "每层间隔 0.14 秒" (one
+ * sheet every 0.14 s) and "7 秒一个循环" (a 7-second loop). `tokens.test.ts`
+ * checks that the boards and the README still say so.
+ */
+export const ECHO_STACK = {
+  width: "92px",
+  phoneWidth: "68px",
+  loop: "7s",
+  step: "0.14s",
+} as const;
+
+/**
  * Below this width a band is one column: the rail becomes a heading above
  * the content. The design system names no breakpoint; this is the agent's
  * choice (#106): the narrowest width where the rail at its full `rail` width,
