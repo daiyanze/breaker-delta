@@ -12,6 +12,7 @@
  */
 import { type ComponentType, h, type VNode } from "preact";
 import bandStates from "../patterns/Band/Band.states.tsx";
+import echoStackStates from "../patterns/EchoStack/EchoStack.states.tsx";
 import languageMenuStates from "../patterns/LanguageMenu/LanguageMenu.states.tsx";
 import sourceTileStates from "../patterns/SourceTile/SourceTile.states.tsx";
 import themeSwitchStates from "../primitives/ThemeSwitch/ThemeSwitch.states.tsx";
@@ -58,6 +59,7 @@ function entry<P>(name: string, layer: ComponentLayer, declared: States<P>): Cat
 export const CATALOG: readonly CatalogEntry[] = [
   entry("ThemeSwitch", "primitives", themeSwitchStates),
   entry("Band", "patterns", bandStates),
+  entry("EchoStack", "patterns", echoStackStates),
   entry("LanguageMenu", "patterns", languageMenuStates),
   entry("SourceTile", "patterns", sourceTileStates),
 ];

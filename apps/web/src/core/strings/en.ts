@@ -22,6 +22,7 @@ export const en = {
   "theme.toLight": "Switch to light mode",
   "source.started": "Source where the story started",
   "source.later": "Source that picked it up later",
+  "echoStack.label": "Echoes stacking into a wave, {layers} layers high",
   "scaffold.name": "Scaffold",
   "scaffold.text": "2.0 scaffold. The site arrives in milestone M3.",
   "catalog.name": "Catalog",

@@ -17,6 +17,7 @@ export const ja: Table = {
   "theme.toLight": "ライトモードに切り替える",
   "source.started": "話が始まった情報源",
   "source.later": "後から取り上げた情報源",
+  "echoStack.label": "エコーが重なって波に、{layers} 層の高さ",
   "scaffold.name": "足場",
   "scaffold.text": "2.0 の足場です。サイトはマイルストーン M3 で公開されます。",
   "catalog.name": "カタログ",
