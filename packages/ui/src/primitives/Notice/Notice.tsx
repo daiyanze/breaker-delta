@@ -65,11 +65,17 @@ export interface NoticeProps {
   now: string;
   /** The wave's height now, which sets the ripple's amplitude, and the ripple's accessible name. */
   ripple: { height: number; label: string };
+  /**
+   * The language of `text`, `now` and the ripple's name, when it is not the
+   * page's: the catalog shows each language's state on every page. Pages
+   * leave it out.
+   */
+  lang?: string;
 }
 
 export function Notice(props: NoticeProps): VNode {
   return (
-    <article class="Notice">
+    <article class="Notice" lang={props.lang}>
       <svg
         class="Notice-ripple"
         viewBox={VIEWBOX}

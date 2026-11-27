@@ -94,6 +94,13 @@ describe("notice", () => {
     ]);
   });
 
+  test("the zh and ja states carry their language, so the sentence is upright on every catalog page", () => {
+    const { zh, ja } = noticeStates.states;
+    if (zh === undefined || ja === undefined) throw new Error("the zh and ja states");
+    expect(html(<Notice {...zh} />)).toStartWith('<article class="Notice" lang="zh">');
+    expect(html(<Notice {...ja} />)).toStartWith('<article class="Notice" lang="ja">');
+  });
+
   test("the low state's ripple is the floor, the tall one's the tallest", () => {
     const { low, tall } = noticeStates.states;
     if (low === undefined || tall === undefined) throw new Error("the low and tall states");

@@ -46,6 +46,9 @@ Not an island.
 - `now`: the bold last line, finished.
 - `ripple`: the wave's height now, which sets the amplitude, and the
   ripple's accessible name.
+- `lang`: the language of the notice's own text when it is not the
+  page's. Only the catalog sets it (its `zh` and `ja` states); pages leave
+  it out, since their text is in the page's language.
 
 ## States
 
@@ -53,7 +56,8 @@ Not an island.
 - `low`: a height of 12, so the amplitude is the floor of 2.
 - `tall`: a height of 196, near the scale's top: the tallest ripple.
 - `long`: a long title that wraps over several lines.
-- `zh`, `ja`: each language's own text; the sentence is upright, weight 500.
+- `zh`, `ja`: each language's own text, with `lang` set, so the sentence
+  is upright at weight 500 on every catalog page.
 
 ## Do not
 

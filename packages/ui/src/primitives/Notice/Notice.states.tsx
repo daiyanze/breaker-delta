@@ -44,6 +44,7 @@ export default states(Notice, {
     text: "11月13日成浪。最高 188。身后留下 22 条回波。",
     now: "现在 144，24 小时内下降 18%",
     ripple: { height: 144, label: "一条渐趋平缓的波纹，现在 144" },
+    lang: "zh",
   },
   ja: {
     title: { text: "新しい最先端モデル、ベンチマークと反発が続く", lang: "ja" },
@@ -51,5 +52,6 @@ export default states(Notice, {
     text: "11月13日に波となる。最高 188。遺したエコーは 22 件。",
     now: "現在 144、24 時間で 18% 低下",
     ripple: { height: 144, label: "平らになっていく波線、現在 144" },
+    lang: "ja",
   },
 });
