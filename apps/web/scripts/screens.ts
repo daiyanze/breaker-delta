@@ -39,7 +39,10 @@ import {
 const ROOT = join(import.meta.dir, "../../..");
 const BASELINES = join(import.meta.dir, "..", "screenshots", process.platform);
 const OUT = join(ROOT, ".ui-screens");
-const FOCUSABLE = "a[href], button, input, select, textarea, [tabindex]";
+// The first in document order is hovered and focused. `summary` is a
+// `<details>` button (LanguageMenu): without it the first match of a closed
+// menu is a hidden link, which can never be hovered.
+const FOCUSABLE = "a[href], button, input, select, textarea, summary, [tabindex]";
 
 /** Pages whose browser cache holds the fonts already. */
 const warm = new WeakSet<Page>();
