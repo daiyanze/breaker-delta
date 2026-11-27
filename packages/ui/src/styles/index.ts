@@ -8,6 +8,7 @@
  */
 
 import band from "../patterns/Band/Band.css" with { type: "text" };
+import echoStack from "../patterns/EchoStack/EchoStack.css" with { type: "text" };
 import languageMenu from "../patterns/LanguageMenu/LanguageMenu.css" with { type: "text" };
 import stamp from "../patterns/Stamp/Stamp.css" with { type: "text" };
 import ticketStub from "../patterns/TicketStub/TicketStub.css" with { type: "text" };
@@ -33,6 +34,7 @@ export const CSS_FILES: readonly { path: string; layer: Layer; text: string }[] 
   { path: "styles/base.css", layer: "base", text: base },
   { path: "primitives/ThemeSwitch/ThemeSwitch.css", layer: "primitives", text: themeSwitch },
   { path: "patterns/Band/Band.css", layer: "patterns", text: band },
+  { path: "patterns/EchoStack/EchoStack.css", layer: "patterns", text: echoStack },
   { path: "patterns/LanguageMenu/LanguageMenu.css", layer: "patterns", text: languageMenu },
   { path: "patterns/Stamp/Stamp.css", layer: "patterns", text: stamp },
   { path: "patterns/TicketStub/TicketStub.css", layer: "patterns", text: ticketStub },

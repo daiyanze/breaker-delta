@@ -8,7 +8,7 @@
  * Themes: the system's choice by default, and `<html data-theme="light|dark">`
  * overrides it either way.
  */
-import { CONTROL, ICON, MARK, PHONE, STAMP, STUB } from "./supplement.ts";
+import { CONTROL, ECHO_STACK, ICON, MARK, PHONE, STAMP, STUB } from "./supplement.ts";
 import {
   COLORS,
   type ColorToken,
@@ -27,6 +27,7 @@ import {
 export { FONT_FILES, type FontFile, fontFaceCss } from "./fonts.ts";
 export {
   CONTROL,
+  ECHO_STACK,
   ICON,
   MARK,
   PHONE,
@@ -124,6 +125,9 @@ function staticVars(): string {
   for (const [name, v] of Object.entries(STAMP)) out.push(decl(`stamp-${kebab(name)}`, v));
   for (const [name, v] of Object.entries(STUB)) out.push(decl(`stub-${kebab(name)}`, v));
   for (const [name, v] of Object.entries(MARK)) out.push(decl(`mark-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(ECHO_STACK)) {
+    out.push(decl(`echo-stack-${kebab(name)}`, v));
+  }
   return out.join("");
 }
 

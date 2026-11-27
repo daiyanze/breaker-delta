@@ -301,6 +301,52 @@ describe("the theme switch", () => {
   });
 });
 
+describe("the echo stack", () => {
+  const own = rules.filter((r) => r.layer === "patterns" && r.selector.startsWith(".EchoStack"));
+  const decl = (selector: string, media: string[] = []) =>
+    Object.fromEntries(
+      own.find((r) => r.selector === selector && r.media.join() === media.join())?.declarations ??
+        [],
+    );
+
+  test("the sheets move only when motion is allowed, so at rest the whole stack shows", () => {
+    const moving = own.filter((r) => r.declarations.some(([p]) => p.startsWith("animation")));
+    expect(moving.map((r) => [r.selector, r.media])).toEqual([
+      [".EchoStack-sheet", ["(prefers-reduced-motion: no-preference)"]],
+    ]);
+    expect(decl(".EchoStack-sheet", ["(prefers-reduced-motion: no-preference)"])).toEqual({
+      "transform-box": "fill-box",
+      animation: "echo-stack-drop var(--echo-stack-loop) ease-out infinite both",
+      "animation-delay": "calc(var(--echo-stack-k) * var(--echo-stack-step))",
+    });
+    // Each sheet's place from the bottom, up to the 15 sheets the frame holds
+    // (`MAX_LAYERS`; `EchoStack.test.tsx` checks the two agree).
+    const ECHO_STACK_MAX_LAYERS = 15;
+    expect(decl(".EchoStack-sheet")).toEqual({ "--echo-stack-k": "0" });
+    for (let k = 1; k < ECHO_STACK_MAX_LAYERS; k++) {
+      expect(decl(`.EchoStack-sheet:nth-of-type(${k + 1})`)).toEqual({ "--echo-stack-k": `${k}` });
+    }
+    expect(own.some((r) => r.selector.includes(`(${ECHO_STACK_MAX_LAYERS + 1})`))).toBe(false);
+    // No rule hides a sheet outside the animation.
+    for (const r of own) expect(cssValue(r, "opacity")).toBeUndefined();
+  });
+
+  test("blue and sky by turns, red on top, on an ink baseline", () => {
+    expect(decl(".EchoStack-blue")).toEqual({ fill: "var(--blue)" });
+    expect(decl(".EchoStack-sky")).toEqual({ fill: "var(--sky)" });
+    expect(decl(".EchoStack-top")).toEqual({ fill: "var(--red)" });
+    expect(decl(".EchoStack-base").stroke).toBe("var(--ink)");
+  });
+
+  test("the boards' sizes: the phone width, the desktop width from the breakpoint", () => {
+    expect(decl(".EchoStack")["inline-size"]).toBe("var(--echo-stack-phone-width)");
+    expect(decl(".EchoStack")["aspect-ratio"]).toBe("120 / 220");
+    expect(decl(".EchoStack", [normalize(`(min-width: ${TWO_COLUMNS_FROM})`)])).toEqual({
+      "inline-size": "var(--echo-stack-width)",
+    });
+  });
+});
+
 describe("the CSS reader", () => {
   test("reads statements, nesting with &, media inside a rule, comments and strings", () => {
     const read = cssRules(
