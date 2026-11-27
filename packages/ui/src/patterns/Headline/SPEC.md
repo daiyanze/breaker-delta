@@ -28,6 +28,8 @@ an island; the trend line's motion is CSS alone. Used on the front page.
 - The trend line: `blue` on a `tint` area over an `ink` baseline, drawn
   once in `--headline-trend-draw` (1.8 s, design system README "图和动效清单")
   when motion is allowed.
+- The third tier has no letter spacing on phones, as board 02 sets it;
+  from the breakpoint it takes `headline-3`'s tracking, as board 01.
 - From the boards, through the supplement: the phone kicker size, the
   wave numbers' sizes below the lead and on phones, and the phone number
   column.

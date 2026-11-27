@@ -375,11 +375,16 @@ describe("the headlines", () => {
       const phone = decl(`.Headline-title-${tier}`);
       expect(phone["--headline-base"]).toBe(`var(--headline-${tier}-phone-base)`);
       expect(phone["--headline-span"]).toBe(`var(--headline-${tier}-phone-span)`);
-      expect(decl(`.Headline-title-${tier}`, desktop)).toEqual({
+      expect(decl(`.Headline-title-${tier}`, desktop)).toMatchObject({
         "--headline-base": `var(--headline-${tier}-base)`,
         "--headline-span": `var(--headline-${tier}-span)`,
       });
     }
+    // Board 02: no tracking on the third tier on phones; board 01 tracks it on desktop.
+    expect(decl(".Headline-title-third")["letter-spacing"]).toBeUndefined();
+    expect(decl(".Headline-title-third", desktop)["letter-spacing"]).toBe(
+      "var(--type-headline-3-tracking)",
+    );
   });
 
   test("every height from 000 to 200 is read digit by digit", () => {

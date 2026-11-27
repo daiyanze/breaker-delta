@@ -300,12 +300,14 @@
 
     line-height: var(--type-headline-3-line);
     font-weight: var(--type-headline-3-weight);
-    letter-spacing: var(--type-headline-3-tracking);
     text-wrap: pretty;
 
+    /* Board 02 sets the third tier on phones without tracking; board 01 tracks it. */
     @media (min-width: 960px) {
       --headline-base: var(--headline-third-base);
       --headline-span: var(--headline-third-span);
+
+      letter-spacing: var(--type-headline-3-tracking);
     }
   }
 
