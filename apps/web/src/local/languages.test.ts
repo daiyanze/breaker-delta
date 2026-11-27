@@ -139,7 +139,7 @@ describe("switching language lands on the same page in the other language", () =
     const { topics } = await read(await (await visit("/zh/")).text());
     expect(topics.length).toBeGreaterThan(0);
     // Topic pages, and the changes that went flat (issue 122).
-    const page = /^\/(?:topic\/|changes\?)/;
+    const page = /^\/(?:topic\/[a-z0-9-]+|changes\?type=went_flat)$/;
     for (const href of topics) expect(href.replace(/^\/zh\//, "/")).toMatch(page);
     for (const href of topics) expect(href).toStartWith("/zh/");
     const en = await read(await (await visit("/")).text());

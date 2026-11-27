@@ -23,10 +23,17 @@ going out, the section is its name and one sentence. Not an island.
   `space-8`, `--control-min-height`. The notices' widths are fractions of
   `rail` near the boards' 230px and 150px; the sunset's widths are sums of
   spacing tokens equal to the boards' 240px and 96px.
-- Board departures: on phones the link stays in the rail, beside the
-  sunset, rather than after the notices (board 02), since the rail and the
-  content are two columns of the band; the sunset has one drawing at both
-  widths (board 02 crops it to the sun).
+- Departures on phones. `design/system/README.md` ("手机上左栏变成段落标题，
+  叠在内容上方；小插画缩小后放在标题右侧": the small illustration goes to
+  the right of the heading), and board 02 puts it beside the name and note.
+  Here the 96px sunset sits under the note at the rail's end: beside the
+  link when there is one, alone when there is none. The band's rail
+  renders the name and note first and its `rail` content after them, so
+  putting the sunset beside the heading would mean changing `Band`'s
+  layout for one section. The link also stays in the rail instead of
+  following the notices (board 02), since the rail and the content are the
+  band's two parts. The sunset has one drawing at both widths (board 02
+  crops it to the sun).
 
 ## Props
 
