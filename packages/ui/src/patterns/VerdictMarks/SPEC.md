@@ -15,6 +15,9 @@ under them (#115): the track record's "Every wave so far". Not an island.
   legend's marks (board 07's 16px) and between its entries, `ink-2` and
   the `small` type style for its text; `MARK` from
   `src/tokens/supplement.ts`. Fourteen columns from `TWO_COLUMNS_FROM`.
+- Ten 26px marks and their gaps need 332px, more than a 320px phone's
+  content column, so a mark is 26px at most and shrinks with its column:
+  the strip never scrolls sideways.
 
 ## Props
 
