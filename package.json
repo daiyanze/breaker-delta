@@ -7,12 +7,13 @@
     "apps/*"
   ],
   "scripts": {
-    "check": "bun run typecheck && bun run lint && bun run test && bun run check:deps",
+    "check": "bun run typecheck && bun run lint && bun run test && bun run check:deps && bun run check:ui",
     "typecheck": "bun --filter '*' typecheck && tsc --noEmit -p scripts",
     "lint": "biome check .",
     "format": "biome check --write .",
     "test": "bun test",
     "check:deps": "bun scripts/check-deps.ts",
+    "check:ui": "bun scripts/check-ui.ts",
     "probe": "bun scripts/probe-sources.ts",
     "record-fixture": "bun scripts/record-fixture.ts",
     "height-trial": "bun scripts/height-trial.ts",

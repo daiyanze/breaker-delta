@@ -4,6 +4,19 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L28 A rule in an ADR or a README is not kept until a check runs it
+
+- **Date:** 2026-11-27. **Status:** active.
+- **What happened:** ADR 0020 and `packages/ui/README.md` say every
+  component folder has a `SPEC.md`. When `scripts/check-ui.ts` (#259) first
+  ran, `Band` and `LanguageMenu` had none, and `ThemeSwitch`'s followed no
+  template. Each had passed review.
+- **Rule:** A rule about what every file or folder holds gets a check in the
+  PR that states it, or the PR names the issue that will add one.
+- **Scope:** ADRs, package READMEs and templates that say "every".
+- **Check:** `scripts/check-ui.ts` (`component`), run by `bun run check`.
+- **Evidence:** the first run of `check-ui` on #259; fixed in the same PR.
+
 ## L27 Run an acceptance criterion before writing it into a plan
 
 - **Date:** 2026-11-26. **Status:** active.

@@ -327,6 +327,11 @@ of its own passes. `AGENTS.md` points at them by number.
     (`Date.now`, `new Date()`) or a runtime global (`fetch`, `Bun`)? Does
     code outside every rule (tests, scripts) reach where the rules forbid,
     for something that ships?
+14. **UI.** Does a new component go into `packages/ui`, in its layer's
+    folder with a `SPEC.md` (`packages/ui/SPEC.md`) and its states in the
+    catalog, rather than into a page? Does a new entry in `EXCEPTIONS` in
+    `scripts/check-ui.ts` say why, and is there no token or component that
+    would do instead?
 
 For the skill's second-model step, the step runner
 (`apps/pipeline/src/core/runner.ts`) counts as protected product code, like
