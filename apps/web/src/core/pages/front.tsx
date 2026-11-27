@@ -45,29 +45,69 @@ interface Tiers {
   edition: Edition;
   t: Translate;
   lang: Language;
+  /** The site's IANA time zone, for calendar days. */
+  timeZone: string;
   href: (row: RankRow) => string;
 }
 
+/** The calendar day of `instant` in `timeZone`, as "2026-11-19". */
+function dayIn(instant: string, timeZone: string): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date(instant));
+  const part = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}
+
+/** The day before `day` ("2026-11-19" gives "2026-11-18"). */
+function dayBefore(day: string): string {
+  const d = new Date(`${day}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
 /**
- * One ranked wave as a headline. Formed today: its slug is in the edition's
- * tide table. Going out: down over 24 hours
+ * The line under a headline, and whether the wave is going out. A null
+ * change means there was no wave up 24 hours ago: one that formed today,
+ * one that formed yesterday, or an older one that went flat and came back
+ * (the pipeline's `baseHeight`), told apart by `formedAt`'s day in the
+ * site's time zone. A change is worded as it is shown, rounded: a wave
+ * that rounds to 0% is level, not down, and is not set as going out.
+ */
+function change(row: RankRow, formed: "today" | "yesterday" | "earlier", t: Translate) {
+  if (row.change24h === null) {
+    const key = {
+      today: "headline.new",
+      yesterday: "headline.newYesterday",
+      earlier: "headline.again",
+    } as const;
+    return { delta: t(key[formed]), fading: false };
+  }
+  const percent = Math.round(row.change24h);
+  if (percent < 0) return { delta: t("headline.down", { percent: -percent }), fading: true };
+  if (percent > 0) return { delta: t("headline.up", { percent }), fading: false };
+  return { delta: t("headline.level"), fading: false };
+}
+
+/**
+ * One ranked wave as a headline. Formed today: `formedAt` falls on the
+ * edition's day in the site's time zone. Going out: down over 24 hours
  * (`design/system/components/Headline`).
  */
-function story(row: RankRow, { edition, t, lang, href }: Tiers): HeadlineStory {
-  const formedToday = edition.tideTable.some((w) => w.slug === row.slug);
-  const change = row.change24h;
-  const delta =
-    change === null
-      ? t(formedToday ? "headline.new" : "headline.newYesterday")
-      : change < 0
-        ? t("headline.down", { percent: Math.round(-change) })
-        : t("headline.up", { percent: Math.round(change) });
+function story(row: RankRow, { edition, t, lang, timeZone, href }: Tiers): HeadlineStory {
+  const today = dayIn(edition.startsAt, timeZone);
+  const day = dayIn(row.formedAt, timeZone);
+  const formed = day === today ? "today" : day === dayBefore(today) ? "yesterday" : "earlier";
+  const { delta, fading } = change(row, formed, t);
   return {
     href: href(row),
     title: headline(row, lang),
     height: row.height,
-    formedToday,
-    fading: change !== null && change < 0,
+    formedToday: formed === "today",
+    fading,
     delta,
     meta: t("headline.meta", { sources: row.sourceCount, echoes: row.echoCount }),
   };
@@ -122,7 +162,7 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
               formed: edition.formedToday,
             })}
           </p>
-          {headlines({ edition, t, lang: ctx.lang, href })}
+          {headlines({ edition, t, lang: ctx.lang, timeZone: meta.timeZone, href })}
           {edition.ranking.length > INDEX_FROM ? (
             <ol start={INDEX_FROM + 1}>
               {edition.ranking.slice(INDEX_FROM).map((row) => {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { ReadQueries } from "@bd/contracts";
+import { type RankRow, RankRowSchema, type ReadQueries } from "@bd/contracts";
 import { createFixtureReadQueries } from "@bd/fixtures";
 import { echoStackLayers } from "@bd/ui/patterns";
 import { createSite } from "../core/site.ts";
@@ -135,7 +135,7 @@ describe("the three tiers of headlines, issue 119", () => {
     for (const s of slugs) expect(en.split(`href="${s}"`)).toHaveLength(2);
   });
 
-  test("formed today (in the tide table) is red; down over 24 hours is fading; the kicker says which", async () => {
+  test("formed today (by formedAt, in the site time zone) is red; down over 24 hours is fading; the kicker says which", async () => {
     const q = createFixtureReadQueries("busy");
     const en = await front(q);
     // Ranks 2 and 3 formed today; rank 5 (frontier-model-backlash) is down 18%.
@@ -174,6 +174,90 @@ describe("the three tiers of headlines, issue 119", () => {
 
   test("a flat sea has no headlines", async () => {
     expect(await front(createFixtureReadQueries("fresh"))).not.toContain("Headline");
+  });
+});
+
+// Review of #297: the line under a headline is worded from `formedAt` and
+// the rounded change, not from a null change alone.
+describe("the line under a headline, issue 119", () => {
+  /**
+   * The busy front page (edition 2026-11-19 14:00 in Asia/Tokyo) with rank 5,
+   * a third-tier story, changed; returns its title element and its note.
+   */
+  async function rank5(change: Partial<RankRow>, lang?: string) {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    if (plain === null) throw new Error("busy has an edition");
+    expect((await base.siteMeta()).timeZone).toBe("Asia/Tokyo");
+    expect(plain.startsAt).toBe("2026-11-19T14:00:00+09:00");
+    const ranking = plain.ranking.map((r, i) =>
+      i === 4 ? RankRowSchema.parse({ ...r, ...change }) : r,
+    );
+    const html = await front({ ...base, edition: async () => ({ ...plain, ranking }) }, lang);
+    const start = html.indexOf(`/topic/${plain.ranking[4]?.slug}"`);
+    const article = html.slice(
+      html.lastIndexOf("<article", start),
+      html.indexOf("</article>", start),
+    );
+    return {
+      note: /<p class="Headline-note">([^<]*)<\/p>/.exec(article)?.[1],
+      fading: article.includes("Headline-fading"),
+      red: article.includes("Headline-new"),
+    };
+  }
+
+  test("no change 24 hours ago: today, yesterday or earlier, by formedAt's day in the site's time zone", async () => {
+    const cases: [string, string, string, string, boolean][] = [
+      // formedAt, en, zh, ja, red
+      ["2026-11-19T09:00:00+09:00", "New today.", "今天新成。", "きょうできた波。", true],
+      // 15:30 UTC on the 18th is 00:30 on the 19th in Tokyo: today.
+      ["2026-11-18T15:30:00Z", "New today.", "今天新成。", "きょうできた波。", true],
+      ["2026-11-18T23:30:00+09:00", "Formed yesterday.", "昨天新成。", "きのうできた波。", false],
+      // 14:00 UTC on the 18th is 23:00 on the 18th in Tokyo: yesterday.
+      ["2026-11-18T14:00:00Z", "Formed yesterday.", "昨天新成。", "きのうできた波。", false],
+      // Formed three days ago, flat 24 hours ago, up again.
+      [
+        "2026-11-16T09:00:00+09:00",
+        "Up again after going flat.",
+        "退平后再次涌起。",
+        "いったん凪いだあと、ふたたび立った波。",
+        false,
+      ],
+    ];
+    for (const [formedAt, en, zh, ja, red] of cases) {
+      const row = { change24h: null, formedAt };
+      expect({ formedAt, ...(await rank5(row)) }).toEqual({
+        formedAt,
+        note: en,
+        fading: false,
+        red,
+      });
+      expect((await rank5(row, "zh")).note).toBe(zh);
+      expect((await rank5(row, "ja")).note).toBe(ja);
+    }
+  });
+
+  test("a change is worded as it is shown, rounded; a rounded 0 is level and not going out", async () => {
+    const cases: [number, string, boolean][] = [
+      [-0.3, "Level over 24 hours.", false],
+      [0, "Level over 24 hours.", false],
+      [0.4, "Level over 24 hours.", false],
+      [-0.5, "Level over 24 hours.", false],
+      [-0.6, "Down 1% in 24 hours.", true],
+      [0.5, "Up 1% in 24 hours.", false],
+      [-18.4, "Down 18% in 24 hours.", true],
+      [62.7, "Up 63% in 24 hours.", false],
+    ];
+    for (const [change24h, note, fading] of cases) {
+      expect({ change24h, ...(await rank5({ change24h })) }).toEqual({
+        change24h,
+        note,
+        fading,
+        red: false,
+      });
+    }
+    expect((await rank5({ change24h: -0.3 }, "zh")).note).toBe("24 小时内持平。");
+    expect((await rank5({ change24h: -0.3 }, "ja")).note).toBe("24 時間で横ばい。");
   });
 });
 
