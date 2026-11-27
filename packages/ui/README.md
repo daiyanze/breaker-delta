@@ -24,7 +24,7 @@ other data file, not even one in `src/tokens`.
 
 `tokens` (#269), `styles` and `build` (#270), `runtime` and `patterns`
 (#271) and `primitives` (#272) exist today; `patterns` holds `Band`,
-`LanguageMenu` and the `SourceTile` island, `primitives` the `ThemeSwitch` island; `catalog` (#258) lists them. A file directly under `src/` is
+`LanguageMenu` and `SourceTile` (with its island), `primitives` the `ThemeSwitch` island; `catalog` (#258) lists them. A file directly under `src/` is
 under no rule and fails `check-deps`.
 
 ## `@bd/ui/runtime` and `@bd/ui/patterns`
@@ -68,12 +68,13 @@ under no rule and fails `check-deps`.
   the globe alone. `open` starts it open, for the catalog's `open` and
   `long` states; pages leave it out. Classes `.LanguageMenu`, `-details`,
   `-button`, `-icon`, `-current`, `-chevron`, `-list`, `-link`.
-- `SourceTile` (`patterns/SourceTile`, an island, boards 01 and 03, #113):
-  the small square before a source's name, solid where the story started
-  and outlined for a later source, with the site's favicon or a generic
-  icon by kind (`kindOf(category)`). The generic icon is always in the
-  markup; in the browser a favicon that fails to load is removed so it
-  shows. Props `name`, `fill`, `kind`, `favicon`, `label` (finished text;
+- `SourceTile` (`patterns/SourceTile`, boards 01 and 03, #113): the small
+  square before a source's name, solid where the story started and
+  outlined for a later source, with the site's favicon or a generic icon
+  by kind (`kindOf(category)`). Plain markup without a favicon; with one,
+  the `SourceTile` island. The generic icon shows by default; the favicon
+  is hidden until the island marks it `data-loaded`, so a failed one, or
+  any with JavaScript off, never draws a broken-image mark. Props `name`, `fill`, `kind`, `favicon`, `label` (finished text;
   without it the tile is `aria-hidden`), `size` (`small` in the
   classifieds). Classes `.SourceTile`, `-tile`, `-favicon`, `-glyph`,
   `-name`. `SPEC.md` in its folder.

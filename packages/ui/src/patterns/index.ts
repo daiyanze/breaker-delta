@@ -9,9 +9,9 @@ export {
   type LanguageMenuProps,
 } from "./LanguageMenu/LanguageMenu.tsx";
 export {
-  default as SourceTile,
   kindOf,
   SOURCE_KINDS,
   type SourceKind,
+  SourceTile,
   type SourceTileProps,
-} from "./SourceTile/SourceTile.island.tsx";
+} from "./SourceTile/SourceTile.tsx";

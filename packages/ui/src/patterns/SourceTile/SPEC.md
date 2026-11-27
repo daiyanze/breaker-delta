@@ -7,8 +7,11 @@ source site's favicon, or a generic icon by the kind of source, followed by
 the source's name. Solid for the source where the story started, outlined
 for one that picked it up later. Used by the topic page's clippings (#128)
 and the front page's classifieds (#124), and wherever else a source is
-named. It is an island, `/client/SourceTile.island.js`: in the browser it
-swaps a favicon that fails to load for the generic icon.
+named. Without a favicon it is plain markup. With one it is an island,
+`/client/SourceTile.island.js`: the favicon is hidden until the island
+sees it load, so the generic icon shows for a favicon that fails, and for
+every favicon when JavaScript is off; no broken-image mark is ever drawn.
+The markup is `tile.tsx`.
 
 ## Design
 
@@ -41,7 +44,7 @@ swaps a favicon that fails to load for the generic icon.
 - `account`, `search`, `mail`, `code`: the other generic icons.
 - `favicon`, `favicon-solid`: a favicon that loads, in each fill.
 - `favicon-failed`: a favicon that does not load (a 404); the generic icon
-  shows once the island has run.
+  stays.
 - `small`: the classifieds' tile, outlined in the text's colour, with no
   label.
 - `long`: a name that wraps beside the tile.

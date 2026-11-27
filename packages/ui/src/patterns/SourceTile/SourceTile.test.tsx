@@ -3,8 +3,9 @@ import { describe, expect, test } from "bun:test";
 import type { SourceGroup } from "@bd/contracts";
 import type { VNode } from "preact";
 import { Document, renderDocument } from "../../runtime/index.ts";
-import SourceTile, { kindOf, SOURCE_KINDS, type SourceKind } from "./SourceTile.island.tsx";
 import sourceTileStates from "./SourceTile.states.tsx";
+import { kindOf, SOURCE_KINDS, type SourceKind, SourceTile } from "./SourceTile.tsx";
+import { faviconLoaded } from "./tile.tsx";
 
 // The tile's styles and their tests: `packages/ui/src/styles/styles.test.ts`.
 
@@ -19,15 +20,17 @@ function body(node: VNode): string {
 }
 
 describe("source tile markup", () => {
-  test("an island around the tile and the name", () => {
+  test("without a favicon, plain markup: the tile and the name, no island", () => {
     const html = body(
       <SourceTile name="Hacker News" fill="solid" kind="forum" label="Started here" />,
     );
-    expect(html).toStartWith('<bd-island name="SourceTile"');
-    expect(html).toContain('<span class="SourceTile" data-size="regular">');
+    expect(html).toStartWith('<span class="SourceTile" data-size="regular">');
+    expect(html).not.toContain("bd-island");
+    expect(html).not.toContain("<img");
     expect(html).toContain(
       '<span class="SourceTile-tile" data-fill="solid" role="img" aria-label="Started here">',
     );
+    expect(html).toContain('data-kind="forum"');
     expect(html).toContain('<span class="SourceTile-name">Hacker News</span>');
   });
 
@@ -38,23 +41,29 @@ describe("source tile markup", () => {
     expect(html).not.toContain("role=");
   });
 
-  test("without a favicon the generic icon is the only icon", () => {
-    const html = body(<SourceTile name="A" fill="outline" kind="search" />);
-    expect(html).not.toContain("<img");
-    expect(html).toContain('data-kind="search"');
-  });
-
-  test("a favicon goes before the generic icon, which stays for when it fails", () => {
+  test("with a favicon, an island; the favicon starts not loaded, before the generic icon", () => {
     const html = body(
       <SourceTile name="A" fill="outline" kind="press" favicon="https://example.com/f.ico" />,
     );
+    expect(html).toStartWith('<bd-island name="SourceTile"');
     const img = html.indexOf('<img class="SourceTile-favicon" src="https://example.com/f.ico"');
     expect(img).toBeGreaterThan(-1);
     expect(html.indexOf('class="SourceTile-glyph"')).toBeGreaterThan(img);
-    // An empty alt (Preact writes `alt`, which HTML reads as `alt=""`): a
-    // failed favicon draws nothing. No referrer goes to the site.
-    expect(html).toContain('f.ico" alt loading="lazy"');
+    // Not marked loaded on the server, so the stylesheet keeps it hidden and
+    // the generic icon shown until the island sees it load (styles.test.ts).
+    expect(html).not.toContain("data-loaded");
+    // Eager, since a hidden lazy image would never load. No referrer goes to the site.
+    expect(html).not.toContain("loading=");
     expect(html).toContain('referrerpolicy="no-referrer"');
+  });
+
+  test("a favicon counts as loaded only when complete with a width", () => {
+    expect(faviconLoaded(null)).toBe(false);
+    expect(faviconLoaded({ complete: false, naturalWidth: 0 })).toBe(false);
+    expect(faviconLoaded({ complete: false, naturalWidth: 32 })).toBe(false);
+    // How a failed image reads in a browser: complete, no width.
+    expect(faviconLoaded({ complete: true, naturalWidth: 0 })).toBe(false);
+    expect(faviconLoaded({ complete: true, naturalWidth: 32 })).toBe(true);
   });
 
   test("name and label are text", () => {

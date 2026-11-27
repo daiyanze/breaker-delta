@@ -334,8 +334,22 @@ describe("the source tile", () => {
     expect(own(".SourceTile-tile")["block-size"]).toBe("var(--source-tile-box)");
   });
 
-  test("a favicon hides the generic icon after it", () => {
-    expect(own(".SourceTile-favicon + .SourceTile-glyph")).toEqual({ display: "none" });
+  test("a favicon is drawn only once marked loaded, and only then hides the generic icon", () => {
+    // Not loaded (failed, still loading, or JavaScript off): nothing drawn,
+    // so no broken-image mark, and the generic icon stays.
+    expect(own(".SourceTile-favicon").display).toBe("none");
+    expect(own(".SourceTile-glyph").display).toBeUndefined();
+    expect(own(".SourceTile-favicon[data-loaded]")).toEqual({ display: "block" });
+    expect(own(".SourceTile-favicon[data-loaded] + .SourceTile-glyph")).toEqual({
+      display: "none",
+    });
+    // No other rule hides the generic icon.
+    const hides = rules.filter(
+      (r) => r.selector.includes("SourceTile-glyph") && cssValue(r, "display") === "none",
+    );
+    expect(hides.map((r) => r.selector)).toEqual([
+      ".SourceTile-favicon[data-loaded] + .SourceTile-glyph",
+    ]);
   });
 
   test("the tile keeps its size and the name may shrink, so a long name wraps", () => {

@@ -6,7 +6,7 @@
  * filled classified alike (board 01). Solid and outlined differ by the
  * filled ground, not by a hue; `forced-color-adjust` keeps the ground in a
  * forced-colours mode, which would otherwise drop it. The markup is
- * `SourceTile.island.tsx`.
+ * `tile.tsx`.
  */
 @layer patterns {
   .SourceTile {
@@ -58,14 +58,23 @@
     stroke-linejoin: round;
   }
 
-  /* While a favicon is there, it is the icon; removed, the glyph shows. */
+  /*
+   * A favicon is not drawn until the island marks it loaded (`tile.tsx`):
+   * `display: none` still fetches it, and a failed one, or any with
+   * JavaScript off, never shows a broken-image mark. Once loaded it is the
+   * icon and the glyph steps aside.
+   */
   .SourceTile-favicon {
-    display: block;
+    display: none;
     inline-size: var(--source-tile-glyph);
     block-size: var(--source-tile-glyph);
     object-fit: contain;
 
-    & + .SourceTile-glyph {
+    &[data-loaded] {
+      display: block;
+    }
+
+    &[data-loaded] + .SourceTile-glyph {
       display: none;
     }
   }

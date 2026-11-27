@@ -1,6 +1,6 @@
 /** @jsxImportSource preact */
 import { states } from "../../runtime/index.ts";
-import SourceTile from "./SourceTile.island.tsx";
+import { SourceTile } from "./SourceTile.tsx";
 
 const STARTED = "Source where the story started";
 const LATER = "Source that picked it up later";
