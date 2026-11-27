@@ -87,7 +87,8 @@ under no rule and fails `check-deps`.
   three blocks. `<html data-theme="light|dark">` overrides the system.
 - A value goes through a variable from the tokens layer, never a literal:
   `scripts/check-colors.ts` reports a colour literal anywhere under `src`
-  outside `tokens`. The one literal allowed is the two-column breakpoint in
+  outside `tokens`, and `scripts/check-ui.ts` a `px` or `rem` length or a
+  font name (#259). The one literal allowed is the two-column breakpoint in
   a media query (`TWO_COLUMNS_FROM`).
 - `styles/checks.ts` holds the design rules the tests run on the sheet:
   tabular figures, no type under 13px, fonts preloaded and never swapped
@@ -160,3 +161,6 @@ no Bun or Cloudflare types, so emails and share cards can import it.
 - **A component** gets one folder in `primitives` or `patterns`: `Name.tsx`
   or `Name.island.tsx`, `Name.css`, `Name.states.tsx`, `SPEC.md`, and an
   entry in `CATALOG` (`catalog/index.ts`).
+  `SPEC.md` follows the template in `packages/ui/SPEC.md`;
+  `scripts/check-ui.ts` fails on a folder without the states file or the
+  spec, and on a page in `apps/*` that styles itself (#259).
