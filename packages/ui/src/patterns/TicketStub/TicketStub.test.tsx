@@ -36,11 +36,11 @@ describe("ticket stub", () => {
     expect(html).not.toContain("<svg");
   });
 
-  test("large: a tick per day, the days gone filled, the day in bold before the note", () => {
+  test("large: a tick per day (hidden: the day in bold says it), the days gone filled, the note after", () => {
     const html = body(<TicketStub {...state("large")} />);
     expect(html).toContain('data-size="large"');
     expect(html).toContain(
-      '<svg class="TicketStub-ticks" viewBox="0 0 312 30" role="img" aria-label="Day 7 of 14.">',
+      '<svg class="TicketStub-ticks" viewBox="0 0 312 30" aria-hidden="true">',
     );
     expect(html.match(/<rect /g)?.length).toBe(14);
     expect(html.match(/TicketStub-tick--gone/g)?.length).toBe(7);
@@ -48,6 +48,8 @@ describe("ticket stub", () => {
       '<p class="TicketStub-day"><strong>Day 7 of 14.</strong> Code locked this test',
     );
     expect(html).toContain('<p class="TicketStub-small">Test hash 3f9a…c21e');
+    // A screen reader hears the day once.
+    expect(html.match(/Day 7 of 14/g)?.length).toBe(1);
   });
 
   test("a stamped stub has no day, only its note", () => {

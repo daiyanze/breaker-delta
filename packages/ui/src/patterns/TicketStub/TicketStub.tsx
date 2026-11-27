@@ -2,7 +2,7 @@
 /**
  * The ticket stub (#115, `design/system/components/TicketStub`): a wave's
  * 14-day test, in a dashed frame, with its stamp. Small on the front page
- * (three side by side, in `TicketStubs`), large on the topic page with the
+ * (side by side, in `TicketStubs`), large on the topic page with the
  * day ticks and the test's hash. The test is in the language it was written
  * in; every other text is finished text in the page's language. Hovering
  * the stub wobbles its stamp. Styles: `TicketStub.css`.
@@ -39,13 +39,14 @@ export interface TicketStubProps {
 /**
  * The tick drawing of board 03: one 10-wide bar every 22, in a 30-high
  * `viewBox` (312 wide for 14 days), its lines 2 wide. The drawing scales;
- * `TicketStub.css` caps it at the board's width.
+ * `TicketStub.css` caps it at the board's width. It is hidden from screen
+ * readers: the day in bold right after it says the same.
  */
-function Ticks(props: { day: number; days: number; label: string }): VNode {
+function Ticks(props: { day: number; days: number }): VNode {
   const step = 22;
   const width = props.days * step + 4;
   return (
-    <svg class="TicketStub-ticks" viewBox={`0 0 ${width} 30`} role="img" aria-label={props.label}>
+    <svg class="TicketStub-ticks" viewBox={`0 0 ${width} 30`} aria-hidden="true">
       {Array.from({ length: props.days }, (_, k) => (
         <rect
           key={k}
@@ -78,7 +79,7 @@ export function TicketStub(props: TicketStubProps): VNode {
       {progress !== undefined && size === "large" ? (
         // Board 03: the ticks, then the day in bold with the note after it.
         <>
-          <Ticks {...progress} />
+          <Ticks day={progress.day} days={progress.days} />
           <p class="TicketStub-day">
             <strong>{progress.label}</strong>
             {props.note === undefined ? null : ` ${props.note}`}
