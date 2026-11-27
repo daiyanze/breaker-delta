@@ -3,6 +3,7 @@
  * per `design/system/components/<Name>`.
  */
 export { Band, type BandProps } from "./Band/Band.tsx";
+export { DateStrip, type DateStripProps } from "./DateStrip/DateStrip.tsx";
 export {
   type LanguageLink,
   LanguageMenu,

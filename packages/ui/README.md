@@ -23,7 +23,7 @@ other data file, not even one in `src/tokens`.
 | `build` | `buildClient()`: the client files, bundled with Bun | everything above, `bun`, `node:` |
 
 `tokens` (#269), `styles` and `build` (#270), `runtime` and `patterns`
-(#271) and `primitives` (#272) exist today; `patterns` holds `Band`,
+(#271) and `primitives` (#272) exist today; `patterns` holds `Band`, `DateStrip`, `LanguageMenu`,
 `primitives` the `ThemeSwitch` island; `catalog` (#258) lists them. A file directly under `src/` is
 under no rule and fails `check-deps`.
 
@@ -61,6 +61,15 @@ under no rule and fails `check-deps`.
 - `Band` (`patterns/Band`): a section with its name in the rail. Classes
   `.Band` and `.Band-rail`, `.Band-name`, `.Band-note`, `.Band-body`; the
   heading's id is `band-<id>`.
+- `DateStrip` (`patterns/DateStrip`, boards 01 and 02, #109): the row
+  above the masthead: a tear-off calendar, the date with the issue number
+  and the sea state, the yellow wave-count tag, then the page's controls
+  (children: the language menu and the theme switch) and the search link.
+  All its text is finished text; the site fills the numbers in from data.
+  On phones the date is clipped, not removed, and the tag keeps its short
+  line. Classes `.DateStrip` and `-when`, `-calendar`, `-month`, `-day`,
+  `-text`, `-date`, `-line`, `-tag`, `-count`, `-note`, `-short`,
+  `-controls`, `-search`. `SPEC.md` in its folder.
 - `LanguageMenu` (`patterns/LanguageMenu`, boards 01 and 02, #107): links to
   the same page in each language inside a `<details>`, so it opens without
   JavaScript; the current one has `aria-current`. It takes finished text:

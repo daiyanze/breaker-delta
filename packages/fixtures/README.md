@@ -41,7 +41,10 @@ cd apps/web && bun run dev -- --var READ_SOURCE:fixtures
 
 `@bd/fixtures/contract` exports `readContractChecks(queries, probes)` and
 `deskContractChecks(queries)`. `contract.test.ts` runs them on every set,
-validates every file, and checks the cases from #162. The database query
+validates every file, and checks the cases from #162. The edition checks
+also hold an edition's `seaState` to the design's rule (`seaStateFor`,
+#109): four or more formed today is choppy, two or three moderate,
+otherwise calm. The database query
 layer (#57) and `/api/v1` (#68) run the same checks.
 
 When a contract changes, update the JSON in the same PR. A fixture must parse

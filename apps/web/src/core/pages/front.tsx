@@ -2,19 +2,19 @@
 /**
  * A bare front page: enough to prove a page renders from the read contracts
  * alone. Every piece of text is a plain string; the renderer escapes it.
- * Interface text comes from the string tables in the page's language (#107),
- * the theme switch's two names included. The switch is its one island
- * (#105); it moves into the masthead's top bar with #110.
+ * Interface text comes from the string tables in the page's language (#107).
+ * The date strip (#109) opens the header and holds the language menu and
+ * the theme switch, the page's one island (#105).
  */
 import type { Language, RankRow } from "@bd/contracts";
 import { Band } from "@bd/ui/patterns";
-import { ThemeSwitch } from "@bd/ui/primitives";
 import { Document } from "@bd/ui/runtime";
 import type { VNode } from "preact";
 import { pathIn } from "../languages.ts";
 import type { RouteContext } from "../routes.ts";
 import { type Translate, translator } from "../strings/index.ts";
 import { pageLanguages } from "./head.tsx";
+import { pageStrip } from "./strip.tsx";
 
 /** The model headline in `lang` when there is one, else the source's own headline. */
 function headline(row: Pick<RankRow, "headlines" | "sourceHeadline">, lang: Language) {
@@ -82,9 +82,8 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
     document: (
       <Document lang={ctx.lang} title={meta.siteName} head={languages.head}>
         <header class="page">
-          {languages.menu}
+          {pageStrip(ctx, meta, edition, languages.menu)}
           <h1>{meta.siteName}</h1>
-          <ThemeSwitch toDark={t("theme.toDark")} toLight={t("theme.toLight")} />
         </header>
         <main class="page">{bands}</main>
       </Document>

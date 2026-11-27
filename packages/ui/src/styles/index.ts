@@ -8,6 +8,7 @@
  */
 
 import band from "../patterns/Band/Band.css" with { type: "text" };
+import dateStrip from "../patterns/DateStrip/DateStrip.css" with { type: "text" };
 import languageMenu from "../patterns/LanguageMenu/LanguageMenu.css" with { type: "text" };
 import themeSwitch from "../primitives/ThemeSwitch/ThemeSwitch.css" with { type: "text" };
 import { fontFaceCss, tokensCss, typeClassesCss } from "../tokens/index.ts";
@@ -28,6 +29,7 @@ export const CSS_FILES: readonly { path: string; layer: Layer; text: string }[] 
   { path: "styles/base.css", layer: "base", text: base },
   { path: "primitives/ThemeSwitch/ThemeSwitch.css", layer: "primitives", text: themeSwitch },
   { path: "patterns/Band/Band.css", layer: "patterns", text: band },
+  { path: "patterns/DateStrip/DateStrip.css", layer: "patterns", text: dateStrip },
   { path: "patterns/LanguageMenu/LanguageMenu.css", layer: "patterns", text: languageMenu },
 ];
 

@@ -28,7 +28,7 @@ describe("every page uses the band", () => {
       const body = html.slice(html.indexOf("<body>") + 6, html.indexOf("</body>"));
       const outside = body
         .replace(
-          /^<header class="page">(?:<div class="LanguageMenu">[\s\S]*?<\/details><\/div>)?<h1>[^<]+<\/h1>(?:<bd-island name="ThemeSwitch"[^>]*>[\s\S]*?<\/bd-island>)?<\/header>/,
+          /^<header class="page">(?:<div class="DateStrip">[\s\S]*?<\/a><\/div><\/div>)?<h1>[^<]+<\/h1><\/header>/,
           "",
         )
         .replace(/^<main class="page">(?:<section class="Band"[\s\S]*?<\/section>)+<\/main>$/, "");
@@ -55,10 +55,11 @@ describe("every page uses the band", () => {
     const { placeholder, busy, fresh } = await pages();
     for (const html of [busy, fresh]) {
       expect(html).toContain(
-        '<h1>Breaker Delta</h1><bd-island name="ThemeSwitch" props="{&quot;toDark&quot;:&quot;Switch to dark mode&quot;,&quot;toLight&quot;:&quot;Switch to light mode&quot;}"><button type="button" class="ThemeSwitch">',
+        '<bd-island name="ThemeSwitch" props="{&quot;toDark&quot;:&quot;Switch to dark mode&quot;,&quot;toLight&quot;:&quot;Switch to light mode&quot;}"><button type="button" class="ThemeSwitch">',
       );
+      // In the date strip, before the search link (#109).
       expect(html).toContain(
-        '<span class="ThemeSwitch-name ThemeSwitch-to-dark">Switch to dark mode</span><span class="ThemeSwitch-name ThemeSwitch-to-light">Switch to light mode</span></button></bd-island></header>',
+        '<span class="ThemeSwitch-name ThemeSwitch-to-dark">Switch to dark mode</span><span class="ThemeSwitch-name ThemeSwitch-to-light">Switch to light mode</span></button></bd-island><a class="DateStrip-search"',
       );
     }
     // Its names come from the string tables (#107), so they follow the page's language.
@@ -73,6 +74,73 @@ describe("every page uses the band", () => {
     for (const html of [placeholder, busy]) {
       expect(html).toContain('<script type="module" src="/client/loader.js"></script>');
     }
+  });
+});
+
+// #109: the date strip, from the edition's fields in the site's time zone.
+describe("the date strip", () => {
+  /** The strip's left part: the calendar, the date and the tag. */
+  const when = (html: string) =>
+    html.slice(
+      html.indexOf('<div class="DateStrip-when">'),
+      html.indexOf('<div class="DateStrip-controls">'),
+    );
+
+  test("the busy edition: its day, issue number, sea state and counts", async () => {
+    const html = await front(createFixtureReadQueries("busy"));
+    expect(when(html)).toBe(
+      '<div class="DateStrip-when"><span class="DateStrip-calendar" aria-hidden="true"><span class="DateStrip-month">Nov</span><span class="DateStrip-day">19</span></span><span class="DateStrip-text"><time class="DateStrip-date" datetime="2026-11-19">Thursday, November 19, 2026</time><span class="DateStrip-line">No. 323. Sea state: choppy.</span></span><span class="DateStrip-tag"><strong class="DateStrip-count">16 waves up</strong><span class="DateStrip-note">5 new today, scanned 14:00</span><span class="DateStrip-short">5 new today</span></span></div>',
+    );
+  });
+
+  test("the counts and the sea state come from the edition", async () => {
+    const base = createFixtureReadQueries("quiet");
+    const plain = await base.edition();
+    if (plain === null) throw new Error("quiet has an edition");
+    const html = await front(base);
+    expect(when(html)).toContain("Sea state: calm.");
+    expect(when(html)).toContain(">2 waves up<");
+    expect(when(html)).toContain(">1 new today, scanned 14:00<");
+    const one = { ...plain, waveCount: 1, formedToday: 3, seaState: "moderate" as const };
+    const changed = await front({ ...base, edition: async () => one });
+    expect(when(changed)).toContain("Sea state: moderate.");
+    expect(when(changed)).toContain(">1 wave up<");
+    expect(when(changed)).toContain(">3 new today<");
+  });
+
+  test("before the first scan: the next run's day, a flat sea, no waves, the first scan's time", async () => {
+    const html = await front(createFixtureReadQueries("fresh"), "zh");
+    expect(when(html)).toContain('<span class="DateStrip-month">11月</span>');
+    expect(when(html)).toContain('datetime="2026-11-19"');
+    expect(when(html)).toContain("第 323 期。海况：无浪。");
+    expect(when(html)).toContain(">0 个浪<");
+    expect(when(html)).toContain(
+      '<span class="DateStrip-note">15:00 首次扫描</span><span class="DateStrip-short">15:00 首次扫描</span>',
+    );
+  });
+
+  test("the day is the site's: a run just after midnight in Tokyo is the next day", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    if (plain === null) throw new Error("busy has an edition");
+    const late = { ...plain, startsAt: "2026-12-31T15:30:00Z", label: "00:30" };
+    const html = await front({ ...base, edition: async () => late }, "ja");
+    expect(when(html)).toContain('datetime="2027-01-01"');
+    expect(when(html)).toContain(
+      '<span class="DateStrip-month">1月</span><span class="DateStrip-day">1</span>',
+    );
+    expect(when(html)).toContain("第1号。");
+  });
+
+  test("it holds the language menu, the theme switch and the search link in the page's language", async () => {
+    const html = await front(createFixtureReadQueries("busy"), "ja");
+    const controls = html.slice(html.indexOf('<div class="DateStrip-controls">'));
+    expect(controls).toStartWith('<div class="DateStrip-controls"><div class="LanguageMenu">');
+    expect(controls).toContain('</details></div><bd-island name="ThemeSwitch"');
+    expect(controls).toContain('</bd-island><a class="DateStrip-search" href="/ja/search">');
+    expect(controls).toContain(
+      '<span class="DateStrip-search-name">検索</span></a></div></div><h1>',
+    );
   });
 });
 
