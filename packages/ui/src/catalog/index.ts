@@ -6,7 +6,7 @@
  *
  * One entry per component folder under `primitives` and `patterns`, in
  * layer order. A folder without a `<Name>.states.tsx`, or a states file
- * missing from this list, fails `catalog.test.ts`. A state is a set of
+ * missing from this list, fails `catalog.test.tsx`. A state is a set of
  * props; hover and focus are not states, the screenshot run moves the
  * pointer and the focus (section 12).
  */
@@ -23,6 +23,11 @@ export interface CatalogEntry {
   /** The component folder's name, `Band`. */
   name: string;
   layer: ComponentLayer;
+  /**
+   * The name of the component the states render: its island name, or its
+   * function's name. `check.ts` compares it with `name`.
+   */
+  componentName: string;
   /** The state names, in the order the states file declares them. */
   states: readonly string[];
   /** The component in one of its states. */
@@ -33,9 +38,11 @@ export interface CatalogEntry {
 export const THEMES: readonly Theme[] = ["light", "dark"];
 
 function entry<P>(name: string, layer: ComponentLayer, declared: States<P>): CatalogEntry {
+  const component = declared.component as ComponentType<P> & { islandName?: string };
   return {
     name,
     layer,
+    componentName: component.islandName ?? component.name,
     states: Object.keys(declared.states),
     render(state) {
       const props = declared.states[state];

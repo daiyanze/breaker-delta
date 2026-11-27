@@ -37,10 +37,44 @@ export function componentOf(path: string): string {
 /**
  * A pixel counts as changed when one of its channels moved by more than
  * `channel` (of 255); a shot fails when more than `ratio` of its pixels
- * changed, or its size did. Small enough that a one-pixel rule or a shade
- * of a colour fails; large enough for anti-aliasing noise on one machine.
+ * changed, or its size did. A one-pixel rule or a colour that moves by more
+ * than 8 in a channel fails; anti-aliasing noise on one machine does not.
+ * `shots.test.ts` pins both edges.
  */
 export const THRESHOLD = { channel: 8, ratio: 0.0001 } as const;
+
+/**
+ * Counts the pixels of two RGBA buffers of one size that differ by more
+ * than `channel` in a channel, and writes an image into `out`: changed
+ * pixels red, the rest a faint copy of `expected`. Self-contained, because
+ * `screens.ts` runs its source in the browser, where the PNGs are decoded.
+ */
+export function markChanges(
+  actual: ArrayLike<number>,
+  expected: ArrayLike<number>,
+  channel: number,
+  out: { [i: number]: number },
+): number {
+  let changed = 0;
+  for (let i = 0; i < actual.length; i += 4) {
+    let moved = false;
+    for (let c = 0; c < 4; c++) {
+      if (Math.abs((actual[i + c] ?? 0) - (expected[i + c] ?? 0)) > channel) moved = true;
+    }
+    if (moved) changed++;
+    for (let c = 0; c < 3; c++) {
+      const faint = 255 - ((255 - (expected[i + c] ?? 0)) >> 3);
+      out[i + c] = moved ? (c === 0 ? 255 : 0) : faint;
+    }
+    out[i + 3] = 255;
+  }
+  return changed;
+}
+
+/** Whether `changed` of `total` pixels is more than the threshold allows. */
+export function overThreshold(changed: number, total: number): boolean {
+  return changed / total > THRESHOLD.ratio;
+}
 
 export type Outcome =
   | { path: string; kind: "same" }
@@ -77,7 +111,7 @@ export function report(outcomes: readonly Outcome[], baselines: string, out: str
     }
   }
   lines.push(
-    `Every shot of this run is in ${out}/actual, the changed ones with diffs in ${out}/diff.`,
+    `Every shot of this run is in ${out}/actual, the baselines of the changed ones in ${out}/expected, and a diff in ${out}/diff where the size did not change.`,
     `If the change is intended: bun run ui:baseline, then commit ${baselines}.`,
   );
   return lines.join("\n");

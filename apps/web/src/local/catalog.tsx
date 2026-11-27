@@ -5,8 +5,9 @@
  * of the local adapter only, so the Cloudflare adapter never has it.
  *
  * `?theme=light|dark` and `?lang=` pick the page; the links at the top go
- * to every other one. Each state is in an element marked `data-shot`, which
- * the screenshot run (`apps/web/scripts/screens.ts`) captures. The page is
+ * to every other one. Each state is in an element marked `data-shot`;
+ * `&shot=<Name>/<state>` serves that state alone, which is what the
+ * screenshot run (`apps/web/scripts/screens.ts`) captures. The page is
  * made of plain elements and the base styles: it has no CSS of its own.
  */
 import { type Language, LanguageSchema } from "@bd/contracts";
@@ -19,9 +20,32 @@ export const CATALOG_PATH = "/_catalog";
 /** The languages every state is shown in: the site's. */
 export const LANGUAGES: readonly Language[] = LanguageSchema.options;
 
-/** The page's address for one theme and one language. */
-export function catalogHref(theme: Theme, lang: Language): string {
-  return `${CATALOG_PATH}?theme=${theme}&lang=${lang}`;
+/**
+ * The page's address for one theme and one language; with `shot`
+ * (`<Name>/<state>`), the page holding that one state alone.
+ */
+export function catalogHref(theme: Theme, lang: Language, shot?: string): string {
+  const one = shot === undefined ? "" : `&shot=${encodeURIComponent(shot)}`;
+  return `${CATALOG_PATH}?theme=${theme}&lang=${lang}${one}`;
+}
+
+/**
+ * One state alone on a page, for the screenshot run: where a state sits on
+ * the full page depends on everything above it, and a fractional offset
+ * changes its rounded size, so a state added to one component would move
+ * the shots of the others.
+ */
+function onePage(theme: Theme, lang: Language, shot: string): string | null {
+  const [name, state] = shot.split("/");
+  const entry = CATALOG.find((e) => e.name === name);
+  if (entry === undefined || state === undefined || !entry.states.includes(state)) return null;
+  return renderDocument(
+    <Document lang={lang} title={`Catalog: ${shot}`} theme={theme}>
+      <main class="page">
+        <div data-shot={shot}>{entry.render(state)}</div>
+      </main>
+    </Document>,
+  );
 }
 
 function page(theme: Theme, lang: Language): string {
@@ -87,7 +111,10 @@ export function serveCatalog(request: Request): Response | null {
   if (!isTheme(theme) || !isLanguage(lang)) {
     return new Response("unknown theme or language", { status: 404 });
   }
-  return new Response(page(theme, lang), {
+  const shot = url.searchParams.get("shot");
+  const html = shot === null ? page(theme, lang) : onePage(theme, lang, shot);
+  if (html === null) return new Response("unknown component or state", { status: 404 });
+  return new Response(html, {
     headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
   });
 }

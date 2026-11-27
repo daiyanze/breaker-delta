@@ -119,10 +119,12 @@ no Bun or Cloudflare types, so emails and share cards can import it.
 - A state is a set of props. Hover and focus are not states. A component
   whose layout depends on its text has a long-text state and a state per
   language with its own sample text (`Band`: `long`, `zh`, `ja`).
-- Only the local site adapter imports it: `/_catalog` in
+- Only the local site adapter imports it (`check-deps` keeps it out of
+  `apps/web/src/cloudflare` and `src/core`): `/_catalog` in
   `apps/web/src/local/catalog.tsx` shows every state, one theme and one
   language per page. `bun run ui:screens` (`apps/web/scripts/screens.ts`)
-  captures each state at 1440 and 390 wide, in both themes and every
+  captures each state alone on a page (`&shot=`, so adding a state never
+  moves another's shot) at 1440 and 390 wide, in both themes and every
   language, at rest, hovered and focused, and compares them with
   `apps/web/screenshots/<platform>`; `bun run ui:baseline` rewrites them.
   The committed baselines are Linux's, from the `screenshots` CI job.

@@ -2,8 +2,8 @@
  * The check that keeps the catalog whole (#258, ADR 0020 section 12): every
  * component folder has a states file, and every states file is in
  * `CATALOG`. Components are found by folder, so one added by another
- * branch fails here until its states are listed. `catalog.test.ts` runs it
- * on the package's own files.
+ * branch fails here until its states are listed. `catalog.test.tsx` runs
+ * it on the package's own files.
  */
 import type { CatalogEntry } from "./index.ts";
 
@@ -30,24 +30,28 @@ export function catalogProblems(
   }
   const problems: string[] = [];
   for (const [key, folder] of [...folders].sort(([a], [b]) => a.localeCompare(b))) {
-    const listed = catalog.find((e) => e.name === folder.name);
     if (!folder.files.has(`${folder.name}.states.tsx`)) {
       problems.push(
         `${key} has no ${folder.name}.states.tsx: every component declares its states (issue 258)`,
       );
-    } else if (listed === undefined) {
+    } else if (!catalog.some((e) => `${e.layer}/${e.name}` === key)) {
       problems.push(
         `${key}/${folder.name}.states.tsx is not in CATALOG (packages/ui/src/catalog/index.ts)`,
       );
-    } else if (listed.layer !== folder.layer) {
-      problems.push(
-        `${folder.name} is listed in CATALOG under ${listed.layer}, not ${folder.layer}`,
-      );
     }
   }
+  const seen = new Set<string>();
   for (const e of catalog) {
+    // The name keys the page's `data-shot` elements and the screenshots' paths.
+    if (seen.has(e.name)) problems.push(`CATALOG lists ${e.name} twice: names must be unique`);
+    seen.add(e.name);
     if (!folders.has(`${e.layer}/${e.name}`)) {
       problems.push(`CATALOG lists ${e.layer}/${e.name}, which has no folder`);
+    }
+    if (e.componentName !== e.name) {
+      problems.push(
+        `CATALOG's ${e.name} entry renders ${e.componentName}: states from another folder`,
+      );
     }
     if (e.states.length === 0) problems.push(`${e.name} declares no states`);
   }

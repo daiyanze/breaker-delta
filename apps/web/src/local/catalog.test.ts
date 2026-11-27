@@ -40,8 +40,22 @@ describe("/_catalog", () => {
   test("defaults to light and English, and lists every component's states", async () => {
     const html = await (await get(CATALOG_PATH)).text();
     expect(html).toContain('<html lang="en" data-theme="light">');
-    expect(html).toContain("ThemeSwitch</a> (primitives): default");
+    expect(html).toContain("ThemeSwitch</a> (primitives): default, long, zh, ja");
     expect(html).toContain("Band</a> (patterns): default, note, long, zh, ja");
+  });
+
+  test("&shot= serves one state alone, for the screenshot run", async () => {
+    for (const e of CATALOG) {
+      for (const state of e.states) {
+        const html = await (await get(catalogHref("dark", "zh", `${e.name}/${state}`))).text();
+        expect(html).toContain('<html lang="zh" data-theme="dark">');
+        expect(html.match(/data-shot=/g)).toEqual(["data-shot="]);
+        expect(html).toContain(`data-shot="${e.name}/${state}"`);
+      }
+    }
+    for (const shot of ["Band/nope", "Nope/default", "Band"]) {
+      expect((await get(catalogHref("light", "en", shot))).status).toBe(404);
+    }
   });
 
   test("an unknown theme or language is a 404", async () => {

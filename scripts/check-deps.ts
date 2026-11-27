@@ -163,7 +163,6 @@ export const RULES: Rule[] = [
       UI_SITE,
       UI_CLIENT,
       UI_CATALOG,
-      PREACT,
       PORTS,
       /^bun:/,
       /^node:/,
@@ -186,11 +185,12 @@ export const RULES: Rule[] = [
   },
   {
     dir: "apps/web/src/cloudflare",
-    // No UI_CLIENT (the Worker serves the built files as static assets) and
-    // no UI_CATALOG: the Cloudflare adapter never has `/_catalog` (#258).
+    // No UI_CLIENT (the Worker serves the built files as static assets), no
+    // UI_CATALOG (the Cloudflare adapter never has `/_catalog`, #258) and no
+    // PREACT (it renders nothing; the core's pages do).
     allow: [/^@bd\/(contracts|db|fixtures)$/, UI_SITE, PORTS, /^cloudflare:/, /^bun:test$/],
     reach: ["apps/web/src/core", "apps/web/src/select.ts"],
-    why: "the Cloudflare site adapter serves the site core, never the catalog (ADR 0020)",
+    why: "the Cloudflare site adapter serves the site core: no catalog, no client build (ADR 0020)",
   },
   {
     dir: "apps/web/src",

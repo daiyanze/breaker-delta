@@ -16,6 +16,7 @@ async function srcFiles(): Promise<string[]> {
 const listed = (name: string, layer: CatalogEntry["layer"]): CatalogEntry => ({
   name,
   layer,
+  componentName: name,
   states: ["default"],
   render: () => <p />,
 });
@@ -48,15 +49,42 @@ describe("the catalog (issue 258)", () => {
     const files = ["primitives/Menu/Menu.tsx", "primitives/Menu/Menu.states.tsx"];
     const empty = { ...listed("Menu", "patterns"), states: [] };
     expect(catalogProblems(files, [empty])).toEqual([
-      "Menu is listed in CATALOG under patterns, not primitives",
+      "primitives/Menu/Menu.states.tsx is not in CATALOG (packages/ui/src/catalog/index.ts)",
       "CATALOG lists patterns/Menu, which has no folder",
       "Menu declares no states",
     ]);
   });
 
+  test("the same name in both layers is matched by layer, and listed twice fails", () => {
+    const files = [
+      "primitives/X/X.tsx",
+      "primitives/X/X.states.tsx",
+      "patterns/X/X.tsx",
+      "patterns/X/X.states.tsx",
+    ];
+    expect(catalogProblems(files, [listed("X", "primitives"), listed("X", "patterns")])).toEqual([
+      "CATALOG lists X twice: names must be unique",
+    ]);
+    const band = ["patterns/Band/Band.tsx", "patterns/Band/Band.states.tsx"];
+    const twice = [listed("Band", "patterns"), listed("Band", "patterns")];
+    expect(catalogProblems(band, twice)).toEqual([
+      "CATALOG lists Band twice: names must be unique",
+    ]);
+  });
+
+  test("an entry built from another folder's states fails", () => {
+    const files = ["patterns/Band/Band.tsx", "patterns/Band/Band.states.tsx"];
+    const wrong = { ...listed("Band", "patterns"), componentName: "ThemeSwitch" };
+    expect(catalogProblems(files, [wrong])).toEqual([
+      "CATALOG's Band entry renders ThemeSwitch: states from another folder",
+    ]);
+  });
+
   // ADR 0020 section 12: rendering every state on the server is also the
   // test that no island touches a browser global while rendering.
-  test("every state renders on the server", () => {
+  // The root class is the component's name (ADR 0020, section 4), so each
+  // state renders its own component.
+  test("every state renders its own component on the server", () => {
     for (const e of CATALOG) {
       for (const state of e.states) {
         const html = renderDocument(
@@ -65,6 +93,7 @@ describe("the catalog (issue 258)", () => {
           </Document>,
         );
         expect(html).toContain("<body>");
+        expect(html).toContain(`class="${e.name}"`);
       }
     }
   });

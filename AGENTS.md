@@ -123,6 +123,9 @@ repeats, move its rule up this table (`docs/development.md`, "Lessons").
 | App cores use no Bun or Cloudflare API | `src/core` tsconfig without those types; `check-deps` | types |
 | `@bd/ui` layers (ADR 0020, section 3) | `check-deps` rules per layer and area; `tokens` has no DOM, Bun or Cloudflare types (`packages/ui/tsconfig.tokens.json`); `tokens.gen.ts` matches `tokens.json` (`packages/ui/scripts/generate-tokens.test.ts`) | check, types, test |
 | Every `.tsx` names its JSX runtime on its first line (ADR 0020, section 3) | `scripts/jsx-pragma.test.ts` | test |
+| Every component folder has a states file and an entry in `CATALOG` (ADR 0020, section 12) | `packages/ui/src/catalog/catalog.test.tsx` | test |
+| `/_catalog` is local only (ADR 0020, section 12) | the `apps/web/src/cloudflare` rule in `check-deps` keeps `@bd/ui/catalog` out of the Worker; `apps/web/src/cloudflare/worker.test.ts` gets 404 | check, test |
+| A UI change shows in screenshots (#258) | `bun run ui:screens` against `apps/web/screenshots/linux`: the `screenshots` job in `ci.yml`, not `check` | CI |
 | 1. Code decides | model result schemas have no wave, height or rank fields (`packages/contracts/src/model.ts`); core's imports, package and relative (`check-deps`); no IO or clock in core: review checklist 13 | types, check, review |
 | 2. Sources are referenced | model schemas cite echo IDs only (`model.ts`); storing and rendering: review checklist 3 | types, review |
 | 3. Independent sources per fetch group | `packages/core` tests | test |

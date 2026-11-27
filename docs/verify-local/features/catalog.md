@@ -10,13 +10,18 @@ page (default light, English); the links at its top go to the other five.
 
 **Correct looks like:**
 
-- `get /_catalog`: 200, `<html lang="en" data-theme="light">`, a list of
-  every component with its layer and state names (`ThemeSwitch
-  (primitives): default`, `Band (patterns): default, note, long, zh, ja`),
-  then one section per component with one `data-shot="<Name>/<state>"`
-  element per state.
-- `get "/_catalog?theme=dark&lang=ja"`: the same, `<html lang="ja"
-  data-theme="dark">`.
+- `get /_catalog`: 200. `get` prints the first 2000 characters from
+  `<body>`: "This page: light, en.", the links to the six pages, and a list
+  of every component with its layer and state names (`ThemeSwitch
+  (primitives): default, long, zh, ja`, `Band (patterns): default, note,
+  long, zh, ja`). The rest is in the file `get` saved: `<html lang="en"
+  data-theme="light">`, and one section per component with one
+  `data-shot="<Name>/<state>"` element per state.
+- `get "/_catalog?theme=dark&lang=ja"`: the same; it prints "This page:
+  dark, ja.", and the saved file has `<html lang="ja" data-theme="dark">`.
+- `get "/_catalog?theme=light&lang=en&shot=Band/long"`: that one state
+  alone, the page the screenshot run captures; an unknown component or
+  state: 404.
 - `get "/_catalog?theme=sepia"` or `?lang=fr`: 404.
 - In a browser: each state rendered with the site's stylesheet; in the
   dark page the paper is dark. The theme switch in the catalog is live
