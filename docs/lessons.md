@@ -4,6 +4,22 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L29 A check that moves from text to a syntax tree covers every node shape the text matched
+
+- **Date:** 2026-11-27. **Status:** active.
+- **What happened:** #286 replaced `check-ui`'s line lexer with a parser
+  and read a style object's `fontFamily` only when its value was a string
+  node. `"Georgia" as const` is a `TSAsExpression`, so a font name the lexer
+  had caught passed. The independent review found it with a probe.
+- **Rule:** When a check stops matching text and starts reading a syntax
+  tree, list the node shapes that hold the same text (wrappers such as
+  `as`, `satisfies`, `!`, parentheses) and test each one, against the old
+  check as well as the new.
+- **Scope:** scripts under `scripts/` that read source code.
+- **Check:** `scripts/check-ui.test.ts` ("a style object's font is read
+  through as const, satisfies, <const> and !"), run by `bun run check`.
+- **Evidence:** the round 1 review on #286, at `964e8a2`.
+
 ## L28 A rule in an ADR or a README is not kept until a check runs it
 
 - **Date:** 2026-11-27. **Status:** active.
