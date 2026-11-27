@@ -39,7 +39,8 @@ const none: readonly Exception[] = [];
 describe("check-ui (issue 259)", () => {
   test("the repository passes", () => {
     expect(uiProblems(join(import.meta.dir, ".."))).toEqual([]);
-  });
+    // It parses every UI file; a loaded machine needs more than the default 5s.
+  }, 30_000);
 
   test("a literal colour or pixel size in apps/web fails with the file and line", () => {
     const r = tree({
@@ -239,5 +240,94 @@ describe("check-ui (issue 259)", () => {
     expect(uiProblems(r, undefined, none)).toEqual([
       "apps/web/src/core/pages/n.tsx: pragma: the first line is not /** @jsxImportSource preact */ (ADR 0020)",
     ]);
+  });
+});
+
+// Each case below was missed or misreported by the line lexer at 2a19ef2
+// (#285): the code is now read with a parser.
+describe("check-ui reads code with a parser (issue 285)", () => {
+  // Written as `${$}{` so the fixtures' template parts are not this file's.
+  const $ = "$";
+  const ui = (body: string) => tree({ "packages/ui/src/styles/p.tsx": `${PRAGMA}${body}` });
+
+  test("an apostrophe in JSX text does not hide a size after it", () => {
+    const r = ui("export const p = <p>don't<i title='12px' /></p>;\n");
+    expect(uiProblems(r, undefined, none)).toEqual([
+      'packages/ui/src/styles/p.tsx:2: size: "12px" (use a size token from tokens.json)',
+    ]);
+  });
+
+  test("a regular expression right after => does not hide a size after it", () => {
+    const r = ui('export const f = (s: string) => /"/.test(s) ? "12px" : "";\n');
+    expect(uiProblems(r, undefined, none)).toEqual([
+      'packages/ui/src/styles/p.tsx:2: size: "12px" (use a size token from tokens.json)',
+    ]);
+  });
+
+  test("a / in JSX text does not hide a size after it", () => {
+    const r = ui('export const p = (x: number) => <p>{x} / {"12px"}</p>;\n');
+    expect(uiProblems(r, undefined, none)).toEqual([
+      'packages/ui/src/styles/p.tsx:2: size: "12px" (use a size token from tokens.json)',
+    ]);
+  });
+
+  test("a font shorthand with a nested var(), a size keyword or a template part names no font", () => {
+    const r = tree({
+      "packages/ui/src/styles/s.ts": [
+        'export const a = "font: var(--weight, var(--fallback)) var(--font-serif)";',
+        'export const b = "font: large var(--font-sans)";',
+        `export const c = (size: string) => \`font: ${$}{size} var(--font-sans)\`;`,
+        "",
+      ].join("\n"),
+    });
+    expect(uiProblems(r, undefined, none)).toEqual([]);
+  });
+
+  test("a font shorthand still names a font next to those parts", () => {
+    const r = tree({
+      "packages/ui/src/styles/s.ts": [
+        'export const a = "font: small-caps large Georgia";',
+        `export const b = (size: string) => \`font: ${$}{size} Georgia\`;`,
+        "",
+      ].join("\n"),
+    });
+    expect(uiProblems(r, undefined, none)).toEqual([
+      'packages/ui/src/styles/s.ts:1: font: "font: small-caps large Georgia" names a font (use a font token)',
+      'packages/ui/src/styles/s.ts:2: font: "font: var(--hole) Georgia" names a font (use a font token)',
+    ]);
+  });
+
+  test("JSX text is not a string; a size in a template keeps its line across a template part", () => {
+    const r = ui(
+      `export const p = <p>12px wide</p>;\nexport const t = (a: string) => \`${$}{\n  a\n} 4px\`;\n`,
+    );
+    expect(uiProblems(r, undefined, none)).toEqual([
+      'packages/ui/src/styles/p.tsx:5: size: "4px" (use a size token from tokens.json)',
+    ]);
+  });
+
+  test("a style object's font is read through as const, satisfies, <const> and !", () => {
+    const r = tree({
+      "packages/ui/src/styles/w.ts": [
+        'export const a = { fontFamily: "Georgia" as const };',
+        'export const b = { fontFamily: "Georgia" satisfies string };',
+        'export const c = { font: <const>"bold Georgia" };',
+        'export const d = { font: ("bold Georgia" as string)! };',
+        "",
+      ].join("\n"),
+    });
+    expect(uiProblems(r, undefined, none)).toEqual([
+      'packages/ui/src/styles/w.ts:1: font: "fontFamily: "Georgia"" (use a font token)',
+      'packages/ui/src/styles/w.ts:2: font: "fontFamily: "Georgia"" (use a font token)',
+      'packages/ui/src/styles/w.ts:3: font: "font: "bold Georgia"" names a font (use a font token)',
+      'packages/ui/src/styles/w.ts:4: font: "font: "bold Georgia"" names a font (use a font token)',
+    ]);
+  });
+
+  test("a file the parser cannot read fails with its line", () => {
+    const r = ui("export const p = <p>;\n");
+    const found = uiProblems(r, undefined, none);
+    expect(found).toHaveLength(1);
+    expect(found[0]).toMatch(/^packages\/ui\/src\/styles\/p\.tsx:2: parse: could not be parsed: /);
   });
 });

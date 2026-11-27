@@ -26,6 +26,8 @@
     "build:local": "bun packages/ui/scripts/write-client.ts dist/client && bun build apps/local/start.ts --compile --asset dist/client --outfile dist/breaker-delta"
   },
   "devDependencies": {
+    "@babel/parser": "8.1.3",
+    "@babel/types": "8.1.3",
     "@biomejs/biome": "2.6.8",
     "@cloudflare/workers-types": "^5.20261118.1",
     "@resvg/resvg-js": "^2.6.2",
