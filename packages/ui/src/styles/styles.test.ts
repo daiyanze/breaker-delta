@@ -322,3 +322,34 @@ describe("the CSS reader", () => {
     expect(() => parseCss('.a { content: "x }')).toThrow("not closed");
   });
 });
+
+// Design system: motion is decoration. Every animated rule stops for a
+// reader who asks for reduced motion (the ebb notice's ripple, #122). The
+// screenshot run captures with reduced motion and animations off, so it
+// cannot see a missing block; this test can.
+describe("animations stop under reduced motion", () => {
+  const REDUCE = "(prefers-reduced-motion: reduce)";
+  const animated = rules.filter((r) => {
+    const value = cssValue(r, "animation") ?? cssValue(r, "animation-name");
+    return value !== undefined && value !== "none" && !r.media.includes(REDUCE);
+  });
+
+  test("the sheet has animated rules to check", () => {
+    expect(animated.map((r) => r.selector)).toContain(".Notice-ripple-line");
+  });
+
+  test("each animated rule has a reduced-motion rule that turns it off", () => {
+    for (const r of animated) {
+      const still = rules.find(
+        (s) =>
+          s.selector === r.selector &&
+          s.media.includes(REDUCE) &&
+          (cssValue(s, "animation") === "none" || cssValue(s, "animation-name") === "none"),
+      );
+      expect({ selector: r.selector, still: still !== undefined }).toEqual({
+        selector: r.selector,
+        still: true,
+      });
+    }
+  });
+});
