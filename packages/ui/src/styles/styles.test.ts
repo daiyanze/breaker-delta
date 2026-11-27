@@ -19,8 +19,8 @@ describe("uiCss() joins every .css file", () => {
   test("a .css file that is not in the list is reported", () => {
     const listed = new Set(CSS_FILES.map((f) => f.path));
     const missing = (paths: string[]) => paths.filter((p) => !listed.has(p));
-    expect(missing([...CSS_FILES.map((f) => f.path), "patterns/Masthead/Masthead.css"])).toEqual([
-      "patterns/Masthead/Masthead.css",
+    expect(missing([...CSS_FILES.map((f) => f.path), "patterns/Newsstand/Newsstand.css"])).toEqual([
+      "patterns/Newsstand/Newsstand.css",
     ]);
   });
 

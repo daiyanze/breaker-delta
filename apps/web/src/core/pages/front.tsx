@@ -4,7 +4,7 @@
  * alone. Every piece of text is a plain string; the renderer escapes it.
  * Interface text comes from the string tables in the page's language (#107),
  * the theme switch's two names included. The switch is its one island
- * (#105); it moves into the masthead's top bar with #110.
+ * (#105), in the masthead's row of tools with the language menu (#110).
  */
 import type { Language, RankRow } from "@bd/contracts";
 import { Band } from "@bd/ui/patterns";
@@ -15,6 +15,7 @@ import { pathIn } from "../languages.ts";
 import type { RouteContext } from "../routes.ts";
 import { type Translate, translator } from "../strings/index.ts";
 import { pageLanguages } from "./head.tsx";
+import { pageMasthead } from "./masthead.tsx";
 
 /** The model headline in `lang` when there is one, else the source's own headline. */
 function headline(row: Pick<RankRow, "headlines" | "sourceHeadline">, lang: Language) {
@@ -81,11 +82,19 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
   return {
     document: (
       <Document lang={ctx.lang} title={meta.siteName} head={languages.head}>
-        <header class="page">
-          {languages.menu}
-          <h1>{meta.siteName}</h1>
-          <ThemeSwitch toDark={t("theme.toDark")} toLight={t("theme.toLight")} />
-        </header>
+        {pageMasthead({
+          lang: ctx.lang,
+          site: meta,
+          current: "front",
+          name: meta.siteName,
+          heading: true,
+          tools: (
+            <>
+              {languages.menu}
+              <ThemeSwitch toDark={t("theme.toDark")} toLight={t("theme.toLight")} />
+            </>
+          ),
+        })}
         <main class="page">{bands}</main>
       </Document>
     ),

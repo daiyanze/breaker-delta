@@ -24,6 +24,7 @@ other data file, not even one in `src/tokens`.
 
 `tokens` (#269), `styles` and `build` (#270), `runtime` and `patterns`
 (#271) and `primitives` (#272) exist today; `patterns` holds `Band`,
+`LanguageMenu` and `Masthead`,
 `primitives` the `ThemeSwitch` island; `catalog` (#258) lists them. A file directly under `src/` is
 under no rule and fails `check-deps`.
 
@@ -68,6 +69,13 @@ under no rule and fails `check-deps`.
   the globe alone. `open` starts it open, for the catalog's `open` and
   `long` states; pages leave it out. Classes `.LanguageMenu`, `-details`,
   `-button`, `-icon`, `-current`, `-chevron`, `-list`, `-link`.
+- `Masthead` (`patterns/Masthead`, boards 01 to 23, #110): the tools row
+  (`tools`), the One ink mark and the wordmark as one link home (an `<h1>`
+  with `heading`), the navigation with the `current` page marked, and the
+  wave with its boat, moved by CSS alone and still under reduced motion. On
+  phones the navigation is a `<details>` "Sections" disclosure. Its mark is
+  `oneInkMark` of `apps/web/src/core/icon.ts` redrawn in Preact;
+  `icon.test.ts` compares the shapes. `SPEC.md` in its folder.
 - `ThemeSwitch` (`primitives/ThemeSwitch`, an island): the masthead's
   square icon button (#105) that flips `<html data-theme>` and stores the
   choice. Props `toDark` and `toLight`, its name in each theme, as finished
@@ -113,10 +121,10 @@ no Bun or Cloudflare types, so emails and share cards can import it.
   `scripts/generate-tokens.test.ts` fails while the two differ.
 - `supplement.ts` holds the values the design states only in prose or not at
   all (the phone gutter and section size, the control height, the icon
-  size and stroke, the theme switch's icon size, the two-column
-  breakpoint), each with the text it comes from. No other file holds a
-  design value. All but the breakpoint are also CSS variables: `--phone-*`,
-  `--control-*`, `--icon-*`.
+  size and stroke, the theme switch's icon size, the masthead's sizes and
+  motion, the two-column breakpoint), each with the text it comes from. No
+  other file holds a design value. All but the breakpoint are also CSS
+  variables: `--phone-*`, `--control-*`, `--icon-*`, `--masthead-*`.
 - `contrast.test.ts` computes the WCAG 2.2 contrast of every text and
   background pair the design uses, in both themes: 4.5:1 for text, 3:1 for
   a control's outline. A new colour token fails it until it is placed.
