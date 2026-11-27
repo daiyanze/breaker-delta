@@ -22,13 +22,18 @@ export interface LanguageMenuProps {
   /** The button's accessible name, in the page's language: "Language: English". */
   label: string;
   links: readonly LanguageLink[];
+  /**
+   * Starts open. The list opens by a click, so the catalog gives its open
+   * state as this prop (ADR 0020, section 12); pages leave it out.
+   */
+  open?: boolean;
 }
 
 export function LanguageMenu(props: LanguageMenuProps): VNode {
   const current = props.links.find((l) => l.current);
   return (
     <div class="LanguageMenu">
-      <details class="LanguageMenu-details">
+      <details class="LanguageMenu-details" open={props.open === true}>
         <summary class="LanguageMenu-button" aria-label={props.label}>
           <svg class="LanguageMenu-icon" viewBox="0 0 18 18" aria-hidden="true">
             <circle cx="9" cy="9" r="7" />

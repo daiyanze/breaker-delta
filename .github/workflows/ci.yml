@@ -57,3 +57,33 @@ jobs:
           (cd apps/web && bun x --bun wrangler deploy --dry-run --outdir ../../.wrangler-dist/web)
       - name: Run the built pipeline in the Workers runtime
         run: bun scripts/cloudflare-smoke.ts .wrangler-dist/pipeline
+
+  # The screenshot check (#258, ADR 0020 section 12): every state on the
+  # local site's `/_catalog`, compared with `apps/web/screenshots/linux`.
+  # Kept out of `check` so `check` downloads no browser. One OS, pinned, is
+  # where the baselines are made: text renders differently on each.
+  screenshots:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      # No Node on PATH (#13), as in `check`: Playwright runs on Bun.
+      - name: Remove Node
+        run: |
+          for bin in node npm npx corepack; do
+            while p="$(command -v "$bin")"; do echo "removing $p"; sudo rm -f "$p"; hash -r; done
+          done
+          ! command -v node
+      - run: bun install --frozen-lockfile
+      - name: Install headless Chromium and its system libraries
+        run: cd apps/web && bun x --bun playwright-core install --with-deps chromium-headless-shell
+      - run: bun run ui:screens
+      # Every shot of the run, the changed ones with diffs: to read a
+      # failure, or to take new baselines after `bun run ui:baseline`'s change.
+      - name: Upload the shots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-screens
+          path: .ui-screens/
+          include-hidden-files: true

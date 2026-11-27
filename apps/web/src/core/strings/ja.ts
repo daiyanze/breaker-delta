@@ -17,4 +17,10 @@ export const ja: Table = {
   "theme.toLight": "ライトモードに切り替える",
   "scaffold.name": "足場",
   "scaffold.text": "2.0 の足場です。サイトはマイルストーン M3 で公開されます。",
+  "catalog.name": "カタログ",
+  "catalog.summary":
+    "コンポーネント {components} 個、テーマ {themes} 種、言語 {languages} 種。このページ：{theme}、{language}。",
+  "catalog.states": "{layer}、状態 {count} 個",
+  "catalog.theme.light": "ライト",
+  "catalog.theme.dark": "ダーク",
 };

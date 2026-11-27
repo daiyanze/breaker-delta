@@ -9,6 +9,7 @@
     "./primitives": "./src/primitives/index.ts",
     "./patterns": "./src/patterns/index.ts",
     "./styles": "./src/styles/index.ts",
+    "./catalog": "./src/catalog/index.ts",
     "./build": "./src/build/index.ts"
   },
   "scripts": {

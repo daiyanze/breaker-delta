@@ -74,7 +74,7 @@ describe("markup", () => {
     );
   });
 
-  test("the catalog state renders", () => {
-    expect(Object.keys(themeSwitchStates.states)).toEqual(["default"]);
+  test("the catalog states: default, long, and one per language (issue 258)", () => {
+    expect(Object.keys(themeSwitchStates.states)).toEqual(["default", "long", "zh", "ja"]);
   });
 });

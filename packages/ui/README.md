@@ -24,8 +24,7 @@ other data file, not even one in `src/tokens`.
 
 `tokens` (#269), `styles` and `build` (#270), `runtime` and `patterns`
 (#271) and `primitives` (#272) exist today; `patterns` holds `Band`,
-`primitives` the `ThemeSwitch` island. `catalog` arrives with the
-plan in `docs/plans/ui-architecture.yaml`. A file directly under `src/` is
+`primitives` the `ThemeSwitch` island; `catalog` (#258) lists them. A file directly under `src/` is
 under no rule and fails `check-deps`.
 
 ## `@bd/ui/runtime` and `@bd/ui/patterns`
@@ -66,8 +65,9 @@ under no rule and fails `check-deps`.
   the same page in each language inside a `<details>`, so it opens without
   JavaScript; the current one has `aria-current`. It takes finished text:
   the button's label and each language's own name. On phones the button is
-  the globe alone. Classes `.LanguageMenu`, `-details`, `-button`, `-icon`,
-  `-current`, `-chevron`, `-list`, `-link`.
+  the globe alone. `open` starts it open, for the catalog's `open` and
+  `long` states; pages leave it out. Classes `.LanguageMenu`, `-details`,
+  `-button`, `-icon`, `-current`, `-chevron`, `-list`, `-link`.
 - `ThemeSwitch` (`primitives/ThemeSwitch`, an island): the masthead's
   square icon button (#105) that flips `<html data-theme>` and stores the
   choice. Props `toDark` and `toLight`, its name in each theme, as finished
@@ -123,10 +123,40 @@ no Bun or Cloudflare types, so emails and share cards can import it.
 - `index.ts` exports `colorOf`, `size`, `typeStyle`, `tokensCss`,
   `typeClassesCss`, `FONT_FILES` and `fontFaceCss`.
 
+## `@bd/ui/catalog`
+
+- `CATALOG` lists every component with its states, from each folder's
+  `<Name>.states.tsx`, primitives first. `catalog.test.tsx` finds the
+  component folders under `primitives` and `patterns` and fails on a folder
+  without a states file, a states file missing from the list, or a listed
+  folder that is gone; it also renders every state on the server.
+- A state is a set of props. Hover and focus are not states. A component
+  whose layout depends on its text has a long-text state and a state per
+  language with its own sample text (`Band`: `long`, `zh`, `ja`).
+- Only the local site adapter imports it (`check-deps` keeps it out of
+  `apps/web/src/cloudflare` and `src/core`): `/_catalog` in
+  `apps/web/src/local/catalog.tsx` shows every state, one theme and one
+  language per page. `bun run ui:screens` (`apps/web/scripts/screens.ts`)
+  captures each state alone on a page (`&shot=`, so adding a state never
+  moves another's shot), at 1440 and 390 wide, in both themes and every
+  language, at rest, hovered and focused, and compares them with
+  `apps/web/screenshots/<platform>`; `bun run ui:baseline` rewrites them.
+  The committed baselines are Linux's, from the `screenshots` CI job.
+- A shot's clip is the union of three things, rounded out to whole pixels:
+  the state wrapper's box, the box of every descendant that is drawn
+  (`checkVisibility()`), and the box of every pixel of the page that
+  differs from the page's background by more than the comparison's noise
+  level (8 in a channel). The page holds the state alone, so the last one
+  takes in an open menu's list, focus rings, outlines, box shadows and
+  pseudo-elements outside the element boxes. Not in a shot: paint within 8
+  of the background's colour in every channel, which the comparison would
+  count as noise anyway.
+
 ## Where a new thing goes
 
 - **A token** goes into the design export (`design/system/tokens.json`),
   then the generator. A value the export does not carry yet goes into
   `supplement.ts` with its source.
 - **A component** gets one folder in `primitives` or `patterns`: `Name.tsx`
-  or `Name.island.tsx`, `Name.css`, `Name.states.tsx`, `SPEC.md`.
+  or `Name.island.tsx`, `Name.css`, `Name.states.tsx`, `SPEC.md`, and an
+  entry in `CATALOG` (`catalog/index.ts`).

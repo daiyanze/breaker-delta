@@ -17,4 +17,10 @@ export const zh: Table = {
   "theme.toLight": "切换到浅色模式",
   "scaffold.name": "脚手架",
   "scaffold.text": "2.0 脚手架。网站将在 M3 里程碑上线。",
+  "catalog.name": "组件目录",
+  "catalog.summary":
+    "{components} 个组件，{themes} 种主题，{languages} 种语言。本页：{theme}，{language}。",
+  "catalog.states": "{layer}，{count} 种状态",
+  "catalog.theme.light": "浅色",
+  "catalog.theme.dark": "深色",
 };

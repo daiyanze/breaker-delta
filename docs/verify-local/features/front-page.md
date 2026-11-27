@@ -21,8 +21,9 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
 - `get "/ja/?set=quiet"` (English only): redirected to `/?set=quiet`,
   `lang="en"`.
 - `get "/?set=nope"`: 404 "unknown fixture set". Any path other than `/`
-  (and its language versions, `languages.md`), `/health` and the files
-  under `/fonts/`, `/icons/` and `/client/`: 404.
+  (and its language versions, `languages.md`), `/health`, `/_catalog`
+  (`catalog.md`) and the files under `/fonts/`, `/icons/` and `/client/`:
+  404.
 - `get /client/ui.css`: 200 `text/css`, starting with
   `@layer tokens, base, primitives, patterns;`. Every page links it; no
   page holds a `<style>` (#270).

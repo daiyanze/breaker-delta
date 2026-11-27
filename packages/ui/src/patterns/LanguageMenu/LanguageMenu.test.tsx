@@ -45,6 +45,19 @@ describe("language menu", () => {
     expect(html).toContain(">&lt;i></span>");
   });
 
+  test("closed unless told to start open", () => {
+    const { default: closed, open } = menuStates.states;
+    if (closed === undefined || open === undefined) throw new Error("the default and open states");
+    expect(body(<LanguageMenu {...closed} />)).toContain('<details class="LanguageMenu-details">');
+    expect(body(<LanguageMenu {...open} />)).toContain(
+      '<details class="LanguageMenu-details" open>',
+    );
+  });
+
+  test("its states: default, open, long, zh, ja", () => {
+    expect(Object.keys(menuStates.states)).toEqual(["default", "open", "long", "zh", "ja"]);
+  });
+
   test("every state renders a menu", () => {
     for (const props of Object.values(menuStates.states)) {
       expect(body(<LanguageMenu {...props} />)).toStartWith('<div class="LanguageMenu">');

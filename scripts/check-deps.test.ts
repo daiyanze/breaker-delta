@@ -515,6 +515,26 @@ describe("check-deps", () => {
       expect(found).toContain('web/src/core/compat.ts imports "preact/compat"');
       expect(found).toContain('web/src/local/render.ts imports "preact-render-to-string"');
     });
+
+    test("only the local site adapter imports the catalog; the Worker never does (#258, L7)", () => {
+      const catalog = 'import { CATALOG } from "@bd/ui/catalog";';
+      file("apps/web/src/local/catalog-ok.tsx", catalog);
+      file("apps/web/src/cloudflare/catalog.ts", catalog);
+      file("apps/web/src/cloudflare/build.ts", 'import { buildClient } from "@bd/ui/build";');
+      file("apps/web/src/core/catalog.ts", catalog);
+      file(
+        "apps/web/src/cloudflare/local.ts",
+        'import { serveCatalog } from "../local/catalog.tsx";',
+      );
+      const found = all();
+      expect(found).not.toContain("apps/web/src/local/catalog-ok.tsx");
+      expect(found).toContain('web/src/cloudflare/catalog.ts imports "@bd/ui/catalog"');
+      expect(found).toContain('web/src/cloudflare/build.ts imports "@bd/ui/build"');
+      expect(found).toContain('web/src/core/catalog.ts imports "@bd/ui/catalog"');
+      expect(found).toContain(
+        'apps/web/src/cloudflare/local.ts imports "../local/catalog.tsx", which is in apps/web/src/local',
+      );
+    });
   });
 
   describe("every source file is under a rule (#210)", () => {

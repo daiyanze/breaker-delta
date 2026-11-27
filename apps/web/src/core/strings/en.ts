@@ -22,6 +22,12 @@ export const en = {
   "theme.toLight": "Switch to light mode",
   "scaffold.name": "Scaffold",
   "scaffold.text": "2.0 scaffold. The site arrives in milestone M3.",
+  "catalog.name": "Catalog",
+  "catalog.summary":
+    "{components} components, {themes} themes, {languages} languages. This page: {theme}, {language}.",
+  "catalog.states": "{layer}, {count} states",
+  "catalog.theme.light": "light",
+  "catalog.theme.dark": "dark",
 } as const;
 
 export type StringKey = keyof typeof en;
