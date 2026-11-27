@@ -13,9 +13,16 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
 
 - `up` (no fixtures), `get /`: the placeholder, "The site arrives in
   milestone M3".
-- `up --fixtures busy`, `get /`: "The ... edition. Sea state: ...", an
+- `up --fixtures busy`, `get /`: the date strip first (#109): "Thursday,
+  November 19, 2026", "No. 323. Sea state: choppy.", "16 waves up", "5 new
+  today, scanned 14:00", then the language menu, the theme switch and a
+  search link. In the saved file: "The ... edition. Sea state: ...", an
   ordered list of topics linking to `/topic/<slug>`, and a Classifieds list.
-- `get "/?set=fresh"`: "The sea is flat." and the next scan time.
+- `get "/?set=fresh"`: the strip with "Sea state: flat.", "0 waves up" and
+  "first scan at 15:00"; "The sea is flat." and the next scan time.
+- `get /zh/` on `busy`: the strip reads "2026年11月19日 星期四" and
+  "第 323 期。海况：有浪。"; `/ja/`: "2026年11月19日（木）" and
+  "第323号。海況：波あり。".
 - `get /ja/` on `busy`: `<html lang="ja">`, Japanese headlines where
   the set has them, the source's own headline elsewhere.
 - `get "/ja/?set=quiet"` (English only): redirected to `/?set=quiet`,

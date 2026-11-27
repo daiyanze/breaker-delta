@@ -112,6 +112,7 @@ describe("the date strip", () => {
     const html = await front(createFixtureReadQueries("fresh"), "zh");
     expect(when(html)).toContain('<span class="DateStrip-month">11月</span>');
     expect(when(html)).toContain('datetime="2026-11-19"');
+    expect(when(html)).toContain(">2026年11月19日 星期四</time>");
     expect(when(html)).toContain("第 323 期。海况：无浪。");
     expect(when(html)).toContain(">0 个浪<");
     expect(when(html)).toContain(
@@ -129,6 +130,7 @@ describe("the date strip", () => {
     expect(when(html)).toContain(
       '<span class="DateStrip-month">1月</span><span class="DateStrip-day">1</span>',
     );
+    expect(when(html)).toContain(">2027年1月1日（金）</time>");
     expect(when(html)).toContain("第1号。");
   });
 

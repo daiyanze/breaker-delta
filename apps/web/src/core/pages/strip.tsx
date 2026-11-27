@@ -11,6 +11,12 @@
  * layer chooses the sea state by the design's rule, and the contract checks
  * in `@bd/fixtures` hold every query layer to it. With no edition the sea is
  * flat and the tag gives the first scan's time (board 17).
+ *
+ * `Intl` gives only the local date and time as numbers. The names of months
+ * and weekdays and the date's form come from the string tables: how a
+ * runtime's ICU data writes a full date differs between Bun builds and
+ * runtimes (a space before 星期四 on one, none on another), and the
+ * Chinese and Japanese forms are board 35's.
  */
 import type { Edition, SiteMeta } from "@bd/contracts";
 import { DateStrip } from "@bd/ui/patterns";
@@ -20,32 +26,44 @@ import { pathIn } from "../languages.ts";
 import type { RouteContext } from "../routes.ts";
 import { translator } from "../strings/index.ts";
 
-/** The parts of `at`'s local date in `timeZone`, as numbers. */
-function localDay(at: Date, timeZone: string): { year: number; month: number; day: number } {
-  const parts = new Intl.DateTimeFormat("en", {
+type Month = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+export interface LocalTime {
+  year: number;
+  month: Month;
+  day: number;
+  hour: number;
+  minute: number;
+}
+
+/** `at`'s local date and time in `timeZone`, as numbers. */
+export function localTime(at: Date, timeZone: string): LocalTime {
+  const parts = new Intl.DateTimeFormat("en-US", {
     timeZone,
     year: "numeric",
     month: "numeric",
     day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hourCycle: "h23",
   }).formatToParts(at);
   const part = (type: string) => Number(parts.find((p) => p.type === type)?.value);
-  return { year: part("year"), month: part("month"), day: part("day") };
+  return {
+    year: part("year"),
+    month: part("month") as Month,
+    day: part("day"),
+    hour: part("hour"),
+    minute: part("minute"),
+  };
 }
 
 /** The day's number in its year: January 1 is 1. */
-export function dayOfYear(d: { year: number; month: number; day: number }): number {
+export function dayOfYear(d: Pick<LocalTime, "year" | "month" | "day">): number {
   return (Date.UTC(d.year, d.month - 1, d.day) - Date.UTC(d.year, 0, 0)) / 86_400_000;
 }
 
-/** `at`'s local time in `timeZone`, as `HH:MM`. */
-function clock(at: Date, lang: string, timeZone: string): string {
-  return new Intl.DateTimeFormat(lang, {
-    timeZone,
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).format(at);
-}
+const pad = (n: number) => String(n).padStart(2, "0");
 
 export function pageStrip(
   ctx: Pick<RouteContext, "lang">,
@@ -54,22 +72,25 @@ export function pageStrip(
   menu: VNode | null,
 ): VNode {
   const t = translator(ctx.lang);
-  const tz = meta.timeZone;
-  const at = new Date(edition?.startsAt ?? meta.nextRunAt);
-  const local = localDay(at, tz);
-  const pad = (n: number) => String(n).padStart(2, "0");
+  const local = localTime(new Date(edition?.startsAt ?? meta.nextRunAt), meta.timeZone);
+  const weekday = new Date(Date.UTC(local.year, local.month - 1, local.day)).getUTCDay() as Weekday;
   const waves = edition?.waveCount ?? 0;
   const sea = t(`sea.${edition?.seaState ?? "flat"}`);
   const note =
     edition === null
-      ? t("strip.first", { time: clock(at, ctx.lang, tz) })
+      ? t("strip.first", { time: `${pad(local.hour)}:${pad(local.minute)}` })
       : t("strip.note", { formed: edition.formedToday, time: edition.label });
   const shortNote = edition === null ? note : t("strip.short", { formed: edition.formedToday });
   return (
     <DateStrip
-      month={new Intl.DateTimeFormat(ctx.lang, { timeZone: tz, month: "short" }).format(at)}
+      month={t(`month.short.${local.month}`)}
       day={String(local.day)}
-      date={new Intl.DateTimeFormat(ctx.lang, { timeZone: tz, dateStyle: "full" }).format(at)}
+      date={t("strip.date", {
+        weekday: t(`weekday.${weekday}`),
+        month: t(`month.${local.month}`),
+        day: local.day,
+        year: local.year,
+      })}
       dateTime={`${local.year}-${pad(local.month)}-${pad(local.day)}`}
       line={t("strip.line", { number: dayOfYear(local), sea })}
       count={t(waves === 1 ? "strip.count.one" : "strip.count.other", { count: waves })}
