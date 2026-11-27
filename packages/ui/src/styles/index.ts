@@ -9,6 +9,7 @@
 
 import band from "../patterns/Band/Band.css" with { type: "text" };
 import echoStack from "../patterns/EchoStack/EchoStack.css" with { type: "text" };
+import headline from "../patterns/Headline/Headline.css" with { type: "text" };
 import languageMenu from "../patterns/LanguageMenu/LanguageMenu.css" with { type: "text" };
 import themeSwitch from "../primitives/ThemeSwitch/ThemeSwitch.css" with { type: "text" };
 import { fontFaceCss, tokensCss, typeClassesCss } from "../tokens/index.ts";
@@ -30,6 +31,7 @@ export const CSS_FILES: readonly { path: string; layer: Layer; text: string }[] 
   { path: "primitives/ThemeSwitch/ThemeSwitch.css", layer: "primitives", text: themeSwitch },
   { path: "patterns/Band/Band.css", layer: "patterns", text: band },
   { path: "patterns/EchoStack/EchoStack.css", layer: "patterns", text: echoStack },
+  { path: "patterns/Headline/Headline.css", layer: "patterns", text: headline },
   { path: "patterns/LanguageMenu/LanguageMenu.css", layer: "patterns", text: languageMenu },
 ];
 

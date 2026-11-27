@@ -11,6 +11,15 @@ export {
   MIN_LAYERS as ECHO_STACK_MIN_LAYERS,
 } from "./EchoStack/EchoStack.tsx";
 export {
+  FULL_HEIGHT as HEADLINE_FULL_HEIGHT,
+  Headline,
+  type HeadlineLead,
+  type HeadlineProps,
+  type HeadlineStory,
+  type HeadlineTier,
+  headlineSize,
+} from "./Headline/Headline.tsx";
+export {
   type LanguageLink,
   LanguageMenu,
   type LanguageMenuProps,

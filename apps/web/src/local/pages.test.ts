@@ -92,15 +92,88 @@ describe("the echo stack, issue 114", () => {
     const start = en.indexOf('<svg class="EchoStack"');
     const stack = en.slice(start, en.indexOf("</svg>", start));
     expect(stack.match(/<rect /g)).toHaveLength(layers);
-    // It sits in the tallest wave's row, before its height.
-    expect(en.indexOf('<svg class="EchoStack"')).toBeGreaterThan(en.indexOf("<ol><li>"));
-    expect(en.indexOf('<svg class="EchoStack"')).toBeLessThan(en.indexOf("<data "));
+    // It sits in the lead story, under its headline and before its height (#119).
+    expect(en.indexOf('<svg class="EchoStack"')).toBeGreaterThan(en.indexOf("Headline-title-lead"));
+    expect(en.indexOf('<svg class="EchoStack"')).toBeLessThan(en.indexOf("Headline-number-lead"));
     expect(await front(q, "zh")).toContain(`aria-label="回波叠成浪，高 ${layers} 层"`);
     expect(await front(q, "ja")).toContain(`aria-label="エコーが重なって波に、${layers} 層の高さ"`);
   });
 
   test("a flat sea has none", async () => {
     expect(await front(createFixtureReadQueries("fresh"))).not.toContain("EchoStack");
+  });
+});
+
+describe("the three tiers of headlines, issue 119", () => {
+  const titles = (html: string, tier: string) =>
+    [
+      ...html.matchAll(
+        new RegExp(
+          `Headline-title-${tier}[^"]*" data-height="(\\d+)"><a class="Headline-link" href="([^"]+)"`,
+          "g",
+        ),
+      ),
+    ].map((m) => [m[1], m[2]]);
+
+  test("rank 1 is the lead, 2 and 3 the second tier, 4 to 6 the third, the rest a list", async () => {
+    const q = createFixtureReadQueries("busy");
+    const edition = await q.edition();
+    if (edition === null) throw new Error("busy has an edition");
+    const en = await front(q);
+    const slugs = edition.ranking.map((r) => `/topic/${r.slug}`);
+    const digits = (h: number) => String(Math.min(200, Math.round(h))).padStart(3, "0");
+    const at = (k: number) => [digits(edition.ranking[k]?.height ?? 0), slugs[k]];
+    expect(titles(en, "lead")).toEqual([at(0)]);
+    expect(titles(en, "second")).toEqual([at(1), at(2)]);
+    expect(titles(en, "third")).toEqual([at(3), at(4), at(5)]);
+    const list = en.slice(en.indexOf('<ol start="7">'));
+    expect(list).toContain(`href="${slugs[6]}"`);
+    expect(list.slice(0, list.indexOf("</ol>")).match(/<li>/g)).toHaveLength(
+      edition.ranking.length - 6,
+    );
+    // Every wave is linked once.
+    for (const s of slugs) expect(en.split(`href="${s}"`)).toHaveLength(2);
+  });
+
+  test("formed today (in the tide table) is red; down over 24 hours is fading; the kicker says which", async () => {
+    const q = createFixtureReadQueries("busy");
+    const en = await front(q);
+    // Ranks 2 and 3 formed today; rank 5 (frontier-model-backlash) is down 18%.
+    expect(en).toContain(
+      '<data class="Headline-number Headline-number-second Headline-new" value="181">181</data>',
+    );
+    expect(en).toContain(
+      '<data class="Headline-number Headline-number-third" value="144">144</data>',
+    );
+    expect(en).toContain(
+      '<h3 class="Headline-title Headline-title-third Headline-fading" data-height="144"><a class="Headline-link" href="/topic/frontier-model-backlash"',
+    );
+    expect(en.match(/Headline-fading/g)).toHaveLength(1);
+    expect(en).toContain('<p class="Headline-kicker">Tallest wave right now</p>');
+    expect(en).toContain("<strong>Up 63% in 24 hours.</strong> 6 independent sources, 31 echoes.");
+    expect(en).toContain('<p class="Headline-note">Down 18% in 24 hours.</p>');
+    expect(en).toContain('aria-label="Wave height of the tallest story up to 14:00"');
+    // The quiet set's tallest wave formed this run.
+    const quiet = await front(createFixtureReadQueries("quiet"));
+    expect(quiet).toContain('<p class="Headline-kicker">Formed today, already the tallest</p>');
+    expect(quiet).toContain("<strong>New today.</strong>");
+    expect(quiet).toContain('<path class="Headline-chart-line" pathLength="1" d="M4,60 L516,60">');
+  });
+
+  test("the text follows the page's language; the headline keeps its own", async () => {
+    const q = createFixtureReadQueries("busy");
+    const zh = await front(q, "zh");
+    expect(zh).toContain('<p class="Headline-kicker">此刻最高的浪</p>');
+    expect(zh).toContain("<strong>24 小时内上涨 63%。</strong> 6 个独立来源，31 条回波。");
+    expect(zh).toMatch(
+      /Headline-title-lead" data-height="196"><a class="Headline-link" href="\/zh\/topic\/[^"]+" lang="zh">/,
+    );
+    const ja = await front(q, "ja");
+    expect(ja).toContain('<p class="Headline-kicker">いまいちばん高い波</p>');
+  });
+
+  test("a flat sea has no headlines", async () => {
+    expect(await front(createFixtureReadQueries("fresh"))).not.toContain("Headline");
   });
 });
 
