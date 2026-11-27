@@ -14,12 +14,27 @@ interface Rule {
    * relative path (#209). Its own files are always allowed.
    */
   reach?: string[];
+  /**
+   * Data files outside its own area and the areas it reaches that this
+   * area may import by relative path (#269), as globs from the repository
+   * root (`Bun.Glob`): `design/system/tokens.json`,
+   * `packages/db/migrations/*.sql`. Data files in its own area or one it
+   * reaches pass; any other data file, in its package or not, fails.
+   */
+  data?: string[];
+  /** Even data in its own area and the areas it reaches must match `data` (#275 review). */
+  onlyListedData?: true;
   why: string;
 }
 
 const PORTS = /^@bd\/ports(\/conformance)?$/;
 /** Drizzle core and its proxy driver only: native drivers would bind one runtime. */
 const DRIZZLE = /^drizzle-orm(\/sqlite-core|\/sqlite-proxy)?$/;
+/** Preact itself, its hooks and its JSX runtime; not `preact/compat` (ADR 0020, section 2). */
+const PREACT = /^preact(\/hooks|\/jsx-runtime)?$/;
+const UI = "packages/ui/src";
+/** The parts of `@bd/ui` the site may use; more arrive with ADR 0020's later issues. */
+const UI_TOKENS = /^@bd\/ui\/tokens$/;
 
 export const RULES: Rule[] = [
   { dir: "packages/contracts/src", allow: [/^zod$/], why: "contracts hold schemas only" },
@@ -37,6 +52,7 @@ export const RULES: Rule[] = [
   {
     dir: "packages/fixtures/src",
     allow: [/^@bd\/contracts$/, /^bun:test$/],
+    data: ["packages/fixtures/sets/**/*.json"],
     why: "fixtures are data behind the read contracts: no database, no IO",
   },
   {
@@ -50,6 +66,60 @@ export const RULES: Rule[] = [
     dir: "packages/private-db/src",
     allow: [/^@bd\/contracts$/, DRIZZLE, /^bun:test$/],
     why: "the private schema is subscriber data only; it knows nothing of the content database",
+  },
+  // ADR 0020, section 3: four layers, each importing only the ones before
+  // it, and three areas that serve them. Nothing in @bd/ui imports an app.
+  {
+    dir: `${UI}/tokens`,
+    allow: [/^bun:test$/],
+    // ADR 0020 section 5: no data file but tokens.json, not even its own.
+    data: ["design/system/tokens.json"],
+    onlyListedData: true,
+    why: "tokens hold values only: no JSX, no DOM, no runtime API (ADR 0020)",
+  },
+  {
+    dir: `${UI}/runtime`,
+    allow: [PREACT, /^preact-render-to-string$/, /^bun:test$/],
+    reach: [`${UI}/tokens`],
+    why: "the runtime renders documents and islands on tokens (ADR 0020)",
+  },
+  {
+    dir: `${UI}/primitives`,
+    allow: [PREACT, /^bun:test$/],
+    reach: [`${UI}/tokens`, `${UI}/runtime`],
+    why: "primitives build on tokens and the runtime only (ADR 0020)",
+  },
+  {
+    dir: `${UI}/patterns`,
+    allow: [PREACT, /^@bd\/contracts$/, /^bun:test$/],
+    reach: [`${UI}/tokens`, `${UI}/runtime`, `${UI}/primitives`],
+    why: "patterns build on the layers before them and contract types (ADR 0020)",
+  },
+  {
+    dir: `${UI}/styles`,
+    allow: [/^bun:test$/],
+    reach: [`${UI}/tokens`],
+    data: [`${UI}/primitives/**/*.css`, `${UI}/patterns/**/*.css`],
+    why: "styles join the tokens and the components' .css files (ADR 0020)",
+  },
+  {
+    dir: `${UI}/catalog`,
+    allow: [PREACT, /^bun:test$/],
+    reach: [`${UI}/tokens`, `${UI}/runtime`, `${UI}/primitives`, `${UI}/patterns`],
+    why: "the catalog lists the components' states (ADR 0020)",
+  },
+  {
+    dir: `${UI}/build`,
+    allow: [/^bun(:.+)?$/, /^node:/],
+    reach: [
+      `${UI}/tokens`,
+      `${UI}/runtime`,
+      `${UI}/primitives`,
+      `${UI}/patterns`,
+      `${UI}/styles`,
+      `${UI}/catalog`,
+    ],
+    why: "the build bundles the client files with Bun (ADR 0020)",
   },
   // ADR 0018: app cores run on any runtime, so no `cloudflare:*` and no Bun APIs.
   {
@@ -73,6 +143,7 @@ export const RULES: Rule[] = [
     dir: "apps/pipeline/src/local",
     allow: [/^@bd\/(contracts|core|db)$/, PORTS, /^bun:/, /^node:/],
     reach: ["apps/pipeline/src/core"],
+    data: ["packages/db/migrations/*.sql", "apps/pipeline/src/sources/fixtures/*"],
     why: "the local adapter runs on Bun, never on Cloudflare APIs (ADR 0018)",
   },
   {
@@ -83,8 +154,9 @@ export const RULES: Rule[] = [
   },
   {
     dir: "apps/web/src/local",
-    allow: [/^@bd\/(contracts|fixtures)$/, PORTS, /^bun:/, /^node:/],
+    allow: [/^@bd\/(contracts|fixtures)$/, UI_TOKENS, PORTS, /^bun:/, /^node:/],
     reach: ["apps/web/src/core", "apps/web/src/select.ts"],
+    data: ["apps/web/public/fonts/*.woff2", "apps/web/public/icons/*"],
     why: "the local site adapter runs on Bun, never on Cloudflare APIs (ADR 0018)",
   },
   {
@@ -94,12 +166,12 @@ export const RULES: Rule[] = [
   },
   {
     dir: "apps/web/src/core",
-    allow: [/^@bd\/contracts$/, PORTS, /^bun:test$/],
+    allow: [/^@bd\/contracts$/, UI_TOKENS, PORTS, /^bun:test$/],
     why: "the site core reads through the read contracts only (ADR 0018)",
   },
   {
     dir: "apps/web/src",
-    allow: [/^@bd\/(contracts|db|fixtures)$/, PORTS, /^cloudflare:/, /^bun:test$/],
+    allow: [/^@bd\/(contracts|db|fixtures)$/, UI_TOKENS, PORTS, /^cloudflare:/, /^bun:test$/],
     reach: ["apps/web/src/core", "apps/web/src/select.ts"],
     why: "web is read-only: no judge, no pipeline code",
   },
@@ -254,6 +326,18 @@ function areaOf(path: string, rules: Rule[]): Rule | undefined {
     .sort((a, b) => b.dir.length - a.dir.length)[0];
 }
 
+/**
+ * Whether `rule` may import the data file at `path` (relative to the root):
+ * it is in the rule's own area or one it reaches (unless the rule allows
+ * only listed data), or a `data` glob matches.
+ */
+function allowedData(rule: Rule, path: string, rules: Rule[]): boolean {
+  const area = areaOf(path, rules);
+  const reached = area !== undefined && (area === rule || rule.reach?.includes(area.dir));
+  if (reached && !rule.onlyListedData) return true;
+  return (rule.data ?? []).some((glob) => new Bun.Glob(glob).match(path));
+}
+
 /** `packages/<x>` or `apps/<x>`, the workspace package a path is in. */
 function packageOf(path: string): string | undefined {
   const [group, name] = path.split("/");
@@ -265,7 +349,8 @@ function packageOf(path: string): string | undefined {
  * another workspace package must be imported by its package name, so that
  * package's rule applies; inside a package, an area may import another
  * rule's area only if its rule lists it in `reach`. Data files are not
- * code and pass. A file no rule covers is not checked itself, but an
+ * code: they pass inside their own package, and from outside it only when
+ * the rule lists them in `data` (#269). A file no rule covers is not checked itself, but an
  * import into one from a ruled file fails here (#210).
  */
 export function relativeViolations(root: string, rules: Rule[] = RULES): string[] {
@@ -287,11 +372,18 @@ export function relativeViolations(root: string, rules: Rule[] = RULES): string[
         continue;
       }
       for (const { spec, target } of imports) {
-        if (DATA.test(spec) && !CODE.test(target)) continue;
         // Resolved through any symlink, so a link cannot carry an import elsewhere.
         const to = existsSync(target) ? relative(real, target) : relative(root, target);
         const pkg = packageOf(to);
         const head = `${from} imports "${spec}"`;
+        if (DATA.test(spec) && !CODE.test(target)) {
+          if (allowedData(rule, to, rules)) continue;
+          const fix = "list it in the rule's data (#269)";
+          found.push(
+            `${head}, a data file outside the areas ${rule.dir} reaches that it does not list: ${fix}`,
+          );
+          continue;
+        }
         if (pkg !== packageOf(from)) {
           const fix = "import it by its package name so its rule applies (#209)";
           found.push(`${head}, code in ${pkg ?? to}: ${fix}`);

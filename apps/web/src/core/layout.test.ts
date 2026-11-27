@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import tokens from "../../../../design/system/tokens.json" with { type: "json" };
+import { PHONE, TWO_COLUMNS_FROM } from "@bd/ui/tokens";
 import { renderBand, renderPage } from "./layout.ts";
-import { headStyles, PHONE, TWO_COLUMNS_FROM } from "./style.ts";
+import { headStyles } from "./style.ts";
 
 const css = headStyles();
 
@@ -91,12 +91,8 @@ describe("layout styles", () => {
     expect(root.wide).toContain("--band-name-size:var(--type-section-size)");
   });
 
-  test("the phone values are the ones the design system states", () => {
-    const usage = (name: string) =>
-      [...tokens.spacing.tokens, ...tokens.type.groups.flatMap((g) => g.styles)].find(
-        (t) => t.name === name,
-      )?.usage ?? "";
-    for (const v of Object.values(PHONE)) expect(usage(v.token)).toContain(v.value);
+  // That they are the values the design states: `packages/ui/src/tokens/tokens.test.ts`.
+  test("phones get the phone values", () => {
     const root = rules(":root").base;
     expect(root).toContain(`--page-gutter:${PHONE.gutter.value}`);
     expect(root).toContain(`--band-name-size:${PHONE.sectionSize.value}`);

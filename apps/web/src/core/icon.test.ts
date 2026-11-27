@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import tokens from "../../../../design/system/tokens.json" with { type: "json" };
+import { colorOf, tokensCss } from "@bd/ui/tokens";
 import {
   ICON_FILES,
   ICON_LINKS,
@@ -14,8 +14,9 @@ const DELTA = 'points="256,240 290,308 222,308"';
 const WINDOW_BAR = 'd="M256,104 V150"';
 const RAILING = 'd="M202,146 H310';
 
+// Every colour token's value in either theme, as the tokens layer writes them.
 const tokenValues = new Set(
-  tokens.color.tokens.flatMap((t) => [t.value.light, t.value.dark].map((v) => v.toUpperCase())),
+  [...tokensCss().matchAll(/--[\w-]+:(#[0-9A-Fa-f]{6});/g)].map((m) => (m[1] ?? "").toUpperCase()),
 );
 const hexes = (svg: string) => [...svg.matchAll(/#[0-9A-Fa-f]{6}\b/g)].map((m) => m[0]);
 
@@ -73,8 +74,7 @@ describe("colours", () => {
 
   test("the One ink file sets ink and paper for each colour scheme", () => {
     const svg = oneInkMarkFile({ size: 512 });
-    const value = (name: string, theme: "light" | "dark") =>
-      tokens.color.tokens.find((t) => t.name === name)?.value[theme];
+    const value = colorOf;
     expect(svg).toContain(
       `:root{--ink:${value("ink", "light")};--paper:${value("paper", "light")}}`,
     );

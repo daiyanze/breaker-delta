@@ -9,18 +9,9 @@
  *   so it follows the page's theme.
  *
  * Three levels of detail, by the size the icon is shown at (`iconDetail`).
- * Every colour comes from `design/system/tokens.json` by name.
+ * Every colour comes from `@bd/ui/tokens` by name.
  */
-import tokens from "../../../../design/system/tokens.json" with { type: "json" };
-
-type Theme = "light" | "dark";
-
-/** A token's value in one theme. Throws on a name tokens.json does not have. */
-function token(name: string, theme: Theme): string {
-  const t = tokens.color.tokens.find((c) => c.name === name);
-  if (t === undefined) throw new Error(`no colour token "${name}"`);
-  return t.value[theme];
-}
+import { type Theme, colorOf as token } from "@bd/ui/tokens";
 
 /**
  * - `full`: 100px and up, every part.

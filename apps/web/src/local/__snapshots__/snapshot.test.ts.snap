@@ -1,0 +1,1112 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`rendered output the placeholder site: placeholder / 1`] = `
+"200 text/html; charset=utf-8
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Breaker Delta</title>
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/icons/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="manifest" href="/icons/manifest.webmanifest">
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+:root{--font-display:"Fraunces", Georgia, serif;--font-body:"Instrument Sans", system-ui, sans-serif;--type-masthead-size:104px;--type-masthead-line:0.84;--type-masthead-weight:900;--type-masthead-style:normal;--type-masthead-tracking:-0.045em;--type-wave-number-size:132px;--type-wave-number-line:0.74;--type-wave-number-weight:900;--type-wave-number-style:normal;--type-wave-number-tracking:-0.05em;--type-headline-lead-size:96px;--type-headline-lead-line:0.95;--type-headline-lead-weight:900;--type-headline-lead-style:normal;--type-headline-lead-tracking:-0.03em;--type-headline-2-size:46px;--type-headline-2-line:1.02;--type-headline-2-weight:800;--type-headline-2-style:normal;--type-headline-2-tracking:-0.02em;--type-headline-3-size:30px;--type-headline-3-line:1.1;--type-headline-3-weight:800;--type-headline-3-style:normal;--type-headline-3-tracking:-0.01em;--type-section-size:38px;--type-section-line:1.08;--type-section-weight:400;--type-section-style:italic;--type-section-tracking:-0.02em;--type-clip-headline-size:24px;--type-clip-headline-line:1.2;--type-clip-headline-weight:600;--type-clip-headline-style:normal;--type-clip-headline-tracking:normal;--type-kicker-size:22px;--type-kicker-line:1.3;--type-kicker-weight:400;--type-kicker-style:italic;--type-kicker-tracking:normal;--type-lead-body-size:22px;--type-lead-body-line:1.6;--type-lead-body-weight:400;--type-lead-body-style:normal;--type-lead-body-tracking:normal;--type-body-size:17px;--type-body-line:1.55;--type-body-weight:400;--type-body-style:normal;--type-body-tracking:normal;--type-small-size:15px;--type-small-line:1.55;--type-small-weight:400;--type-small-style:normal;--type-small-tracking:normal;--type-label-size:13px;--type-label-line:1.3;--type-label-weight:600;--type-label-style:normal;--type-label-tracking:normal;--type-button-size:17px;--type-button-line:1;--type-button-weight:600;--type-button-style:normal;--type-button-tracking:normal;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;--space-8:72px;--rail:340px;--content:1280px;--radius-none:0;--radius-stamp:6px;--radius-tile:8px;--radius-round:50%;--rule-heavy:4px;--rule-thin:1px;--rule-dashed:2px;color-scheme:light;--paper:#F2EFE4;--ink:#14263B;--ink-2:#4A5868;--hair:#C9C6B8;--red:#C8351D;--blue:#1B55C0;--sky:#9DB8E8;--tint:#DCE6F5;--sun:#F4C535;--on-sun:#14263B;--solid:#14263B;--cat:#14263B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #c9c6b8;--shadow-clip:5px 5px 0 #c9c6b8;--shadow-picked:4px 6px 0 #14263b;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}
+.type-masthead{font-family:var(--font-display);font-size:var(--type-masthead-size);line-height:var(--type-masthead-line);font-weight:var(--type-masthead-weight);font-style:var(--type-masthead-style);letter-spacing:var(--type-masthead-tracking)}
+.type-wave-number{font-family:var(--font-display);font-size:var(--type-wave-number-size);line-height:var(--type-wave-number-line);font-weight:var(--type-wave-number-weight);font-style:var(--type-wave-number-style);letter-spacing:var(--type-wave-number-tracking)}
+.type-headline-lead{font-family:var(--font-display);font-size:var(--type-headline-lead-size);line-height:var(--type-headline-lead-line);font-weight:var(--type-headline-lead-weight);font-style:var(--type-headline-lead-style);letter-spacing:var(--type-headline-lead-tracking)}
+.type-headline-2{font-family:var(--font-display);font-size:var(--type-headline-2-size);line-height:var(--type-headline-2-line);font-weight:var(--type-headline-2-weight);font-style:var(--type-headline-2-style);letter-spacing:var(--type-headline-2-tracking)}
+.type-headline-3{font-family:var(--font-display);font-size:var(--type-headline-3-size);line-height:var(--type-headline-3-line);font-weight:var(--type-headline-3-weight);font-style:var(--type-headline-3-style);letter-spacing:var(--type-headline-3-tracking)}
+.type-section{font-family:var(--font-display);font-size:var(--type-section-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.type-clip-headline{font-family:var(--font-display);font-size:var(--type-clip-headline-size);line-height:var(--type-clip-headline-line);font-weight:var(--type-clip-headline-weight);font-style:var(--type-clip-headline-style);letter-spacing:var(--type-clip-headline-tracking)}
+.type-kicker{font-family:var(--font-display);font-size:var(--type-kicker-size);line-height:var(--type-kicker-line);font-weight:var(--type-kicker-weight);font-style:var(--type-kicker-style);letter-spacing:var(--type-kicker-tracking)}
+.type-lead-body{font-family:var(--font-body);font-size:var(--type-lead-body-size);line-height:var(--type-lead-body-line);font-weight:var(--type-lead-body-weight);font-style:var(--type-lead-body-style);letter-spacing:var(--type-lead-body-tracking)}
+.type-body{font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-weight:var(--type-body-weight);font-style:var(--type-body-style);letter-spacing:var(--type-body-tracking)}
+.type-small{font-family:var(--font-body);font-size:var(--type-small-size);line-height:var(--type-small-line);font-weight:var(--type-small-weight);font-style:var(--type-small-style);letter-spacing:var(--type-small-tracking)}
+.type-label{font-family:var(--font-body);font-size:var(--type-label-size);line-height:var(--type-label-line);font-weight:var(--type-label-weight);font-style:var(--type-label-style);letter-spacing:var(--type-label-tracking)}
+.type-button{font-family:var(--font-body);font-size:var(--type-button-size);line-height:var(--type-button-line);font-weight:var(--type-button-weight);font-style:var(--type-button-style);letter-spacing:var(--type-button-tracking)}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;overflow-wrap:break-word}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--font-display)}
+a{color:var(--blue)}
+img,svg{max-width:100%}
+:root{--page-gutter:20px;--band-space:var(--space-7);--band-name-size:32px}
+@media (min-width:960px){:root{--page-gutter:var(--space-6);--band-space:var(--space-8);--band-name-size:var(--type-section-size)}}
+.page{box-sizing:content-box;max-width:var(--content);margin-inline:auto;padding-inline:var(--page-gutter)}
+.band{display:grid;grid-template-columns:minmax(0,1fr);row-gap:var(--space-5);padding-block:var(--band-space);border-top:var(--rule-thin) solid var(--ink)}
+.band-rail{display:flex;flex-direction:column;gap:var(--space-3);min-width:0}
+.band-name{margin:0;font-family:var(--font-display);font-size:var(--band-name-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.band-note{margin:0;color:var(--ink-2)}
+.band-body{min-width:0}
+.band-body>:first-child{margin-top:0}
+@media (min-width:960px){.band{grid-template-columns:minmax(0,var(--rail)) minmax(0,1fr);column-gap:var(--space-8)}.band-rail{position:sticky;top:var(--space-5);align-self:start}}
+</style>
+</head>
+<body>
+<header class="page">
+<h1>Breaker Delta</h1>
+</header>
+<main class="page">
+<section class="band" aria-labelledby="band-scaffold">
+<div class="band-rail">
+<h2 id="band-scaffold" class="band-name">Scaffold</h2>
+</div>
+<div class="band-body">
+<p>2.0 scaffold. The site arrives in milestone M3.</p>
+</div>
+</section>
+</main>
+</body>
+</html>"
+`;
+
+exports[`rendered output the placeholder site: placeholder /health 1`] = `
+"200 application/json;charset=utf-8
+{"ok":true}"
+`;
+
+exports[`rendered output the placeholder site: placeholder /nope 1`] = `
+"404 null
+not found"
+`;
+
+exports[`rendered output the busy fixture set, in every language: busy / 1`] = `
+"200 text/html; charset=utf-8
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Breaker Delta</title>
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/icons/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="manifest" href="/icons/manifest.webmanifest">
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+:root{--font-display:"Fraunces", Georgia, serif;--font-body:"Instrument Sans", system-ui, sans-serif;--type-masthead-size:104px;--type-masthead-line:0.84;--type-masthead-weight:900;--type-masthead-style:normal;--type-masthead-tracking:-0.045em;--type-wave-number-size:132px;--type-wave-number-line:0.74;--type-wave-number-weight:900;--type-wave-number-style:normal;--type-wave-number-tracking:-0.05em;--type-headline-lead-size:96px;--type-headline-lead-line:0.95;--type-headline-lead-weight:900;--type-headline-lead-style:normal;--type-headline-lead-tracking:-0.03em;--type-headline-2-size:46px;--type-headline-2-line:1.02;--type-headline-2-weight:800;--type-headline-2-style:normal;--type-headline-2-tracking:-0.02em;--type-headline-3-size:30px;--type-headline-3-line:1.1;--type-headline-3-weight:800;--type-headline-3-style:normal;--type-headline-3-tracking:-0.01em;--type-section-size:38px;--type-section-line:1.08;--type-section-weight:400;--type-section-style:italic;--type-section-tracking:-0.02em;--type-clip-headline-size:24px;--type-clip-headline-line:1.2;--type-clip-headline-weight:600;--type-clip-headline-style:normal;--type-clip-headline-tracking:normal;--type-kicker-size:22px;--type-kicker-line:1.3;--type-kicker-weight:400;--type-kicker-style:italic;--type-kicker-tracking:normal;--type-lead-body-size:22px;--type-lead-body-line:1.6;--type-lead-body-weight:400;--type-lead-body-style:normal;--type-lead-body-tracking:normal;--type-body-size:17px;--type-body-line:1.55;--type-body-weight:400;--type-body-style:normal;--type-body-tracking:normal;--type-small-size:15px;--type-small-line:1.55;--type-small-weight:400;--type-small-style:normal;--type-small-tracking:normal;--type-label-size:13px;--type-label-line:1.3;--type-label-weight:600;--type-label-style:normal;--type-label-tracking:normal;--type-button-size:17px;--type-button-line:1;--type-button-weight:600;--type-button-style:normal;--type-button-tracking:normal;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;--space-8:72px;--rail:340px;--content:1280px;--radius-none:0;--radius-stamp:6px;--radius-tile:8px;--radius-round:50%;--rule-heavy:4px;--rule-thin:1px;--rule-dashed:2px;color-scheme:light;--paper:#F2EFE4;--ink:#14263B;--ink-2:#4A5868;--hair:#C9C6B8;--red:#C8351D;--blue:#1B55C0;--sky:#9DB8E8;--tint:#DCE6F5;--sun:#F4C535;--on-sun:#14263B;--solid:#14263B;--cat:#14263B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #c9c6b8;--shadow-clip:5px 5px 0 #c9c6b8;--shadow-picked:4px 6px 0 #14263b;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}
+.type-masthead{font-family:var(--font-display);font-size:var(--type-masthead-size);line-height:var(--type-masthead-line);font-weight:var(--type-masthead-weight);font-style:var(--type-masthead-style);letter-spacing:var(--type-masthead-tracking)}
+.type-wave-number{font-family:var(--font-display);font-size:var(--type-wave-number-size);line-height:var(--type-wave-number-line);font-weight:var(--type-wave-number-weight);font-style:var(--type-wave-number-style);letter-spacing:var(--type-wave-number-tracking)}
+.type-headline-lead{font-family:var(--font-display);font-size:var(--type-headline-lead-size);line-height:var(--type-headline-lead-line);font-weight:var(--type-headline-lead-weight);font-style:var(--type-headline-lead-style);letter-spacing:var(--type-headline-lead-tracking)}
+.type-headline-2{font-family:var(--font-display);font-size:var(--type-headline-2-size);line-height:var(--type-headline-2-line);font-weight:var(--type-headline-2-weight);font-style:var(--type-headline-2-style);letter-spacing:var(--type-headline-2-tracking)}
+.type-headline-3{font-family:var(--font-display);font-size:var(--type-headline-3-size);line-height:var(--type-headline-3-line);font-weight:var(--type-headline-3-weight);font-style:var(--type-headline-3-style);letter-spacing:var(--type-headline-3-tracking)}
+.type-section{font-family:var(--font-display);font-size:var(--type-section-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.type-clip-headline{font-family:var(--font-display);font-size:var(--type-clip-headline-size);line-height:var(--type-clip-headline-line);font-weight:var(--type-clip-headline-weight);font-style:var(--type-clip-headline-style);letter-spacing:var(--type-clip-headline-tracking)}
+.type-kicker{font-family:var(--font-display);font-size:var(--type-kicker-size);line-height:var(--type-kicker-line);font-weight:var(--type-kicker-weight);font-style:var(--type-kicker-style);letter-spacing:var(--type-kicker-tracking)}
+.type-lead-body{font-family:var(--font-body);font-size:var(--type-lead-body-size);line-height:var(--type-lead-body-line);font-weight:var(--type-lead-body-weight);font-style:var(--type-lead-body-style);letter-spacing:var(--type-lead-body-tracking)}
+.type-body{font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-weight:var(--type-body-weight);font-style:var(--type-body-style);letter-spacing:var(--type-body-tracking)}
+.type-small{font-family:var(--font-body);font-size:var(--type-small-size);line-height:var(--type-small-line);font-weight:var(--type-small-weight);font-style:var(--type-small-style);letter-spacing:var(--type-small-tracking)}
+.type-label{font-family:var(--font-body);font-size:var(--type-label-size);line-height:var(--type-label-line);font-weight:var(--type-label-weight);font-style:var(--type-label-style);letter-spacing:var(--type-label-tracking)}
+.type-button{font-family:var(--font-body);font-size:var(--type-button-size);line-height:var(--type-button-line);font-weight:var(--type-button-weight);font-style:var(--type-button-style);letter-spacing:var(--type-button-tracking)}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;overflow-wrap:break-word}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--font-display)}
+a{color:var(--blue)}
+img,svg{max-width:100%}
+:root{--page-gutter:20px;--band-space:var(--space-7);--band-name-size:32px}
+@media (min-width:960px){:root{--page-gutter:var(--space-6);--band-space:var(--space-8);--band-name-size:var(--type-section-size)}}
+.page{box-sizing:content-box;max-width:var(--content);margin-inline:auto;padding-inline:var(--page-gutter)}
+.band{display:grid;grid-template-columns:minmax(0,1fr);row-gap:var(--space-5);padding-block:var(--band-space);border-top:var(--rule-thin) solid var(--ink)}
+.band-rail{display:flex;flex-direction:column;gap:var(--space-3);min-width:0}
+.band-name{margin:0;font-family:var(--font-display);font-size:var(--band-name-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.band-note{margin:0;color:var(--ink-2)}
+.band-body{min-width:0}
+.band-body>:first-child{margin-top:0}
+@media (min-width:960px){.band{grid-template-columns:minmax(0,var(--rail)) minmax(0,1fr);column-gap:var(--space-8)}.band-rail{position:sticky;top:var(--space-5);align-self:start}}
+</style>
+</head>
+<body>
+<header class="page">
+<h1>Breaker Delta</h1>
+</header>
+<main class="page">
+<section class="band" aria-labelledby="band-front">
+<div class="band-rail">
+<h2 id="band-front" class="band-name">Front page</h2>
+</div>
+<div class="band-body">
+<p>The 14:00 edition. Sea state: choppy. 16 waves up, 5 new today.</p>
+<ol>
+<li><a href="/topic/chipmaker-board-founder-ceo" lang="en">Chipmaker board rules out bringing back its founder CEO</a> <data value="196">196</data></li>
+<li><a href="/topic/ai-lab-sued-over-agents" lang="en">State attorney general sues an AI lab over 80 rogue-agent incidents</a> <data value="181">181</data></li>
+<li><a href="/topic/six-banks-offline" lang="en">Six US banks go offline on the same afternoon</a> <data value="171">171</data></li>
+<li><a href="/topic/ai-hacking-tool-warning" lang="en">Security agency warns about an open-source AI hacking tool</a> <data value="151">151</data></li>
+<li><a href="/topic/frontier-model-backlash" lang="en">New frontier model keeps drawing benchmarks and backlash</a> <data value="144">144</data></li>
+<li><a href="/topic/decoy-discounts" lang="en">Black Friday decoy discounts: 29% of 351 deals saved nothing</a> <data value="131">131</data></li>
+<li><a href="/topic/open-weights-quarter-price" lang="en">Open-weights model released with pricing at 25% of flagship</a> <data value="126">126</data></li>
+<li><a href="/topic/assistant-wallet" lang="en">Chat assistant gets a wallet and starts paying for you</a> <data value="124">124</data></li>
+<li><a href="/topic/airline-bans-booking-agents" lang="en">Airline bans AI agents from booking flights</a> <data value="99">99</data></li>
+<li><a href="/topic/super-agent-flash-model" lang="en">Lab releases a super-agent and a faster flash model</a> <data value="80">80</data></li>
+<li><a href="/topic/browser-agent-permissions" lang="en">Browser vendor adds a permissions prompt for agents</a> <data value="74">74</data></li>
+<li><a href="/topic/cloud-outage-postmortem" lang="en">Postmortem of last week&#39;s inference outage</a> <data value="68">68</data></li>
+<li><a href="/topic/robotaxi-permit-expands" lang="en">Robotaxi permit expands to two more cities</a> <data value="63">63</data></li>
+<li><a href="/topic/retailer-extension-recall" lang="en">Retailer recalls a browser extension after a data leak</a> <data value="57">57</data></li>
+<li><a href="/topic/context-registry-opens" lang="en">A public registry for agent tool servers opens</a> <data value="49">49</data></li>
+<li><a href="/topic/quantum-error-rate-claim" lang="en">Quantum startup claims a record low error rate</a> <data value="44">44</data></li>
+</ol>
+</div>
+</section>
+<section class="band" aria-labelledby="band-classifieds">
+<div class="band-rail">
+<h2 id="band-classifieds" class="band-name">Classifieds</h2>
+</div>
+<div class="band-body">
+<ul>
+<li>Hacker News front page and Show HN: <a href="https://hackernews.example/item/41001" lang="en">Show HN: a terminal that explains its own error messages</a></li>
+<li>GitHub breakout repositories: <a href="https://github.example/item/41002" lang="en">A vector database in a single file passes 4,000 stars in a day</a></li>
+<li>Official blogs: <a href="https://official-blogs.example/item/41003" lang="en">Notes on giving agents a memory that survives restarts</a></li>
+<li>Lobsters hottest: <a href="https://lobsters.example/item/41004" lang="en">A 4-bit model that runs on a three-year-old phone</a></li>
+<li>Tech media and independent authors: <a href="https://tech-media.example/item/41005" lang="en">The quiet return of RSS, by the numbers</a></li>
+<li>Bluesky key accounts: <a href="https://bluesky.example/item/41006" lang="en">A browser vendor hints at built-in agent permissions</a></li>
+<li>GitHub breakout repositories: <a href="https://github.example/item/41007" lang="en">A spreadsheet engine written in 900 lines</a></li>
+<li>Official blogs: <a href="https://official-blogs.example/item/41008" lang="en">What we learned from a year of agent evaluations</a></li>
+<li>Hacker News front page and Show HN: <a href="https://hackernews.example/item/41009" lang="en">Ask HN: who still self-hosts their email?</a></li>
+<li>Tech media and independent authors: <a href="https://tech-media.example/item/41010" lang="en">Chip export rules, explained in five charts</a></li>
+<li>DEV.to top posts: <a href="https://devto.example/item/41011" lang="en">A keyboard firmware that learns your typos</a></li>
+</ul>
+<p><small>Fixture data.</small></p>
+</div>
+</section>
+</main>
+</body>
+</html>"
+`;
+
+exports[`rendered output the busy fixture set, in every language: busy /?lang=en 1`] = `
+"200 text/html; charset=utf-8
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Breaker Delta</title>
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/icons/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="manifest" href="/icons/manifest.webmanifest">
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+:root{--font-display:"Fraunces", Georgia, serif;--font-body:"Instrument Sans", system-ui, sans-serif;--type-masthead-size:104px;--type-masthead-line:0.84;--type-masthead-weight:900;--type-masthead-style:normal;--type-masthead-tracking:-0.045em;--type-wave-number-size:132px;--type-wave-number-line:0.74;--type-wave-number-weight:900;--type-wave-number-style:normal;--type-wave-number-tracking:-0.05em;--type-headline-lead-size:96px;--type-headline-lead-line:0.95;--type-headline-lead-weight:900;--type-headline-lead-style:normal;--type-headline-lead-tracking:-0.03em;--type-headline-2-size:46px;--type-headline-2-line:1.02;--type-headline-2-weight:800;--type-headline-2-style:normal;--type-headline-2-tracking:-0.02em;--type-headline-3-size:30px;--type-headline-3-line:1.1;--type-headline-3-weight:800;--type-headline-3-style:normal;--type-headline-3-tracking:-0.01em;--type-section-size:38px;--type-section-line:1.08;--type-section-weight:400;--type-section-style:italic;--type-section-tracking:-0.02em;--type-clip-headline-size:24px;--type-clip-headline-line:1.2;--type-clip-headline-weight:600;--type-clip-headline-style:normal;--type-clip-headline-tracking:normal;--type-kicker-size:22px;--type-kicker-line:1.3;--type-kicker-weight:400;--type-kicker-style:italic;--type-kicker-tracking:normal;--type-lead-body-size:22px;--type-lead-body-line:1.6;--type-lead-body-weight:400;--type-lead-body-style:normal;--type-lead-body-tracking:normal;--type-body-size:17px;--type-body-line:1.55;--type-body-weight:400;--type-body-style:normal;--type-body-tracking:normal;--type-small-size:15px;--type-small-line:1.55;--type-small-weight:400;--type-small-style:normal;--type-small-tracking:normal;--type-label-size:13px;--type-label-line:1.3;--type-label-weight:600;--type-label-style:normal;--type-label-tracking:normal;--type-button-size:17px;--type-button-line:1;--type-button-weight:600;--type-button-style:normal;--type-button-tracking:normal;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;--space-8:72px;--rail:340px;--content:1280px;--radius-none:0;--radius-stamp:6px;--radius-tile:8px;--radius-round:50%;--rule-heavy:4px;--rule-thin:1px;--rule-dashed:2px;color-scheme:light;--paper:#F2EFE4;--ink:#14263B;--ink-2:#4A5868;--hair:#C9C6B8;--red:#C8351D;--blue:#1B55C0;--sky:#9DB8E8;--tint:#DCE6F5;--sun:#F4C535;--on-sun:#14263B;--solid:#14263B;--cat:#14263B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #c9c6b8;--shadow-clip:5px 5px 0 #c9c6b8;--shadow-picked:4px 6px 0 #14263b;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}
+.type-masthead{font-family:var(--font-display);font-size:var(--type-masthead-size);line-height:var(--type-masthead-line);font-weight:var(--type-masthead-weight);font-style:var(--type-masthead-style);letter-spacing:var(--type-masthead-tracking)}
+.type-wave-number{font-family:var(--font-display);font-size:var(--type-wave-number-size);line-height:var(--type-wave-number-line);font-weight:var(--type-wave-number-weight);font-style:var(--type-wave-number-style);letter-spacing:var(--type-wave-number-tracking)}
+.type-headline-lead{font-family:var(--font-display);font-size:var(--type-headline-lead-size);line-height:var(--type-headline-lead-line);font-weight:var(--type-headline-lead-weight);font-style:var(--type-headline-lead-style);letter-spacing:var(--type-headline-lead-tracking)}
+.type-headline-2{font-family:var(--font-display);font-size:var(--type-headline-2-size);line-height:var(--type-headline-2-line);font-weight:var(--type-headline-2-weight);font-style:var(--type-headline-2-style);letter-spacing:var(--type-headline-2-tracking)}
+.type-headline-3{font-family:var(--font-display);font-size:var(--type-headline-3-size);line-height:var(--type-headline-3-line);font-weight:var(--type-headline-3-weight);font-style:var(--type-headline-3-style);letter-spacing:var(--type-headline-3-tracking)}
+.type-section{font-family:var(--font-display);font-size:var(--type-section-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.type-clip-headline{font-family:var(--font-display);font-size:var(--type-clip-headline-size);line-height:var(--type-clip-headline-line);font-weight:var(--type-clip-headline-weight);font-style:var(--type-clip-headline-style);letter-spacing:var(--type-clip-headline-tracking)}
+.type-kicker{font-family:var(--font-display);font-size:var(--type-kicker-size);line-height:var(--type-kicker-line);font-weight:var(--type-kicker-weight);font-style:var(--type-kicker-style);letter-spacing:var(--type-kicker-tracking)}
+.type-lead-body{font-family:var(--font-body);font-size:var(--type-lead-body-size);line-height:var(--type-lead-body-line);font-weight:var(--type-lead-body-weight);font-style:var(--type-lead-body-style);letter-spacing:var(--type-lead-body-tracking)}
+.type-body{font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-weight:var(--type-body-weight);font-style:var(--type-body-style);letter-spacing:var(--type-body-tracking)}
+.type-small{font-family:var(--font-body);font-size:var(--type-small-size);line-height:var(--type-small-line);font-weight:var(--type-small-weight);font-style:var(--type-small-style);letter-spacing:var(--type-small-tracking)}
+.type-label{font-family:var(--font-body);font-size:var(--type-label-size);line-height:var(--type-label-line);font-weight:var(--type-label-weight);font-style:var(--type-label-style);letter-spacing:var(--type-label-tracking)}
+.type-button{font-family:var(--font-body);font-size:var(--type-button-size);line-height:var(--type-button-line);font-weight:var(--type-button-weight);font-style:var(--type-button-style);letter-spacing:var(--type-button-tracking)}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;overflow-wrap:break-word}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--font-display)}
+a{color:var(--blue)}
+img,svg{max-width:100%}
+:root{--page-gutter:20px;--band-space:var(--space-7);--band-name-size:32px}
+@media (min-width:960px){:root{--page-gutter:var(--space-6);--band-space:var(--space-8);--band-name-size:var(--type-section-size)}}
+.page{box-sizing:content-box;max-width:var(--content);margin-inline:auto;padding-inline:var(--page-gutter)}
+.band{display:grid;grid-template-columns:minmax(0,1fr);row-gap:var(--space-5);padding-block:var(--band-space);border-top:var(--rule-thin) solid var(--ink)}
+.band-rail{display:flex;flex-direction:column;gap:var(--space-3);min-width:0}
+.band-name{margin:0;font-family:var(--font-display);font-size:var(--band-name-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.band-note{margin:0;color:var(--ink-2)}
+.band-body{min-width:0}
+.band-body>:first-child{margin-top:0}
+@media (min-width:960px){.band{grid-template-columns:minmax(0,var(--rail)) minmax(0,1fr);column-gap:var(--space-8)}.band-rail{position:sticky;top:var(--space-5);align-self:start}}
+</style>
+</head>
+<body>
+<header class="page">
+<h1>Breaker Delta</h1>
+</header>
+<main class="page">
+<section class="band" aria-labelledby="band-front">
+<div class="band-rail">
+<h2 id="band-front" class="band-name">Front page</h2>
+</div>
+<div class="band-body">
+<p>The 14:00 edition. Sea state: choppy. 16 waves up, 5 new today.</p>
+<ol>
+<li><a href="/topic/chipmaker-board-founder-ceo" lang="en">Chipmaker board rules out bringing back its founder CEO</a> <data value="196">196</data></li>
+<li><a href="/topic/ai-lab-sued-over-agents" lang="en">State attorney general sues an AI lab over 80 rogue-agent incidents</a> <data value="181">181</data></li>
+<li><a href="/topic/six-banks-offline" lang="en">Six US banks go offline on the same afternoon</a> <data value="171">171</data></li>
+<li><a href="/topic/ai-hacking-tool-warning" lang="en">Security agency warns about an open-source AI hacking tool</a> <data value="151">151</data></li>
+<li><a href="/topic/frontier-model-backlash" lang="en">New frontier model keeps drawing benchmarks and backlash</a> <data value="144">144</data></li>
+<li><a href="/topic/decoy-discounts" lang="en">Black Friday decoy discounts: 29% of 351 deals saved nothing</a> <data value="131">131</data></li>
+<li><a href="/topic/open-weights-quarter-price" lang="en">Open-weights model released with pricing at 25% of flagship</a> <data value="126">126</data></li>
+<li><a href="/topic/assistant-wallet" lang="en">Chat assistant gets a wallet and starts paying for you</a> <data value="124">124</data></li>
+<li><a href="/topic/airline-bans-booking-agents" lang="en">Airline bans AI agents from booking flights</a> <data value="99">99</data></li>
+<li><a href="/topic/super-agent-flash-model" lang="en">Lab releases a super-agent and a faster flash model</a> <data value="80">80</data></li>
+<li><a href="/topic/browser-agent-permissions" lang="en">Browser vendor adds a permissions prompt for agents</a> <data value="74">74</data></li>
+<li><a href="/topic/cloud-outage-postmortem" lang="en">Postmortem of last week&#39;s inference outage</a> <data value="68">68</data></li>
+<li><a href="/topic/robotaxi-permit-expands" lang="en">Robotaxi permit expands to two more cities</a> <data value="63">63</data></li>
+<li><a href="/topic/retailer-extension-recall" lang="en">Retailer recalls a browser extension after a data leak</a> <data value="57">57</data></li>
+<li><a href="/topic/context-registry-opens" lang="en">A public registry for agent tool servers opens</a> <data value="49">49</data></li>
+<li><a href="/topic/quantum-error-rate-claim" lang="en">Quantum startup claims a record low error rate</a> <data value="44">44</data></li>
+</ol>
+</div>
+</section>
+<section class="band" aria-labelledby="band-classifieds">
+<div class="band-rail">
+<h2 id="band-classifieds" class="band-name">Classifieds</h2>
+</div>
+<div class="band-body">
+<ul>
+<li>Hacker News front page and Show HN: <a href="https://hackernews.example/item/41001" lang="en">Show HN: a terminal that explains its own error messages</a></li>
+<li>GitHub breakout repositories: <a href="https://github.example/item/41002" lang="en">A vector database in a single file passes 4,000 stars in a day</a></li>
+<li>Official blogs: <a href="https://official-blogs.example/item/41003" lang="en">Notes on giving agents a memory that survives restarts</a></li>
+<li>Lobsters hottest: <a href="https://lobsters.example/item/41004" lang="en">A 4-bit model that runs on a three-year-old phone</a></li>
+<li>Tech media and independent authors: <a href="https://tech-media.example/item/41005" lang="en">The quiet return of RSS, by the numbers</a></li>
+<li>Bluesky key accounts: <a href="https://bluesky.example/item/41006" lang="en">A browser vendor hints at built-in agent permissions</a></li>
+<li>GitHub breakout repositories: <a href="https://github.example/item/41007" lang="en">A spreadsheet engine written in 900 lines</a></li>
+<li>Official blogs: <a href="https://official-blogs.example/item/41008" lang="en">What we learned from a year of agent evaluations</a></li>
+<li>Hacker News front page and Show HN: <a href="https://hackernews.example/item/41009" lang="en">Ask HN: who still self-hosts their email?</a></li>
+<li>Tech media and independent authors: <a href="https://tech-media.example/item/41010" lang="en">Chip export rules, explained in five charts</a></li>
+<li>DEV.to top posts: <a href="https://devto.example/item/41011" lang="en">A keyboard firmware that learns your typos</a></li>
+</ul>
+<p><small>Fixture data.</small></p>
+</div>
+</section>
+</main>
+</body>
+</html>"
+`;
+
+exports[`rendered output the busy fixture set, in every language: busy /?lang=zh 1`] = `
+"200 text/html; charset=utf-8
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Breaker Delta</title>
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/icons/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="manifest" href="/icons/manifest.webmanifest">
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+:root{--font-display:"Fraunces", Georgia, serif;--font-body:"Instrument Sans", system-ui, sans-serif;--type-masthead-size:104px;--type-masthead-line:0.84;--type-masthead-weight:900;--type-masthead-style:normal;--type-masthead-tracking:-0.045em;--type-wave-number-size:132px;--type-wave-number-line:0.74;--type-wave-number-weight:900;--type-wave-number-style:normal;--type-wave-number-tracking:-0.05em;--type-headline-lead-size:96px;--type-headline-lead-line:0.95;--type-headline-lead-weight:900;--type-headline-lead-style:normal;--type-headline-lead-tracking:-0.03em;--type-headline-2-size:46px;--type-headline-2-line:1.02;--type-headline-2-weight:800;--type-headline-2-style:normal;--type-headline-2-tracking:-0.02em;--type-headline-3-size:30px;--type-headline-3-line:1.1;--type-headline-3-weight:800;--type-headline-3-style:normal;--type-headline-3-tracking:-0.01em;--type-section-size:38px;--type-section-line:1.08;--type-section-weight:400;--type-section-style:italic;--type-section-tracking:-0.02em;--type-clip-headline-size:24px;--type-clip-headline-line:1.2;--type-clip-headline-weight:600;--type-clip-headline-style:normal;--type-clip-headline-tracking:normal;--type-kicker-size:22px;--type-kicker-line:1.3;--type-kicker-weight:400;--type-kicker-style:italic;--type-kicker-tracking:normal;--type-lead-body-size:22px;--type-lead-body-line:1.6;--type-lead-body-weight:400;--type-lead-body-style:normal;--type-lead-body-tracking:normal;--type-body-size:17px;--type-body-line:1.55;--type-body-weight:400;--type-body-style:normal;--type-body-tracking:normal;--type-small-size:15px;--type-small-line:1.55;--type-small-weight:400;--type-small-style:normal;--type-small-tracking:normal;--type-label-size:13px;--type-label-line:1.3;--type-label-weight:600;--type-label-style:normal;--type-label-tracking:normal;--type-button-size:17px;--type-button-line:1;--type-button-weight:600;--type-button-style:normal;--type-button-tracking:normal;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;--space-8:72px;--rail:340px;--content:1280px;--radius-none:0;--radius-stamp:6px;--radius-tile:8px;--radius-round:50%;--rule-heavy:4px;--rule-thin:1px;--rule-dashed:2px;color-scheme:light;--paper:#F2EFE4;--ink:#14263B;--ink-2:#4A5868;--hair:#C9C6B8;--red:#C8351D;--blue:#1B55C0;--sky:#9DB8E8;--tint:#DCE6F5;--sun:#F4C535;--on-sun:#14263B;--solid:#14263B;--cat:#14263B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #c9c6b8;--shadow-clip:5px 5px 0 #c9c6b8;--shadow-picked:4px 6px 0 #14263b;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}
+.type-masthead{font-family:var(--font-display);font-size:var(--type-masthead-size);line-height:var(--type-masthead-line);font-weight:var(--type-masthead-weight);font-style:var(--type-masthead-style);letter-spacing:var(--type-masthead-tracking)}
+.type-wave-number{font-family:var(--font-display);font-size:var(--type-wave-number-size);line-height:var(--type-wave-number-line);font-weight:var(--type-wave-number-weight);font-style:var(--type-wave-number-style);letter-spacing:var(--type-wave-number-tracking)}
+.type-headline-lead{font-family:var(--font-display);font-size:var(--type-headline-lead-size);line-height:var(--type-headline-lead-line);font-weight:var(--type-headline-lead-weight);font-style:var(--type-headline-lead-style);letter-spacing:var(--type-headline-lead-tracking)}
+.type-headline-2{font-family:var(--font-display);font-size:var(--type-headline-2-size);line-height:var(--type-headline-2-line);font-weight:var(--type-headline-2-weight);font-style:var(--type-headline-2-style);letter-spacing:var(--type-headline-2-tracking)}
+.type-headline-3{font-family:var(--font-display);font-size:var(--type-headline-3-size);line-height:var(--type-headline-3-line);font-weight:var(--type-headline-3-weight);font-style:var(--type-headline-3-style);letter-spacing:var(--type-headline-3-tracking)}
+.type-section{font-family:var(--font-display);font-size:var(--type-section-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.type-clip-headline{font-family:var(--font-display);font-size:var(--type-clip-headline-size);line-height:var(--type-clip-headline-line);font-weight:var(--type-clip-headline-weight);font-style:var(--type-clip-headline-style);letter-spacing:var(--type-clip-headline-tracking)}
+.type-kicker{font-family:var(--font-display);font-size:var(--type-kicker-size);line-height:var(--type-kicker-line);font-weight:var(--type-kicker-weight);font-style:var(--type-kicker-style);letter-spacing:var(--type-kicker-tracking)}
+.type-lead-body{font-family:var(--font-body);font-size:var(--type-lead-body-size);line-height:var(--type-lead-body-line);font-weight:var(--type-lead-body-weight);font-style:var(--type-lead-body-style);letter-spacing:var(--type-lead-body-tracking)}
+.type-body{font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-weight:var(--type-body-weight);font-style:var(--type-body-style);letter-spacing:var(--type-body-tracking)}
+.type-small{font-family:var(--font-body);font-size:var(--type-small-size);line-height:var(--type-small-line);font-weight:var(--type-small-weight);font-style:var(--type-small-style);letter-spacing:var(--type-small-tracking)}
+.type-label{font-family:var(--font-body);font-size:var(--type-label-size);line-height:var(--type-label-line);font-weight:var(--type-label-weight);font-style:var(--type-label-style);letter-spacing:var(--type-label-tracking)}
+.type-button{font-family:var(--font-body);font-size:var(--type-button-size);line-height:var(--type-button-line);font-weight:var(--type-button-weight);font-style:var(--type-button-style);letter-spacing:var(--type-button-tracking)}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;overflow-wrap:break-word}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--font-display)}
+a{color:var(--blue)}
+img,svg{max-width:100%}
+:root{--page-gutter:20px;--band-space:var(--space-7);--band-name-size:32px}
+@media (min-width:960px){:root{--page-gutter:var(--space-6);--band-space:var(--space-8);--band-name-size:var(--type-section-size)}}
+.page{box-sizing:content-box;max-width:var(--content);margin-inline:auto;padding-inline:var(--page-gutter)}
+.band{display:grid;grid-template-columns:minmax(0,1fr);row-gap:var(--space-5);padding-block:var(--band-space);border-top:var(--rule-thin) solid var(--ink)}
+.band-rail{display:flex;flex-direction:column;gap:var(--space-3);min-width:0}
+.band-name{margin:0;font-family:var(--font-display);font-size:var(--band-name-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.band-note{margin:0;color:var(--ink-2)}
+.band-body{min-width:0}
+.band-body>:first-child{margin-top:0}
+@media (min-width:960px){.band{grid-template-columns:minmax(0,var(--rail)) minmax(0,1fr);column-gap:var(--space-8)}.band-rail{position:sticky;top:var(--space-5);align-self:start}}
+</style>
+</head>
+<body>
+<header class="page">
+<h1>Breaker Delta</h1>
+</header>
+<main class="page">
+<section class="band" aria-labelledby="band-front">
+<div class="band-rail">
+<h2 id="band-front" class="band-name">Front page</h2>
+</div>
+<div class="band-body">
+<p>The 14:00 edition. Sea state: choppy. 16 waves up, 5 new today.</p>
+<ol>
+<li><a href="/topic/chipmaker-board-founder-ceo" lang="zh">芯片厂董事会排除创始人回归 CEO 的可能</a> <data value="196">196</data></li>
+<li><a href="/topic/ai-lab-sued-over-agents" lang="zh">州检察长就 80 起失控智能体事件起诉一家 AI 实验室</a> <data value="181">181</data></li>
+<li><a href="/topic/six-banks-offline" lang="zh">美国六家银行同一个下午相继宕机</a> <data value="171">171</data></li>
+<li><a href="/topic/ai-hacking-tool-warning" lang="zh">安全机构就一款开源 AI 黑客工具发出警告</a> <data value="151">151</data></li>
+<li><a href="/topic/frontier-model-backlash" lang="zh">新旗舰模型的跑分与争议持续发酵</a> <data value="144">144</data></li>
+<li><a href="/topic/decoy-discounts" lang="zh">黑五假折扣：351 个优惠中 29% 并不省钱</a> <data value="131">131</data></li>
+<li><a href="/topic/open-weights-quarter-price" lang="en">Open-weights model released with pricing at 25% of flagship</a> <data value="126">126</data></li>
+<li><a href="/topic/assistant-wallet" lang="zh">聊天助手有了钱包，开始替你付款</a> <data value="124">124</data></li>
+<li><a href="/topic/airline-bans-booking-agents" lang="zh">航空公司禁止 AI 智能体订票</a> <data value="99">99</data></li>
+<li><a href="/topic/super-agent-flash-model" lang="zh">实验室发布超级智能体和更快的 flash 模型</a> <data value="80">80</data></li>
+<li><a href="/topic/browser-agent-permissions" lang="en">Browser vendor adds a permissions prompt for agents</a> <data value="74">74</data></li>
+<li><a href="/topic/cloud-outage-postmortem" lang="en">Postmortem of last week&#39;s inference outage</a> <data value="68">68</data></li>
+<li><a href="/topic/robotaxi-permit-expands" lang="en">Robotaxi permit expands to two more cities</a> <data value="63">63</data></li>
+<li><a href="/topic/retailer-extension-recall" lang="en">Retailer recalls a browser extension after a data leak</a> <data value="57">57</data></li>
+<li><a href="/topic/context-registry-opens" lang="en">A public registry for agent tool servers opens</a> <data value="49">49</data></li>
+<li><a href="/topic/quantum-error-rate-claim" lang="en">Quantum startup claims a record low error rate</a> <data value="44">44</data></li>
+</ol>
+</div>
+</section>
+<section class="band" aria-labelledby="band-classifieds">
+<div class="band-rail">
+<h2 id="band-classifieds" class="band-name">Classifieds</h2>
+</div>
+<div class="band-body">
+<ul>
+<li>Hacker News front page and Show HN: <a href="https://hackernews.example/item/41001" lang="en">Show HN: a terminal that explains its own error messages</a></li>
+<li>GitHub breakout repositories: <a href="https://github.example/item/41002" lang="en">A vector database in a single file passes 4,000 stars in a day</a></li>
+<li>Official blogs: <a href="https://official-blogs.example/item/41003" lang="en">Notes on giving agents a memory that survives restarts</a></li>
+<li>Lobsters hottest: <a href="https://lobsters.example/item/41004" lang="en">A 4-bit model that runs on a three-year-old phone</a></li>
+<li>Tech media and independent authors: <a href="https://tech-media.example/item/41005" lang="en">The quiet return of RSS, by the numbers</a></li>
+<li>Bluesky key accounts: <a href="https://bluesky.example/item/41006" lang="en">A browser vendor hints at built-in agent permissions</a></li>
+<li>GitHub breakout repositories: <a href="https://github.example/item/41007" lang="en">A spreadsheet engine written in 900 lines</a></li>
+<li>Official blogs: <a href="https://official-blogs.example/item/41008" lang="en">What we learned from a year of agent evaluations</a></li>
+<li>Hacker News front page and Show HN: <a href="https://hackernews.example/item/41009" lang="en">Ask HN: who still self-hosts their email?</a></li>
+<li>Tech media and independent authors: <a href="https://tech-media.example/item/41010" lang="en">Chip export rules, explained in five charts</a></li>
+<li>DEV.to top posts: <a href="https://devto.example/item/41011" lang="en">A keyboard firmware that learns your typos</a></li>
+</ul>
+<p><small>Fixture data.</small></p>
+</div>
+</section>
+</main>
+</body>
+</html>"
+`;
+
+exports[`rendered output the busy fixture set, in every language: busy /?lang=ja 1`] = `
+"200 text/html; charset=utf-8
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Breaker Delta</title>
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/icons/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="manifest" href="/icons/manifest.webmanifest">
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+:root{--font-display:"Fraunces", Georgia, serif;--font-body:"Instrument Sans", system-ui, sans-serif;--type-masthead-size:104px;--type-masthead-line:0.84;--type-masthead-weight:900;--type-masthead-style:normal;--type-masthead-tracking:-0.045em;--type-wave-number-size:132px;--type-wave-number-line:0.74;--type-wave-number-weight:900;--type-wave-number-style:normal;--type-wave-number-tracking:-0.05em;--type-headline-lead-size:96px;--type-headline-lead-line:0.95;--type-headline-lead-weight:900;--type-headline-lead-style:normal;--type-headline-lead-tracking:-0.03em;--type-headline-2-size:46px;--type-headline-2-line:1.02;--type-headline-2-weight:800;--type-headline-2-style:normal;--type-headline-2-tracking:-0.02em;--type-headline-3-size:30px;--type-headline-3-line:1.1;--type-headline-3-weight:800;--type-headline-3-style:normal;--type-headline-3-tracking:-0.01em;--type-section-size:38px;--type-section-line:1.08;--type-section-weight:400;--type-section-style:italic;--type-section-tracking:-0.02em;--type-clip-headline-size:24px;--type-clip-headline-line:1.2;--type-clip-headline-weight:600;--type-clip-headline-style:normal;--type-clip-headline-tracking:normal;--type-kicker-size:22px;--type-kicker-line:1.3;--type-kicker-weight:400;--type-kicker-style:italic;--type-kicker-tracking:normal;--type-lead-body-size:22px;--type-lead-body-line:1.6;--type-lead-body-weight:400;--type-lead-body-style:normal;--type-lead-body-tracking:normal;--type-body-size:17px;--type-body-line:1.55;--type-body-weight:400;--type-body-style:normal;--type-body-tracking:normal;--type-small-size:15px;--type-small-line:1.55;--type-small-weight:400;--type-small-style:normal;--type-small-tracking:normal;--type-label-size:13px;--type-label-line:1.3;--type-label-weight:600;--type-label-style:normal;--type-label-tracking:normal;--type-button-size:17px;--type-button-line:1;--type-button-weight:600;--type-button-style:normal;--type-button-tracking:normal;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;--space-8:72px;--rail:340px;--content:1280px;--radius-none:0;--radius-stamp:6px;--radius-tile:8px;--radius-round:50%;--rule-heavy:4px;--rule-thin:1px;--rule-dashed:2px;color-scheme:light;--paper:#F2EFE4;--ink:#14263B;--ink-2:#4A5868;--hair:#C9C6B8;--red:#C8351D;--blue:#1B55C0;--sky:#9DB8E8;--tint:#DCE6F5;--sun:#F4C535;--on-sun:#14263B;--solid:#14263B;--cat:#14263B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #c9c6b8;--shadow-clip:5px 5px 0 #c9c6b8;--shadow-picked:4px 6px 0 #14263b;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}
+.type-masthead{font-family:var(--font-display);font-size:var(--type-masthead-size);line-height:var(--type-masthead-line);font-weight:var(--type-masthead-weight);font-style:var(--type-masthead-style);letter-spacing:var(--type-masthead-tracking)}
+.type-wave-number{font-family:var(--font-display);font-size:var(--type-wave-number-size);line-height:var(--type-wave-number-line);font-weight:var(--type-wave-number-weight);font-style:var(--type-wave-number-style);letter-spacing:var(--type-wave-number-tracking)}
+.type-headline-lead{font-family:var(--font-display);font-size:var(--type-headline-lead-size);line-height:var(--type-headline-lead-line);font-weight:var(--type-headline-lead-weight);font-style:var(--type-headline-lead-style);letter-spacing:var(--type-headline-lead-tracking)}
+.type-headline-2{font-family:var(--font-display);font-size:var(--type-headline-2-size);line-height:var(--type-headline-2-line);font-weight:var(--type-headline-2-weight);font-style:var(--type-headline-2-style);letter-spacing:var(--type-headline-2-tracking)}
+.type-headline-3{font-family:var(--font-display);font-size:var(--type-headline-3-size);line-height:var(--type-headline-3-line);font-weight:var(--type-headline-3-weight);font-style:var(--type-headline-3-style);letter-spacing:var(--type-headline-3-tracking)}
+.type-section{font-family:var(--font-display);font-size:var(--type-section-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.type-clip-headline{font-family:var(--font-display);font-size:var(--type-clip-headline-size);line-height:var(--type-clip-headline-line);font-weight:var(--type-clip-headline-weight);font-style:var(--type-clip-headline-style);letter-spacing:var(--type-clip-headline-tracking)}
+.type-kicker{font-family:var(--font-display);font-size:var(--type-kicker-size);line-height:var(--type-kicker-line);font-weight:var(--type-kicker-weight);font-style:var(--type-kicker-style);letter-spacing:var(--type-kicker-tracking)}
+.type-lead-body{font-family:var(--font-body);font-size:var(--type-lead-body-size);line-height:var(--type-lead-body-line);font-weight:var(--type-lead-body-weight);font-style:var(--type-lead-body-style);letter-spacing:var(--type-lead-body-tracking)}
+.type-body{font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-weight:var(--type-body-weight);font-style:var(--type-body-style);letter-spacing:var(--type-body-tracking)}
+.type-small{font-family:var(--font-body);font-size:var(--type-small-size);line-height:var(--type-small-line);font-weight:var(--type-small-weight);font-style:var(--type-small-style);letter-spacing:var(--type-small-tracking)}
+.type-label{font-family:var(--font-body);font-size:var(--type-label-size);line-height:var(--type-label-line);font-weight:var(--type-label-weight);font-style:var(--type-label-style);letter-spacing:var(--type-label-tracking)}
+.type-button{font-family:var(--font-body);font-size:var(--type-button-size);line-height:var(--type-button-line);font-weight:var(--type-button-weight);font-style:var(--type-button-style);letter-spacing:var(--type-button-tracking)}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;overflow-wrap:break-word}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--font-display)}
+a{color:var(--blue)}
+img,svg{max-width:100%}
+:root{--page-gutter:20px;--band-space:var(--space-7);--band-name-size:32px}
+@media (min-width:960px){:root{--page-gutter:var(--space-6);--band-space:var(--space-8);--band-name-size:var(--type-section-size)}}
+.page{box-sizing:content-box;max-width:var(--content);margin-inline:auto;padding-inline:var(--page-gutter)}
+.band{display:grid;grid-template-columns:minmax(0,1fr);row-gap:var(--space-5);padding-block:var(--band-space);border-top:var(--rule-thin) solid var(--ink)}
+.band-rail{display:flex;flex-direction:column;gap:var(--space-3);min-width:0}
+.band-name{margin:0;font-family:var(--font-display);font-size:var(--band-name-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.band-note{margin:0;color:var(--ink-2)}
+.band-body{min-width:0}
+.band-body>:first-child{margin-top:0}
+@media (min-width:960px){.band{grid-template-columns:minmax(0,var(--rail)) minmax(0,1fr);column-gap:var(--space-8)}.band-rail{position:sticky;top:var(--space-5);align-self:start}}
+</style>
+</head>
+<body>
+<header class="page">
+<h1>Breaker Delta</h1>
+</header>
+<main class="page">
+<section class="band" aria-labelledby="band-front">
+<div class="band-rail">
+<h2 id="band-front" class="band-name">Front page</h2>
+</div>
+<div class="band-body">
+<p>The 14:00 edition. Sea state: choppy. 16 waves up, 5 new today.</p>
+<ol>
+<li><a href="/topic/chipmaker-board-founder-ceo" lang="ja">半導体大手の取締役会、創業者の CEO 復帰を否定</a> <data value="196">196</data></li>
+<li><a href="/topic/ai-lab-sued-over-agents" lang="ja">州司法長官、暴走エージェント 80 件で AI 研究所を提訴</a> <data value="181">181</data></li>
+<li><a href="/topic/six-banks-offline" lang="ja">米銀 6 行、同じ午後に相次いで停止</a> <data value="171">171</data></li>
+<li><a href="/topic/ai-hacking-tool-warning" lang="ja">セキュリティ機関、オープンソースの AI ハッキングツールに警告</a> <data value="151">151</data></li>
+<li><a href="/topic/frontier-model-backlash" lang="ja">新フロンティアモデル、ベンチマークと反発が続く</a> <data value="144">144</data></li>
+<li><a href="/topic/decoy-discounts" lang="ja">ブラックフライデーの見せかけ割引、351 件中 29% は安くならず</a> <data value="131">131</data></li>
+<li><a href="/topic/open-weights-quarter-price" lang="en">Open-weights model released with pricing at 25% of flagship</a> <data value="126">126</data></li>
+<li><a href="/topic/assistant-wallet" lang="ja">チャットアシスタントが財布を持ち、代わりに支払いを開始</a> <data value="124">124</data></li>
+<li><a href="/topic/airline-bans-booking-agents" lang="ja">航空会社、AI エージェントによる予約を禁止</a> <data value="99">99</data></li>
+<li><a href="/topic/super-agent-flash-model" lang="ja">研究所がスーパーエージェントと高速 flash モデルを公開</a> <data value="80">80</data></li>
+<li><a href="/topic/browser-agent-permissions" lang="en">Browser vendor adds a permissions prompt for agents</a> <data value="74">74</data></li>
+<li><a href="/topic/cloud-outage-postmortem" lang="en">Postmortem of last week&#39;s inference outage</a> <data value="68">68</data></li>
+<li><a href="/topic/robotaxi-permit-expands" lang="en">Robotaxi permit expands to two more cities</a> <data value="63">63</data></li>
+<li><a href="/topic/retailer-extension-recall" lang="en">Retailer recalls a browser extension after a data leak</a> <data value="57">57</data></li>
+<li><a href="/topic/context-registry-opens" lang="en">A public registry for agent tool servers opens</a> <data value="49">49</data></li>
+<li><a href="/topic/quantum-error-rate-claim" lang="en">Quantum startup claims a record low error rate</a> <data value="44">44</data></li>
+</ol>
+</div>
+</section>
+<section class="band" aria-labelledby="band-classifieds">
+<div class="band-rail">
+<h2 id="band-classifieds" class="band-name">Classifieds</h2>
+</div>
+<div class="band-body">
+<ul>
+<li>Hacker News front page and Show HN: <a href="https://hackernews.example/item/41001" lang="en">Show HN: a terminal that explains its own error messages</a></li>
+<li>GitHub breakout repositories: <a href="https://github.example/item/41002" lang="en">A vector database in a single file passes 4,000 stars in a day</a></li>
+<li>Official blogs: <a href="https://official-blogs.example/item/41003" lang="en">Notes on giving agents a memory that survives restarts</a></li>
+<li>Lobsters hottest: <a href="https://lobsters.example/item/41004" lang="en">A 4-bit model that runs on a three-year-old phone</a></li>
+<li>Tech media and independent authors: <a href="https://tech-media.example/item/41005" lang="en">The quiet return of RSS, by the numbers</a></li>
+<li>Bluesky key accounts: <a href="https://bluesky.example/item/41006" lang="en">A browser vendor hints at built-in agent permissions</a></li>
+<li>GitHub breakout repositories: <a href="https://github.example/item/41007" lang="en">A spreadsheet engine written in 900 lines</a></li>
+<li>Official blogs: <a href="https://official-blogs.example/item/41008" lang="en">What we learned from a year of agent evaluations</a></li>
+<li>Hacker News front page and Show HN: <a href="https://hackernews.example/item/41009" lang="en">Ask HN: who still self-hosts their email?</a></li>
+<li>Tech media and independent authors: <a href="https://tech-media.example/item/41010" lang="en">Chip export rules, explained in five charts</a></li>
+<li>DEV.to top posts: <a href="https://devto.example/item/41011" lang="en">A keyboard firmware that learns your typos</a></li>
+</ul>
+<p><small>Fixture data.</small></p>
+</div>
+</section>
+</main>
+</body>
+</html>"
+`;
+
+exports[`rendered output the busy fixture set, in every language: busy /nope 1`] = `
+"404 null
+not found"
+`;
+
+exports[`rendered output the fresh fixture set, in every language: fresh / 1`] = `
+"200 text/html; charset=utf-8
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Breaker Delta</title>
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/icons/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="manifest" href="/icons/manifest.webmanifest">
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+:root{--font-display:"Fraunces", Georgia, serif;--font-body:"Instrument Sans", system-ui, sans-serif;--type-masthead-size:104px;--type-masthead-line:0.84;--type-masthead-weight:900;--type-masthead-style:normal;--type-masthead-tracking:-0.045em;--type-wave-number-size:132px;--type-wave-number-line:0.74;--type-wave-number-weight:900;--type-wave-number-style:normal;--type-wave-number-tracking:-0.05em;--type-headline-lead-size:96px;--type-headline-lead-line:0.95;--type-headline-lead-weight:900;--type-headline-lead-style:normal;--type-headline-lead-tracking:-0.03em;--type-headline-2-size:46px;--type-headline-2-line:1.02;--type-headline-2-weight:800;--type-headline-2-style:normal;--type-headline-2-tracking:-0.02em;--type-headline-3-size:30px;--type-headline-3-line:1.1;--type-headline-3-weight:800;--type-headline-3-style:normal;--type-headline-3-tracking:-0.01em;--type-section-size:38px;--type-section-line:1.08;--type-section-weight:400;--type-section-style:italic;--type-section-tracking:-0.02em;--type-clip-headline-size:24px;--type-clip-headline-line:1.2;--type-clip-headline-weight:600;--type-clip-headline-style:normal;--type-clip-headline-tracking:normal;--type-kicker-size:22px;--type-kicker-line:1.3;--type-kicker-weight:400;--type-kicker-style:italic;--type-kicker-tracking:normal;--type-lead-body-size:22px;--type-lead-body-line:1.6;--type-lead-body-weight:400;--type-lead-body-style:normal;--type-lead-body-tracking:normal;--type-body-size:17px;--type-body-line:1.55;--type-body-weight:400;--type-body-style:normal;--type-body-tracking:normal;--type-small-size:15px;--type-small-line:1.55;--type-small-weight:400;--type-small-style:normal;--type-small-tracking:normal;--type-label-size:13px;--type-label-line:1.3;--type-label-weight:600;--type-label-style:normal;--type-label-tracking:normal;--type-button-size:17px;--type-button-line:1;--type-button-weight:600;--type-button-style:normal;--type-button-tracking:normal;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;--space-8:72px;--rail:340px;--content:1280px;--radius-none:0;--radius-stamp:6px;--radius-tile:8px;--radius-round:50%;--rule-heavy:4px;--rule-thin:1px;--rule-dashed:2px;color-scheme:light;--paper:#F2EFE4;--ink:#14263B;--ink-2:#4A5868;--hair:#C9C6B8;--red:#C8351D;--blue:#1B55C0;--sky:#9DB8E8;--tint:#DCE6F5;--sun:#F4C535;--on-sun:#14263B;--solid:#14263B;--cat:#14263B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #c9c6b8;--shadow-clip:5px 5px 0 #c9c6b8;--shadow-picked:4px 6px 0 #14263b;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}
+.type-masthead{font-family:var(--font-display);font-size:var(--type-masthead-size);line-height:var(--type-masthead-line);font-weight:var(--type-masthead-weight);font-style:var(--type-masthead-style);letter-spacing:var(--type-masthead-tracking)}
+.type-wave-number{font-family:var(--font-display);font-size:var(--type-wave-number-size);line-height:var(--type-wave-number-line);font-weight:var(--type-wave-number-weight);font-style:var(--type-wave-number-style);letter-spacing:var(--type-wave-number-tracking)}
+.type-headline-lead{font-family:var(--font-display);font-size:var(--type-headline-lead-size);line-height:var(--type-headline-lead-line);font-weight:var(--type-headline-lead-weight);font-style:var(--type-headline-lead-style);letter-spacing:var(--type-headline-lead-tracking)}
+.type-headline-2{font-family:var(--font-display);font-size:var(--type-headline-2-size);line-height:var(--type-headline-2-line);font-weight:var(--type-headline-2-weight);font-style:var(--type-headline-2-style);letter-spacing:var(--type-headline-2-tracking)}
+.type-headline-3{font-family:var(--font-display);font-size:var(--type-headline-3-size);line-height:var(--type-headline-3-line);font-weight:var(--type-headline-3-weight);font-style:var(--type-headline-3-style);letter-spacing:var(--type-headline-3-tracking)}
+.type-section{font-family:var(--font-display);font-size:var(--type-section-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.type-clip-headline{font-family:var(--font-display);font-size:var(--type-clip-headline-size);line-height:var(--type-clip-headline-line);font-weight:var(--type-clip-headline-weight);font-style:var(--type-clip-headline-style);letter-spacing:var(--type-clip-headline-tracking)}
+.type-kicker{font-family:var(--font-display);font-size:var(--type-kicker-size);line-height:var(--type-kicker-line);font-weight:var(--type-kicker-weight);font-style:var(--type-kicker-style);letter-spacing:var(--type-kicker-tracking)}
+.type-lead-body{font-family:var(--font-body);font-size:var(--type-lead-body-size);line-height:var(--type-lead-body-line);font-weight:var(--type-lead-body-weight);font-style:var(--type-lead-body-style);letter-spacing:var(--type-lead-body-tracking)}
+.type-body{font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-weight:var(--type-body-weight);font-style:var(--type-body-style);letter-spacing:var(--type-body-tracking)}
+.type-small{font-family:var(--font-body);font-size:var(--type-small-size);line-height:var(--type-small-line);font-weight:var(--type-small-weight);font-style:var(--type-small-style);letter-spacing:var(--type-small-tracking)}
+.type-label{font-family:var(--font-body);font-size:var(--type-label-size);line-height:var(--type-label-line);font-weight:var(--type-label-weight);font-style:var(--type-label-style);letter-spacing:var(--type-label-tracking)}
+.type-button{font-family:var(--font-body);font-size:var(--type-button-size);line-height:var(--type-button-line);font-weight:var(--type-button-weight);font-style:var(--type-button-style);letter-spacing:var(--type-button-tracking)}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;overflow-wrap:break-word}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--font-display)}
+a{color:var(--blue)}
+img,svg{max-width:100%}
+:root{--page-gutter:20px;--band-space:var(--space-7);--band-name-size:32px}
+@media (min-width:960px){:root{--page-gutter:var(--space-6);--band-space:var(--space-8);--band-name-size:var(--type-section-size)}}
+.page{box-sizing:content-box;max-width:var(--content);margin-inline:auto;padding-inline:var(--page-gutter)}
+.band{display:grid;grid-template-columns:minmax(0,1fr);row-gap:var(--space-5);padding-block:var(--band-space);border-top:var(--rule-thin) solid var(--ink)}
+.band-rail{display:flex;flex-direction:column;gap:var(--space-3);min-width:0}
+.band-name{margin:0;font-family:var(--font-display);font-size:var(--band-name-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.band-note{margin:0;color:var(--ink-2)}
+.band-body{min-width:0}
+.band-body>:first-child{margin-top:0}
+@media (min-width:960px){.band{grid-template-columns:minmax(0,var(--rail)) minmax(0,1fr);column-gap:var(--space-8)}.band-rail{position:sticky;top:var(--space-5);align-self:start}}
+</style>
+</head>
+<body>
+<header class="page">
+<h1>Breaker Delta</h1>
+</header>
+<main class="page">
+<section class="band" aria-labelledby="band-front">
+<div class="band-rail">
+<h2 id="band-front" class="band-name">The sea is flat.</h2>
+</div>
+<div class="band-body">
+<p>Nothing has been scanned yet. Next scan: 2026-11-19T15:00:00+09:00.</p>
+<p><small>Fixture data.</small></p>
+</div>
+</section>
+</main>
+</body>
+</html>"
+`;
+
+exports[`rendered output the fresh fixture set, in every language: fresh /?lang=en 1`] = `
+"200 text/html; charset=utf-8
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Breaker Delta</title>
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/icons/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="manifest" href="/icons/manifest.webmanifest">
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+:root{--font-display:"Fraunces", Georgia, serif;--font-body:"Instrument Sans", system-ui, sans-serif;--type-masthead-size:104px;--type-masthead-line:0.84;--type-masthead-weight:900;--type-masthead-style:normal;--type-masthead-tracking:-0.045em;--type-wave-number-size:132px;--type-wave-number-line:0.74;--type-wave-number-weight:900;--type-wave-number-style:normal;--type-wave-number-tracking:-0.05em;--type-headline-lead-size:96px;--type-headline-lead-line:0.95;--type-headline-lead-weight:900;--type-headline-lead-style:normal;--type-headline-lead-tracking:-0.03em;--type-headline-2-size:46px;--type-headline-2-line:1.02;--type-headline-2-weight:800;--type-headline-2-style:normal;--type-headline-2-tracking:-0.02em;--type-headline-3-size:30px;--type-headline-3-line:1.1;--type-headline-3-weight:800;--type-headline-3-style:normal;--type-headline-3-tracking:-0.01em;--type-section-size:38px;--type-section-line:1.08;--type-section-weight:400;--type-section-style:italic;--type-section-tracking:-0.02em;--type-clip-headline-size:24px;--type-clip-headline-line:1.2;--type-clip-headline-weight:600;--type-clip-headline-style:normal;--type-clip-headline-tracking:normal;--type-kicker-size:22px;--type-kicker-line:1.3;--type-kicker-weight:400;--type-kicker-style:italic;--type-kicker-tracking:normal;--type-lead-body-size:22px;--type-lead-body-line:1.6;--type-lead-body-weight:400;--type-lead-body-style:normal;--type-lead-body-tracking:normal;--type-body-size:17px;--type-body-line:1.55;--type-body-weight:400;--type-body-style:normal;--type-body-tracking:normal;--type-small-size:15px;--type-small-line:1.55;--type-small-weight:400;--type-small-style:normal;--type-small-tracking:normal;--type-label-size:13px;--type-label-line:1.3;--type-label-weight:600;--type-label-style:normal;--type-label-tracking:normal;--type-button-size:17px;--type-button-line:1;--type-button-weight:600;--type-button-style:normal;--type-button-tracking:normal;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;--space-8:72px;--rail:340px;--content:1280px;--radius-none:0;--radius-stamp:6px;--radius-tile:8px;--radius-round:50%;--rule-heavy:4px;--rule-thin:1px;--rule-dashed:2px;color-scheme:light;--paper:#F2EFE4;--ink:#14263B;--ink-2:#4A5868;--hair:#C9C6B8;--red:#C8351D;--blue:#1B55C0;--sky:#9DB8E8;--tint:#DCE6F5;--sun:#F4C535;--on-sun:#14263B;--solid:#14263B;--cat:#14263B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #c9c6b8;--shadow-clip:5px 5px 0 #c9c6b8;--shadow-picked:4px 6px 0 #14263b;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}
+.type-masthead{font-family:var(--font-display);font-size:var(--type-masthead-size);line-height:var(--type-masthead-line);font-weight:var(--type-masthead-weight);font-style:var(--type-masthead-style);letter-spacing:var(--type-masthead-tracking)}
+.type-wave-number{font-family:var(--font-display);font-size:var(--type-wave-number-size);line-height:var(--type-wave-number-line);font-weight:var(--type-wave-number-weight);font-style:var(--type-wave-number-style);letter-spacing:var(--type-wave-number-tracking)}
+.type-headline-lead{font-family:var(--font-display);font-size:var(--type-headline-lead-size);line-height:var(--type-headline-lead-line);font-weight:var(--type-headline-lead-weight);font-style:var(--type-headline-lead-style);letter-spacing:var(--type-headline-lead-tracking)}
+.type-headline-2{font-family:var(--font-display);font-size:var(--type-headline-2-size);line-height:var(--type-headline-2-line);font-weight:var(--type-headline-2-weight);font-style:var(--type-headline-2-style);letter-spacing:var(--type-headline-2-tracking)}
+.type-headline-3{font-family:var(--font-display);font-size:var(--type-headline-3-size);line-height:var(--type-headline-3-line);font-weight:var(--type-headline-3-weight);font-style:var(--type-headline-3-style);letter-spacing:var(--type-headline-3-tracking)}
+.type-section{font-family:var(--font-display);font-size:var(--type-section-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.type-clip-headline{font-family:var(--font-display);font-size:var(--type-clip-headline-size);line-height:var(--type-clip-headline-line);font-weight:var(--type-clip-headline-weight);font-style:var(--type-clip-headline-style);letter-spacing:var(--type-clip-headline-tracking)}
+.type-kicker{font-family:var(--font-display);font-size:var(--type-kicker-size);line-height:var(--type-kicker-line);font-weight:var(--type-kicker-weight);font-style:var(--type-kicker-style);letter-spacing:var(--type-kicker-tracking)}
+.type-lead-body{font-family:var(--font-body);font-size:var(--type-lead-body-size);line-height:var(--type-lead-body-line);font-weight:var(--type-lead-body-weight);font-style:var(--type-lead-body-style);letter-spacing:var(--type-lead-body-tracking)}
+.type-body{font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-weight:var(--type-body-weight);font-style:var(--type-body-style);letter-spacing:var(--type-body-tracking)}
+.type-small{font-family:var(--font-body);font-size:var(--type-small-size);line-height:var(--type-small-line);font-weight:var(--type-small-weight);font-style:var(--type-small-style);letter-spacing:var(--type-small-tracking)}
+.type-label{font-family:var(--font-body);font-size:var(--type-label-size);line-height:var(--type-label-line);font-weight:var(--type-label-weight);font-style:var(--type-label-style);letter-spacing:var(--type-label-tracking)}
+.type-button{font-family:var(--font-body);font-size:var(--type-button-size);line-height:var(--type-button-line);font-weight:var(--type-button-weight);font-style:var(--type-button-style);letter-spacing:var(--type-button-tracking)}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;overflow-wrap:break-word}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--font-display)}
+a{color:var(--blue)}
+img,svg{max-width:100%}
+:root{--page-gutter:20px;--band-space:var(--space-7);--band-name-size:32px}
+@media (min-width:960px){:root{--page-gutter:var(--space-6);--band-space:var(--space-8);--band-name-size:var(--type-section-size)}}
+.page{box-sizing:content-box;max-width:var(--content);margin-inline:auto;padding-inline:var(--page-gutter)}
+.band{display:grid;grid-template-columns:minmax(0,1fr);row-gap:var(--space-5);padding-block:var(--band-space);border-top:var(--rule-thin) solid var(--ink)}
+.band-rail{display:flex;flex-direction:column;gap:var(--space-3);min-width:0}
+.band-name{margin:0;font-family:var(--font-display);font-size:var(--band-name-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.band-note{margin:0;color:var(--ink-2)}
+.band-body{min-width:0}
+.band-body>:first-child{margin-top:0}
+@media (min-width:960px){.band{grid-template-columns:minmax(0,var(--rail)) minmax(0,1fr);column-gap:var(--space-8)}.band-rail{position:sticky;top:var(--space-5);align-self:start}}
+</style>
+</head>
+<body>
+<header class="page">
+<h1>Breaker Delta</h1>
+</header>
+<main class="page">
+<section class="band" aria-labelledby="band-front">
+<div class="band-rail">
+<h2 id="band-front" class="band-name">The sea is flat.</h2>
+</div>
+<div class="band-body">
+<p>Nothing has been scanned yet. Next scan: 2026-11-19T15:00:00+09:00.</p>
+<p><small>Fixture data.</small></p>
+</div>
+</section>
+</main>
+</body>
+</html>"
+`;
+
+exports[`rendered output the fresh fixture set, in every language: fresh /?lang=zh 1`] = `
+"200 text/html; charset=utf-8
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Breaker Delta</title>
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/icons/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="manifest" href="/icons/manifest.webmanifest">
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+:root{--font-display:"Fraunces", Georgia, serif;--font-body:"Instrument Sans", system-ui, sans-serif;--type-masthead-size:104px;--type-masthead-line:0.84;--type-masthead-weight:900;--type-masthead-style:normal;--type-masthead-tracking:-0.045em;--type-wave-number-size:132px;--type-wave-number-line:0.74;--type-wave-number-weight:900;--type-wave-number-style:normal;--type-wave-number-tracking:-0.05em;--type-headline-lead-size:96px;--type-headline-lead-line:0.95;--type-headline-lead-weight:900;--type-headline-lead-style:normal;--type-headline-lead-tracking:-0.03em;--type-headline-2-size:46px;--type-headline-2-line:1.02;--type-headline-2-weight:800;--type-headline-2-style:normal;--type-headline-2-tracking:-0.02em;--type-headline-3-size:30px;--type-headline-3-line:1.1;--type-headline-3-weight:800;--type-headline-3-style:normal;--type-headline-3-tracking:-0.01em;--type-section-size:38px;--type-section-line:1.08;--type-section-weight:400;--type-section-style:italic;--type-section-tracking:-0.02em;--type-clip-headline-size:24px;--type-clip-headline-line:1.2;--type-clip-headline-weight:600;--type-clip-headline-style:normal;--type-clip-headline-tracking:normal;--type-kicker-size:22px;--type-kicker-line:1.3;--type-kicker-weight:400;--type-kicker-style:italic;--type-kicker-tracking:normal;--type-lead-body-size:22px;--type-lead-body-line:1.6;--type-lead-body-weight:400;--type-lead-body-style:normal;--type-lead-body-tracking:normal;--type-body-size:17px;--type-body-line:1.55;--type-body-weight:400;--type-body-style:normal;--type-body-tracking:normal;--type-small-size:15px;--type-small-line:1.55;--type-small-weight:400;--type-small-style:normal;--type-small-tracking:normal;--type-label-size:13px;--type-label-line:1.3;--type-label-weight:600;--type-label-style:normal;--type-label-tracking:normal;--type-button-size:17px;--type-button-line:1;--type-button-weight:600;--type-button-style:normal;--type-button-tracking:normal;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;--space-8:72px;--rail:340px;--content:1280px;--radius-none:0;--radius-stamp:6px;--radius-tile:8px;--radius-round:50%;--rule-heavy:4px;--rule-thin:1px;--rule-dashed:2px;color-scheme:light;--paper:#F2EFE4;--ink:#14263B;--ink-2:#4A5868;--hair:#C9C6B8;--red:#C8351D;--blue:#1B55C0;--sky:#9DB8E8;--tint:#DCE6F5;--sun:#F4C535;--on-sun:#14263B;--solid:#14263B;--cat:#14263B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #c9c6b8;--shadow-clip:5px 5px 0 #c9c6b8;--shadow-picked:4px 6px 0 #14263b;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}
+.type-masthead{font-family:var(--font-display);font-size:var(--type-masthead-size);line-height:var(--type-masthead-line);font-weight:var(--type-masthead-weight);font-style:var(--type-masthead-style);letter-spacing:var(--type-masthead-tracking)}
+.type-wave-number{font-family:var(--font-display);font-size:var(--type-wave-number-size);line-height:var(--type-wave-number-line);font-weight:var(--type-wave-number-weight);font-style:var(--type-wave-number-style);letter-spacing:var(--type-wave-number-tracking)}
+.type-headline-lead{font-family:var(--font-display);font-size:var(--type-headline-lead-size);line-height:var(--type-headline-lead-line);font-weight:var(--type-headline-lead-weight);font-style:var(--type-headline-lead-style);letter-spacing:var(--type-headline-lead-tracking)}
+.type-headline-2{font-family:var(--font-display);font-size:var(--type-headline-2-size);line-height:var(--type-headline-2-line);font-weight:var(--type-headline-2-weight);font-style:var(--type-headline-2-style);letter-spacing:var(--type-headline-2-tracking)}
+.type-headline-3{font-family:var(--font-display);font-size:var(--type-headline-3-size);line-height:var(--type-headline-3-line);font-weight:var(--type-headline-3-weight);font-style:var(--type-headline-3-style);letter-spacing:var(--type-headline-3-tracking)}
+.type-section{font-family:var(--font-display);font-size:var(--type-section-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.type-clip-headline{font-family:var(--font-display);font-size:var(--type-clip-headline-size);line-height:var(--type-clip-headline-line);font-weight:var(--type-clip-headline-weight);font-style:var(--type-clip-headline-style);letter-spacing:var(--type-clip-headline-tracking)}
+.type-kicker{font-family:var(--font-display);font-size:var(--type-kicker-size);line-height:var(--type-kicker-line);font-weight:var(--type-kicker-weight);font-style:var(--type-kicker-style);letter-spacing:var(--type-kicker-tracking)}
+.type-lead-body{font-family:var(--font-body);font-size:var(--type-lead-body-size);line-height:var(--type-lead-body-line);font-weight:var(--type-lead-body-weight);font-style:var(--type-lead-body-style);letter-spacing:var(--type-lead-body-tracking)}
+.type-body{font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-weight:var(--type-body-weight);font-style:var(--type-body-style);letter-spacing:var(--type-body-tracking)}
+.type-small{font-family:var(--font-body);font-size:var(--type-small-size);line-height:var(--type-small-line);font-weight:var(--type-small-weight);font-style:var(--type-small-style);letter-spacing:var(--type-small-tracking)}
+.type-label{font-family:var(--font-body);font-size:var(--type-label-size);line-height:var(--type-label-line);font-weight:var(--type-label-weight);font-style:var(--type-label-style);letter-spacing:var(--type-label-tracking)}
+.type-button{font-family:var(--font-body);font-size:var(--type-button-size);line-height:var(--type-button-line);font-weight:var(--type-button-weight);font-style:var(--type-button-style);letter-spacing:var(--type-button-tracking)}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;overflow-wrap:break-word}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--font-display)}
+a{color:var(--blue)}
+img,svg{max-width:100%}
+:root{--page-gutter:20px;--band-space:var(--space-7);--band-name-size:32px}
+@media (min-width:960px){:root{--page-gutter:var(--space-6);--band-space:var(--space-8);--band-name-size:var(--type-section-size)}}
+.page{box-sizing:content-box;max-width:var(--content);margin-inline:auto;padding-inline:var(--page-gutter)}
+.band{display:grid;grid-template-columns:minmax(0,1fr);row-gap:var(--space-5);padding-block:var(--band-space);border-top:var(--rule-thin) solid var(--ink)}
+.band-rail{display:flex;flex-direction:column;gap:var(--space-3);min-width:0}
+.band-name{margin:0;font-family:var(--font-display);font-size:var(--band-name-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.band-note{margin:0;color:var(--ink-2)}
+.band-body{min-width:0}
+.band-body>:first-child{margin-top:0}
+@media (min-width:960px){.band{grid-template-columns:minmax(0,var(--rail)) minmax(0,1fr);column-gap:var(--space-8)}.band-rail{position:sticky;top:var(--space-5);align-self:start}}
+</style>
+</head>
+<body>
+<header class="page">
+<h1>Breaker Delta</h1>
+</header>
+<main class="page">
+<section class="band" aria-labelledby="band-front">
+<div class="band-rail">
+<h2 id="band-front" class="band-name">The sea is flat.</h2>
+</div>
+<div class="band-body">
+<p>Nothing has been scanned yet. Next scan: 2026-11-19T15:00:00+09:00.</p>
+<p><small>Fixture data.</small></p>
+</div>
+</section>
+</main>
+</body>
+</html>"
+`;
+
+exports[`rendered output the fresh fixture set, in every language: fresh /?lang=ja 1`] = `
+"200 text/html; charset=utf-8
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Breaker Delta</title>
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/icons/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="manifest" href="/icons/manifest.webmanifest">
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+:root{--font-display:"Fraunces", Georgia, serif;--font-body:"Instrument Sans", system-ui, sans-serif;--type-masthead-size:104px;--type-masthead-line:0.84;--type-masthead-weight:900;--type-masthead-style:normal;--type-masthead-tracking:-0.045em;--type-wave-number-size:132px;--type-wave-number-line:0.74;--type-wave-number-weight:900;--type-wave-number-style:normal;--type-wave-number-tracking:-0.05em;--type-headline-lead-size:96px;--type-headline-lead-line:0.95;--type-headline-lead-weight:900;--type-headline-lead-style:normal;--type-headline-lead-tracking:-0.03em;--type-headline-2-size:46px;--type-headline-2-line:1.02;--type-headline-2-weight:800;--type-headline-2-style:normal;--type-headline-2-tracking:-0.02em;--type-headline-3-size:30px;--type-headline-3-line:1.1;--type-headline-3-weight:800;--type-headline-3-style:normal;--type-headline-3-tracking:-0.01em;--type-section-size:38px;--type-section-line:1.08;--type-section-weight:400;--type-section-style:italic;--type-section-tracking:-0.02em;--type-clip-headline-size:24px;--type-clip-headline-line:1.2;--type-clip-headline-weight:600;--type-clip-headline-style:normal;--type-clip-headline-tracking:normal;--type-kicker-size:22px;--type-kicker-line:1.3;--type-kicker-weight:400;--type-kicker-style:italic;--type-kicker-tracking:normal;--type-lead-body-size:22px;--type-lead-body-line:1.6;--type-lead-body-weight:400;--type-lead-body-style:normal;--type-lead-body-tracking:normal;--type-body-size:17px;--type-body-line:1.55;--type-body-weight:400;--type-body-style:normal;--type-body-tracking:normal;--type-small-size:15px;--type-small-line:1.55;--type-small-weight:400;--type-small-style:normal;--type-small-tracking:normal;--type-label-size:13px;--type-label-line:1.3;--type-label-weight:600;--type-label-style:normal;--type-label-tracking:normal;--type-button-size:17px;--type-button-line:1;--type-button-weight:600;--type-button-style:normal;--type-button-tracking:normal;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;--space-8:72px;--rail:340px;--content:1280px;--radius-none:0;--radius-stamp:6px;--radius-tile:8px;--radius-round:50%;--rule-heavy:4px;--rule-thin:1px;--rule-dashed:2px;color-scheme:light;--paper:#F2EFE4;--ink:#14263B;--ink-2:#4A5868;--hair:#C9C6B8;--red:#C8351D;--blue:#1B55C0;--sky:#9DB8E8;--tint:#DCE6F5;--sun:#F4C535;--on-sun:#14263B;--solid:#14263B;--cat:#14263B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #c9c6b8;--shadow-clip:5px 5px 0 #c9c6b8;--shadow-picked:4px 6px 0 #14263b;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}
+.type-masthead{font-family:var(--font-display);font-size:var(--type-masthead-size);line-height:var(--type-masthead-line);font-weight:var(--type-masthead-weight);font-style:var(--type-masthead-style);letter-spacing:var(--type-masthead-tracking)}
+.type-wave-number{font-family:var(--font-display);font-size:var(--type-wave-number-size);line-height:var(--type-wave-number-line);font-weight:var(--type-wave-number-weight);font-style:var(--type-wave-number-style);letter-spacing:var(--type-wave-number-tracking)}
+.type-headline-lead{font-family:var(--font-display);font-size:var(--type-headline-lead-size);line-height:var(--type-headline-lead-line);font-weight:var(--type-headline-lead-weight);font-style:var(--type-headline-lead-style);letter-spacing:var(--type-headline-lead-tracking)}
+.type-headline-2{font-family:var(--font-display);font-size:var(--type-headline-2-size);line-height:var(--type-headline-2-line);font-weight:var(--type-headline-2-weight);font-style:var(--type-headline-2-style);letter-spacing:var(--type-headline-2-tracking)}
+.type-headline-3{font-family:var(--font-display);font-size:var(--type-headline-3-size);line-height:var(--type-headline-3-line);font-weight:var(--type-headline-3-weight);font-style:var(--type-headline-3-style);letter-spacing:var(--type-headline-3-tracking)}
+.type-section{font-family:var(--font-display);font-size:var(--type-section-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.type-clip-headline{font-family:var(--font-display);font-size:var(--type-clip-headline-size);line-height:var(--type-clip-headline-line);font-weight:var(--type-clip-headline-weight);font-style:var(--type-clip-headline-style);letter-spacing:var(--type-clip-headline-tracking)}
+.type-kicker{font-family:var(--font-display);font-size:var(--type-kicker-size);line-height:var(--type-kicker-line);font-weight:var(--type-kicker-weight);font-style:var(--type-kicker-style);letter-spacing:var(--type-kicker-tracking)}
+.type-lead-body{font-family:var(--font-body);font-size:var(--type-lead-body-size);line-height:var(--type-lead-body-line);font-weight:var(--type-lead-body-weight);font-style:var(--type-lead-body-style);letter-spacing:var(--type-lead-body-tracking)}
+.type-body{font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-weight:var(--type-body-weight);font-style:var(--type-body-style);letter-spacing:var(--type-body-tracking)}
+.type-small{font-family:var(--font-body);font-size:var(--type-small-size);line-height:var(--type-small-line);font-weight:var(--type-small-weight);font-style:var(--type-small-style);letter-spacing:var(--type-small-tracking)}
+.type-label{font-family:var(--font-body);font-size:var(--type-label-size);line-height:var(--type-label-line);font-weight:var(--type-label-weight);font-style:var(--type-label-style);letter-spacing:var(--type-label-tracking)}
+.type-button{font-family:var(--font-body);font-size:var(--type-button-size);line-height:var(--type-button-line);font-weight:var(--type-button-weight);font-style:var(--type-button-style);letter-spacing:var(--type-button-tracking)}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;overflow-wrap:break-word}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--font-display)}
+a{color:var(--blue)}
+img,svg{max-width:100%}
+:root{--page-gutter:20px;--band-space:var(--space-7);--band-name-size:32px}
+@media (min-width:960px){:root{--page-gutter:var(--space-6);--band-space:var(--space-8);--band-name-size:var(--type-section-size)}}
+.page{box-sizing:content-box;max-width:var(--content);margin-inline:auto;padding-inline:var(--page-gutter)}
+.band{display:grid;grid-template-columns:minmax(0,1fr);row-gap:var(--space-5);padding-block:var(--band-space);border-top:var(--rule-thin) solid var(--ink)}
+.band-rail{display:flex;flex-direction:column;gap:var(--space-3);min-width:0}
+.band-name{margin:0;font-family:var(--font-display);font-size:var(--band-name-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.band-note{margin:0;color:var(--ink-2)}
+.band-body{min-width:0}
+.band-body>:first-child{margin-top:0}
+@media (min-width:960px){.band{grid-template-columns:minmax(0,var(--rail)) minmax(0,1fr);column-gap:var(--space-8)}.band-rail{position:sticky;top:var(--space-5);align-self:start}}
+</style>
+</head>
+<body>
+<header class="page">
+<h1>Breaker Delta</h1>
+</header>
+<main class="page">
+<section class="band" aria-labelledby="band-front">
+<div class="band-rail">
+<h2 id="band-front" class="band-name">The sea is flat.</h2>
+</div>
+<div class="band-body">
+<p>Nothing has been scanned yet. Next scan: 2026-11-19T15:00:00+09:00.</p>
+<p><small>Fixture data.</small></p>
+</div>
+</section>
+</main>
+</body>
+</html>"
+`;
+
+exports[`rendered output the fresh fixture set, in every language: fresh /nope 1`] = `
+"404 null
+not found"
+`;
+
+exports[`rendered output the quiet fixture set, in every language: quiet / 1`] = `
+"200 text/html; charset=utf-8
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Breaker Delta</title>
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/icons/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="manifest" href="/icons/manifest.webmanifest">
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+:root{--font-display:"Fraunces", Georgia, serif;--font-body:"Instrument Sans", system-ui, sans-serif;--type-masthead-size:104px;--type-masthead-line:0.84;--type-masthead-weight:900;--type-masthead-style:normal;--type-masthead-tracking:-0.045em;--type-wave-number-size:132px;--type-wave-number-line:0.74;--type-wave-number-weight:900;--type-wave-number-style:normal;--type-wave-number-tracking:-0.05em;--type-headline-lead-size:96px;--type-headline-lead-line:0.95;--type-headline-lead-weight:900;--type-headline-lead-style:normal;--type-headline-lead-tracking:-0.03em;--type-headline-2-size:46px;--type-headline-2-line:1.02;--type-headline-2-weight:800;--type-headline-2-style:normal;--type-headline-2-tracking:-0.02em;--type-headline-3-size:30px;--type-headline-3-line:1.1;--type-headline-3-weight:800;--type-headline-3-style:normal;--type-headline-3-tracking:-0.01em;--type-section-size:38px;--type-section-line:1.08;--type-section-weight:400;--type-section-style:italic;--type-section-tracking:-0.02em;--type-clip-headline-size:24px;--type-clip-headline-line:1.2;--type-clip-headline-weight:600;--type-clip-headline-style:normal;--type-clip-headline-tracking:normal;--type-kicker-size:22px;--type-kicker-line:1.3;--type-kicker-weight:400;--type-kicker-style:italic;--type-kicker-tracking:normal;--type-lead-body-size:22px;--type-lead-body-line:1.6;--type-lead-body-weight:400;--type-lead-body-style:normal;--type-lead-body-tracking:normal;--type-body-size:17px;--type-body-line:1.55;--type-body-weight:400;--type-body-style:normal;--type-body-tracking:normal;--type-small-size:15px;--type-small-line:1.55;--type-small-weight:400;--type-small-style:normal;--type-small-tracking:normal;--type-label-size:13px;--type-label-line:1.3;--type-label-weight:600;--type-label-style:normal;--type-label-tracking:normal;--type-button-size:17px;--type-button-line:1;--type-button-weight:600;--type-button-style:normal;--type-button-tracking:normal;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;--space-8:72px;--rail:340px;--content:1280px;--radius-none:0;--radius-stamp:6px;--radius-tile:8px;--radius-round:50%;--rule-heavy:4px;--rule-thin:1px;--rule-dashed:2px;color-scheme:light;--paper:#F2EFE4;--ink:#14263B;--ink-2:#4A5868;--hair:#C9C6B8;--red:#C8351D;--blue:#1B55C0;--sky:#9DB8E8;--tint:#DCE6F5;--sun:#F4C535;--on-sun:#14263B;--solid:#14263B;--cat:#14263B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #c9c6b8;--shadow-clip:5px 5px 0 #c9c6b8;--shadow-picked:4px 6px 0 #14263b;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}
+.type-masthead{font-family:var(--font-display);font-size:var(--type-masthead-size);line-height:var(--type-masthead-line);font-weight:var(--type-masthead-weight);font-style:var(--type-masthead-style);letter-spacing:var(--type-masthead-tracking)}
+.type-wave-number{font-family:var(--font-display);font-size:var(--type-wave-number-size);line-height:var(--type-wave-number-line);font-weight:var(--type-wave-number-weight);font-style:var(--type-wave-number-style);letter-spacing:var(--type-wave-number-tracking)}
+.type-headline-lead{font-family:var(--font-display);font-size:var(--type-headline-lead-size);line-height:var(--type-headline-lead-line);font-weight:var(--type-headline-lead-weight);font-style:var(--type-headline-lead-style);letter-spacing:var(--type-headline-lead-tracking)}
+.type-headline-2{font-family:var(--font-display);font-size:var(--type-headline-2-size);line-height:var(--type-headline-2-line);font-weight:var(--type-headline-2-weight);font-style:var(--type-headline-2-style);letter-spacing:var(--type-headline-2-tracking)}
+.type-headline-3{font-family:var(--font-display);font-size:var(--type-headline-3-size);line-height:var(--type-headline-3-line);font-weight:var(--type-headline-3-weight);font-style:var(--type-headline-3-style);letter-spacing:var(--type-headline-3-tracking)}
+.type-section{font-family:var(--font-display);font-size:var(--type-section-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.type-clip-headline{font-family:var(--font-display);font-size:var(--type-clip-headline-size);line-height:var(--type-clip-headline-line);font-weight:var(--type-clip-headline-weight);font-style:var(--type-clip-headline-style);letter-spacing:var(--type-clip-headline-tracking)}
+.type-kicker{font-family:var(--font-display);font-size:var(--type-kicker-size);line-height:var(--type-kicker-line);font-weight:var(--type-kicker-weight);font-style:var(--type-kicker-style);letter-spacing:var(--type-kicker-tracking)}
+.type-lead-body{font-family:var(--font-body);font-size:var(--type-lead-body-size);line-height:var(--type-lead-body-line);font-weight:var(--type-lead-body-weight);font-style:var(--type-lead-body-style);letter-spacing:var(--type-lead-body-tracking)}
+.type-body{font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-weight:var(--type-body-weight);font-style:var(--type-body-style);letter-spacing:var(--type-body-tracking)}
+.type-small{font-family:var(--font-body);font-size:var(--type-small-size);line-height:var(--type-small-line);font-weight:var(--type-small-weight);font-style:var(--type-small-style);letter-spacing:var(--type-small-tracking)}
+.type-label{font-family:var(--font-body);font-size:var(--type-label-size);line-height:var(--type-label-line);font-weight:var(--type-label-weight);font-style:var(--type-label-style);letter-spacing:var(--type-label-tracking)}
+.type-button{font-family:var(--font-body);font-size:var(--type-button-size);line-height:var(--type-button-line);font-weight:var(--type-button-weight);font-style:var(--type-button-style);letter-spacing:var(--type-button-tracking)}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;overflow-wrap:break-word}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--font-display)}
+a{color:var(--blue)}
+img,svg{max-width:100%}
+:root{--page-gutter:20px;--band-space:var(--space-7);--band-name-size:32px}
+@media (min-width:960px){:root{--page-gutter:var(--space-6);--band-space:var(--space-8);--band-name-size:var(--type-section-size)}}
+.page{box-sizing:content-box;max-width:var(--content);margin-inline:auto;padding-inline:var(--page-gutter)}
+.band{display:grid;grid-template-columns:minmax(0,1fr);row-gap:var(--space-5);padding-block:var(--band-space);border-top:var(--rule-thin) solid var(--ink)}
+.band-rail{display:flex;flex-direction:column;gap:var(--space-3);min-width:0}
+.band-name{margin:0;font-family:var(--font-display);font-size:var(--band-name-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.band-note{margin:0;color:var(--ink-2)}
+.band-body{min-width:0}
+.band-body>:first-child{margin-top:0}
+@media (min-width:960px){.band{grid-template-columns:minmax(0,var(--rail)) minmax(0,1fr);column-gap:var(--space-8)}.band-rail{position:sticky;top:var(--space-5);align-self:start}}
+</style>
+</head>
+<body>
+<header class="page">
+<h1>Breaker Delta</h1>
+</header>
+<main class="page">
+<section class="band" aria-labelledby="band-front">
+<div class="band-rail">
+<h2 id="band-front" class="band-name">Front page</h2>
+</div>
+<div class="band-body">
+<p>The 14:00 edition. Sea state: calm. 2 waves up, 1 new today.</p>
+<ol>
+<li><a href="/topic/open-weights-quarter-price" lang="en">Open-weights model released with pricing at 25% of flagship</a> <data value="126">126</data></li>
+<li><a href="/topic/super-agent-flash-model" lang="en">Lab releases a super-agent and a faster flash model</a> <data value="80">80</data></li>
+</ol>
+</div>
+</section>
+<section class="band" aria-labelledby="band-classifieds">
+<div class="band-rail">
+<h2 id="band-classifieds" class="band-name">Classifieds</h2>
+</div>
+<div class="band-body">
+<ul>
+<li>Hacker News front page and Show HN: <a href="https://hackernews.example/item/41001" lang="en">Show HN: a terminal that explains its own error messages</a></li>
+<li>GitHub breakout repositories: <a href="https://github.example/item/41002" lang="en">A vector database in a single file passes 4,000 stars in a day</a></li>
+<li>Official blogs: <a href="https://official-blogs.example/item/41003" lang="en">Notes on giving agents a memory that survives restarts</a></li>
+<li>Lobsters hottest: <a href="https://lobsters.example/item/41004" lang="en">A 4-bit model that runs on a three-year-old phone</a></li>
+<li>Tech media and independent authors: <a href="https://tech-media.example/item/41005" lang="en">The quiet return of RSS, by the numbers</a></li>
+<li>Bluesky key accounts: <a href="https://bluesky.example/item/41006" lang="en">A browser vendor hints at built-in agent permissions</a></li>
+</ul>
+<p><small>Fixture data.</small></p>
+</div>
+</section>
+</main>
+</body>
+</html>"
+`;
+
+exports[`rendered output the quiet fixture set, in every language: quiet /?lang=en 1`] = `
+"200 text/html; charset=utf-8
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Breaker Delta</title>
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/icons/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="manifest" href="/icons/manifest.webmanifest">
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:400 900;font-display:optional;src:url(/fonts/fraunces-italic-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Instrument Sans";font-style:normal;font-weight:400 700;font-display:optional;src:url(/fonts/instrument-sans-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+:root{--font-display:"Fraunces", Georgia, serif;--font-body:"Instrument Sans", system-ui, sans-serif;--type-masthead-size:104px;--type-masthead-line:0.84;--type-masthead-weight:900;--type-masthead-style:normal;--type-masthead-tracking:-0.045em;--type-wave-number-size:132px;--type-wave-number-line:0.74;--type-wave-number-weight:900;--type-wave-number-style:normal;--type-wave-number-tracking:-0.05em;--type-headline-lead-size:96px;--type-headline-lead-line:0.95;--type-headline-lead-weight:900;--type-headline-lead-style:normal;--type-headline-lead-tracking:-0.03em;--type-headline-2-size:46px;--type-headline-2-line:1.02;--type-headline-2-weight:800;--type-headline-2-style:normal;--type-headline-2-tracking:-0.02em;--type-headline-3-size:30px;--type-headline-3-line:1.1;--type-headline-3-weight:800;--type-headline-3-style:normal;--type-headline-3-tracking:-0.01em;--type-section-size:38px;--type-section-line:1.08;--type-section-weight:400;--type-section-style:italic;--type-section-tracking:-0.02em;--type-clip-headline-size:24px;--type-clip-headline-line:1.2;--type-clip-headline-weight:600;--type-clip-headline-style:normal;--type-clip-headline-tracking:normal;--type-kicker-size:22px;--type-kicker-line:1.3;--type-kicker-weight:400;--type-kicker-style:italic;--type-kicker-tracking:normal;--type-lead-body-size:22px;--type-lead-body-line:1.6;--type-lead-body-weight:400;--type-lead-body-style:normal;--type-lead-body-tracking:normal;--type-body-size:17px;--type-body-line:1.55;--type-body-weight:400;--type-body-style:normal;--type-body-tracking:normal;--type-small-size:15px;--type-small-line:1.55;--type-small-weight:400;--type-small-style:normal;--type-small-tracking:normal;--type-label-size:13px;--type-label-line:1.3;--type-label-weight:600;--type-label-style:normal;--type-label-tracking:normal;--type-button-size:17px;--type-button-line:1;--type-button-weight:600;--type-button-style:normal;--type-button-tracking:normal;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;--space-8:72px;--rail:340px;--content:1280px;--radius-none:0;--radius-stamp:6px;--radius-tile:8px;--radius-round:50%;--rule-heavy:4px;--rule-thin:1px;--rule-dashed:2px;color-scheme:light;--paper:#F2EFE4;--ink:#14263B;--ink-2:#4A5868;--hair:#C9C6B8;--red:#C8351D;--blue:#1B55C0;--sky:#9DB8E8;--tint:#DCE6F5;--sun:#F4C535;--on-sun:#14263B;--solid:#14263B;--cat:#14263B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #c9c6b8;--shadow-clip:5px 5px 0 #c9c6b8;--shadow-picked:4px 6px 0 #14263b;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#0E1B2A;--ink:#EFE9D8;--ink-2:#A9B4BF;--hair:#2C3D50;--red:#FF7A5C;--blue:#8FB2FF;--sky:#2B4A7A;--tint:#1B2F47;--sun:#F4C535;--on-sun:#14263B;--solid:#060E18;--cat:#3A506B;--gull-line:#14263B;--gull-wing:#9DB8E8;--shadow-paper:3px 3px 0 #2c3d50;--shadow-clip:5px 5px 0 #2c3d50;--shadow-picked:4px 6px 0 #efe9d8;}
+.type-masthead{font-family:var(--font-display);font-size:var(--type-masthead-size);line-height:var(--type-masthead-line);font-weight:var(--type-masthead-weight);font-style:var(--type-masthead-style);letter-spacing:var(--type-masthead-tracking)}
+.type-wave-number{font-family:var(--font-display);font-size:var(--type-wave-number-size);line-height:var(--type-wave-number-line);font-weight:var(--type-wave-number-weight);font-style:var(--type-wave-number-style);letter-spacing:var(--type-wave-number-tracking)}
+.type-headline-lead{font-family:var(--font-display);font-size:var(--type-headline-lead-size);line-height:var(--type-headline-lead-line);font-weight:var(--type-headline-lead-weight);font-style:var(--type-headline-lead-style);letter-spacing:var(--type-headline-lead-tracking)}
+.type-headline-2{font-family:var(--font-display);font-size:var(--type-headline-2-size);line-height:var(--type-headline-2-line);font-weight:var(--type-headline-2-weight);font-style:var(--type-headline-2-style);letter-spacing:var(--type-headline-2-tracking)}
+.type-headline-3{font-family:var(--font-display);font-size:var(--type-headline-3-size);line-height:var(--type-headline-3-line);font-weight:var(--type-headline-3-weight);font-style:var(--type-headline-3-style);letter-spacing:var(--type-headline-3-tracking)}
+.type-section{font-family:var(--font-display);font-size:var(--type-section-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.type-clip-headline{font-family:var(--font-display);font-size:var(--type-clip-headline-size);line-height:var(--type-clip-headline-line);font-weight:var(--type-clip-headline-weight);font-style:var(--type-clip-headline-style);letter-spacing:var(--type-clip-headline-tracking)}
+.type-kicker{font-family:var(--font-display);font-size:var(--type-kicker-size);line-height:var(--type-kicker-line);font-weight:var(--type-kicker-weight);font-style:var(--type-kicker-style);letter-spacing:var(--type-kicker-tracking)}
+.type-lead-body{font-family:var(--font-body);font-size:var(--type-lead-body-size);line-height:var(--type-lead-body-line);font-weight:var(--type-lead-body-weight);font-style:var(--type-lead-body-style);letter-spacing:var(--type-lead-body-tracking)}
+.type-body{font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-weight:var(--type-body-weight);font-style:var(--type-body-style);letter-spacing:var(--type-body-tracking)}
+.type-small{font-family:var(--font-body);font-size:var(--type-small-size);line-height:var(--type-small-line);font-weight:var(--type-small-weight);font-style:var(--type-small-style);letter-spacing:var(--type-small-tracking)}
+.type-label{font-family:var(--font-body);font-size:var(--type-label-size);line-height:var(--type-label-line);font-weight:var(--type-label-weight);font-style:var(--type-label-style);letter-spacing:var(--type-label-tracking)}
+.type-button{font-family:var(--font-body);font-size:var(--type-button-size);line-height:var(--type-button-line);font-weight:var(--type-button-weight);font-style:var(--type-button-style);letter-spacing:var(--type-button-tracking)}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:var(--type-body-size);line-height:var(--type-body-line);font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;overflow-wrap:break-word}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--font-display)}
+a{color:var(--blue)}
+img,svg{max-width:100%}
+:root{--page-gutter:20px;--band-space:var(--space-7);--band-name-size:32px}
+@media (min-width:960px){:root{--page-gutter:var(--space-6);--band-space:var(--space-8);--band-name-size:var(--type-section-size)}}
+.page{box-sizing:content-box;max-width:var(--content);margin-inline:auto;padding-inline:var(--page-gutter)}
+.band{display:grid;grid-template-columns:minmax(0,1fr);row-gap:var(--space-5);padding-block:var(--band-space);border-top:var(--rule-thin) solid var(--ink)}
+.band-rail{display:flex;flex-direction:column;gap:var(--space-3);min-width:0}
+.band-name{margin:0;font-family:var(--font-display);font-size:var(--band-name-size);line-height:var(--type-section-line);font-weight:var(--type-section-weight);font-style:var(--type-section-style);letter-spacing:var(--type-section-tracking)}
+.band-note{margin:0;color:var(--ink-2)}
+.band-body{min-width:0}
+.band-body>:first-child{margin-top:0}
+@media (min-width:960px){.band{grid-template-columns:minmax(0,var(--rail)) minmax(0,1fr);column-gap:var(--space-8)}.band-rail{position:sticky;top:var(--space-5);align-self:start}}
+</style>
+</head>
+<body>
+<header class="page">
+<h1>Breaker Delta</h1>
+</header>
+<main class="page">
+<section class="band" aria-labelledby="band-front">
+<div class="band-rail">
+<h2 id="band-front" class="band-name">Front page</h2>
+</div>
+<div class="band-body">
+<p>The 14:00 edition. Sea state: calm. 2 waves up, 1 new today.</p>
+<ol>
+<li><a href="/topic/open-weights-quarter-price" lang="en">Open-weights model released with pricing at 25% of flagship</a> <data value="126">126</data></li>
+<li><a href="/topic/super-agent-flash-model" lang="en">Lab releases a super-agent and a faster flash model</a> <data value="80">80</data></li>
+</ol>
+</div>
+</section>
+<section class="band" aria-labelledby="band-classifieds">
+<div class="band-rail">
+<h2 id="band-classifieds" class="band-name">Classifieds</h2>
+</div>
+<div class="band-body">
+<ul>
+<li>Hacker News front page and Show HN: <a href="https://hackernews.example/item/41001" lang="en">Show HN: a terminal that explains its own error messages</a></li>
+<li>GitHub breakout repositories: <a href="https://github.example/item/41002" lang="en">A vector database in a single file passes 4,000 stars in a day</a></li>
+<li>Official blogs: <a href="https://official-blogs.example/item/41003" lang="en">Notes on giving agents a memory that survives restarts</a></li>
+<li>Lobsters hottest: <a href="https://lobsters.example/item/41004" lang="en">A 4-bit model that runs on a three-year-old phone</a></li>
+<li>Tech media and independent authors: <a href="https://tech-media.example/item/41005" lang="en">The quiet return of RSS, by the numbers</a></li>
+<li>Bluesky key accounts: <a href="https://bluesky.example/item/41006" lang="en">A browser vendor hints at built-in agent permissions</a></li>
+</ul>
+<p><small>Fixture data.</small></p>
+</div>
+</section>
+</main>
+</body>
+</html>"
+`;
+
+exports[`rendered output the quiet fixture set, in every language: quiet /nope 1`] = `
+"404 null
+not found"
+`;
+
+exports[`rendered output an unknown fixture set: unknown set 1`] = `
+"404 null
+unknown fixture set"
+`;
+
+exports[`rendered output every icon file: favicon.svg 1`] = `"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="32" height="32" role="img" aria-label="Breaker Delta"><defs><clipPath id="bd-icon"><rect x="0" y="0" width="512" height="512" rx="114"/></clipPath></defs><g clip-path="url(#bd-icon)"><rect x="0" y="0" width="512" height="512" style="fill:#14263B"/><path d="M256,124 L-20,62 L-20,194 Z M256,124 L532,62 L532,194 Z" style="fill:#F4C535"/><polygon points="178,376 334,376 368,436 144,436" style="fill:#A9B4BF"/><polygon points="190,380 214,168 298,168 322,380" style="fill:#F2EFE4"/><polygon points="207.9,222 304.1,222 315.9,326 196.1,326" style="fill:#C8351D"/><rect x="222" y="104" width="68" height="46" style="fill:#F4C535;stroke:#14263B;stroke-width:10"/><rect x="196" y="156" width="120" height="14" style="fill:#A9B4BF"/><polygon points="202,106 256,60 310,106" style="fill:#C8351D"/><path d="M256,62 V36" style="stroke:#A9B4BF;stroke-width:9;stroke-linecap:round"/><path d="M-20,372 C10,356 40,338 70,336 C110,334 150,356 190,384 C215,400 240,408 270,408 C330,408 380,396 430,376 C470,360 500,352 532,350 L532,532 L-20,532 Z" style="fill:#2B4A7A"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372 L532,532 L-20,532 Z" style="fill:#1B55C0"/><path d="M-20,478 C50,468 110,488 190,494 C290,502 400,500 532,456 L532,532 L-20,532 Z" style="fill:#060E18"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372" style="fill:none;stroke:#F2EFE4;stroke-width:16;stroke-linecap:round;stroke-linejoin:round"/></g></svg>"`;
+
+exports[`rendered output every icon file: favicon-16.png 1`] = `"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="16" height="16" role="img" aria-label="Breaker Delta"><defs><clipPath id="bd-icon"><rect x="0" y="0" width="512" height="512" rx="114"/></clipPath></defs><g clip-path="url(#bd-icon)"><rect x="0" y="0" width="512" height="512" style="fill:#14263B"/><path d="M256,124 L-20,62 L-20,194 Z M256,124 L532,62 L532,194 Z" style="fill:#F4C535"/><polygon points="178,376 334,376 368,436 144,436" style="fill:#A9B4BF"/><polygon points="190,380 214,168 298,168 322,380" style="fill:#F2EFE4"/><polygon points="207.9,222 304.1,222 315.9,326 196.1,326" style="fill:#C8351D"/><rect x="222" y="104" width="68" height="46" style="fill:#F4C535;stroke:#14263B;stroke-width:10"/><rect x="196" y="156" width="120" height="14" style="fill:#A9B4BF"/><polygon points="202,106 256,60 310,106" style="fill:#C8351D"/><path d="M256,62 V36" style="stroke:#A9B4BF;stroke-width:9;stroke-linecap:round"/><path d="M-20,372 C10,356 40,338 70,336 C110,334 150,356 190,384 C215,400 240,408 270,408 C330,408 380,396 430,376 C470,360 500,352 532,350 L532,532 L-20,532 Z" style="fill:#2B4A7A"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372 L532,532 L-20,532 Z" style="fill:#1B55C0"/><path d="M-20,478 C50,468 110,488 190,494 C290,502 400,500 532,456 L532,532 L-20,532 Z" style="fill:#060E18"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372" style="fill:none;stroke:#F2EFE4;stroke-width:16;stroke-linecap:round;stroke-linejoin:round"/></g></svg>"`;
+
+exports[`rendered output every icon file: favicon-32.png 1`] = `"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="32" height="32" role="img" aria-label="Breaker Delta"><defs><clipPath id="bd-icon"><rect x="0" y="0" width="512" height="512" rx="114"/></clipPath></defs><g clip-path="url(#bd-icon)"><rect x="0" y="0" width="512" height="512" style="fill:#14263B"/><path d="M256,124 L-20,62 L-20,194 Z M256,124 L532,62 L532,194 Z" style="fill:#F4C535"/><polygon points="178,376 334,376 368,436 144,436" style="fill:#A9B4BF"/><polygon points="190,380 214,168 298,168 322,380" style="fill:#F2EFE4"/><polygon points="207.9,222 304.1,222 315.9,326 196.1,326" style="fill:#C8351D"/><rect x="222" y="104" width="68" height="46" style="fill:#F4C535;stroke:#14263B;stroke-width:10"/><rect x="196" y="156" width="120" height="14" style="fill:#A9B4BF"/><polygon points="202,106 256,60 310,106" style="fill:#C8351D"/><path d="M256,62 V36" style="stroke:#A9B4BF;stroke-width:9;stroke-linecap:round"/><path d="M-20,372 C10,356 40,338 70,336 C110,334 150,356 190,384 C215,400 240,408 270,408 C330,408 380,396 430,376 C470,360 500,352 532,350 L532,532 L-20,532 Z" style="fill:#2B4A7A"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372 L532,532 L-20,532 Z" style="fill:#1B55C0"/><path d="M-20,478 C50,468 110,488 190,494 C290,502 400,500 532,456 L532,532 L-20,532 Z" style="fill:#060E18"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372" style="fill:none;stroke:#F2EFE4;stroke-width:16;stroke-linecap:round;stroke-linejoin:round"/></g></svg>"`;
+
+exports[`rendered output every icon file: apple-touch-icon.png 1`] = `"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="180" height="180" role="img" aria-label="Breaker Delta"><defs><clipPath id="bd-icon"><rect x="0" y="0" width="512" height="512"/></clipPath></defs><g clip-path="url(#bd-icon)"><rect x="0" y="0" width="512" height="512" style="fill:#14263B"/><path d="M256,124 L-20,62 L-20,194 Z M256,124 L532,62 L532,194 Z" style="fill:#F4C535"/><polygon points="178,376 334,376 368,436 144,436" style="fill:#A9B4BF"/><polygon points="190,380 214,168 298,168 322,380" style="fill:#F2EFE4"/><polygon points="207.9,222 304.1,222 315.9,326 196.1,326" style="fill:#C8351D"/><polygon points="256,240 290,308 222,308" style="fill:none;stroke:#F2EFE4;stroke-width:8;stroke-linejoin:round"/><rect x="222" y="104" width="68" height="46" style="fill:#F4C535;stroke:#14263B;stroke-width:8"/><path d="M256,104 V150" style="stroke:#14263B;stroke-width:7"/><path d="M202,146 H310 M202,146 V160 M229,146 V160 M256,146 V160 M283,146 V160 M310,146 V160" style="fill:none;stroke:#A9B4BF;stroke-width:6;stroke-linecap:round"/><rect x="196" y="156" width="120" height="14" style="fill:#A9B4BF"/><polygon points="202,106 256,60 310,106" style="fill:#C8351D"/><path d="M256,62 V36" style="stroke:#A9B4BF;stroke-width:9;stroke-linecap:round"/><path d="M-20,372 C10,356 40,338 70,336 C110,334 150,356 190,384 C215,400 240,408 270,408 C330,408 380,396 430,376 C470,360 500,352 532,350 L532,532 L-20,532 Z" style="fill:#2B4A7A"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372 L532,532 L-20,532 Z" style="fill:#1B55C0"/><path d="M-20,478 C50,468 110,488 190,494 C290,502 400,500 532,456 L532,532 L-20,532 Z" style="fill:#060E18"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372" style="fill:none;stroke:#F2EFE4;stroke-width:12;stroke-linecap:round;stroke-linejoin:round"/></g></svg>"`;
+
+exports[`rendered output every icon file: icon-192.png 1`] = `"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="192" height="192" role="img" aria-label="Breaker Delta"><defs><clipPath id="bd-icon"><rect x="0" y="0" width="512" height="512" rx="114"/></clipPath></defs><g clip-path="url(#bd-icon)"><rect x="0" y="0" width="512" height="512" style="fill:#14263B"/><path d="M256,124 L-20,62 L-20,194 Z M256,124 L532,62 L532,194 Z" style="fill:#F4C535"/><polygon points="178,376 334,376 368,436 144,436" style="fill:#A9B4BF"/><polygon points="190,380 214,168 298,168 322,380" style="fill:#F2EFE4"/><polygon points="207.9,222 304.1,222 315.9,326 196.1,326" style="fill:#C8351D"/><polygon points="256,240 290,308 222,308" style="fill:none;stroke:#F2EFE4;stroke-width:8;stroke-linejoin:round"/><rect x="222" y="104" width="68" height="46" style="fill:#F4C535;stroke:#14263B;stroke-width:8"/><path d="M256,104 V150" style="stroke:#14263B;stroke-width:7"/><path d="M202,146 H310 M202,146 V160 M229,146 V160 M256,146 V160 M283,146 V160 M310,146 V160" style="fill:none;stroke:#A9B4BF;stroke-width:6;stroke-linecap:round"/><rect x="196" y="156" width="120" height="14" style="fill:#A9B4BF"/><polygon points="202,106 256,60 310,106" style="fill:#C8351D"/><path d="M256,62 V36" style="stroke:#A9B4BF;stroke-width:9;stroke-linecap:round"/><path d="M-20,372 C10,356 40,338 70,336 C110,334 150,356 190,384 C215,400 240,408 270,408 C330,408 380,396 430,376 C470,360 500,352 532,350 L532,532 L-20,532 Z" style="fill:#2B4A7A"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372 L532,532 L-20,532 Z" style="fill:#1B55C0"/><path d="M-20,478 C50,468 110,488 190,494 C290,502 400,500 532,456 L532,532 L-20,532 Z" style="fill:#060E18"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372" style="fill:none;stroke:#F2EFE4;stroke-width:12;stroke-linecap:round;stroke-linejoin:round"/></g></svg>"`;
+
+exports[`rendered output every icon file: icon-512.png 1`] = `"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Breaker Delta"><defs><clipPath id="bd-icon"><rect x="0" y="0" width="512" height="512" rx="114"/></clipPath></defs><g clip-path="url(#bd-icon)"><rect x="0" y="0" width="512" height="512" style="fill:#14263B"/><path d="M256,124 L-20,62 L-20,194 Z M256,124 L532,62 L532,194 Z" style="fill:#F4C535"/><polygon points="178,376 334,376 368,436 144,436" style="fill:#A9B4BF"/><polygon points="190,380 214,168 298,168 322,380" style="fill:#F2EFE4"/><polygon points="207.9,222 304.1,222 315.9,326 196.1,326" style="fill:#C8351D"/><polygon points="256,240 290,308 222,308" style="fill:none;stroke:#F2EFE4;stroke-width:8;stroke-linejoin:round"/><rect x="222" y="104" width="68" height="46" style="fill:#F4C535;stroke:#14263B;stroke-width:8"/><path d="M256,104 V150" style="stroke:#14263B;stroke-width:7"/><path d="M202,146 H310 M202,146 V160 M229,146 V160 M256,146 V160 M283,146 V160 M310,146 V160" style="fill:none;stroke:#A9B4BF;stroke-width:6;stroke-linecap:round"/><rect x="196" y="156" width="120" height="14" style="fill:#A9B4BF"/><polygon points="202,106 256,60 310,106" style="fill:#C8351D"/><path d="M256,62 V36" style="stroke:#A9B4BF;stroke-width:9;stroke-linecap:round"/><path d="M-20,372 C10,356 40,338 70,336 C110,334 150,356 190,384 C215,400 240,408 270,408 C330,408 380,396 430,376 C470,360 500,352 532,350 L532,532 L-20,532 Z" style="fill:#2B4A7A"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372 L532,532 L-20,532 Z" style="fill:#1B55C0"/><path d="M-20,478 C50,468 110,488 190,494 C290,502 400,500 532,456 L532,532 L-20,532 Z" style="fill:#060E18"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372" style="fill:none;stroke:#F2EFE4;stroke-width:12;stroke-linecap:round;stroke-linejoin:round"/></g></svg>"`;
+
+exports[`rendered output every icon file: icon.svg 1`] = `"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Breaker Delta"><defs><clipPath id="bd-icon"><rect x="0" y="0" width="512" height="512" rx="114"/></clipPath></defs><g clip-path="url(#bd-icon)"><rect x="0" y="0" width="512" height="512" style="fill:#14263B"/><path d="M256,124 L-20,62 L-20,194 Z M256,124 L532,62 L532,194 Z" style="fill:#F4C535"/><polygon points="178,376 334,376 368,436 144,436" style="fill:#A9B4BF"/><polygon points="190,380 214,168 298,168 322,380" style="fill:#F2EFE4"/><polygon points="207.9,222 304.1,222 315.9,326 196.1,326" style="fill:#C8351D"/><polygon points="256,240 290,308 222,308" style="fill:none;stroke:#F2EFE4;stroke-width:8;stroke-linejoin:round"/><rect x="222" y="104" width="68" height="46" style="fill:#F4C535;stroke:#14263B;stroke-width:8"/><path d="M256,104 V150" style="stroke:#14263B;stroke-width:7"/><path d="M202,146 H310 M202,146 V160 M229,146 V160 M256,146 V160 M283,146 V160 M310,146 V160" style="fill:none;stroke:#A9B4BF;stroke-width:6;stroke-linecap:round"/><rect x="196" y="156" width="120" height="14" style="fill:#A9B4BF"/><polygon points="202,106 256,60 310,106" style="fill:#C8351D"/><path d="M256,62 V36" style="stroke:#A9B4BF;stroke-width:9;stroke-linecap:round"/><path d="M-20,372 C10,356 40,338 70,336 C110,334 150,356 190,384 C215,400 240,408 270,408 C330,408 380,396 430,376 C470,360 500,352 532,350 L532,532 L-20,532 Z" style="fill:#2B4A7A"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372 L532,532 L-20,532 Z" style="fill:#1B55C0"/><path d="M-20,478 C50,468 110,488 190,494 C290,502 400,500 532,456 L532,532 L-20,532 Z" style="fill:#060E18"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372" style="fill:none;stroke:#F2EFE4;stroke-width:12;stroke-linecap:round;stroke-linejoin:round"/></g></svg>"`;
+
+exports[`rendered output every icon file: mark.svg 1`] = `"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Breaker Delta"><style>:root{--ink:#14263B;--paper:#F2EFE4}@media (prefers-color-scheme:dark){:root{--ink:#EFE9D8;--paper:#0E1B2A}}</style><defs><clipPath id="bd-icon"><circle cx="256" cy="256" r="236"/></clipPath></defs><g clip-path="url(#bd-icon)"><rect x="0" y="0" width="512" height="512" style="fill:var(--paper)"/><path d="M256,124 L-20,62 L-20,194 Z M256,124 L532,62 L532,194 Z" style="fill:none;stroke:var(--ink);stroke-width:8;stroke-linejoin:round"/><polygon points="178,376 334,376 368,436 144,436" style="fill:var(--ink)"/><polygon points="190,380 214,168 298,168 322,380" style="fill:var(--paper)"/><polygon points="207.9,222 304.1,222 315.9,326 196.1,326" style="fill:var(--ink)"/><polygon points="256,240 290,308 222,308" style="fill:none;stroke:var(--paper);stroke-width:8;stroke-linejoin:round"/><polygon points="190,380 214,168 298,168 322,380" style="fill:none;stroke:var(--ink);stroke-width:8;stroke-linejoin:round"/><rect x="222" y="104" width="68" height="46" style="fill:var(--paper);stroke:var(--ink);stroke-width:8"/><path d="M256,104 V150" style="stroke:var(--ink);stroke-width:7"/><path d="M202,146 H310 M202,146 V160 M229,146 V160 M256,146 V160 M283,146 V160 M310,146 V160" style="fill:none;stroke:var(--ink);stroke-width:6;stroke-linecap:round"/><rect x="196" y="156" width="120" height="14" style="fill:var(--ink)"/><polygon points="202,106 256,60 310,106" style="fill:var(--ink)"/><path d="M256,62 V36" style="stroke:var(--ink);stroke-width:9;stroke-linecap:round"/><path d="M-20,372 C10,356 40,338 70,336 C110,334 150,356 190,384 C215,400 240,408 270,408 C330,408 380,396 430,376 C470,360 500,352 532,350 L532,532 L-20,532 Z" style="fill:var(--paper)"/><path d="M-20,372 C10,356 40,338 70,336 C110,334 150,356 190,384 C215,400 240,408 270,408 C330,408 380,396 430,376 C470,360 500,352 532,350" style="fill:none;stroke:var(--ink);stroke-width:8;stroke-linecap:round"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372 L532,532 L-20,532 Z" style="fill:var(--ink)"/><path d="M-20,478 C50,468 110,488 190,494 C290,502 400,500 532,456 L532,532 L-20,532 Z" style="fill:var(--ink)"/><path d="M-20,404 C24,394 62,362 92,326 C108,306 130,292 150,296 C164,299 168,312 158,320 C146,330 140,348 146,366 C156,392 194,416 240,420 C300,424 340,440 396,438 C450,436 492,404 532,372" style="fill:none;stroke:var(--paper);stroke-width:12;stroke-linecap:round;stroke-linejoin:round"/></g><circle cx="256" cy="256" r="240" style="fill:none;stroke:var(--ink);stroke-width:12"/></svg>"`;
+
+exports[`rendered output every icon file: manifest.webmanifest 1`] = `
+"{
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+"
+`;

@@ -45,6 +45,7 @@
         "@bd/contracts": "workspace:*",
         "@bd/fixtures": "workspace:*",
         "@bd/ports": "workspace:*",
+        "@bd/ui": "workspace:*",
       },
     },
     "packages/contracts": {
@@ -96,6 +97,10 @@
         "drizzle-orm": "^0.45.4",
       },
     },
+    "packages/ui": {
+      "name": "@bd/ui",
+      "version": "0.0.0",
+    },
   },
   "packages": {
     "@bd/contracts": ["@bd/contracts@workspace:packages/contracts"],
@@ -115,6 +120,8 @@
     "@bd/ports": ["@bd/ports@workspace:packages/ports"],
 
     "@bd/private-db": ["@bd/private-db@workspace:packages/private-db"],
+
+    "@bd/ui": ["@bd/ui@workspace:packages/ui"],
 
     "@bd/web": ["@bd/web@workspace:apps/web"],
 
