@@ -83,24 +83,6 @@ Each rule applies only within its scope.
   `packages/core` rules, and PR descriptions.
 - **Evidence:** review rounds 1 and 2 on #238; fixed in ff46719.
 
-## L21 A time bound must be read after the writes it is meant to include
-
-- **Date:** 2026-11-23. **Status:** active.
-- **What happened:** #233's review asked the height trial to score "as of
-  `--now`", and the fix bounded the query by `first_seen_at <= now`. With
-  no `--now`, the script read the clock before `--collect` fetched, so the
-  owner's first run stored 5,502 echoes, all stamped a few milliseconds
-  after "now", and showed 0. The test seeded rows with fixed times, so it
-  never ran collect and query in one command. The owner caught it.
-- **Rule:** When adding a time bound, check where its clock is read
-  against every write the same command makes before the query, and test
-  the whole command with a stand-in for those writes, not only the query.
-- **Scope:** scripts and steps that write and then read by time
-  (`scripts/`, `apps/pipeline/src/core`).
-- **Check:** the test "with --collect and no --now, echoes just collected
-  are scored" in `scripts/height-trial.test.ts` (fails with the clock read
-  before collect). Fixed in #234.
-
 ## L26 Before writing a field an invariant names, find the step the invariant ties it to
 
 - **Date:** 2026-11-24. **Status:** active. Numbered L21 until 2026-11-25,
@@ -119,6 +101,24 @@ Each rule applies only within its scope.
 - **Scope:** `apps/pipeline/src/core` steps, invariants 1, 4 and 5.
 - **Evidence:** review comments on #237 (rounds 1 and 2).
 
+## L21 A time bound must be read after the writes it is meant to include
+
+- **Date:** 2026-11-23. **Status:** active.
+- **What happened:** #233's review asked the height trial to score "as of
+  `--now`", and the fix bounded the query by `first_seen_at <= now`. With
+  no `--now`, the script read the clock before `--collect` fetched, so the
+  owner's first run stored 5,502 echoes, all stamped a few milliseconds
+  after "now", and showed 0. The test seeded rows with fixed times, so it
+  never ran collect and query in one command. The owner caught it.
+- **Rule:** When adding a time bound, check where its clock is read
+  against every write the same command makes before the query, and test
+  the whole command with a stand-in for those writes, not only the query.
+- **Scope:** scripts and steps that write and then read by time
+  (`scripts/`, `apps/pipeline/src/core`).
+- **Check:** the test "with --collect and no --now, echoes just collected
+  are scored" in `scripts/height-trial.test.ts` (fails with the clock read
+  before collect). Fixed in #234.
+
 ## L20 Check what a field means in a recorded response, not only that it is there
 
 - **Date:** 2026-11-23. **Status:** active.
@@ -133,7 +133,8 @@ Each rule applies only within its scope.
   the item should mean, and pin the chosen one with a test where they differ.
 - **Scope:** `apps/pipeline/src/sources/adapters`.
 - **Evidence:** fixed in #220; the Daily Papers test in
-  `json-adapters.test.ts` has an entry whose arXiv and featured dates differ.
+  `apps/pipeline/src/sources/adapters/json-adapters.test.ts` has an entry
+  whose arXiv and featured dates differ.
 
 ## L19 A drift check compares values, not that a value is there
 
@@ -189,9 +190,10 @@ Each rule applies only within its scope.
   elements from other namespaces next to the ones read. It extends L14.
 - **Scope:** `apps/pipeline/src/sources` and any code that reads XML,
   HTML or feeds.
-- **Evidence:** fixed in #206, tests in
-  `apps/pipeline/src/sources/parse.test.ts`; the `&#8217;` cases are in the
-  adapters' tests (`feed-adapters.test.ts`, `remaining-adapters.test.ts`).
+- **Check:** the `&#8217;` cases in
+  `apps/pipeline/src/sources/adapters/feed-adapters.test.ts` and
+  `apps/pipeline/src/sources/adapters/remaining-adapters.test.ts`, and the
+  parser tests in `apps/pipeline/src/sources/parse.test.ts`. Fixed in #206.
 
 ## L16 Write down who decided each value
 
@@ -230,7 +232,8 @@ Each rule applies only within its scope.
   the first run that failed.
 - **Scope:** every PR, and the `take-case` and `docket` reports (the `onus`
   plugin's skills, which replaced `/next` and `/run`).
-- **Evidence:** fixed in this PR; `verify-local get` now prints from `<body>`.
+- **Check:** "a page is printed from <body>, however long its <head> is" in
+  `scripts/verify-local.test.ts`. Fixed in #201.
 
 ## L14 Read a standard format with its parser, and check names against the runtime's own
 
@@ -255,8 +258,8 @@ Each rule applies only within its scope.
   code; names of skills (since 2026-11-24 they come from the `onus`
   plugin, not `.claude/skills/`).
 - **Check:** `scripts/agent-files.ts` parses frontmatter with `Bun.YAML` and
-  refuses the reserved name `run`; `scripts/agent-files.test.ts` covers
-  both. `scripts/check-deps.ts` reads relative imports with
+  refuses the reserved names `run`, `review` and `code-review` (`RESERVED`);
+  `scripts/agent-files.test.ts` covers both. `scripts/check-deps.ts` reads relative imports with
   `Bun.Transpiler.scanImports` and resolves them with `Bun.resolveSync`.
 
 ## L13 Check a credential's shape, not only its characters
@@ -360,8 +363,9 @@ Each rule applies only within its scope.
 - **Rule:** When a PR claims a check enforces something, add a test that puts
   a violation in every place the claim covers and shows the check reports it.
 - **Scope:** `scripts/check-deps.ts`, lint and type configurations, any guard.
-- **Evidence:** fixed in #178; the check-deps test now plants a violation in
-  `select.ts`.
+- **Check:** "local mode may not reach for wrangler or Cloudflare" in
+  `scripts/check-deps.test.ts` plants a violation in
+  `apps/web/src/select.ts`. Fixed in #178.
 
 ## L6 Every way a step can fail must end in the step's failure record
 
@@ -374,8 +378,8 @@ Each rule applies only within its scope.
   started" and "the step's result is stored" sits inside the failure
   handling, so a failure is recorded, never escapes.
 - **Scope:** `apps/pipeline/src/core/runner.ts` and pipeline steps.
-- **Evidence:** fixed in #177, with the test "an output that cannot be
-  stored is a failed attempt".
+- **Check:** "an output that cannot be stored is a failed attempt, not a
+  stuck run" in `apps/pipeline/test/runner.test.ts`. Fixed in #177.
 
 ## L5 Check the design before picking a lower-level approach
 
@@ -417,8 +421,12 @@ Each rule applies only within its scope.
   before `runs`); a chain of three or more calls breaks one call per line
   when an argument is not simple (`now() + x`), even if it would fit; Biome
   also formats YAML under `.github` (exactly one trailing newline).
-- **Scope:** any session without a working `bun install`.
-- **Evidence:** CI runs on #167, #175, #177 and #179.
+- **Scope:** formatting of any change, and any session where a check in
+  `bun run check` cannot run. The sandbox that had no package registry is
+  gone: development runs on the owner's machine (ADR 0016), where
+  `bun install` works, so the rule now applies only when a check cannot run.
+- **Check:** `bun run check` runs Biome locally before a PR; CI runs it
+  again. Evidence: CI runs on #167, #175, #177 and #179.
 
 ## L2 Re-read the whole section after inserting into a list
 
