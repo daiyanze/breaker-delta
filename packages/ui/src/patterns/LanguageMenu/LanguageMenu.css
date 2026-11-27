@@ -1,0 +1,102 @@
+/*
+ * The language menu (boards 01 and 02, #107): a thin-ruled button that
+ * opens a list of links, the current language marked with a red bar. On
+ * phones the button is the globe alone, a square control; from the
+ * two-column breakpoint (`TWO_COLUMNS_FROM`) it also names the language.
+ * The list opens below the button, aligned to its end, so it never reaches
+ * past the page's edge. The markup is `LanguageMenu.tsx`.
+ */
+@layer patterns {
+  .LanguageMenu {
+    display: flex;
+    justify-content: flex-end;
+    padding-block: var(--space-3);
+    font-size: var(--type-small-size);
+  }
+
+  .LanguageMenu-details {
+    position: relative;
+  }
+
+  .LanguageMenu-button {
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: var(--control-min-height);
+    min-width: var(--control-min-height);
+    padding-inline: 0;
+    border: var(--rule-thin) solid var(--ink);
+    font-weight: var(--type-button-weight);
+    cursor: pointer;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    @media (min-width: 960px) {
+      padding-inline: var(--space-3);
+    }
+  }
+
+  .LanguageMenu-icon,
+  .LanguageMenu-chevron {
+    flex: none;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: var(--icon-stroke);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .LanguageMenu-icon {
+    width: var(--icon-size);
+    height: var(--icon-size);
+  }
+
+  .LanguageMenu-current,
+  .LanguageMenu-chevron {
+    display: none;
+
+    @media (min-width: 960px) {
+      display: inline;
+    }
+  }
+
+  .LanguageMenu-chevron {
+    width: var(--space-3);
+    height: var(--space-2);
+  }
+
+  .LanguageMenu-list {
+    position: absolute;
+    inset-inline-end: 0;
+    top: calc(100% + var(--space-2));
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    /* Board 01's 170px: half the rail. */
+    min-width: calc(var(--rail) / 2);
+    background: var(--paper);
+    border: var(--rule-thin) solid var(--ink);
+  }
+
+  .LanguageMenu-link {
+    display: flex;
+    align-items: center;
+    min-height: var(--control-min-height);
+    padding-inline: var(--space-4);
+    color: var(--ink);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--tint);
+    }
+
+    &[aria-current] {
+      font-weight: bold;
+      box-shadow: inset var(--rule-heavy) 0 0 var(--red);
+    }
+  }
+}

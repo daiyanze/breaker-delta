@@ -7,10 +7,10 @@ import { createSite } from "../core/site.ts";
 // from fixture data are checked here. The pages are Preact (#271): the
 // renderer writes no line breaks and escapes `<`, `&` and, in attributes, `"`.
 
-/** The front page the site serves from `q`, as HTML. */
+/** The front page the site serves from `q`, as HTML; `/` is English, the default. */
 async function front(q: ReadQueries | null, lang?: string): Promise<string> {
-  const query = lang === undefined ? "" : `?lang=${lang}`;
-  return (await createSite(() => q).fetch(new Request(`http://x/${query}`))).text();
+  const path = lang === undefined || lang === "en" ? "/" : `/${lang}/`;
+  return (await createSite(() => q).fetch(new Request(`http://x${path}`))).text();
 }
 
 /** The page after its `<head>`, which holds the document's own two scripts (#272). */
@@ -28,7 +28,7 @@ describe("every page uses the band", () => {
       const body = html.slice(html.indexOf("<body>") + 6, html.indexOf("</body>"));
       const outside = body
         .replace(
-          /^<header class="page"><h1>[^<]+<\/h1>(?:<bd-island name="ThemeSwitch"[^>]*>[\s\S]*?<\/bd-island>)?<\/header>/,
+          /^<header class="page">(?:<div class="LanguageMenu">[\s\S]*?<\/details><\/div>)?<h1>[^<]+<\/h1>(?:<bd-island name="ThemeSwitch"[^>]*>[\s\S]*?<\/bd-island>)?<\/header>/,
           "",
         )
         .replace(/^<main class="page">(?:<section class="Band"[\s\S]*?<\/section>)+<\/main>$/, "");
@@ -55,9 +55,13 @@ describe("every page uses the band", () => {
     const { placeholder, busy, fresh } = await pages();
     for (const html of [busy, fresh]) {
       expect(html).toContain(
-        '<header class="page"><h1>Breaker Delta</h1><bd-island name="ThemeSwitch" props="{&quot;label&quot;:&quot;Dark theme&quot;}"><button type="button" class="ThemeSwitch">Dark theme</button></bd-island></header>',
+        '<h1>Breaker Delta</h1><bd-island name="ThemeSwitch" props="{&quot;label&quot;:&quot;Dark theme&quot;}"><button type="button" class="ThemeSwitch">Dark theme</button></bd-island></header>',
       );
     }
+    // Its label comes from the string tables (#107), so it follows the page's language.
+    expect(await front(createFixtureReadQueries("busy"), "zh")).toContain(
+      '<bd-island name="ThemeSwitch" props="{&quot;label&quot;:&quot;深色主题&quot;}"><button type="button" class="ThemeSwitch">深色主题</button></bd-island>',
+    );
     expect(placeholder).not.toContain("<bd-island");
     for (const html of [placeholder, busy]) {
       expect(html).toContain('<script type="module" src="/client/loader.js"></script>');

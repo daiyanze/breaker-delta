@@ -5,6 +5,7 @@ import {
   colorOf,
   FONT_FILES,
   fontFaceCss,
+  ICON,
   PHONE,
   size,
   tokensCss,
@@ -49,6 +50,13 @@ describe("design tokens as CSS", () => {
   test("the phone values are variables for the components' CSS", () => {
     expect(root).toContain(`--phone-gutter:${PHONE.gutter.value};`);
     expect(root).toContain(`--phone-section-size:${PHONE.sectionSize.value};`);
+  });
+
+  test("the control height and the icon size are variables for the components' CSS", () => {
+    expect(root).toContain(`--control-min-height:${CONTROL.minHeight};`);
+    expect(root).toContain(`--control-height:${CONTROL.height};`);
+    expect(root).toContain(`--icon-size:${ICON.size};`);
+    expect(root).toContain(`--icon-stroke:${ICON.stroke};`);
   });
 
   test("sun is the same in both themes", () => {
@@ -124,5 +132,10 @@ describe("supplement: values the design states only in prose", () => {
       `${import.meta.dir}/../../../../design/system/components/Button/README.md`,
     ).text();
     expect(readme).toContain(`高度不小于 ${CONTROL.minHeight}，桌面默认 ${CONTROL.height}`);
+  });
+
+  test("the icon size and stroke are the ones the design system README states", async () => {
+    const readme = await Bun.file(`${import.meta.dir}/../../../../design/system/README.md`).text();
+    expect(readme).toContain(`线宽约 ${ICON.stroke}，${ICON.size} 画板`);
   });
 });

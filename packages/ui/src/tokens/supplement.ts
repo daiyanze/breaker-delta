@@ -30,6 +30,16 @@ export const CONTROL = {
 } as const;
 
 /**
+ * Interface icons: design system README, "图标": "线宽约 1.8px，18px 画板"
+ * (a stroke of about 1.8px on an 18px board). `tokens.test.ts` checks that
+ * the README still says so.
+ */
+export const ICON = {
+  size: "18px",
+  stroke: "1.8px",
+} as const;
+
+/**
  * Below this width a band is one column: the rail becomes a heading above
  * the content. The design system names no breakpoint; this is the agent's
  * choice (#106): the narrowest width where the rail at its full `rail` width,
