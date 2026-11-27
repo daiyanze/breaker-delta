@@ -9,6 +9,7 @@
  * Not an island: the motion is CSS only. Styles: `Footer.css`.
  */
 import type { VNode } from "preact";
+import { useId } from "preact/hooks";
 
 export interface FooterLink {
   href: string;
@@ -56,9 +57,6 @@ const WAVE_BACK = wave(262, 14, true);
 const WAVE_MID = wave(288, 18, true);
 const WAVE_FRONT = wave(320, 16, true);
 const HATCH = wave(352, 7, false);
-
-/** The id that ties the form's label to its field; one footer per page. */
-const FIELD_ID = "footer-email";
 
 function Art(props: { label: string }): VNode {
   // Board 01's drawing, in the view box's units. The right beam runs past
@@ -131,17 +129,19 @@ function Art(props: { label: string }): VNode {
 
 export function Footer(props: FooterProps): VNode {
   const form = props.subscribe;
+  // Ties the label to its field, unique per footer on the page (the catalog shows several).
+  const fieldId = `footer-email-${useId()}`;
   return (
     <footer class="Footer">
       <div class="Footer-top">
         {form === undefined ? null : (
           <form class="Footer-form" method="post" action={form.action}>
-            <label class="Footer-label" for={FIELD_ID}>
+            <label class="Footer-label" for={fieldId}>
               {form.label}
             </label>
             <input
               class="Footer-field"
-              id={FIELD_ID}
+              id={fieldId}
               name="email"
               type="email"
               autocomplete="email"

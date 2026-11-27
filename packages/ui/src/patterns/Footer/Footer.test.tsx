@@ -2,6 +2,7 @@
 import { describe, expect, test } from "bun:test";
 import type { VNode } from "preact";
 import { Document, renderDocument } from "../../runtime/index.ts";
+import { FOOTER } from "../../tokens/index.ts";
 import footerStates from "./Footer.states.tsx";
 import { Footer, type FooterProps } from "./Footer.tsx";
 
@@ -29,10 +30,12 @@ describe("footer markup", () => {
     const html = body(<Footer {...props} />);
     expect(html).toStartWith('<footer class="Footer">');
     expect(html).toContain('<form class="Footer-form" method="post" action="/subscribe">');
-    expect(html).toContain(
-      '<label class="Footer-label" for="footer-email">One email a day, with the new waves.</label>',
-    );
-    expect(html).toContain('id="footer-email" name="email" type="email" autocomplete="email"');
+    const id =
+      /<label class="Footer-label" for="(footer-email-[^"]+)">One email a day, with the new waves.<\/label>/.exec(
+        html,
+      )?.[1];
+    expect(id).toBeDefined();
+    expect(html).toContain(`id="${id}" name="email" type="email" autocomplete="email"`);
     expect(html).toContain('<button class="Footer-submit" type="submit">Subscribe</button>');
     expect(html).toContain('<nav class="Footer-nav" aria-label="Footer">');
     expect(html).toContain(
@@ -64,12 +67,61 @@ describe("footer markup", () => {
     expect(html).toContain('aria-label="&quot;x&quot;"');
   });
 
+  test("two footers on one page, as in the catalog, give their fields different ids", () => {
+    const html = body(
+      <>
+        <Footer {...props} />
+        <Footer {...state("zh")} />
+      </>,
+    );
+    const ids = [...html.matchAll(/ id="(footer-email-[^"]+)"/g)].map((m) => m[1]);
+    const fors = [...html.matchAll(/ for="(footer-email-[^"]+)"/g)].map((m) => m[1]);
+    expect(ids).toHaveLength(2);
+    expect(new Set(ids).size).toBe(2);
+    expect(fors).toEqual(ids);
+  });
+
   test("every state renders a footer", () => {
     for (const state of Object.values(footerStates.states)) {
       expect(body(<Footer {...state} />)).toStartWith('<footer class="Footer">');
     }
   });
 });
+
+const css = await Bun.file(`${import.meta.dir}/Footer.css`).text();
+
+/**
+ * Where a wave layer leaves the view box (x 0 to 1440) bare at either end of
+ * its drift, read from the markup (each layer's start, its periods of 240,
+ * the offset of the group around it) and from the CSS (the drift).
+ */
+function gaps(svg: string, sheet: string): string[] {
+  const drift = /translateX\(calc\((-?\d+) \/ 1440 \* 100%\)\)/.exec(sheet);
+  if (drift === null) return ["no drift in the CSS"];
+  const by = Number(drift[1]);
+  const out: string[] = [];
+  const layers = svg.matchAll(
+    /(?:<g transform="translate\((-?\d+) 0\)">)?<g class="Footer-drift Footer-drift-(\w+)"><path class="[^"]*" d="M(-?\d+),([^"]*)"/g,
+  );
+  let count = 0;
+  for (const m of layers) {
+    count++;
+    const name = m[2] ?? "";
+    const periods = (m[4]?.match(/ t120,0/g) ?? []).length;
+    const start = Number(m[3]) + Number(m[1] ?? 0);
+    const end = start + periods * 240;
+    // The drift runs between 0 and `by`, whichever way the layer goes.
+    for (const shift of [0, by]) {
+      const at = shift === 0 ? "start" : "end";
+      if (start + shift > 0)
+        out.push(`${name}: x 0 to ${start + shift} is bare at the ${at} of its drift`);
+      if (end + shift < 1440)
+        out.push(`${name}: x ${end + shift} to 1440 is bare at the ${at} of its drift`);
+    }
+  }
+  if (count !== 3) out.push(`${count} wave layers, not 3`);
+  return out;
+}
 
 describe("the drawing", () => {
   const svg = body(<Footer {...props} />);
@@ -83,24 +135,36 @@ describe("the drawing", () => {
       const periods = d.match(/ q60,-?\d+ 120,0 t120,0/g) ?? [];
       expect(periods.length).toBe(12);
     }
-    // The view box is 1440 wide from x = 0. Drifted by up to one period each
-    // way (the middle layer sits 90 further left), every layer still covers it.
-    const left = -480 - 90;
-    const right = -480 + 12 * 240 - 240;
-    expect(left).toBeLessThanOrEqual(-240);
-    expect(right).toBeGreaterThanOrEqual(1440);
+  });
+
+  test("every wave layer covers the view box at every point of its drift", () => {
     expect(svg).toContain('viewBox="0 -130 1440 510"');
+    expect(gaps(svg, css)).toEqual([]);
+  });
+
+  test("the coverage check fails when a layer is moved so the view shows past its end", () => {
+    const moved = svg.replace(
+      '<g transform="translate(-90 0)">',
+      '<g transform="translate(-800 0)">',
+    );
+    expect(moved).not.toBe(svg);
+    expect(gaps(moved, css)).toEqual(["mid: x 1360 to 1440 is bare at the end of its drift"]);
+    const far = css.replace(
+      "translateX(calc(-240 / 1440 * 100%))",
+      "translateX(calc(-1000 / 1440 * 100%))",
+    );
+    expect(gaps(svg, far)).toHaveLength(3);
   });
 
   test("the beam's sweep stays inside the view box's top, and its right end outside the view", () => {
-    // Pivot 1132,92; the sweep turns from -4 to 6 degrees (Footer.css).
+    // Pivot 1132,92; the sweep turns between FOOTER.beamFrom and beamTo.
     const points = [...svg.matchAll(/<g class="Footer-beam">(.*?)<\/g>/g)][0]?.[1] ?? "";
     const corners = [...points.matchAll(/(-?[\d.]+),(-?[\d.]+)/g)].map((m) => [
       Number(m[1]),
       Number(m[2]),
     ]);
     expect(corners.length).toBe(6);
-    for (const deg of [-4, 6]) {
+    for (const deg of [FOOTER.beamFrom, FOOTER.beamTo].map(Number.parseFloat)) {
       const a = (deg * Math.PI) / 180;
       for (const [x, y] of corners as [number, number][]) {
         const dx = x - 1132;

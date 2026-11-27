@@ -104,8 +104,15 @@ describe("the footer", () => {
       '<a class="Footer-link" href="/zh/about#height"><span class="Footer-long">浪高是怎么算的</span><span class="Footer-short">浪高怎么算</span></a>',
     );
     expect(zh).toContain('<span class="Footer-note">Breaker Delta 是开源项目。</span>');
+    // Every link: the three about sections in the page's language, then the repository.
+    const links = (html: string) =>
+      [...html.matchAll(/<a class="Footer-link" href="([^"]+)"/g)].map((m) => m[1]);
+    const repo = "https://github.com/daiyanze/breaker-delta";
+    expect(links(zh)).toEqual(["/zh/about#height", "/zh/about#own", "/zh/about#open", repo]);
+    const ja = await front(createFixtureReadQueries("busy"), "ja");
+    expect(links(ja)).toEqual(["/ja/about#height", "/ja/about#own", "/ja/about#open", repo]);
     const en = await front(createFixtureReadQueries("busy"));
-    expect(en).toContain('href="/about#own"');
+    expect(links(en)).toEqual(["/about#height", "/about#own", "/about#open", repo]);
     expect(en).toContain(
       '<a class="Footer-link" href="https://github.com/daiyanze/breaker-delta">GitHub</a>',
     );
