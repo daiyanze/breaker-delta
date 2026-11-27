@@ -310,6 +310,14 @@ describe("the echo stack", () => {
     );
 
   test("the sheets move only when motion is allowed, so at rest the whole stack shows", () => {
+    const animated = rules.filter((r) => r.declarations.some(([p]) => p.startsWith("animation")));
+    // Every animated rule in the sheet waits for motion to be allowed.
+    for (const r of animated) {
+      expect([r.selector, r.media]).toEqual([
+        r.selector,
+        ["(prefers-reduced-motion: no-preference)"],
+      ]);
+    }
     const moving = own.filter((r) => r.declarations.some(([p]) => p.startsWith("animation")));
     expect(moving.map((r) => [r.selector, r.media])).toEqual([
       [".EchoStack-sheet", ["(prefers-reduced-motion: no-preference)"]],
