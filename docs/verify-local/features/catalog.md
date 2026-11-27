@@ -11,7 +11,7 @@ page (default light, English); the links at its top go to the other five.
 **Correct looks like:**
 
 - `get /_catalog`: 200. `get` prints the first 2000 characters from
-  `<body>`: "This page: light, en.", the links to the six pages, and a list
+  `<body>`: "This page: light, English.", the links to the six pages, and a list
   of every component with its layer and state names (`ThemeSwitch
   (primitives): default, long, zh, ja`, `Band (patterns): default, note,
   long, zh, ja`, `LanguageMenu (patterns): default, open, long, zh, ja`).
@@ -20,10 +20,12 @@ page (default light, English); the links at its top go to the other five.
   `data-shot="<Name>/<state>"` element per state.
 - `get "/_catalog?theme=dark&lang=ja"`: the same, with the page's own
   text in Japanese from the site's string tables ("カタログ", "このページ：
-  dark、ja。"); the saved file has `<html lang="ja" data-theme="dark">`.
+  ダーク、日本語。"); the saved file has `<html lang="ja" data-theme="dark">`.
 - `get "/_catalog?theme=light&lang=en&shot=Band/long"`: that one state
   alone, the page the screenshot run captures; an unknown component or
-  state: 404.
+  state, or anything after the state (`Band/long/x`): 404. Each shot
+  covers everything the state paints, so an open LanguageMenu's list,
+  positioned below the menu, is in its `open` and `long` shots.
 - `get "/_catalog?theme=sepia"` or `?lang=fr`: 404.
 - In a browser: each state rendered with the site's stylesheet; in the
   dark page the paper is dark. The theme switch in the catalog is live

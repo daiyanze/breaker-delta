@@ -3,7 +3,9 @@ import {
   componentOf,
   markChanges,
   type Outcome,
+  outside,
   overThreshold,
+  paintedBox,
   report,
   shotPath,
   THRESHOLD,
@@ -46,6 +48,30 @@ describe("screenshot names (#258)", () => {
     expect(shotPath({ ...base, pose: "rest" })).toBe("Band/note.dark.ja.phone.png");
     expect(shotPath({ ...base, pose: "hover" })).toBe("Band/note.dark.ja.phone.hover.png");
     expect(componentOf("ThemeSwitch/default.light.en.desktop.focus.png")).toBe("ThemeSwitch");
+  });
+});
+
+describe("what a shot covers (#258)", () => {
+  // LanguageMenu's open state at desktop width: the wrapper holds the button;
+  // the list is `position: absolute` below it, outside the wrapper's box.
+  const wrapper = { x: 80, y: 40, width: 1280, height: 68 };
+  const button = { x: 1200, y: 40, width: 160, height: 68 };
+  const list = { x: 1180, y: 116, width: 180, height: 132 };
+  const hidden = { x: 0, y: 0, width: 0, height: 0 };
+
+  test("an absolutely positioned child outside the wrapper is inside the shot", () => {
+    const clip = paintedBox([wrapper, button, list, hidden]);
+    expect(outside(clip, [wrapper, button, list])).toEqual([]);
+    expect(clip).toEqual({ x: 80, y: 40, width: 1280, height: 208 });
+  });
+
+  test("the wrapper's box alone would miss it", () => {
+    expect(outside(wrapper, [wrapper, button, list])).toEqual([list]);
+  });
+
+  test("a state that paints inside its wrapper keeps the wrapper's box exactly", () => {
+    expect(paintedBox([wrapper, button, hidden])).toEqual(wrapper);
+    expect(paintedBox([wrapper])).toEqual(wrapper);
   });
 });
 

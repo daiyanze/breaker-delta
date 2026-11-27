@@ -29,6 +29,51 @@ export function shotPath(s: Shot): string {
   return `${s.component}/${s.state}.${s.theme}.${s.lang}.${s.width}${pose}.png`;
 }
 
+/** A box on the page, in CSS pixels from the document's top left. */
+export interface Box {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+const empty = (b: Box) => b.width <= 0 || b.height <= 0;
+
+/**
+ * The area a state paints: the union of its wrapper's box and every
+ * descendant's. A child that is positioned out of the wrapper (an open
+ * menu's absolutely positioned list) is then inside the shot; clipping to
+ * the wrapper alone left it out (#258, review round 3). Boxes with no area
+ * (`display: none`, a closed `<details>`'s content) are skipped. The first
+ * box is the wrapper's, so a state that paints inside it keeps exactly that
+ * box.
+ */
+export function paintedBox(boxes: readonly Box[]): Box {
+  const drawn = boxes.filter((b) => !empty(b));
+  const first = drawn[0] ?? boxes[0];
+  if (first === undefined) throw new Error("a shot needs at least its wrapper's box");
+  let [x0, y0, x1, y1] = [first.x, first.y, first.x + first.width, first.y + first.height];
+  for (const b of drawn) {
+    x0 = Math.min(x0, b.x);
+    y0 = Math.min(y0, b.y);
+    x1 = Math.max(x1, b.x + b.width);
+    y1 = Math.max(y1, b.y + b.height);
+  }
+  return { x: x0, y: y0, width: x1 - x0, height: y1 - y0 };
+}
+
+/** The boxes with area that reach outside `clip`: what a shot of `clip` would miss. */
+export function outside(clip: Box, boxes: readonly Box[]): Box[] {
+  return boxes.filter(
+    (b) =>
+      !empty(b) &&
+      (b.x < clip.x ||
+        b.y < clip.y ||
+        b.x + b.width > clip.x + clip.width ||
+        b.y + b.height > clip.y + clip.height),
+  );
+}
+
 /** The component a stored shot belongs to: its folder. */
 export function componentOf(path: string): string {
   return path.split("/", 1)[0] ?? path;

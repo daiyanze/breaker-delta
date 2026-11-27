@@ -23,11 +23,13 @@ import { type Browser, type BrowserContext, chromium, type Page } from "playwrig
 import { catalogHref, LANGUAGES } from "../src/local/catalog.tsx";
 import { startSite } from "../src/local/index.ts";
 import {
+  type Box,
   fails,
   markChanges,
   type Outcome,
   overThreshold,
   type Pose,
+  paintedBox,
   report,
   type Shot,
   shotPath,
@@ -96,7 +98,26 @@ async function capture(page: Page, site: string, theme: Theme, lang: Language, w
         await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
         if (pose === "hover") await target.hover();
         if (pose === "focus") await target.focus();
-        const png = await element.screenshot({
+        // The shot covers everything the state paints, not only its
+        // wrapper's box: an open menu's list is positioned outside it. What
+        // is not drawn (a closed `<details>`'s content keeps a box, but
+        // `checkVisibility` is false) counts as no area.
+        const boxes: Box[] = await element.evaluate((root) =>
+          [root, ...root.querySelectorAll("*")].map((e) => {
+            const r = e.getBoundingClientRect();
+            const drawn = e === root || e.checkVisibility({ visibilityProperty: true });
+            return {
+              x: r.x + scrollX,
+              y: r.y + scrollY,
+              width: drawn ? r.width : 0,
+              height: drawn ? r.height : 0,
+            };
+          }),
+        );
+        const clip = paintedBox(boxes);
+        const png = await page.screenshot({
+          clip,
+          fullPage: true,
           animations: "disabled",
           caret: "hide",
           scale: "css",

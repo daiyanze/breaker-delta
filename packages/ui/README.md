@@ -132,7 +132,8 @@ no Bun or Cloudflare types, so emails and share cards can import it.
   `apps/web/src/local/catalog.tsx` shows every state, one theme and one
   language per page. `bun run ui:screens` (`apps/web/scripts/screens.ts`)
   captures each state alone on a page (`&shot=`, so adding a state never
-  moves another's shot) at 1440 and 390 wide, in both themes and every
+  moves another's shot), each shot covering everything the state paints
+  (an open menu's list below it included), at 1440 and 390 wide, in both themes and every
   language, at rest, hovered and focused, and compares them with
   `apps/web/screenshots/<platform>`; `bun run ui:baseline` rewrites them.
   The committed baselines are Linux's, from the `screenshots` CI job.
