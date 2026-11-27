@@ -1,0 +1,142 @@
+/*
+ * The echo stack (#114, `design/system/components/EchoStack`): sheets in
+ * `blue` and `sky` by turns, the top one `red`, on an `ink` baseline. Each
+ * drops in `--echo-stack-step` after the one below it, on a
+ * `--echo-stack-loop` cycle (`src/tokens/supplement.ts`), and fades out at
+ * the end of it, as on boards 01 and 03. With reduced motion there is no
+ * animation, so the whole stack shows. The markup is `EchoStack.tsx`.
+ */
+@layer patterns {
+  .EchoStack {
+    display: inline-block;
+    flex: none;
+    vertical-align: bottom;
+    inline-size: var(--echo-stack-phone-width);
+    aspect-ratio: 120 / 220;
+    overflow: visible;
+
+    @media (min-width: 960px) {
+      inline-size: var(--echo-stack-width);
+    }
+  }
+
+  .EchoStack-blue {
+    fill: var(--blue);
+  }
+
+  .EchoStack-sky {
+    fill: var(--sky);
+  }
+
+  .EchoStack-top {
+    fill: var(--red);
+  }
+
+  .EchoStack-base {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .EchoStack-sheet {
+      transform-box: fill-box;
+      animation: echo-stack-drop var(--echo-stack-loop) ease-out infinite both;
+      animation-delay: calc(var(--echo-stack-k) * var(--echo-stack-step));
+    }
+  }
+
+  /*
+   * Each sheet's place from the bottom, for its delay: the sheets are the
+   * stack's only rects, bottom first, and there are at most 15
+   * (`MAX_LAYERS`). A page holds no style attribute, so it is not set there.
+   */
+  .EchoStack-sheet {
+    --echo-stack-k: 0;
+  }
+
+  .EchoStack-sheet:nth-of-type(2) {
+    --echo-stack-k: 1;
+  }
+
+  .EchoStack-sheet:nth-of-type(3) {
+    --echo-stack-k: 2;
+  }
+
+  .EchoStack-sheet:nth-of-type(4) {
+    --echo-stack-k: 3;
+  }
+
+  .EchoStack-sheet:nth-of-type(5) {
+    --echo-stack-k: 4;
+  }
+
+  .EchoStack-sheet:nth-of-type(6) {
+    --echo-stack-k: 5;
+  }
+
+  .EchoStack-sheet:nth-of-type(7) {
+    --echo-stack-k: 6;
+  }
+
+  .EchoStack-sheet:nth-of-type(8) {
+    --echo-stack-k: 7;
+  }
+
+  .EchoStack-sheet:nth-of-type(9) {
+    --echo-stack-k: 8;
+  }
+
+  .EchoStack-sheet:nth-of-type(10) {
+    --echo-stack-k: 9;
+  }
+
+  .EchoStack-sheet:nth-of-type(11) {
+    --echo-stack-k: 10;
+  }
+
+  .EchoStack-sheet:nth-of-type(12) {
+    --echo-stack-k: 11;
+  }
+
+  .EchoStack-sheet:nth-of-type(13) {
+    --echo-stack-k: 12;
+  }
+
+  .EchoStack-sheet:nth-of-type(14) {
+    --echo-stack-k: 13;
+  }
+
+  .EchoStack-sheet:nth-of-type(15) {
+    --echo-stack-k: 14;
+  }
+
+  /*
+   * The boards' keyframes: in from 40 units above by 7% of the loop, held
+   * until 84%, faded out by the end. Units of the sheet's own box
+   * (`transform-box: fill-box`), so no length: 40 is a little under four
+   * sheet heights of 11.
+   */
+  @keyframes echo-stack-drop {
+    0% {
+      opacity: 0;
+      transform: translateY(-364%);
+    }
+
+    7% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    84% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+  }
+}
