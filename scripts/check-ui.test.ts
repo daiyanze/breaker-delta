@@ -110,8 +110,8 @@ describe("check-ui (issue 259)", () => {
       "packages/ui/src/patterns/A/A.island.tsx": `${PRAGMA}import type { Echo } from "@bd/contracts";\nimport { LanguageSchema } from "@bd/contracts";\nimport B from "../B/B.island.tsx";\n`,
     });
     expect(uiProblems(r, undefined, none)).toEqual([
-      "packages/ui/src/patterns/A/A.island.tsx:3: island-import: imports a value from @bd/contracts: an island takes types only (import type)",
       "packages/ui/src/patterns/A/A.island.tsx:4: island-import: imports the island ../B/B.island.tsx: an island imports no island",
+      "packages/ui/src/patterns/A/A.island.tsx:3: island-import: imports a value from @bd/contracts: an island takes types only (import type)",
     ]);
   });
 
@@ -303,6 +303,24 @@ describe("check-ui reads code with a parser (issue 285)", () => {
     );
     expect(uiProblems(r, undefined, none)).toEqual([
       'packages/ui/src/styles/p.tsx:5: size: "4px" (use a size token from tokens.json)',
+    ]);
+  });
+
+  test("a style object's font is read through as const, satisfies, <const> and !", () => {
+    const r = tree({
+      "packages/ui/src/styles/w.ts": [
+        'export const a = { fontFamily: "Georgia" as const };',
+        'export const b = { fontFamily: "Georgia" satisfies string };',
+        'export const c = { font: <const>"bold Georgia" };',
+        'export const d = { font: ("bold Georgia" as string)! };',
+        "",
+      ].join("\n"),
+    });
+    expect(uiProblems(r, undefined, none)).toEqual([
+      'packages/ui/src/styles/w.ts:1: font: "fontFamily: "Georgia"" (use a font token)',
+      'packages/ui/src/styles/w.ts:2: font: "fontFamily: "Georgia"" (use a font token)',
+      'packages/ui/src/styles/w.ts:3: font: "font: "bold Georgia"" names a font (use a font token)',
+      'packages/ui/src/styles/w.ts:4: font: "font: "bold Georgia"" names a font (use a font token)',
     ]);
   });
 

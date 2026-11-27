@@ -225,7 +225,17 @@ export function readSource(path: string, source: string): Read {
       const key = n.key;
       const name =
         key.type === "Identifier" ? key.name : key.type === "StringLiteral" ? key.value : "";
-      const v = n.value;
+      // `"Georgia" as const`, `satisfies`, `<const>"Georgia"` and `!` wrap
+      // the value without changing it.
+      let v: Node = n.value;
+      while (
+        v.type === "TSAsExpression" ||
+        v.type === "TSSatisfiesExpression" ||
+        v.type === "TSTypeAssertion" ||
+        v.type === "TSNonNullExpression"
+      ) {
+        v = v.expression;
+      }
       if (/^(?:font-?family|font)$/i.test(name)) {
         if (v.type === "StringLiteral" || v.type === "TemplateLiteral") {
           const q = source[v.start ?? 0] ?? '"';
@@ -287,7 +297,7 @@ function scan(root: string, files: readonly string[]): Found[] {
   const add = (file: string, line: number | undefined, rule: Rule, message: string) =>
     found.push({ file, line, rule, message });
 
-  for (const file of [...files].sort()) {
+  for (const file of files) {
     if (TEST.test(file)) continue;
     const inUi = UI.some((r) => r.test(file));
     const inApp = APP_SRC.test(file);
@@ -300,6 +310,7 @@ function scan(root: string, files: readonly string[]): Found[] {
     if (!(inUi || inApp) || !(isCss || isCode)) continue;
 
     const text = readFileSync(join(root, file), "utf8");
+    const lines = found.length;
     let read: Read;
     try {
       read = readSource(file, text);
@@ -357,20 +368,19 @@ function scan(root: string, files: readonly string[]): Found[] {
       });
     }
 
+    // Strings and code are read in separate passes: put this file's line
+    // findings back in line order (the sort is stable).
+    found.splice(
+      lines,
+      found.length - lines,
+      ...found.slice(lines).sort((a, b) => (a.line ?? 0) - (b.line ?? 0)),
+    );
+
     if (file.startsWith("packages/ui/src/") && file.endsWith(".island.tsx")) {
       islandImports(file, text, add);
     }
   }
-  // By file, then line: strings and code are read in separate passes.
-  return found
-    .map((f, i) => ({ f, i }))
-    .sort(
-      (a, b) =>
-        (a.f.file < b.f.file ? -1 : a.f.file > b.f.file ? 1 : 0) ||
-        (a.f.line ?? 0) - (b.f.line ?? 0) ||
-        a.i - b.i,
-    )
-    .map(({ f }) => f);
+  return found;
 }
 
 const transpiler = new Bun.Transpiler({ loader: "tsx" });
