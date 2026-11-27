@@ -165,17 +165,17 @@ It reads package imports with a pattern (import statements,
 template with no `${`). Neither sees paths built at run time. It does not
 look at globals (`fetch`, `Date.now`, `Bun`); `packages/core` typechecks
 with Bun's types.
-`check-ui` reads each file once with a small lexer (strings, template
-literals, regular expressions, JSX closing tags, comments), then matches
-patterns line by line: in code, a size, a class rule or a `font` shorthand
-counts only inside a string, a `fontFamily` key also when its value is one,
-and a value built at run time from parts passes. A `font` shorthand fails
-only when something other than variables, sizes and its keywords is left.
-The lexer is not a parser, and it can miss a value: an apostrophe in JSX
-text (`don't`) opens a string to the end of its line; a regular expression
-right after `=>`, or a `/` in JSX text, can make it misread the strings
-after it on that line. A `font` shorthand with nested `var()`, a size
-keyword (`large`) or a `${}` part is reported though it names no font.
+`check-ui` parses code with `@babel/parser` (#285) and matches patterns
+on each string, template literal and JSX attribute string, line by line:
+in code, a size, a class rule or a `font` shorthand counts only there (JSX
+text, regular expressions and comments are not strings), and a
+`fontFamily` or `font` key in an object is read as that declaration. A
+template's `${}` part is read as a variable, so a value built at run time
+from parts passes. A `font` shorthand fails only when something other than
+variables, sizes and its keywords is left. A `.css` file is read whole,
+comments blanked. Globals, `dangerouslySetInnerHTML` and `style=` are
+matched on the code with comments blanked, strings included. A file the
+parser cannot read fails.
 Other apps' source is
 read for `.css` files, `style=`, class rules, globals and
 `dangerouslySetInnerHTML`, not for sizes or fonts. Tests are not read, and
