@@ -1,0 +1,23 @@
+/*
+ * The theme switch (#105, smallest form): the secondary button of
+ * `design/system/components/Button` ("次要": a thin outline and small
+ * type), inverted while pressed. #105 finishes its design. The markup is
+ * `ThemeSwitch.island.tsx`.
+ */
+@layer primitives {
+  .ThemeSwitch {
+    padding: var(--space-2) var(--space-4);
+    border: var(--rule-thin) solid var(--ink);
+    border-radius: var(--radius-none);
+    background: transparent;
+    color: var(--ink);
+    font-size: var(--type-small-size);
+    cursor: pointer;
+
+    &:hover,
+    &[aria-pressed="true"] {
+      background: var(--ink);
+      color: var(--paper);
+    }
+  }
+}

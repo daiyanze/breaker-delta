@@ -21,6 +21,14 @@
     text-size-adjust: 100%;
   }
 
+  /*
+   * An island's element (ADR 0020, section 2) does not change the layout
+   * around it: its box is its component's.
+   */
+  bd-island {
+    display: contents;
+  }
+
   body {
     margin: 0;
     overflow-wrap: break-word;

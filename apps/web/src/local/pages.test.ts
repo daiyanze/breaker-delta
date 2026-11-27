@@ -13,6 +13,9 @@ async function front(q: ReadQueries | null, lang?: string): Promise<string> {
   return (await createSite(() => q).fetch(new Request(`http://x${path}`))).text();
 }
 
+/** The page after its `<head>`, which holds the document's own two scripts (#272). */
+const body = (html: string) => html.slice(html.indexOf("</head>"));
+
 describe("every page uses the band", () => {
   const pages = async () => ({
     placeholder: await front(null),
@@ -25,7 +28,7 @@ describe("every page uses the band", () => {
       const body = html.slice(html.indexOf("<body>") + 6, html.indexOf("</body>"));
       const outside = body
         .replace(
-          /^<header class="page">(?:<div class="LanguageMenu">[\s\S]*?<\/details><\/div>)?<h1>[^<]+<\/h1><\/header>/,
+          /^<header class="page">(?:<div class="LanguageMenu">[\s\S]*?<\/details><\/div>)?<h1>[^<]+<\/h1>(?:<bd-island name="ThemeSwitch"[^>]*>[\s\S]*?<\/bd-island>)?<\/header>/,
           "",
         )
         .replace(/^<main class="page">(?:<section class="Band"[\s\S]*?<\/section>)+<\/main>$/, "");
@@ -46,6 +49,23 @@ describe("every page uses the band", () => {
     expect(busy).toContain("16 waves up");
     expect(fresh).toContain('<h2 id="band-front" class="Band-name">The sea is flat.</h2>');
     expect(fresh).toContain("Nothing has been scanned yet. Next scan: ");
+  });
+
+  test("the front page holds the theme switch island; the placeholder holds no island, issue 272", async () => {
+    const { placeholder, busy, fresh } = await pages();
+    for (const html of [busy, fresh]) {
+      expect(html).toContain(
+        '<h1>Breaker Delta</h1><bd-island name="ThemeSwitch" props="{&quot;label&quot;:&quot;Dark theme&quot;}"><button type="button" class="ThemeSwitch">Dark theme</button></bd-island></header>',
+      );
+    }
+    // Its label comes from the string tables (#107), so it follows the page's language.
+    expect(await front(createFixtureReadQueries("busy"), "zh")).toContain(
+      '<bd-island name="ThemeSwitch" props="{&quot;label&quot;:&quot;深色主题&quot;}"><button type="button" class="ThemeSwitch">深色主题</button></bd-island>',
+    );
+    expect(placeholder).not.toContain("<bd-island");
+    for (const html of [placeholder, busy]) {
+      expect(html).toContain('<script type="module" src="/client/loader.js"></script>');
+    }
   });
 });
 
@@ -71,7 +91,7 @@ describe("model text renders as text", () => {
     const before = await front(base, "en");
     const count = (s: string, re: RegExp) => (s.match(re) ?? []).length;
     expect(count(html, /<a\b/g)).toBe(count(before, /<a\b/g));
-    expect(html).not.toContain("<script");
+    expect(body(html)).not.toContain("<script");
     expect(html).not.toContain("<img");
     expect(html.slice(html.indexOf("<main"))).not.toMatch(/href="(?!\/topic\/|https:\/\/)/);
     expect(html).not.toContain('" onmouseover');
@@ -99,7 +119,7 @@ describe("the renderer escapes fixture text", () => {
     expect(html).toContain("Group &amp; &lt;script>one&lt;/script>: ");
     expect(html).toContain('href="https://example.test/?q=&quot;quoted&quot;"');
     expect(html).toContain(">A &lt;script>x&lt;/script> &amp; b</a>");
-    expect(html).not.toContain("<script");
+    expect(body(html)).not.toContain("<script");
     expect(html).not.toContain(" & ");
     expect(html).not.toContain('"quoted"');
   });

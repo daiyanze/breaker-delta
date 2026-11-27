@@ -8,6 +8,7 @@
 import type { ComponentChildren, VNode } from "preact";
 import { renderToString } from "preact-render-to-string";
 import { FONT_FILES, type Theme } from "../tokens/index.ts";
+import { THEME_SCRIPT } from "./theme.ts";
 
 /** Where both adapters serve the client files and the fonts (ADR 0020, section 11). */
 export const CLIENT = {
@@ -27,9 +28,12 @@ export interface DocumentProps {
 }
 
 /**
- * A preload for each font the first line uses, so it is ready before the
- * short block period ends (the faces are `font-display: optional`), and
- * the stylesheet.
+ * The constant script that applies a stored theme before first paint, a
+ * preload for each font the first line uses, so it is ready before the
+ * short block period ends (the faces are `font-display: optional`), the
+ * stylesheet, and the island loader (a module, so it runs after parsing).
+ * The theme script is the one use of `dangerouslySetInnerHTML` (ADR 0020,
+ * section 2): it is a constant, never page data.
  */
 export function Document(props: DocumentProps): VNode {
   return (
@@ -38,6 +42,7 @@ export function Document(props: DocumentProps): VNode {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{props.title}</title>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         {FONT_FILES.filter((f) => f.preload).map((f) => (
           <link
             key={f.file}
@@ -49,6 +54,7 @@ export function Document(props: DocumentProps): VNode {
           />
         ))}
         <link rel="stylesheet" href={CLIENT.css} />
+        <script type="module" src={CLIENT.loader} />
         {props.head}
       </head>
       <body>{props.children}</body>

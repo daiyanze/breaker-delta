@@ -13,6 +13,7 @@ export const ja: Table = {
   "sea.moderate": "やや波あり",
   "sea.choppy": "波あり",
   "language.menu": "言語：{language}",
+  "theme.dark": "ダークテーマ",
   "scaffold.name": "足場",
   "scaffold.text": "2.0 の足場です。サイトはマイルストーン M3 で公開されます。",
 };

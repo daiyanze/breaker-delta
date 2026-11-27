@@ -18,6 +18,7 @@ export const en = {
   "sea.moderate": "moderate",
   "sea.choppy": "choppy",
   "language.menu": "Language: {language}",
+  "theme.dark": "Dark theme",
   "scaffold.name": "Scaffold",
   "scaffold.text": "2.0 scaffold. The site arrives in milestone M3.",
 } as const;

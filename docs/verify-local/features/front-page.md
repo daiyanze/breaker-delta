@@ -33,6 +33,19 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
   `document.documentElement.dataset.theme = "dark"` (or `"light"`) set by
   hand overrides it: `getComputedStyle(document.documentElement)`
   gives the `paper` and `ink` colours of that theme.
+- Every page's head holds the constant theme script and
+  `<script type="module" src="/client/loader.js">` (#272). `get
+  /client/loader.js` and `get /client/ThemeSwitch.island.js`: 200
+  `text/javascript`.
+- The front page's header holds the theme switch island,
+  `<bd-island name="ThemeSwitch" props="…"><button class="ThemeSwitch">`.
+  In a browser: clicking it flips `data-theme` on `<html>` and stores the
+  choice under `localStorage["bd-theme"]`; a reload keeps it, and the
+  theme script sets `data-theme` before the first paint, so the other
+  theme never shows first. The network list then has `loader.js`,
+  `ThemeSwitch.island.js` and the `chunk-*.js` files (Preact).
+- The placeholder (`up` with no fixtures) has no island: its network list
+  holds `loader.js` and no other JavaScript.
 
 **Check it:**
 

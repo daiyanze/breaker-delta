@@ -3,9 +3,12 @@
  * A bare front page: enough to prove a page renders from the read contracts
  * alone. Every piece of text is a plain string; the renderer escapes it.
  * Interface text comes from the string tables in the page's language (#107).
+ * The theme switch is its one island (#272); #105 moves it into the
+ * masthead.
  */
 import type { Language, RankRow } from "@bd/contracts";
 import { Band } from "@bd/ui/patterns";
+import { ThemeSwitch } from "@bd/ui/primitives";
 import { Document } from "@bd/ui/runtime";
 import type { VNode } from "preact";
 import { pathIn } from "../languages.ts";
@@ -81,6 +84,7 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
         <header class="page">
           {languages.menu}
           <h1>{meta.siteName}</h1>
+          <ThemeSwitch label={t("theme.dark")} />
         </header>
         <main class="page">{bands}</main>
       </Document>
