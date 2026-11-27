@@ -31,12 +31,15 @@ export const CONTROL = {
 
 /**
  * Interface icons: design system README, "图标": "线宽约 1.8px，18px 画板"
- * (a stroke of about 1.8px on an 18px board). `tokens.test.ts` checks that
- * the README still says so.
+ * (a stroke of about 1.8px on an 18px board). The theme switch's icon is
+ * the one exception, 20 × 20 inside the square button on boards 01 and 02
+ * (`<svg width="20" height="20">`). `tokens.test.ts` checks that the README
+ * and both boards still say so.
  */
 export const ICON = {
   size: "18px",
   stroke: "1.8px",
+  themeSwitch: "20px",
 } as const;
 
 /**

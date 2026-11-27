@@ -13,7 +13,8 @@ export const zh: Table = {
   "sea.moderate": "微浪",
   "sea.choppy": "有浪",
   "language.menu": "语言：{language}",
-  "theme.dark": "深色主题",
+  "theme.toDark": "切换到深色模式",
+  "theme.toLight": "切换到浅色模式",
   "scaffold.name": "脚手架",
   "scaffold.text": "2.0 脚手架。网站将在 M3 里程碑上线。",
 };

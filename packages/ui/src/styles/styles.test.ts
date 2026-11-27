@@ -270,6 +270,37 @@ describe("page width and band spacing (moved from apps/web layout.test.ts)", () 
   });
 });
 
+// The theme switch (#105); its markup and clicks: `primitives/ThemeSwitch/ThemeSwitch.test.tsx`.
+describe("the theme switch", () => {
+  const own = rules.filter((r) => r.layer === "primitives");
+  const display = (selector: string, media: string[] = []) =>
+    own
+      .filter((r) => r.selector === selector && r.media.join() === media.join())
+      .flatMap((r) => r.declarations.filter(([p]) => p === "display").map(([, v]) => v));
+
+  test("one name applies: to dark in the light theme, to light in the dark one", () => {
+    // Light by default and by choice: the "to light" name is hidden.
+    expect(display(".ThemeSwitch-to-light")).toEqual(["none"]);
+    expect(display(".ThemeSwitch-to-dark")).toEqual([]);
+    // Dark by choice, and dark from the system unless light is chosen: swapped.
+    for (const [root, media] of [
+      [':root[data-theme="dark"]', []],
+      [':root:not([data-theme="light"])', ["(prefers-color-scheme: dark)"]],
+    ] as const) {
+      expect(display(`${root} .ThemeSwitch-to-dark`, [...media])).toEqual(["none"]);
+      expect(display(`${root} .ThemeSwitch-to-light`, [...media])).toEqual(["block"]);
+    }
+  });
+
+  test("the button is the control's smallest height, square, with a thin outline", () => {
+    const [button] = own.filter((r) => r.selector === ".ThemeSwitch");
+    const decl = Object.fromEntries(button?.declarations ?? []);
+    expect(decl["inline-size"]).toBe("var(--control-min-height)");
+    expect(decl["block-size"]).toBe("var(--control-min-height)");
+    expect(decl.border).toBe("var(--rule-thin) solid var(--ink)");
+  });
+});
+
 describe("the CSS reader", () => {
   test("reads statements, nesting with &, media inside a rule, comments and strings", () => {
     const read = cssRules(

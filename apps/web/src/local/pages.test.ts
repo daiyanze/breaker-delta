@@ -51,16 +51,23 @@ describe("every page uses the band", () => {
     expect(fresh).toContain("Nothing has been scanned yet. Next scan: ");
   });
 
-  test("the front page holds the theme switch island; the placeholder holds no island, issue 272", async () => {
+  test("the front page holds the theme switch island; the placeholder holds no island, issues 272 and 105", async () => {
     const { placeholder, busy, fresh } = await pages();
     for (const html of [busy, fresh]) {
       expect(html).toContain(
-        '<h1>Breaker Delta</h1><bd-island name="ThemeSwitch" props="{&quot;label&quot;:&quot;Dark theme&quot;}"><button type="button" class="ThemeSwitch">Dark theme</button></bd-island></header>',
+        '<h1>Breaker Delta</h1><bd-island name="ThemeSwitch" props="{&quot;toDark&quot;:&quot;Switch to dark mode&quot;,&quot;toLight&quot;:&quot;Switch to light mode&quot;}"><button type="button" class="ThemeSwitch">',
+      );
+      expect(html).toContain(
+        '<span class="ThemeSwitch-name ThemeSwitch-to-dark">Switch to dark mode</span><span class="ThemeSwitch-name ThemeSwitch-to-light">Switch to light mode</span></button></bd-island></header>',
       );
     }
-    // Its label comes from the string tables (#107), so it follows the page's language.
-    expect(await front(createFixtureReadQueries("busy"), "zh")).toContain(
-      '<bd-island name="ThemeSwitch" props="{&quot;label&quot;:&quot;深色主题&quot;}"><button type="button" class="ThemeSwitch">深色主题</button></bd-island>',
+    // Its names come from the string tables (#107), so they follow the page's language.
+    const zh = await front(createFixtureReadQueries("busy"), "zh");
+    expect(zh).toContain(
+      '<bd-island name="ThemeSwitch" props="{&quot;toDark&quot;:&quot;切换到深色模式&quot;,&quot;toLight&quot;:&quot;切换到浅色模式&quot;}"><button type="button" class="ThemeSwitch">',
+    );
+    expect(zh).toContain(
+      '<span class="ThemeSwitch-name ThemeSwitch-to-dark">切换到深色模式</span><span class="ThemeSwitch-name ThemeSwitch-to-light">切换到浅色模式</span></button></bd-island>',
     );
     expect(placeholder).not.toContain("<bd-island");
     for (const html of [placeholder, busy]) {

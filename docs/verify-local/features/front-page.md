@@ -37,13 +37,20 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
   `<script type="module" src="/client/loader.js">` (#272). `get
   /client/loader.js` and `get /client/ThemeSwitch.island.js`: 200
   `text/javascript`.
-- The front page's header holds the theme switch island,
-  `<bd-island name="ThemeSwitch" props="…"><button class="ThemeSwitch">`.
+- The front page's header holds the theme switch island (#105),
+  `<bd-island name="ThemeSwitch" props="…"><button class="ThemeSwitch">`:
+  a 44px square with a 1px outline and a half-filled circle (boards 01 and
+  02), named "Switch to dark mode" in the light theme and "Switch to light
+  mode" in the dark one (the other name has `display: none`); on `/zh/`
+  and `/ja/` both names are in that language, from the string tables.
   In a browser: clicking it flips `data-theme` on `<html>` and stores the
   choice under `localStorage["bd-theme"]`; a reload keeps it, and the
   theme script sets `data-theme` before the first paint, so the other
   theme never shows first. The network list then has `loader.js`,
   `ThemeSwitch.island.js` and the `chunk-*.js` files (Preact).
+- `--sun` computes to the same colour in both themes. At 1440 and 390
+  wide, `document.documentElement.scrollWidth` equals the window's
+  `innerWidth`: no horizontal scrollbar.
 - The placeholder (`up` with no fixtures) has no island: its network list
   holds `loader.js` and no other JavaScript.
 
