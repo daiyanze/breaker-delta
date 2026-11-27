@@ -23,9 +23,11 @@ page (default light, English); the links at its top go to the other five.
   ダーク、日本語。"); the saved file has `<html lang="ja" data-theme="dark">`.
 - `get "/_catalog?theme=light&lang=en&shot=Band/long"`: that one state
   alone, the page the screenshot run captures; an unknown component or
-  state, or anything after the state (`Band/long/x`): 404. Each shot
-  covers everything the state paints, so an open LanguageMenu's list,
-  positioned below the menu, is in its `open` and `long` shots.
+  state, or anything after the state (`Band/long/x`): 404. A shot's
+  clip is the state's box, every drawn descendant's box, and every pixel
+  of the page more than 8 (in a channel) from its background, rounded out
+  to whole pixels: an open LanguageMenu's list below the menu and a focus
+  ring outside the button are in the shot (`packages/ui/README.md`).
 - `get "/_catalog?theme=sepia"` or `?lang=fr`: 404.
 - In a browser: each state rendered with the site's stylesheet; in the
   dark page the paper is dark. The theme switch in the catalog is live

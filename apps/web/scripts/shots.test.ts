@@ -1,9 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import {
+  type Box,
   componentOf,
+  inkBox,
   markChanges,
   type Outcome,
-  outside,
   overThreshold,
   paintedBox,
   report,
@@ -59,14 +60,91 @@ describe("what a shot covers (#258)", () => {
   const list = { x: 1180, y: 116, width: 180, height: 132 };
   const hidden = { x: 0, y: 0, width: 0, height: 0 };
 
+  /** Whether `inner` lies wholly inside `outer`. */
+  const contains = (outer: Box, inner: Box) =>
+    inner.x >= outer.x &&
+    inner.y >= outer.y &&
+    inner.x + inner.width <= outer.x + outer.width &&
+    inner.y + inner.height <= outer.y + outer.height;
+
   test("an absolutely positioned child outside the wrapper is inside the shot", () => {
     const clip = paintedBox([wrapper, button, list, hidden]);
-    expect(outside(clip, [wrapper, button, list])).toEqual([]);
+    expect(contains(clip, list)).toBe(true);
+    expect(contains(wrapper, list)).toBe(false);
     expect(clip).toEqual({ x: 80, y: 40, width: 1280, height: 208 });
   });
 
-  test("the wrapper's box alone would miss it", () => {
-    expect(outside(wrapper, [wrapper, button, list])).toEqual([list]);
+  // Paint outside every element's box, on a page of the background colour: a
+  // 40x30 screenshot, with a 25x6 wrapper whose button is flush with its
+  // right edge (as LanguageMenu's and ThemeSwitch's are).
+  const W = 40;
+  const H = 30;
+  const shotWrapper = { x: 5, y: 10, width: 25, height: 6 };
+  const shotButton = { x: 20, y: 10, width: 10, height: 6 };
+  const PAPER = [238, 232, 220, 255];
+  const [R, G, B] = [238, 232, 220];
+  const RED = [200, 40, 30, 255];
+  function page(paint: (put: (x: number, y: number) => void) => void): Uint8ClampedArray {
+    const rgba = new Uint8ClampedArray(W * H * 4).map((_, i) => PAPER[i % 4] ?? 0);
+    paint((x, y) => rgba.set(RED, (y * W + x) * 4));
+    return rgba;
+  }
+  /** The clip `screens.ts` takes: element boxes plus the page's ink. */
+  function clipOf(rgba: Uint8ClampedArray): Box {
+    const ink = inkBox(rgba, W, H, THRESHOLD.channel);
+    return paintedBox(ink === null ? [shotWrapper, shotButton] : [shotWrapper, shotButton, ink]);
+  }
+  const fill = (put: (x: number, y: number) => void, b: Box) => {
+    for (let y = b.y; y < b.y + b.height; y++) for (let x = b.x; x < b.x + b.width; x++) put(x, y);
+  };
+
+  test("an outline outside the box (a focus ring) is inside the shot", () => {
+    // `outline: 2px solid; outline-offset: 2px` on the button: a ring 4px out.
+    const ring = { x: 16, y: 6, width: 18, height: 14 };
+    const rgba = page((put) => {
+      for (let x = ring.x; x < ring.x + ring.width; x++) {
+        for (const y of [6, 7, 18, 19]) put(x, y);
+      }
+      for (let y = ring.y; y < ring.y + ring.height; y++) {
+        for (const x of [16, 17, 32, 33]) put(x, y);
+      }
+    });
+    expect(contains(clipOf(rgba), ring)).toBe(true);
+    expect(contains(paintedBox([shotWrapper, shotButton]), ring)).toBe(false);
+  });
+
+  test("an outer box-shadow outside the box is inside the shot", () => {
+    // `box-shadow: 4px 0 0 red` on the button: a band right of its box.
+    const shadow = { x: 30, y: 10, width: 4, height: 6 };
+    const rgba = page((put) => fill(put, shadow));
+    expect(contains(clipOf(rgba), shadow)).toBe(true);
+    expect(contains(paintedBox([shotWrapper, shotButton]), shadow)).toBe(false);
+  });
+
+  test("a positioned ::after outside the box is inside the shot", () => {
+    // `::after { position: absolute; top: calc(100% + 4px) }`: no element box.
+    const after = { x: 22, y: 20, width: 4, height: 3 };
+    const rgba = page((put) => fill(put, after));
+    expect(contains(clipOf(rgba), after)).toBe(true);
+    expect(contains(paintedBox([shotWrapper, shotButton]), after)).toBe(false);
+  });
+
+  test("ink is what differs from the background by more than the noise level", () => {
+    expect(
+      inkBox(
+        page(() => {}),
+        W,
+        H,
+        THRESHOLD.channel,
+      ),
+    ).toBeNull();
+    const faint = page(() => {});
+    faint.set([R - 8, G, B, 255], (3 * W + 3) * 4);
+    expect(inkBox(faint, W, H, THRESHOLD.channel)).toBeNull();
+    faint.set([R - 9, G, B, 255], (3 * W + 3) * 4);
+    expect(inkBox(faint, W, H, THRESHOLD.channel)).toEqual({ x: 3, y: 3, width: 1, height: 1 });
+    // Nothing on the page: the clip is the element boxes.
+    expect(clipOf(page(() => {}))).toEqual({ x: 5, y: 10, width: 25, height: 6 });
   });
 
   test("a state that paints inside its wrapper keeps the wrapper's box exactly", () => {

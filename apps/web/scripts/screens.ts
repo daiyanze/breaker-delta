@@ -25,6 +25,7 @@ import { startSite } from "../src/local/index.ts";
 import {
   type Box,
   fails,
+  inkBox,
   markChanges,
   type Outcome,
   overThreshold,
@@ -85,7 +86,14 @@ async function open(page: Page, url: string): Promise<void> {
  * loaded on a page of its own (`&shot=`), so its shot does not depend on
  * what else the catalog holds.
  */
-async function capture(page: Page, site: string, theme: Theme, lang: Language, width: Width) {
+async function capture(
+  page: Page,
+  ink: Page,
+  site: string,
+  theme: Theme,
+  lang: Language,
+  width: Width,
+) {
   const out: { shot: Shot; png: Uint8Array }[] = [];
   for (const entry of CATALOG) {
     for (const state of entry.states) {
@@ -98,10 +106,12 @@ async function capture(page: Page, site: string, theme: Theme, lang: Language, w
         await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
         if (pose === "hover") await target.hover();
         if (pose === "focus") await target.focus();
-        // The shot covers everything the state paints, not only its
-        // wrapper's box: an open menu's list is positioned outside it. What
-        // is not drawn (a closed `<details>`'s content keeps a box, but
-        // `checkVisibility` is false) counts as no area.
+        // The clip: the wrapper's box, every drawn descendant's box (an open
+        // menu's list is positioned outside the wrapper), and every pixel of
+        // the page that differs from its background (`inkBox`: focus rings,
+        // shadows, pseudo-elements). What is not drawn (a closed
+        // `<details>`'s content keeps a box, but `checkVisibility` is false)
+        // counts as no area.
         const boxes: Box[] = await element.evaluate((root) =>
           [root, ...root.querySelectorAll("*")].map((e) => {
             const r = e.getBoundingClientRect();
@@ -114,7 +124,14 @@ async function capture(page: Page, site: string, theme: Theme, lang: Language, w
             };
           }),
         );
-        const clip = paintedBox(boxes);
+        const whole = await page.screenshot({
+          fullPage: true,
+          animations: "disabled",
+          caret: "hide",
+          scale: "css",
+        });
+        const drawn = await inkOf(ink, whole);
+        const clip = paintedBox(drawn === null ? boxes : [...boxes, drawn]);
         const png = await page.screenshot({
           clip,
           fullPage: true,
@@ -180,11 +197,35 @@ async function compare(page: Page, actual: Uint8Array, expected: Uint8Array) {
   );
 }
 
-/** A blank page holding `markChanges` (the tested one, from `shots.ts`), for `compare`. */
+/**
+ * A blank page holding `markChanges` and `inkBox` (the tested ones, from
+ * `shots.ts`), for `compare` and `inkOf`.
+ */
 async function comparePage(context: BrowserContext): Promise<Page> {
   const page = await context.newPage();
-  await page.addScriptTag({ content: `globalThis.markChanges = ${markChanges.toString()};` });
+  await page.addScriptTag({
+    content: `globalThis.markChanges = ${markChanges.toString()}; globalThis.inkBox = ${inkBox.toString()};`,
+  });
   return page;
+}
+
+/** The box of what a page screenshot draws (`inkBox`), decoded in the browser. */
+async function inkOf(page: Page, png: Uint8Array): Promise<Box | null> {
+  return page.evaluate(
+    async ({ data, channel }) => {
+      const { inkBox } = globalThis as unknown as {
+        inkBox: (rgba: Uint8ClampedArray, w: number, h: number, channel: number) => Box | null;
+      };
+      const blob = await (await fetch(`data:image/png;base64,${data}`)).blob();
+      const image = await createImageBitmap(blob);
+      const canvas = new OffscreenCanvas(image.width, image.height);
+      const ctx = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
+      ctx.drawImage(image, 0, 0);
+      const rgba = ctx.getImageData(0, 0, image.width, image.height).data;
+      return inkBox(rgba, image.width, image.height, channel);
+    },
+    { data: b64(png), channel: THRESHOLD.channel },
+  );
 }
 
 /** Every `.png` under the baseline folder, relative to it. */
@@ -218,12 +259,13 @@ async function main(update: boolean): Promise<number> {
   try {
     const context = await browser.newContext({ deviceScaleFactor: 1, reducedMotion: "reduce" });
     const shots: { shot: Shot; png: Uint8Array }[] = [];
+    const ink = await comparePage(context);
     for (const [width, px] of Object.entries(WIDTHS) as [Width, number][]) {
       const page = await context.newPage();
       await page.setViewportSize({ width: px, height: 1200 });
       for (const theme of THEMES) {
         for (const lang of LANGUAGES) {
-          shots.push(...(await capture(page, site.url, theme, lang, width)));
+          shots.push(...(await capture(page, ink, site.url, theme, lang, width)));
         }
       }
       await page.close();

@@ -138,11 +138,19 @@ no Bun or Cloudflare types, so emails and share cards can import it.
   `apps/web/src/local/catalog.tsx` shows every state, one theme and one
   language per page. `bun run ui:screens` (`apps/web/scripts/screens.ts`)
   captures each state alone on a page (`&shot=`, so adding a state never
-  moves another's shot), each shot covering everything the state paints
-  (an open menu's list below it included), at 1440 and 390 wide, in both themes and every
+  moves another's shot), at 1440 and 390 wide, in both themes and every
   language, at rest, hovered and focused, and compares them with
   `apps/web/screenshots/<platform>`; `bun run ui:baseline` rewrites them.
   The committed baselines are Linux's, from the `screenshots` CI job.
+- A shot's clip is the union of three things, rounded out to whole pixels:
+  the state wrapper's box, the box of every descendant that is drawn
+  (`checkVisibility()`), and the box of every pixel of the page that
+  differs from the page's background by more than the comparison's noise
+  level (8 in a channel). The page holds the state alone, so the last one
+  takes in an open menu's list, focus rings, outlines, box shadows and
+  pseudo-elements outside the element boxes. Not in a shot: paint within 8
+  of the background's colour in every channel, which the comparison would
+  count as noise anyway.
 
 ## Where a new thing goes
 
