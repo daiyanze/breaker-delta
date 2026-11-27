@@ -4,7 +4,10 @@
 
 The masthead's language menu (#107): links to the same page in each
 language, not an in-page switch. A `<details>` disclosure, so it opens
-without JavaScript; it is not an island.
+without JavaScript; it is not an island. A drop-down menu (#112,
+`MENU_ATTRIBUTE` from `src/runtime/menu.ts`): once the loader runs, Esc
+closes it and gives the focus back to its button, and a click outside
+closes it.
 
 ## Design
 

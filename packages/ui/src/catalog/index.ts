@@ -13,6 +13,9 @@
 import { type ComponentType, h, type VNode } from "preact";
 import bandStates from "../patterns/Band/Band.states.tsx";
 import languageMenuStates from "../patterns/LanguageMenu/LanguageMenu.states.tsx";
+import buttonStates from "../primitives/Button/Button.states.tsx";
+import filtersStates from "../primitives/Filters/Filters.states.tsx";
+import searchEntryStates from "../primitives/SearchEntry/SearchEntry.states.tsx";
 import themeSwitchStates from "../primitives/ThemeSwitch/ThemeSwitch.states.tsx";
 import type { States } from "../runtime/index.ts";
 import type { Theme } from "../tokens/index.ts";
@@ -55,6 +58,9 @@ function entry<P>(name: string, layer: ComponentLayer, declared: States<P>): Cat
 
 /** Every component with its states, primitives first. */
 export const CATALOG: readonly CatalogEntry[] = [
+  entry("Button", "primitives", buttonStates),
+  entry("Filters", "primitives", filtersStates),
+  entry("SearchEntry", "primitives", searchEntryStates),
   entry("ThemeSwitch", "primitives", themeSwitchStates),
   entry("Band", "patterns", bandStates),
   entry("LanguageMenu", "patterns", languageMenuStates),

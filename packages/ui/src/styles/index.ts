@@ -9,11 +9,20 @@
 
 import band from "../patterns/Band/Band.css" with { type: "text" };
 import languageMenu from "../patterns/LanguageMenu/LanguageMenu.css" with { type: "text" };
+import button from "../primitives/Button/Button.css" with { type: "text" };
+import filters from "../primitives/Filters/Filters.css" with { type: "text" };
+import searchEntry from "../primitives/SearchEntry/SearchEntry.css" with { type: "text" };
 import themeSwitch from "../primitives/ThemeSwitch/ThemeSwitch.css" with { type: "text" };
 import { fontFaceCss, tokensCss, typeClassesCss } from "../tokens/index.ts";
 import base from "./base.css" with { type: "text" };
 
-export { bandColumns, fontLoading, smallType, tabularFigures } from "./checks.ts";
+export {
+  bandColumns,
+  controlHeights,
+  fontLoading,
+  smallType,
+  tabularFigures,
+} from "./checks.ts";
 export { type CssBlock, type CssRule, cssRules, cssValue, normalize, parseCss } from "./css.ts";
 
 /** The cascade layers, first to last: a later layer wins over an earlier one. */
@@ -26,6 +35,10 @@ export const FONTS = "/fonts";
 /** Every `.css` file of the package, with its path under `src` and its layer, in layer order. */
 export const CSS_FILES: readonly { path: string; layer: Layer; text: string }[] = [
   { path: "styles/base.css", layer: "base", text: base },
+  // Button first: SearchEntry builds on its classes and overrides them.
+  { path: "primitives/Button/Button.css", layer: "primitives", text: button },
+  { path: "primitives/Filters/Filters.css", layer: "primitives", text: filters },
+  { path: "primitives/SearchEntry/SearchEntry.css", layer: "primitives", text: searchEntry },
   { path: "primitives/ThemeSwitch/ThemeSwitch.css", layer: "primitives", text: themeSwitch },
   { path: "patterns/Band/Band.css", layer: "patterns", text: band },
   { path: "patterns/LanguageMenu/LanguageMenu.css", layer: "patterns", text: languageMenu },

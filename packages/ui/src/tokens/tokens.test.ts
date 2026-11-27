@@ -3,6 +3,7 @@ import tokens from "../../../../design/system/tokens.json" with { type: "json" }
 import {
   CONTROL,
   colorOf,
+  FOCUS,
   FONT_FILES,
   fontFaceCss,
   ICON,
@@ -55,6 +56,10 @@ describe("design tokens as CSS", () => {
   test("the control height and the icon sizes are variables for the components' CSS", () => {
     expect(root).toContain(`--control-min-height:${CONTROL.minHeight};`);
     expect(root).toContain(`--control-height:${CONTROL.height};`);
+    expect(root).toContain(`--control-border:${CONTROL.border};`);
+    expect(root).toContain(`--control-padding:${CONTROL.padding};`);
+    expect(root).toContain(`--focus-width:${FOCUS.width};`);
+    expect(root).toContain(`--focus-offset:${FOCUS.offset};`);
     expect(root).toContain(`--icon-size:${ICON.size};`);
     expect(root).toContain(`--icon-stroke:${ICON.stroke};`);
     expect(root).toContain(`--icon-theme-switch:${ICON.themeSwitch};`);
@@ -133,6 +138,26 @@ describe("supplement: values the design states only in prose", () => {
       `${import.meta.dir}/../../../../design/system/components/Button/README.md`,
     ).text();
     expect(readme).toContain(`高度不小于 ${CONTROL.minHeight}，桌面默认 ${CONTROL.height}`);
+    expect(readme).toContain(`默认：${CONTROL.border} \`ink\` 描边`);
+  });
+
+  test("the button's side padding is the one its preview draws", async () => {
+    const preview = await Bun.file(
+      `${import.meta.dir}/../../../../design/system/components/Button/preview.html`,
+    ).text();
+    expect(preview).toContain(
+      `min-height:${CONTROL.height};padding:0 ${CONTROL.padding};border:${CONTROL.border} solid var(--ink);`,
+    );
+  });
+
+  test("the focus ring is the one boards 01 and 02 draw", async () => {
+    const ring = `.tp :focus-visible{outline:${FOCUS.width} solid var(--blue);outline-offset:${FOCUS.offset}}`;
+    for (const board of ["Front2", "FrontMobile"]) {
+      const html = await Bun.file(
+        `${import.meta.dir}/../../../../design/boards/${board}.dc.html`,
+      ).text();
+      expect({ board, ring: html.includes(ring) }).toEqual({ board, ring: true });
+    }
   });
 
   test("the icon size and stroke are the ones the design system README states", async () => {

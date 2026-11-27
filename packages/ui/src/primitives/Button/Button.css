@@ -1,0 +1,64 @@
+/*
+ * The button (`design/system/components/Button`, #112): square corners, an
+ * `ink` outline on a clear ground, inverted on hover ("悬停时反色"). The
+ * default is 2px and 48px high; `solid` is `ink` behind `paper` text;
+ * `secondary` is 1px, 44px high, in small type. Long text wraps inside the
+ * button and never widens the page. The markup is `Button.tsx`.
+ */
+@layer primitives {
+  .Button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    max-width: 100%;
+    min-height: var(--control-height);
+    padding-block: var(--space-1);
+    padding-inline: var(--control-padding);
+    border: var(--control-border) solid var(--ink);
+    border-radius: var(--radius-none);
+    background: transparent;
+    color: var(--ink);
+    font-size: var(--type-button-size);
+    font-weight: var(--type-button-weight);
+    line-height: var(--type-button-line);
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--ink);
+      color: var(--paper);
+    }
+  }
+
+  /* The page's one main action; on hover it inverts the other way. */
+  .Button[data-variant="solid"] {
+    background: var(--ink);
+    color: var(--paper);
+
+    &:hover {
+      background: transparent;
+      color: var(--ink);
+    }
+  }
+
+  .Button[data-variant="secondary"] {
+    min-height: var(--control-min-height);
+    padding-inline: var(--space-4);
+    border-width: var(--rule-thin);
+    font-size: var(--type-small-size);
+  }
+
+  /* An icon before the text: the interface icon's size and stroke. */
+  .Button-icon {
+    flex: none;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: var(--icon-stroke);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
