@@ -8,6 +8,8 @@ import {
   fontFaceCss,
   HEADLINE,
   ICON,
+  INDEX,
+  INDEX_PHONE_ROWS,
   MARK,
   PHONE,
   STAMP,
@@ -284,6 +286,33 @@ describe("supplement: values the design states only in prose", () => {
     for (const [name, v] of Object.entries(HEADLINE)) {
       const kebab = name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
       expect(root).toContain(`--headline-${kebab}:${v};`);
+    }
+  });
+
+  test("the index values are the IndexRow README's and the boards'", async () => {
+    const dir = `${import.meta.dir}/../../../../design`;
+    const readme = await Bun.file(`${dir}/system/components/IndexRow/README.md`).text();
+    expect(readme).toContain(`短标题 ${INDEX.titleWeight} 字重`);
+    expect(readme).toContain(`${INDEX.leader} \`hair\` 点线`);
+    expect(readme).toContain(`占固定 ${INDEX.numberColumn}`);
+    expect(readme).toContain(`手机只显示前 ${INDEX_PHONE_ROWS} 行`);
+    const desk = await Bun.file(`${dir}/boards/Front2.dc.html`).text();
+    const phone = await Bun.file(`${dir}/boards/FrontMobile.dc.html`).text();
+    const number = `flex: 0 0 ${INDEX.numberColumn}; text-align: right; font-size: ${INDEX.numberSize}; font-weight: 900; color: {{ r.fg }}">{{ r.wave }}`;
+    expect(desk).toContain(number);
+    expect(phone).toContain(number);
+    expect(desk).toContain(
+      `flex: 0 0 ${INDEX.rankColumn}; font-style: italic; color: var(--ink2)">{{ r.rank }}`,
+    );
+    expect(phone).toContain(
+      `flex: 0 0 ${INDEX.phoneRankColumn}; font-style: italic; color: var(--ink2)">{{ r.rank }}`,
+    );
+  });
+
+  test("the index values are variables for its CSS", () => {
+    for (const [name, v] of Object.entries(INDEX)) {
+      const kebab = name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+      expect(root).toContain(`--index-${kebab}:${v};`);
     }
   });
 });

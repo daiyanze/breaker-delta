@@ -15,7 +15,9 @@ import { handle, type SiteVars } from "../select.ts";
 // page's head holds the theme script and the island loader, and the front
 // page's header the theme switch island. #114 and #119 changed it on
 // purpose: the front page's six tallest waves are the three tiers of
-// headlines, the lead with the echo stack. Update with `bun test --update-snapshots`
+// headlines, the lead with the echo stack. #120 changed it on purpose: the
+// front band holds the index island in its right rail, every wave a row,
+// in place of the plain list of ranks 7 on. Update with `bun test --update-snapshots`
 // only when a change to the output is intended, and say so in the PR.
 
 async function render(path: string, vars: SiteVars): Promise<string> {

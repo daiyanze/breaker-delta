@@ -6,8 +6,8 @@
  * the theme switch's two names included. The switch is its one island
  * (#105); it moves into the masthead's top bar with #110. The six tallest
  * waves are the headlines in three tiers (#119, boards 01 and 02), the lead
- * with the echo stack (#114); the rest stay a plain list until the index
- * (#120) takes them.
+ * with the echo stack (#114). Beside them, the index (#120) lists every
+ * wave, the six included, in the front band's right rail.
  */
 import type { Edition, Language, RankRow } from "@bd/contracts";
 import {
@@ -16,9 +16,12 @@ import {
   Headline,
   type HeadlineLead,
   type HeadlineStory,
+  Index,
+  type IndexRowProps,
 } from "@bd/ui/patterns";
 import { ThemeSwitch } from "@bd/ui/primitives";
 import { Document } from "@bd/ui/runtime";
+import { INDEX_PHONE_ROWS } from "@bd/ui/tokens";
 import type { VNode } from "preact";
 import { pathIn } from "../languages.ts";
 import type { RouteContext } from "../routes.ts";
@@ -36,10 +39,15 @@ const fixtureNote = (t: Translate) => (
   </p>
 );
 
-/** Ranks 2 and 3 are the second tier, 4 to 6 the third; from 7 on, the index (#120). */
+/** The short title in `lang` when there is one, else the headline (`headline`). */
+function shortTitle(row: RankRow, lang: Language) {
+  return row.shortTitles.find((h) => h.lang === lang) ?? headline(row, lang);
+}
+
+/** Ranks 2 and 3 are the second tier, 4 to 6 the third; the index lists every rank. */
 const SECOND_FROM = 1;
 const THIRD_FROM = 3;
-const INDEX_FROM = 6;
+const TIERS_TO = 6;
 
 interface Tiers {
   edition: Edition;
@@ -133,8 +141,54 @@ function headlines(tiers: Tiers): VNode | null {
     <Headline
       lead={lead(top, tiers)}
       second={ranking.slice(SECOND_FROM, THIRD_FROM).map((r) => story(r, tiers))}
-      third={ranking.slice(THIRD_FROM, INDEX_FROM).map((r) => story(r, tiers))}
+      third={ranking.slice(THIRD_FROM, TIERS_TO).map((r) => story(r, tiers))}
       note={tiers.t("headline.key")}
+    />
+  );
+}
+
+/**
+ * One wave as an index row. The change is the 24-hour change rounded, as
+ * the headlines word it: "new" for a wave formed today (it was not up 24
+ * hours ago), nothing for a level wave, and nothing for a null change on a
+ * wave that formed earlier (yesterday, or back after going flat), which the
+ * row has no room to tell apart.
+ */
+function indexRow(row: RankRow, tiers: Tiers): IndexRowProps {
+  const { t, lang, edition, timeZone } = tiers;
+  const formedToday = dayIn(row.formedAt, timeZone) === dayIn(edition.startsAt, timeZone);
+  const percent = row.change24h === null ? null : Math.round(row.change24h);
+  const change =
+    percent === null
+      ? formedToday
+        ? t("index.new")
+        : ""
+      : percent > 0
+        ? t("index.up", { percent })
+        : percent < 0
+          ? t("index.down", { percent: -percent })
+          : "";
+  return {
+    href: tiers.href(row),
+    rank: row.rank,
+    title: shortTitle(row, lang),
+    height: row.height,
+    formedToday,
+    change,
+  };
+}
+
+function index(tiers: Tiers): VNode {
+  const { t, edition } = tiers;
+  return (
+    <Index
+      id="index"
+      name={t("index.name")}
+      order={t("index.order")}
+      rows={edition.ranking.map((r) => indexRow(r, tiers))}
+      note={t("index.key")}
+      showAll={t("index.showAll", { count: edition.ranking.length })}
+      showFewer={t("index.showFewer", { count: INDEX_PHONE_ROWS })}
     />
   );
 }
@@ -145,6 +199,13 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
   const t = translator(ctx.lang);
   const languages = pageLanguages(ctx, meta);
   const href = (row: RankRow) => pathIn(`/topic/${row.slug}`, ctx.lang, meta);
+  const tiers = (e: Edition): Tiers => ({
+    edition: e,
+    t,
+    lang: ctx.lang,
+    timeZone: meta.timeZone,
+    href,
+  });
   const bands =
     edition === null ? (
       <Band id="front" name={t("front.flat.name")}>
@@ -153,7 +214,11 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
       </Band>
     ) : (
       <>
-        <Band id="front" name={t("front.name")}>
+        <Band
+          id="front"
+          name={t("front.name")}
+          aside={edition.ranking.length === 0 ? undefined : index(tiers(edition))}
+        >
           <p>
             {t("front.edition", {
               label: edition.label,
@@ -162,22 +227,7 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
               formed: edition.formedToday,
             })}
           </p>
-          {headlines({ edition, t, lang: ctx.lang, timeZone: meta.timeZone, href })}
-          {edition.ranking.length > INDEX_FROM ? (
-            <ol start={INDEX_FROM + 1}>
-              {edition.ranking.slice(INDEX_FROM).map((row) => {
-                const h = headline(row, ctx.lang);
-                return (
-                  <li key={row.slug}>
-                    <a href={href(row)} lang={h.lang}>
-                      {h.text}
-                    </a>{" "}
-                    <data value={row.height}>{Math.round(row.height)}</data>
-                  </li>
-                );
-              })}
-            </ol>
-          ) : null}
+          {headlines(tiers(edition))}
         </Band>
         <Band id="classifieds" name={t("classifieds.name")}>
           <ul>

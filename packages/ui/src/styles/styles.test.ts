@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { TWO_COLUMNS_FROM } from "../tokens/index.ts";
+import { INDEX_PHONE_ROWS, TWO_COLUMNS_FROM } from "../tokens/index.ts";
 import { COLORS, SHADOWS, TYPE_STYLES } from "../tokens/tokens.gen.ts";
 import { bandColumns, fontLoading, smallType, tabularFigures } from "./checks.ts";
 import { cssRules, cssValue, normalize, parseCss } from "./css.ts";
@@ -450,6 +450,73 @@ describe("the headlines", () => {
       "stroke-dasharray": "1",
       animation: "headline-draw var(--headline-trend-draw) ease-out both",
     });
+  });
+});
+
+describe("the index and the front band (issue 120)", () => {
+  const own = rules.filter(
+    (r) =>
+      r.layer === "patterns" &&
+      (r.selector.startsWith(".Index") || r.selector.startsWith('.Band[data-variant="front"]')),
+  );
+  const desktop = [normalize(`(min-width: ${TWO_COLUMNS_FROM})`)];
+  const decl = (selector: string, media: string[] = []) =>
+    Object.fromEntries(
+      own.find((r) => r.selector === selector && r.media.join() === media.join())?.declarations ??
+        [],
+    );
+
+  test("the front band: content left, the index in a right rail at most `rail` wide; the name read out, not shown", () => {
+    expect(decl('.Band[data-variant="front"]', desktop)["grid-template-columns"]).toBe(
+      "minmax(0,1fr) minmax(0,var(--rail))",
+    );
+    expect(decl('.Band[data-variant="front"] > .Band-rail')).toEqual({
+      position: "absolute",
+      inset: "0",
+      overflow: "hidden",
+      "clip-path": "inset(50%)",
+      "white-space": "nowrap",
+    });
+    // Without the variant the band keeps its own columns.
+    expect(bandColumns(css)).toEqual([]);
+  });
+
+  test("phones show the first INDEX_PHONE_ROWS rows until the button is pressed; desktop shows all, no button", () => {
+    const hidden = own.filter((r) => r.selector.includes(":nth-child("));
+    expect(hidden.map((r) => [r.selector, r.media])).toEqual([
+      [`.Index-list:not(.Index-open) > .Index-item:nth-child(n + ${INDEX_PHONE_ROWS + 1})`, []],
+      [
+        `.Index-list:not(.Index-open) > .Index-item:nth-child(n + ${INDEX_PHONE_ROWS + 1})`,
+        desktop,
+      ],
+    ]);
+    expect(cssValue(hidden[0] ?? { declarations: [] }, "display")).toBe("none");
+    expect(cssValue(hidden[1] ?? { declarations: [] }, "display")).toBe("block");
+    expect(decl(".Index-more", desktop).display).toBe("none");
+  });
+
+  test("on desktop the rows fill the column, the space shared out between them", () => {
+    expect(decl(".Index-list", desktop)).toMatchObject({
+      flex: "1 1 auto",
+      display: "flex",
+      "flex-direction": "column",
+      "justify-content": "space-between",
+    });
+    expect(decl(".Index", desktop).flex).toBe("1 1 auto");
+  });
+
+  test("a row: the leader a 2px dotted hair line, the number in a fixed column, red only when formed today", () => {
+    expect(decl(".IndexRow-leader")["border-bottom"]).toBe(
+      "var(--index-leader) dotted var(--hair)",
+    );
+    expect(decl(".IndexRow-number").flex).toBe("0 0 var(--index-number-column)");
+    expect(decl(".IndexRow-number")["text-align"]).toBe("right");
+    expect(decl(".IndexRow-rank").color).toBe("var(--ink-2)");
+    expect(decl(".IndexRow-change").color).toBe("var(--ink-2)");
+    expect(decl(".IndexRow-change.IndexRow-new, .IndexRow-number.IndexRow-new").color).toBe(
+      "var(--red)",
+    );
+    expect(decl(".IndexRow")["min-block-size"]).toBe("var(--control-min-height)");
   });
 });
 
