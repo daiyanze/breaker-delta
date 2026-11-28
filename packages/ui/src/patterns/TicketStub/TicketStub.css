@@ -1,0 +1,88 @@
+/*
+ * The ticket stub (#115, TicketStub README, boards 01 and 03): a 2px dashed
+ * `ink` frame with square corners around the stamp, the test in italic
+ * display type, the wave's name and the day count. The small stub's test
+ * is kicker size; the large one's is section size (phone section size on
+ * phones), with the day ticks under it: the days gone filled with `ink`.
+ * Hovering the stub wobbles its stamp, as hovering the stamp does
+ * (`Stamp.css`). The markup is `TicketStub.tsx`.
+ */
+@layer patterns {
+  .TicketStub {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-width: 0;
+    padding: var(--space-5);
+    border: var(--rule-dashed) dashed var(--ink);
+    border-radius: var(--radius-none);
+
+    & > p {
+      margin: 0;
+    }
+  }
+
+  .TicketStub[data-size="large"] {
+    gap: var(--space-4);
+  }
+
+  .TicketStub-criterion {
+    font-family: var(--font-display);
+    font-size: var(--type-kicker-size);
+    line-height: var(--type-kicker-line);
+    font-weight: var(--type-kicker-weight);
+    font-style: italic;
+    text-wrap: pretty;
+
+    .TicketStub[data-size="large"] > & {
+      font-size: var(--phone-section-size);
+      line-height: var(--type-section-line);
+      font-weight: var(--type-section-weight);
+      letter-spacing: var(--type-section-tracking);
+
+      @media (min-width: 960px) {
+        font-size: var(--type-section-size);
+      }
+    }
+  }
+
+  .TicketStub-topic {
+    /* In a row of stubs the names line up at the bottom. */
+    margin-top: auto;
+    color: var(--ink);
+    font-weight: bold;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--blue);
+    }
+  }
+
+  .TicketStub-small {
+    font-size: var(--type-small-size);
+    line-height: var(--type-small-line);
+    color: var(--ink-2);
+  }
+
+  .TicketStub-ticks {
+    display: block;
+    width: 100%;
+    max-width: var(--stub-ticks-width);
+    height: auto;
+  }
+
+  .TicketStub-tick {
+    fill: none;
+    stroke: var(--ink);
+  }
+
+  .TicketStub-tick--gone {
+    fill: var(--ink);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .TicketStub:hover > .Stamp {
+      animation: Stamp-wobble var(--stamp-wobble) ease-in-out;
+    }
+  }
+}

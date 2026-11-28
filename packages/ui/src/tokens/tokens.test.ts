@@ -7,7 +7,10 @@ import {
   FONT_FILES,
   fontFaceCss,
   ICON,
+  MARK,
   PHONE,
+  STAMP,
+  STUB,
   size,
   tokensCss,
   typeClassesCss,
@@ -59,6 +62,17 @@ describe("design tokens as CSS", () => {
     expect(root).toContain(`--icon-size:${ICON.size};`);
     expect(root).toContain(`--icon-stroke:${ICON.stroke};`);
     expect(root).toContain(`--icon-theme-switch:${ICON.themeSwitch};`);
+  });
+
+  test("the stamp, stub and mark values are variables for the components' CSS", () => {
+    expect(root).toContain(`--stamp-border:${STAMP.border};`);
+    expect(root).toContain(`--stamp-tilt:${STAMP.tilt};`);
+    expect(root).toContain(`--stamp-due-tilt:${STAMP.dueTilt};`);
+    expect(root).toContain(`--stamp-wobble:${STAMP.wobble};`);
+    expect(root).toContain(`--stamp-swing:${STAMP.swing};`);
+    expect(root).toContain(`--stamp-swing-scale:${STAMP.swingScale};`);
+    expect(root).toContain(`--stub-ticks-width:${STUB.ticksWidth};`);
+    expect(root).toContain(`--mark-size:${MARK.size};`);
   });
 
   test("the echo stack's sizes and timing are variables for its CSS", () => {
@@ -146,6 +160,44 @@ describe("supplement: values the design states only in prose", () => {
   test("the icon size and stroke are the ones the design system README states", async () => {
     const readme = await Bun.file(`${import.meta.dir}/../../../../design/system/README.md`).text();
     expect(readme).toContain(`线宽约 ${ICON.stroke}，${ICON.size} 画板`);
+  });
+
+  test("the stamp's frame, turns and wobble are the ones the READMEs and boards state", async () => {
+    const design = `${import.meta.dir}/../../../../design`;
+    const stub = await Bun.file(`${design}/system/components/TicketStub/README.md`).text();
+    expect(stub).toContain(`印章：${STAMP.border} 框`);
+    expect(stub).toContain(`旋转 ${STAMP.tilt.replace("deg", "°")}`);
+    expect(stub).toContain(`待到期的章用 \`red\` 框并旋转 ${STAMP.dueTilt.replace("deg", "°")}`);
+    const readme = await Bun.file(`${design}/system/README.md`).text();
+    expect(readme).toContain(`悬停时印章晃一下 | ${Number.parseFloat(STAMP.wobble)} 秒`);
+    for (const board of ["Front2", "Topic2", "Record2"]) {
+      const html = await Bun.file(`${design}/boards/${board}.dc.html`).text();
+      expect({
+        board,
+        hover: html.includes(
+          `.stub:hover .stamp{transform:rotate(${STAMP.swing}) scale(${STAMP.swingScale})}`,
+        ),
+      }).toEqual({ board, hover: true });
+    }
+  });
+
+  test("the large stub's ticks are as wide as board 03 draws them", async () => {
+    const html = await Bun.file(
+      `${import.meta.dir}/../../../../design/boards/Topic2.dc.html`,
+    ).text();
+    const px = Number.parseFloat(STUB.ticksWidth);
+    expect(html).toContain(
+      `viewBox="0 0 ${px} 30" role="img" aria-label="Day 7 of 14" style="width: 100%; max-width: ${STUB.ticksWidth}`,
+    );
+  });
+
+  test("a verdict mark's size is the one the VerdictMark README states", async () => {
+    const readme = await Bun.file(
+      `${import.meta.dir}/../../../../design/system/components/VerdictMark/README.md`,
+    ).text();
+    expect(readme).toContain(
+      `直径 ${MARK.size}，间隔 ${size("space-2")}，桌面每行 14 个，手机每行 10 个`,
+    );
   });
 
   test("the theme switch's icon size is the one boards 01 and 02 draw", async () => {
