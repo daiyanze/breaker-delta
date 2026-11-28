@@ -13,9 +13,12 @@ import { handle, type SiteVars } from "../select.ts";
 // language has the language menu, and a language is a path (`/zh/`), not
 // `?lang=`; `/en/` redirects to `/`. #272 changed it on purpose: every
 // page's head holds the theme script and the island loader, and the front
-// page's header the theme switch island. #122 changed it on purpose: the
-// front page has the fading notices band between the front page and the
-// classifieds. Update with `bun test --update-snapshots`
+// page's header the theme switch island. #114 and #119 changed it on
+// purpose: the front page's six tallest waves are the three tiers of
+// headlines, the lead with the echo stack. #111 changed it on purpose: the
+// front page ends with the footer, its form only where mail is on. #122
+// changed it on purpose: the front page has the fading notices band
+// between the front page and the classifieds. Update with `bun test --update-snapshots`
 // only when a change to the output is intended, and say so in the PR.
 
 async function render(path: string, vars: SiteVars): Promise<string> {

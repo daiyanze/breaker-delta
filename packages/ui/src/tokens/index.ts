@@ -8,7 +8,22 @@
  * Themes: the system's choice by default, and `<html data-theme="light|dark">`
  * overrides it either way.
  */
-import { CJK, CONTROL, ECHO_STACK, ICON, ILLUSTRATION, PHONE, RIPPLE } from "./supplement.ts";
+import {
+  CJK,
+  CONTROL,
+  ECHO_STACK,
+  FOCUS,
+  FOOTER,
+  HEADLINE,
+  ICON,
+  ILLUSTRATION,
+  MARK,
+  PHONE,
+  RIPPLE,
+  SOURCE_TILE,
+  STAMP,
+  STUB,
+} from "./supplement.ts";
 import {
   COLORS,
   type ColorToken,
@@ -29,10 +44,17 @@ export {
   CJK,
   CONTROL,
   ECHO_STACK,
+  FOCUS,
+  FOOTER,
+  HEADLINE,
   ICON,
   ILLUSTRATION,
+  MARK,
   PHONE,
   RIPPLE,
+  SOURCE_TILE,
+  STAMP,
+  STUB,
   TWO_COLUMNS_FROM,
 } from "./supplement.ts";
 export type {
@@ -127,9 +149,18 @@ function staticVars(): string {
     out.push(decl(`illustration-${kebab(name)}`, v));
   }
   for (const [name, v] of Object.entries(CJK)) out.push(decl(`cjk-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(SOURCE_TILE)) {
+    out.push(decl(`source-tile-${kebab(name)}`, v));
+  }
+  for (const [name, v] of Object.entries(STAMP)) out.push(decl(`stamp-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(STUB)) out.push(decl(`stub-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(MARK)) out.push(decl(`mark-${kebab(name)}`, v));
   for (const [name, v] of Object.entries(ECHO_STACK)) {
     out.push(decl(`echo-stack-${kebab(name)}`, v));
   }
+  for (const [name, v] of Object.entries(HEADLINE)) out.push(decl(`headline-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(FOOTER)) out.push(decl(`footer-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(FOCUS)) out.push(decl(`focus-${kebab(name)}`, v));
   return out.join("");
 }
 

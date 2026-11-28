@@ -118,3 +118,37 @@ export function bandColumns(css: string): string[] {
   }
   return problems;
 }
+
+/** The two heights a control may have (`--control-*`, from the Button README). */
+const CONTROL_HEIGHTS = new Set(["var(--control-min-height)", "var(--control-height)"]);
+const HEIGHT_PROPERTIES = ["min-height", "min-block-size", "block-size", "height"];
+
+/**
+ * No control is shorter than the smallest control height (#112, Button
+ * README "高度不小于 44px"): each class in `controls` (the classes of the
+ * links, buttons and menu buttons the components render) gets a control
+ * height in a rule of its own, and no rule that ends at it sets another.
+ */
+export function controlHeights(css: string, controls: readonly string[]): string[] {
+  const rules = rulesOf(css);
+  const problems: string[] = [];
+  const last = (selector: string) => selector.split(/[\s>+~]+/).at(-1) ?? "";
+  const names = (compound: string) =>
+    [...compound.matchAll(/\.([\w-]+)/g)].map((m) => m[1] as string);
+  for (const name of controls) {
+    const own = rules.filter((r) => r.selector === `.${name}` && r.media.length === 0);
+    const tall = own.some((r) =>
+      HEIGHT_PROPERTIES.some((p) => CONTROL_HEIGHTS.has(cssValue(r, p) ?? "")),
+    );
+    if (!tall) problems.push(`.${name} is given no control height`);
+  }
+  for (const r of rules) {
+    if (!names(last(r.selector)).some((n) => controls.includes(n))) continue;
+    for (const [p, v] of r.declarations) {
+      if (HEIGHT_PROPERTIES.includes(p) && !CONTROL_HEIGHTS.has(v)) {
+        problems.push(`${r.selector} sets ${p}: ${v}, not a control height`);
+      }
+    }
+  }
+  return problems;
+}

@@ -6,5 +6,6 @@
  */
 export { CLIENT, Document, type DocumentProps, renderDocument } from "./Document.tsx";
 export { ISLAND_TAG, type Island, island, type Jsonable } from "./island.ts";
+export { MENU_ATTRIBUTE } from "./menu.ts";
 export { type States, states } from "./states.ts";
 export { THEME_KEY, THEME_SCRIPT } from "./theme.ts";

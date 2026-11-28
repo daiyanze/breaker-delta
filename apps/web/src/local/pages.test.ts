@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { ReadQueries } from "@bd/contracts";
+import { type RankRow, RankRowSchema, type ReadQueries } from "@bd/contracts";
 import { createFixtureReadQueries } from "@bd/fixtures";
 import { echoStackLayers } from "@bd/ui/patterns";
 import { createSite } from "../core/site.ts";
@@ -32,7 +32,10 @@ describe("every page uses the band", () => {
           /^<header class="page">(?:<div class="LanguageMenu">[\s\S]*?<\/details><\/div>)?<h1>[^<]+<\/h1>(?:<bd-island name="ThemeSwitch"[^>]*>[\s\S]*?<\/bd-island>)?<\/header>/,
           "",
         )
-        .replace(/^<main class="page">(?:<section class="Band"[\s\S]*?<\/section>)+<\/main>$/, "");
+        .replace(
+          /^<main class="page">(?:<section class="Band"[\s\S]*?<\/section>)+<\/main>(?:<footer class="Footer">[\s\S]*<\/footer>)?$/,
+          "",
+        );
       expect({ name, outside }).toEqual({ name, outside: "" });
     }
   });
@@ -77,6 +80,46 @@ describe("every page uses the band", () => {
   });
 });
 
+// #111: every page ends with the footer, in the page's language. The form
+// shows only when the site sends email (#81 hides it otherwise).
+describe("the footer", () => {
+  test("the busy set sends email, so its footer has the form; fresh and quiet do not", async () => {
+    const busy = await front(createFixtureReadQueries("busy"));
+    expect(busy).toContain(
+      '</main><footer class="Footer"><div class="Footer-top"><form class="Footer-form" method="post" action="/subscribe">',
+    );
+    expect(busy).toContain(">One email a day, with the new waves.</label>");
+    for (const set of ["fresh", "quiet"] as const) {
+      const html = await front(createFixtureReadQueries(set));
+      expect(html).toContain('</main><footer class="Footer"><div class="Footer-top"><nav');
+      expect(html).not.toContain("<form");
+    }
+  });
+
+  test("its text and links follow the page's language", async () => {
+    const zh = await front(createFixtureReadQueries("busy"), "zh");
+    expect(zh).toContain('action="/zh/subscribe"');
+    expect(zh).toContain(">每天一封邮件，带来新成的浪。</label>");
+    expect(zh).toContain('<nav class="Footer-nav" aria-label="页脚">');
+    expect(zh).toContain(
+      '<a class="Footer-link" href="/zh/about#height"><span class="Footer-long">浪高是怎么算的</span><span class="Footer-short">浪高怎么算</span></a>',
+    );
+    expect(zh).toContain('<span class="Footer-note">Breaker Delta 是开源项目。</span>');
+    // Every link: the three about sections in the page's language, then the repository.
+    const links = (html: string) =>
+      [...html.matchAll(/<a class="Footer-link" href="([^"]+)"/g)].map((m) => m[1]);
+    const repo = "https://github.com/daiyanze/breaker-delta";
+    expect(links(zh)).toEqual(["/zh/about#height", "/zh/about#own", "/zh/about#open", repo]);
+    const ja = await front(createFixtureReadQueries("busy"), "ja");
+    expect(links(ja)).toEqual(["/ja/about#height", "/ja/about#own", "/ja/about#open", repo]);
+    const en = await front(createFixtureReadQueries("busy"));
+    expect(links(en)).toEqual(["/about#height", "/about#own", "/about#open", repo]);
+    expect(en).toContain(
+      '<a class="Footer-link" href="https://github.com/daiyanze/breaker-delta">GitHub</a>',
+    );
+  });
+});
+
 describe("the echo stack, issue 114", () => {
   test("the tallest wave has one, its sheets following its height, its label in the page's language", async () => {
     const q = createFixtureReadQueries("busy");
@@ -92,15 +135,177 @@ describe("the echo stack, issue 114", () => {
     const start = en.indexOf('<svg class="EchoStack"');
     const stack = en.slice(start, en.indexOf("</svg>", start));
     expect(stack.match(/<rect /g)).toHaveLength(layers);
-    // It sits in the tallest wave's row, before its height.
-    expect(en.indexOf('<svg class="EchoStack"')).toBeGreaterThan(en.indexOf("<ol><li>"));
-    expect(en.indexOf('<svg class="EchoStack"')).toBeLessThan(en.indexOf("<data "));
+    // It sits in the lead story, under its headline and before its height (#119).
+    expect(en.indexOf('<svg class="EchoStack"')).toBeGreaterThan(en.indexOf("Headline-title-lead"));
+    expect(en.indexOf('<svg class="EchoStack"')).toBeLessThan(en.indexOf("Headline-number-lead"));
     expect(await front(q, "zh")).toContain(`aria-label="回波叠成浪，高 ${layers} 层"`);
     expect(await front(q, "ja")).toContain(`aria-label="エコーが重なって波に、${layers} 層の高さ"`);
   });
 
   test("a flat sea has none", async () => {
     expect(await front(createFixtureReadQueries("fresh"))).not.toContain("EchoStack");
+  });
+});
+
+describe("the three tiers of headlines, issue 119", () => {
+  const titles = (html: string, tier: string) =>
+    [
+      ...html.matchAll(
+        new RegExp(
+          `Headline-title-${tier}[^"]*" data-height="(\\d+)"><a class="Headline-link" href="([^"]+)"`,
+          "g",
+        ),
+      ),
+    ].map((m) => [m[1], m[2]]);
+
+  test("rank 1 is the lead, 2 and 3 the second tier, 4 to 6 the third, the rest a list", async () => {
+    const q = createFixtureReadQueries("busy");
+    const edition = await q.edition();
+    if (edition === null) throw new Error("busy has an edition");
+    const en = await front(q);
+    const slugs = edition.ranking.map((r) => `/topic/${r.slug}`);
+    const digits = (h: number) => String(Math.min(200, Math.round(h))).padStart(3, "0");
+    const at = (k: number) => [digits(edition.ranking[k]?.height ?? 0), slugs[k]];
+    expect(titles(en, "lead")).toEqual([at(0)]);
+    expect(titles(en, "second")).toEqual([at(1), at(2)]);
+    expect(titles(en, "third")).toEqual([at(3), at(4), at(5)]);
+    const list = en.slice(en.indexOf('<ol start="7">'));
+    expect(list).toContain(`href="${slugs[6]}"`);
+    expect(list.slice(0, list.indexOf("</ol>")).match(/<li>/g)).toHaveLength(
+      edition.ranking.length - 6,
+    );
+    // Every wave is linked once in the front band. A falling wave is linked
+    // again from its fading notice further down (issue 122).
+    const band = en.slice(
+      en.indexOf('aria-labelledby="band-front"'),
+      en.indexOf('aria-labelledby="band-fading"'),
+    );
+    for (const s of slugs) expect(band.split(`href="${s}"`)).toHaveLength(2);
+  });
+
+  test("formed today (by formedAt, in the site time zone) is red; down over 24 hours is fading; the kicker says which", async () => {
+    const q = createFixtureReadQueries("busy");
+    const en = await front(q);
+    // Ranks 2 and 3 formed today; rank 5 (frontier-model-backlash) is down 18%.
+    expect(en).toContain(
+      '<data class="Headline-number Headline-number-second Headline-new" value="181">181</data>',
+    );
+    expect(en).toContain(
+      '<data class="Headline-number Headline-number-third" value="144">144</data>',
+    );
+    expect(en).toContain(
+      '<h3 class="Headline-title Headline-title-third Headline-fading" data-height="144"><a class="Headline-link" href="/topic/frontier-model-backlash"',
+    );
+    expect(en.match(/Headline-fading/g)).toHaveLength(1);
+    expect(en).toContain('<p class="Headline-kicker">Tallest wave right now</p>');
+    expect(en).toContain("<strong>Up 63% in 24 hours.</strong> 6 independent sources, 31 echoes.");
+    expect(en).toContain('<p class="Headline-note">Down 18% in 24 hours.</p>');
+    expect(en).toContain('aria-label="Wave height of the tallest story up to 14:00"');
+    // The quiet set's tallest wave formed this run.
+    const quiet = await front(createFixtureReadQueries("quiet"));
+    expect(quiet).toContain('<p class="Headline-kicker">Formed today, already the tallest</p>');
+    expect(quiet).toContain("<strong>New today.</strong>");
+    expect(quiet).toContain('<path class="Headline-chart-line" pathLength="1" d="M4,60 L516,60">');
+  });
+
+  test("the text follows the page's language; the headline keeps its own", async () => {
+    const q = createFixtureReadQueries("busy");
+    const zh = await front(q, "zh");
+    expect(zh).toContain('<p class="Headline-kicker">此刻最高的浪</p>');
+    expect(zh).toContain("<strong>24 小时内上涨 63%。</strong> 6 个独立来源，31 条回波。");
+    expect(zh).toMatch(
+      /Headline-title-lead" data-height="196"><a class="Headline-link" href="\/zh\/topic\/[^"]+" lang="zh">/,
+    );
+    const ja = await front(q, "ja");
+    expect(ja).toContain('<p class="Headline-kicker">いまいちばん高い波</p>');
+  });
+
+  test("a flat sea has no headlines", async () => {
+    expect(await front(createFixtureReadQueries("fresh"))).not.toContain("Headline");
+  });
+});
+
+// Review of #297: the line under a headline is worded from `formedAt` and
+// the rounded change, not from a null change alone.
+describe("the line under a headline, issue 119", () => {
+  /**
+   * The busy front page (edition 2026-11-19 14:00 in Asia/Tokyo) with rank 5,
+   * a third-tier story, changed; returns its title element and its note.
+   */
+  async function rank5(change: Partial<RankRow>, lang?: string) {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    if (plain === null) throw new Error("busy has an edition");
+    expect((await base.siteMeta()).timeZone).toBe("Asia/Tokyo");
+    expect(plain.startsAt).toBe("2026-11-19T14:00:00+09:00");
+    const ranking = plain.ranking.map((r, i) =>
+      i === 4 ? RankRowSchema.parse({ ...r, ...change }) : r,
+    );
+    const html = await front({ ...base, edition: async () => ({ ...plain, ranking }) }, lang);
+    const start = html.indexOf(`/topic/${plain.ranking[4]?.slug}"`);
+    const article = html.slice(
+      html.lastIndexOf("<article", start),
+      html.indexOf("</article>", start),
+    );
+    return {
+      note: /<p class="Headline-note">([^<]*)<\/p>/.exec(article)?.[1],
+      fading: article.includes("Headline-fading"),
+      red: article.includes("Headline-new"),
+    };
+  }
+
+  test("no change 24 hours ago: today, yesterday or earlier, by formedAt's day in the site's time zone", async () => {
+    const cases: [string, string, string, string, boolean][] = [
+      // formedAt, en, zh, ja, red
+      ["2026-11-19T09:00:00+09:00", "New today.", "今天新成。", "きょうできた波。", true],
+      // 15:30 UTC on the 18th is 00:30 on the 19th in Tokyo: today.
+      ["2026-11-18T15:30:00Z", "New today.", "今天新成。", "きょうできた波。", true],
+      ["2026-11-18T23:30:00+09:00", "Formed yesterday.", "昨天新成。", "きのうできた波。", false],
+      // 14:00 UTC on the 18th is 23:00 on the 18th in Tokyo: yesterday.
+      ["2026-11-18T14:00:00Z", "Formed yesterday.", "昨天新成。", "きのうできた波。", false],
+      // Formed three days ago, flat 24 hours ago, up again.
+      [
+        "2026-11-16T09:00:00+09:00",
+        "Up again after going flat.",
+        "退平后再次涌起。",
+        "いったん凪いだあと、ふたたび立った波。",
+        false,
+      ],
+    ];
+    for (const [formedAt, en, zh, ja, red] of cases) {
+      const row = { change24h: null, formedAt };
+      expect({ formedAt, ...(await rank5(row)) }).toEqual({
+        formedAt,
+        note: en,
+        fading: false,
+        red,
+      });
+      expect((await rank5(row, "zh")).note).toBe(zh);
+      expect((await rank5(row, "ja")).note).toBe(ja);
+    }
+  });
+
+  test("a change is worded as it is shown, rounded; a rounded 0 is level and not going out", async () => {
+    const cases: [number, string, boolean][] = [
+      [-0.3, "Level over 24 hours.", false],
+      [0, "Level over 24 hours.", false],
+      [0.4, "Level over 24 hours.", false],
+      [-0.5, "Level over 24 hours.", false],
+      [-0.6, "Down 1% in 24 hours.", true],
+      [0.5, "Up 1% in 24 hours.", false],
+      [-18.4, "Down 18% in 24 hours.", true],
+      [62.7, "Up 63% in 24 hours.", false],
+    ];
+    for (const [change24h, note, fading] of cases) {
+      expect({ change24h, ...(await rank5({ change24h })) }).toEqual({
+        change24h,
+        note,
+        fading,
+        red: false,
+      });
+    }
+    expect((await rank5({ change24h: -0.3 }, "zh")).note).toBe("24 小时内持平。");
+    expect((await rank5({ change24h: -0.3 }, "ja")).note).toBe("24 時間で横ばい。");
   });
 });
 
@@ -128,10 +333,9 @@ describe("model text renders as text", () => {
     expect(count(html, /<a\b/g)).toBe(count(before, /<a\b/g));
     expect(body(html)).not.toContain("<script");
     expect(html).not.toContain("<img");
+    const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
     // The site's own links: topics, and the changes that went flat (#122).
-    expect(html.slice(html.indexOf("<main"))).not.toMatch(
-      /href="(?!\/topic\/|https:\/\/|\/changes\?type=went_flat")/,
-    );
+    expect(main).not.toMatch(/href="(?!\/topic\/|https:\/\/|\/changes\?type=went_flat")/);
     expect(html).not.toContain('" onmouseover');
     expect(html).toContain("&lt;img src=x onerror=alert(1)>");
   });

@@ -2,7 +2,7 @@
  * The notice (design system component Notice, boards 01 and 02, #122): a
  * 1px `ink` frame with a second 1px outline 3px outside it, square corners.
  * The ebb form: a `blue` ripple that drifts one cycle in `--ripple-cycle`
- * (still when the reader asks for reduced motion), the topic's name, an
+ * (only when the reader allows motion), the topic's name, an
  * italic sentence, and a bold line pushed to the bottom so notices side by
  * side end level. Phone sizes first; from the two-column breakpoint
  * (`TWO_COLUMNS_FROM`) the desktop ones. The markup is `Notice.tsx`.
@@ -54,10 +54,10 @@
      * runs on past every notice's edge (`Notice.tsx`).
      */
     transform-box: view-box;
-    animation: Notice-drift var(--ripple-cycle) linear infinite;
 
-    @media (prefers-reduced-motion: reduce) {
-      animation: none;
+    /* Only when the reader allows motion: at rest the line stands still. */
+    @media (prefers-reduced-motion: no-preference) {
+      animation: Notice-drift var(--ripple-cycle) linear infinite;
     }
   }
 
