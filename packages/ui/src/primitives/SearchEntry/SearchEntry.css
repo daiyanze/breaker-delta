@@ -1,0 +1,40 @@
+/*
+ * The way into search (#112, boards 01 and 02): the secondary button
+ * (`Button.css`) with a magnifier. On phones it is the magnifier alone, a
+ * square at the control's smallest height, its label clipped to nothing
+ * (read out, not shown, so it never widens the page); from the two-column
+ * breakpoint (`TWO_COLUMNS_FROM`) the label shows beside it. The markup is
+ * `SearchEntry.tsx`.
+ */
+@layer primitives {
+  .SearchEntry {
+    display: inline-flex;
+    max-width: 100%;
+
+    .Button {
+      position: relative;
+      inline-size: var(--control-min-height);
+      padding-inline: 0;
+
+      @media (min-width: 960px) {
+        inline-size: auto;
+        padding-inline: var(--space-4);
+      }
+    }
+  }
+
+  .SearchEntry-label {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+
+    @media (min-width: 960px) {
+      position: static;
+      overflow: visible;
+      clip-path: none;
+      white-space: normal;
+    }
+  }
+}

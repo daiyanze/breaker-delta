@@ -3,9 +3,12 @@
  * The language menu (boards 01 and 02, #107): a set of links to the same
  * page in each language, not an in-page switch. A `<details>` disclosure,
  * so it opens without JavaScript. On phones the button shows the globe
- * only; its label still names the language. Styles: `LanguageMenu.css`.
+ * only; its label still names the language. A drop-down menu
+ * (`MENU_ATTRIBUTE`, #112): Esc or a click outside closes it once the
+ * loader runs. Styles: `LanguageMenu.css`.
  */
 import type { VNode } from "preact";
+import { MENU_ATTRIBUTE } from "../../runtime/menu.ts";
 
 export interface LanguageLink {
   /** The same page in this language. */
@@ -33,7 +36,11 @@ export function LanguageMenu(props: LanguageMenuProps): VNode {
   const current = props.links.find((l) => l.current);
   return (
     <div class="LanguageMenu">
-      <details class="LanguageMenu-details" open={props.open === true}>
+      <details
+        class="LanguageMenu-details"
+        {...{ [MENU_ATTRIBUTE]: "" }}
+        open={props.open === true}
+      >
         <summary class="LanguageMenu-button" aria-label={props.label}>
           <svg class="LanguageMenu-icon" viewBox="0 0 18 18" aria-hidden="true">
             <circle cx="9" cy="9" r="7" />

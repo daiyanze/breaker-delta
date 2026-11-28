@@ -1,0 +1,40 @@
+/*
+ * Filter items (#112, `design/system/components/PageHero`): square links
+ * with a 1px `ink` outline, 44px high, in `small` type at the button's
+ * weight; the selected one `ink` behind `paper`. Under the pointer the
+ * others take the `tint` ground, so a hovered item never looks selected.
+ * The row wraps; a long item wraps inside itself, so the page never scrolls
+ * sideways. The markup is `Filters.tsx`.
+ */
+@layer primitives {
+  .Filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .Filters-item {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    min-height: var(--control-min-height);
+    padding-block: var(--space-1);
+    padding-inline: var(--space-4);
+    border: var(--rule-thin) solid var(--ink);
+    border-radius: var(--radius-none);
+    color: var(--ink);
+    font-size: var(--type-small-size);
+    font-weight: var(--type-button-weight);
+    line-height: var(--type-small-line);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--tint);
+    }
+
+    &[aria-current] {
+      background: var(--ink);
+      color: var(--paper);
+    }
+  }
+}

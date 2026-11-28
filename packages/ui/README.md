@@ -23,8 +23,9 @@ other data file, not even one in `src/tokens`.
 | `build` | `buildClient()`: the client files, bundled with Bun | everything above, `bun`, `node:` |
 
 `tokens` (#269), `styles` and `build` (#270), `runtime` and `patterns`
-(#271) and `primitives` (#272) exist today; `patterns` holds `Band`,
-`primitives` the `ThemeSwitch` island; `catalog` (#258) lists them. A file directly under `src/` is
+(#271) and `primitives` (#272) exist today; `patterns` holds `Band` and
+`LanguageMenu`, `primitives` `Button`, `Filters`, `SearchEntry` and the
+`ThemeSwitch` island; `catalog` (#258) lists them. A file directly under `src/` is
 under no rule and fails `check-deps`.
 
 ## `@bd/ui/runtime` and `@bd/ui/patterns`
@@ -56,6 +57,14 @@ under no rule and fails `check-deps`.
   `<bd-island>`. It imports nothing up front: Preact and an island's
   module come by dynamic import, so a page without an island loads the
   loader alone.
+- Drop-down menus (`runtime/menu.ts`, #112): a `<details>` with
+  `MENU_ATTRIBUTE` (`data-menu`) opens without JavaScript; the loader,
+  which every page links, closes every open one on Esc (the focus goes back
+  to the button of the one that held it) and one a click lands outside.
+  `menu.ts` is bundled into the loader, so no island may import it.
+- The focus ring (`styles/base.css`, #112): one `:focus-visible` outline
+  for every control, `--focus-width` of `blue`, `--focus-offset` clear of
+  its edge. A component does not style its own.
 - `states(Component, { name: props })` lists a component's states for the
   catalog; the props are checked against the component's.
 - `Band` (`patterns/Band`): a section with its name in the rail. Classes
@@ -92,7 +101,7 @@ under no rule and fails `check-deps`.
   the same page in each language inside a `<details>`, so it opens without
   JavaScript; the current one has `aria-current`. It takes finished text:
   the button's label and each language's own name. On phones the button is
-  the globe alone. `open` starts it open, for the catalog's `open` and
+  the globe alone. A drop-down menu (`data-menu`): Esc closes it. `open` starts it open, for the catalog's `open` and
   `long` states; pages leave it out. Classes `.LanguageMenu`, `-details`,
   `-button`, `-icon`, `-current`, `-chevron`, `-list`, `-link`.
 - `Footer` (`patterns/Footer`, boards 01 and 02, #111): the footer every
@@ -112,6 +121,19 @@ under no rule and fails `check-deps`.
   choice. Props `toDark` and `toLight`, its name in each theme, as finished
   text (the site passes them from its string tables); the stylesheet shows
   the one that applies. `SPEC.md` in its folder.
+- `Button` (`primitives/Button`, #112): the one button shape, a link with
+  `href`, else a `<button>`. `variant` `default` (2px, 48px high), `solid`
+  (the page's main action) or `secondary` (1px, 44px, small type), written
+  as `data-variant`. An icon before the text is `.Button-icon`.
+- `SearchEntry` (`primitives/SearchEntry`, #112): the secondary button with
+  a magnifier that links to the search page; on phones the magnifier
+  alone, its label read out. Classes `.SearchEntry`, `-label`.
+- `Filters` (`primitives/Filters`, #112): a list page's filter items, each
+  its own URL, the current one `aria-current="page"`, `ink` behind `paper`.
+  Classes `.Filters`, `-item`.
+- No control is shorter than `--control-min-height`: `controlHeights`
+  (`styles/checks.ts`) reads the sheet for every link, button and menu
+  button class the catalog renders (`apps/web/src/local/controls.test.tsx`).
 - `Stamp`, `TicketStub`, `TicketStubs`, `VerdictMark`, `VerdictMarks`
   (`patterns`, boards 01, 03, 06 and 07, #115): how a 14-day test and its
   verdict are shown. A stamp's kind (`data-kind`) is told by its text and
@@ -158,14 +180,15 @@ no Bun or Cloudflare types, so emails and share cards can import it.
   export changes, run `bun run --filter @bd/ui tokens` and commit the result;
   `scripts/generate-tokens.test.ts` fails while the two differ.
 - `supplement.ts` holds the values the design states only in prose or not at
-  all (the phone gutter and section size, the control height and outline,
-  the icon size and stroke, the theme switch's icon size, the echo stack's
-  and the headlines' sizes, the footer's timings, angles, beam opacity and
-  link weight, the index's values and phone row count, the two-column
-  breakpoint), each with the text it comes from. No other file holds a
-  design value. All but the breakpoint and the index's row count are also
-  CSS variables: `--phone-*`, `--control-*`, `--icon-*`, `--echo-stack-*`,
-  `--headline-*`, `--footer-*`, `--index-*`.
+  all (the phone gutter and section size, the control height, outline and
+  padding, the focus ring, the icon size and stroke, the theme switch's
+  icon size, the echo stack's and the headlines' sizes, the footer's
+  timings, angles, beam opacity and link weight, the index's values and
+  phone row count, the two-column breakpoint), each with the text it comes
+  from. No other file holds a design value. All but the breakpoint and the
+  index's row count are also CSS variables: `--phone-*`, `--control-*`,
+  `--focus-*`, `--icon-*`, `--echo-stack-*`, `--headline-*`, `--footer-*`,
+  `--index-*`.
 - `contrast.test.ts` computes the WCAG 2.2 contrast of every text and
   background pair the design uses, in both themes: 4.5:1 for text, 3:1 for
   a control's outline. A new colour token fails it until it is placed.
