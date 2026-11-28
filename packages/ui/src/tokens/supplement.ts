@@ -22,13 +22,26 @@ export const PHONE = {
 /**
  * A control's height: `design/system/components/Button/README.md`,
  * "高度不小于 44px，桌面默认 48px" (at least 44px; 48px on desktop by default).
- * `tokens.test.ts` checks that the README still says so.
+ * The button's side padding the README does not state: the Button preview and every
+ * board draw `.btn{… padding:0 20px …}` (#112). `tokens.test.ts` checks
+ * that the README and the preview still say so.
  */
 export const CONTROL = {
   minHeight: "44px",
   height: "48px",
   /** The default and solid button's outline, the same README: "2px `ink` 描边". */
   outline: "2px",
+  padding: "20px",
+} as const;
+
+/**
+ * The keyboard focus ring, the same on every control (#112): every board
+ * draws `.tp :focus-visible{outline:3px solid var(--blue);outline-offset:3px}`.
+ * `tokens.test.ts` checks that boards 01 and 02 still say so.
+ */
+export const FOCUS = {
+  width: "3px",
+  offset: "3px",
 } as const;
 
 /**

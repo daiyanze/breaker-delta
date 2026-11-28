@@ -5,8 +5,13 @@
  * component with the props read back from its `props` attribute. Preact is
  * imported only when a page has an island, so a page without one loads
  * this file alone.
+ *
+ * It also closes the drop-down menus with Esc (`menu.ts`), bundled into this
+ * file: a menu works without JavaScript, and the loader is the one script
+ * every page has.
  */
 import type { ComponentType } from "preact";
+import { watchMenus } from "./menu.ts";
 
 /**
  * `ISLAND_TAG` (`element.ts`), written out: an import, even of a constant,
@@ -38,3 +43,6 @@ class IslandElement extends HTMLElement {
 }
 
 if (customElements.get(ISLAND_TAG) === undefined) customElements.define(ISLAND_TAG, IslandElement);
+
+// A module runs once per page, however many times it is linked.
+watchMenus(document);
