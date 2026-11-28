@@ -19,6 +19,7 @@ import {
   ILLUSTRATION,
   INDEX,
   MARK,
+  MASTHEAD,
   PHONE,
   RIPPLE,
   SOURCE_TILE,
@@ -54,6 +55,7 @@ export {
   INDEX,
   INDEX_PHONE_ROWS,
   MARK,
+  MASTHEAD,
   PHONE,
   RIPPLE,
   SOURCE_TILE,
@@ -149,6 +151,7 @@ function staticVars(): string {
   for (const [name, v] of Object.entries(PHONE)) out.push(decl(`phone-${kebab(name)}`, v.value));
   for (const [name, v] of Object.entries(CONTROL)) out.push(decl(`control-${kebab(name)}`, v));
   for (const [name, v] of Object.entries(ICON)) out.push(decl(`icon-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(MASTHEAD)) out.push(decl(`masthead-${kebab(name)}`, v));
   out.push(decl("ripple-cycle", RIPPLE.cycle));
   for (const [name, v] of Object.entries(ILLUSTRATION)) {
     out.push(decl(`illustration-${kebab(name)}`, v));

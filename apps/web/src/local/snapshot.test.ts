@@ -27,6 +27,10 @@ import { handle, type SiteVars } from "../select.ts";
 // purpose: the front page's header opens with the date strip, which holds
 // the language menu, the theme switch and the search entry. Update with
 // `bun test --update-snapshots`
+// purpose: every page's header is the masthead (the mark and the wordmark
+// as the `<h1>` link home, the navigation, the wave), and the front page
+// opens with the date strip above it. Update with
+// `bun test --update-snapshots`
 // only when a change to the output is intended, and say so in the PR.
 
 async function render(path: string, vars: SiteVars): Promise<string> {

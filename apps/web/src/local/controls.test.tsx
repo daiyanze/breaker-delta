@@ -56,6 +56,10 @@ describe("no control is shorter than 44px (issue 112)", () => {
       "IndexRow",
       "LanguageMenu-button",
       "LanguageMenu-link",
+      "Masthead-button",
+      "Masthead-home",
+      "Masthead-item",
+      "Masthead-link",
       "ThemeSwitch",
       "TideTable-link",
     ]);

@@ -34,6 +34,7 @@ export {
   LanguageMenu,
   type LanguageMenuProps,
 } from "./LanguageMenu/LanguageMenu.tsx";
+export { Masthead, type MastheadLink, type MastheadProps } from "./Masthead/Masthead.tsx";
 export {
   kindOf,
   SOURCE_KINDS,

@@ -257,13 +257,21 @@ async function get(args: string[]) {
 /**
  * What `get` prints of a response: the first 2000 characters of an HTML
  * page's `<body>`, since `<head>` holds links and metadata that would fill the
- * limit on their own; other bodies from the start. The full response is in
- * the saved file.
+ * limit on their own; other bodies from the start. The site's masthead
+ * (#110), the same on every page and mostly drawings, is shortened to
+ * `MASTHEAD_SHOWN` for the same reason. The full response is in the saved
+ * file.
  */
 export function preview(body: string, limit = 2000): string {
   const at = body.search(/<body[\s>]/i);
-  return body.slice(at === -1 ? 0 : at, (at === -1 ? 0 : at) + limit);
+  const page = body
+    .slice(at === -1 ? 0 : at)
+    .replace(/<header class="page"><div class="Masthead">[\s\S]*?<\/header>/, MASTHEAD_SHOWN);
+  return page.slice(0, limit);
 }
+
+/** What `preview` prints in place of the site's masthead. */
+export const MASTHEAD_SHOWN = '<header class="page"><!-- masthead --></header>';
 
 async function sql(args: string[]) {
   const state = need();

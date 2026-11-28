@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import { Masthead } from "@bd/ui/patterns";
+import { Document, renderDocument } from "@bd/ui/runtime";
 import { colorOf, tokensCss } from "@bd/ui/tokens";
+import { h } from "preact";
 import {
   ICON_FILES,
   ICON_LINKS,
@@ -145,5 +148,77 @@ describe("files and links", () => {
       const file = byName.get(icon.src.replace("/icons/", ""));
       expect(icon.sizes).toBe(`${file?.size}x${file?.size}`);
     }
+  });
+});
+
+// #110: the masthead draws the One ink mark itself, in Preact, with classes
+// for its colours. Its shapes are this module's, compared part by part.
+describe("the masthead's mark is the One ink mark", () => {
+  const GEOMETRY = ["x", "y", "width", "height", "cx", "cy", "r", "points", "d"];
+  const PAINT = ["fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin"];
+  // The masthead's classes, with the paint `Masthead.css` gives them.
+  const CLASSES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+    "Masthead-paper": { fill: "var(--paper)" },
+    "Masthead-ink": { fill: "var(--ink)" },
+    "Masthead-line": { fill: "none", stroke: "var(--ink)" },
+    "Masthead-crest": { fill: "none", stroke: "var(--paper)" },
+    "Masthead-edge": { stroke: "var(--ink)" },
+  };
+
+  interface Part {
+    shape: string;
+    detail: boolean;
+  }
+
+  /** Each shape of an SVG with its geometry and paint, in order. */
+  function parts(svg: string): Part[] {
+    return [...svg.matchAll(/<(rect|path|polygon|circle)\b([^>]*?)\/?>/g)].map((m) => {
+      const attrs: Record<string, string> = Object.fromEntries(
+        [...(m[2] ?? "").matchAll(/([\w-]+)="([^"]*)"/g)].map((a) => [a[1] ?? "", a[2] ?? ""]),
+      );
+      const paint: Record<string, string> = {};
+      for (const decl of (attrs.style ?? "").split(";").filter(Boolean)) {
+        const [p = "", v = ""] = decl.split(":");
+        paint[p] = v;
+      }
+      const classes = (attrs.class ?? "").split(" ").filter(Boolean);
+      for (const c of classes) Object.assign(paint, CLASSES[c]);
+      for (const p of PAINT) if (attrs[p] !== undefined) paint[p] = attrs[p];
+      // A line with no fill has no area to fill: the same as `none`.
+      paint.fill ??= "none";
+      const shape = [m[1], ...GEOMETRY.map((g) => attrs[g] ?? ""), ...PAINT.map((p) => paint[p])];
+      return { shape: shape.join("|"), detail: classes.includes("Masthead-detail") };
+    });
+  }
+
+  const html = renderDocument(
+    h(
+      Document,
+      { lang: "en", title: "T" },
+      h(Masthead, {
+        home: "/",
+        name: "Breaker Delta",
+        links: [],
+        navLabel: "Main",
+        sectionsLabel: "Sections",
+      }),
+    ),
+  );
+  const mark = /<svg class="Masthead-mark"[\s\S]*?<\/svg>/.exec(html)?.[0] ?? "";
+
+  test("on desktop, every shape of the medium drawing, in order", () => {
+    const medium = parts(oneInkMark({ size: 64, detail: "medium" })).map((p) => p.shape);
+    expect(medium.length).toBeGreaterThan(15);
+    expect(parts(mark).map((p) => p.shape)).toEqual(medium);
+  });
+
+  test("on phones, without its two detail parts, the small drawing", () => {
+    const small = parts(oneInkMark({ size: 34, detail: "small" })).map((p) => p.shape);
+    expect(
+      parts(mark)
+        .filter((p) => !p.detail)
+        .map((p) => p.shape),
+    ).toEqual(small);
+    expect(parts(mark).filter((p) => p.detail)).toHaveLength(2);
   });
 });
