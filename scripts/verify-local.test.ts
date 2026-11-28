@@ -47,6 +47,12 @@ test("a page is printed with its masthead shortened, however long the masthead i
   expect(preview(page)).toBe(
     `<body>${MASTHEAD_SHOWN}<main class="page"><p>edition</p></main></body></html>`,
   );
+  // The date strip before the masthead, in the same header (#109), is printed.
+  const strip = '<div class="DateStrip">No. 323. Sea state: choppy.</div>';
+  const withStrip = page.replace('<header class="page">', `<header class="page">${strip}`);
+  expect(preview(withStrip)).toBe(
+    `<body><header class="page">${strip}<!-- masthead --></header><main class="page"><p>edition</p></main></body></html>`,
+  );
   // A header that is not the masthead, the catalog's, is printed as it is.
   const catalog = `<body><header class="page"><h1>Catalog</h1></header><main></main></body>`;
   expect(preview(catalog)).toBe(catalog);
