@@ -11,7 +11,7 @@ echoes", "Subscribe", "Copy link"). A link when it goes to another page
 
 - `design/system/components/Button/README.md` and `preview.html`: square
   (`radius-none`), an `ink` outline on a clear ground, inverted on hover.
-  `default` is a 2px outline (`--control-border`) and 48px high
+  `default` is a 2px outline (`--control-outline`) and 48px high
   (`--control-height`); `solid` is `ink` behind `paper`, only for a page's
   main action; `secondary` is a 1px outline (`rule-thin`), 44px high
   (`--control-min-height`), in `small` type.

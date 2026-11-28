@@ -27,12 +27,28 @@ function controlClasses(): string[] {
   return [...found].sort();
 }
 
+/**
+ * Links that are a run of text, not a control: a headline's or a topic's
+ * title is the link itself, as tall as its type. The Button README's height
+ * is a control's; WCAG 2.5.8 exempts targets inside text. Each one named
+ * here, so a new link is a control until it is listed with its reason.
+ */
+const TEXT_LINKS: Readonly<Record<string, string>> = {
+  "Headline-link": "a headline's title (Headline, issue 119)",
+  "TicketStub-topic": "the topic's title in a ticket stub (TicketStub, issue 115)",
+};
+
 describe("no control is shorter than 44px (issue 112)", () => {
   test("every control the catalog shows has a control height", () => {
-    const classes = controlClasses();
+    const found = controlClasses();
+    expect(found.filter((c) => c in TEXT_LINKS)).toEqual(Object.keys(TEXT_LINKS).sort());
+    const classes = found.filter((c) => !(c in TEXT_LINKS));
     expect(classes).toEqual([
       "Button",
       "Filters-item",
+      "Footer-field",
+      "Footer-link",
+      "Footer-submit",
       "LanguageMenu-button",
       "LanguageMenu-link",
       "ThemeSwitch",

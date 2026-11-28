@@ -15,7 +15,7 @@
     min-height: var(--control-height);
     padding-block: var(--space-1);
     padding-inline: var(--control-padding);
-    border: var(--control-border) solid var(--ink);
+    border: var(--control-outline) solid var(--ink);
     border-radius: var(--radius-none);
     background: transparent;
     color: var(--ink);

@@ -17,8 +17,10 @@ page (default light, English); the links at its top go to the other five.
   (primitives): default, counts, long, zh, ja`, `SearchEntry (primitives):
   default, long, zh, ja`, `ThemeSwitch (primitives): default, long, zh,
   ja`, `Band (patterns): default, note, long, zh, ja`, `EchoStack
-  (patterns): default, mid, low, tallest`, `LanguageMenu (patterns):
-  default, open, long, zh, ja`).
+  (patterns): default, mid, low, tallest`, `Headline (patterns): default,
+  formed, fading, tallest, long, zh, ja`, `LanguageMenu (patterns):
+  default, open, long, zh, ja`, `Footer (patterns): default, no-form,
+  long, zh, ja`).
   The rest is in the file `get` saved: `<html lang="en"
   data-theme="light">`, and one section per component with one
   `data-shot="<Name>/<state>"` element per state.

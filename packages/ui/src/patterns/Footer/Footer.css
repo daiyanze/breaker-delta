@@ -1,0 +1,294 @@
+/*
+ * The footer (boards 01 and 02, #111). Above, inside the page width under a
+ * `rule-heavy` rule: the subscribe form and the links, one column on phones
+ * and two from the two-column breakpoint (`TWO_COLUMNS_FROM`). Then the
+ * lighthouse illustration at the page's full width, then the solid bar.
+ *
+ * Motion (design system "图和动效清单", 页尾): the three wave layers drift
+ * one period of their sine (240 of the view box's 1440 units) and start
+ * again, so they loop without a seam; the middle one runs the other way.
+ * The beam sweeps there and back; the boat bobs. Every timing, angle and
+ * the boat's rise are `--footer-*` (`FOOTER` in `src/tokens/supplement.ts`,
+ * with the text each comes from). Each animation sits under
+ * `prefers-reduced-motion: no-preference`, so at rest nothing moves.
+ *
+ * The drawing's own geometry (the drift of one sine period, the beam's
+ * pivot at the lamp) is written as shares of the view box (1440 × 510).
+ * On phones only the drawing's right half shows (board 02's view box,
+ * x 700 to 1440): the drawing is 1440 / 740 of the page wide and moved left
+ * by 700 / 740 of it, inside a box that clips it. The markup is `Footer.tsx`.
+ */
+@layer patterns {
+  .Footer-top {
+    box-sizing: content-box;
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--page-gutter);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    padding-top: var(--space-6);
+    border-top: var(--rule-heavy) solid var(--ink);
+
+    @media (min-width: 960px) {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-6) var(--space-8);
+      align-items: start;
+    }
+  }
+
+  .Footer-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  .Footer-label {
+    flex-basis: 100%;
+    font-family: var(--font-display);
+    font-size: var(--type-headline-3-size);
+    line-height: var(--type-headline-3-line);
+    font-weight: var(--type-headline-3-weight);
+    letter-spacing: var(--type-headline-3-tracking);
+  }
+
+  .Footer-field {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: var(--control-height);
+    padding-inline: var(--space-4);
+    border: var(--control-outline) solid var(--ink);
+    border-radius: var(--radius-none);
+    background: var(--paper);
+  }
+
+  /* The solid button (Button README: ink ground, paper text, only for subscribing). */
+  .Footer-submit {
+    flex: none;
+    min-height: var(--control-height);
+    padding-inline: var(--space-5);
+    border: var(--control-outline) solid var(--ink);
+    border-radius: var(--radius-none);
+    background: var(--ink);
+    color: var(--paper);
+    font-size: var(--type-button-size);
+    line-height: var(--type-button-line);
+    font-weight: var(--type-button-weight);
+    cursor: pointer;
+  }
+
+  .Footer-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-width: 0;
+
+    @media (min-width: 960px) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .Footer-link {
+    display: flex;
+    align-items: center;
+    min-height: var(--control-height);
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: var(--footer-link-weight);
+
+    &:hover {
+      color: var(--blue);
+    }
+
+    @media (min-width: 960px) {
+      padding-inline: var(--space-4);
+    }
+  }
+
+  .Footer-long {
+    display: none;
+
+    @media (min-width: 960px) {
+      display: inline;
+    }
+  }
+
+  .Footer-short {
+    @media (min-width: 960px) {
+      display: none;
+    }
+  }
+
+  .Footer-art {
+    overflow: hidden;
+  }
+
+  .Footer-svg {
+    display: block;
+    max-width: none;
+    width: calc(1440 / 740 * 100%);
+    height: auto;
+    margin-inline-start: calc(-700 / 740 * 100%);
+
+    @media (min-width: 960px) {
+      width: 100%;
+      margin-inline-start: 0;
+    }
+  }
+
+  /* The beam's 55% yellow is the one translucent colour the design allows (README, 颜色). */
+  .Footer-beam {
+    fill: var(--sun);
+    opacity: var(--footer-beam-opacity);
+    transform-box: view-box;
+    transform-origin: calc(1132 / 1440 * 100%) calc(92 / 510 * 100%);
+    @media (prefers-reduced-motion: no-preference) {
+      animation: Footer-sweep var(--footer-beam-sweep) ease-in-out infinite;
+    }
+  }
+
+  .Footer-gulls,
+  .Footer-hatch {
+    fill: none;
+    stroke-linecap: round;
+  }
+
+  .Footer-gulls {
+    stroke: var(--ink);
+  }
+
+  /* Ripples on the front wave: `sky` at full strength (board 01: 40%). */
+  .Footer-hatch {
+    stroke: var(--sky);
+  }
+
+  .Footer-solid {
+    fill: var(--solid);
+  }
+
+  .Footer-edge,
+  .Footer-tower,
+  .Footer-lamp,
+  .Footer-mast,
+  .Footer-jib {
+    stroke: var(--ink);
+    stroke-linejoin: round;
+  }
+
+  .Footer-tower,
+  .Footer-jib {
+    fill: var(--paper);
+  }
+
+  .Footer-red {
+    fill: var(--red);
+  }
+
+  .Footer-lamp {
+    fill: var(--sun);
+  }
+
+  .Footer-sky {
+    fill: var(--sky);
+  }
+
+  .Footer-blue {
+    fill: var(--blue);
+  }
+
+  .Footer-drift {
+    transform-box: view-box;
+  }
+
+  .Footer-drift-back {
+    @media (prefers-reduced-motion: no-preference) {
+      animation: Footer-drift var(--footer-wave-back) linear infinite;
+    }
+  }
+
+  .Footer-drift-mid {
+    @media (prefers-reduced-motion: no-preference) {
+      animation: Footer-drift var(--footer-wave-mid) linear infinite reverse;
+    }
+  }
+
+  .Footer-drift-front {
+    @media (prefers-reduced-motion: no-preference) {
+      animation: Footer-drift var(--footer-wave-front) linear infinite;
+    }
+  }
+
+  .Footer-boat {
+    transform-box: fill-box;
+    transform-origin: center;
+    @media (prefers-reduced-motion: no-preference) {
+      animation: Footer-bob var(--footer-boat-bob) ease-in-out infinite;
+    }
+  }
+
+  /*
+   * The bar continues the front wave's `solid`. Its text is the light
+   * `paper` in both themes (board 01's #F2EFE4): the notes take the light
+   * scheme, so `--paper` resolves to its light value there, while the bar
+   * keeps the page's `solid`. Contrast: `contrast.test.ts`, "the footer".
+   */
+  .Footer-bar {
+    /* Over the drawing's last line, so a fractional edge leaves no seam. */
+    position: relative;
+    margin-top: calc(-1 * var(--rule-thin));
+    background: var(--solid);
+  }
+
+  .Footer-notes {
+    color-scheme: light;
+    color: var(--paper);
+    box-sizing: content-box;
+    max-width: var(--content);
+    margin-inline: auto;
+    padding-inline: var(--page-gutter);
+    padding-block: var(--space-2) var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    font-size: var(--type-small-size);
+    line-height: var(--type-small-line);
+
+    @media (min-width: 960px) {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: var(--space-2) var(--space-5);
+    }
+  }
+
+  .Footer-note:first-child {
+    margin-inline-end: auto;
+  }
+
+  @keyframes Footer-drift {
+    to {
+      transform: translateX(calc(-240 / 1440 * 100%));
+    }
+  }
+
+  @keyframes Footer-sweep {
+    0%,
+    100% {
+      transform: rotate(var(--footer-beam-from));
+    }
+
+    50% {
+      transform: rotate(var(--footer-beam-to));
+    }
+  }
+
+  @keyframes Footer-bob {
+    0%,
+    100% {
+      transform: translateY(0) rotate(calc(-1 * var(--footer-boat-pitch)));
+    }
+
+    50% {
+      transform: translateY(var(--footer-boat-rise)) rotate(var(--footer-boat-pitch));
+    }
+  }
+}
