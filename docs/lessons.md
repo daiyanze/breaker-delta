@@ -4,6 +4,78 @@ Mistakes made while building Breaker Delta, kept so they are not repeated.
 How to add, scope and retire entries: `docs/development.md`. Newest first.
 Each rule applies only within its scope.
 
+## L33 Before taking a size from a board, look up the token the design system gives that role
+
+- **Date:** 2026-11-27. **Status:** active.
+- **What happened:** #294 (issue #122) set notice titles in `kicker`, the
+  size the board showed. `design/system/tokens.json` assigns
+  `clip-headline` to notice titles, and `kicker` only to the line above the
+  lead headline. The issue says the design system wins over a board. The
+  independent review found it
+  ([comment](https://github.com/daiyanze/breaker-delta/pull/294#issuecomment-7221643626)).
+- **Rule:** Before taking a type size, colour or spacing from a board, find
+  the role (notice title, kicker, caption) in `design/system/tokens.json`'s
+  `usage` text and use the token it names. A board that differs is a
+  question for the owner, not a source.
+- **Scope:** components in `packages/ui/src` and the issues that build them
+  from a board.
+- **Evidence:** the review on #294.
+
+## L32 A claim about behaviour under a condition needs the run that shows it
+
+- **Date:** 2026-11-27. **Status:** active.
+- **What happened:** #293 (issue #113) said that with JavaScript off a
+  favicon that fails to load leaves its tile empty. Headless Chromium with
+  JavaScript off showed the browser's broken-image mark instead. The
+  independent review found it by running that case
+  ([comment](https://github.com/daiyanze/breaker-delta/pull/293#issuecomment-7220866792)).
+  It is L22's mistake in the UI: the claim named a condition and no run
+  showed it.
+- **Rule:** When a PR or a comment says what a page does under a condition
+  (JavaScript off, an image that fails, a narrow screen, a missing
+  setting), run that exact condition in a browser and say how, or remove
+  the claim.
+- **Scope:** PR descriptions, component `SPEC.md` files and comments in
+  `packages/ui/src` and `apps/web/src`.
+- **Evidence:** the review on #293.
+
+## L31 A design value is a token, not a literal in a component's CSS
+
+- **Date:** 2026-11-27. **Status:** active.
+- **What happened:** #291 wrote a design value as a literal in a
+  component's CSS instead of in `packages/ui/src/tokens/supplement.ts`
+  (ADR 0020, section 5), and review blocked it
+  ([comment](https://github.com/daiyanze/breaker-delta/pull/291#issuecomment-7220718710)).
+  The same mistake was a nit in #289 (`10vw` and `0.9em` in
+  `Masthead.css`) and in #294 (`font-weight: 500`). `scripts/check-ui.ts`
+  flags only `px` and `rem` lengths (`size`), so all three passed `check`.
+- **Rule:** A value that comes from the design (a length in any unit, a
+  weight, a ratio) is read from `tokens.json` through `@bd/ui/tokens`, or
+  added to `supplement.ts` with its reason. A component's CSS holds only
+  `var(--...)` for it.
+- **Scope:** `.css` files and style objects in `packages/ui/src/primitives`
+  and `packages/ui/src/patterns`.
+- **Check:** none yet. It repeated three times while written down, so by
+  "A repeat is a level-up" (`docs/development.md`) it is the next to
+  enforce: widen `scripts/check-ui.ts`'s `size` rule to `vw`, `vh`, `em`,
+  `%` and other units and to `font-weight` numbers, with a test that plants
+  each one. Not built in the PR that added this lesson.
+- **Evidence:** the reviews on #289, #291 and #294.
+
+## L30 Build only what the issue names
+
+- **Date:** 2026-11-27. **Status:** active.
+- **What happened:** #288 (issue #115) built its component and also wired
+  issue #123's front-page band, its first use. Review blocked it under "one
+  concern per PR"
+  ([comment](https://github.com/daiyanze/breaker-delta/pull/288#issuecomment-7220199361)).
+- **Rule:** Build what the issue names. When a component's first use
+  belongs to another issue, leave the wiring to that issue and show the
+  component through its states file and the catalog instead.
+- **Scope:** every PR, especially `packages/ui` components and the pages
+  that use them.
+- **Evidence:** the review on #288.
+
 ## L29 A check that moves from text to a syntax tree covers every node shape the text matched
 
 - **Date:** 2026-11-27. **Status:** active.
@@ -87,7 +159,7 @@ Each rule applies only within its scope.
 
 - **Date:** 2026-11-24. **Status:** active.
 - **What happened:** #240's `rebuild` copied `content.db` into memory. Local
-  mode keeps that file in WAL mode (`server.ts`); the copy kept the WAL
+  mode keeps that file in WAL mode (`apps/pipeline/src/local/server.ts`); the copy kept the WAL
   header bytes and its first write failed with `SQLITE_CANTOPEN`. The tests
   wrote the file with `VACUUM INTO`, which is not WAL, so they passed. Review
   round 1 found it on a database built by `startPipeline`'s settings.
