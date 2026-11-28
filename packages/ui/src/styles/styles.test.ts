@@ -355,6 +355,104 @@ describe("the echo stack", () => {
   });
 });
 
+describe("motion", () => {
+  test("nothing in the sheet moves unless motion is allowed", () => {
+    const moving = rules.filter((r) => r.declarations.some(([p]) => p.startsWith("animation")));
+    expect(moving.length).toBeGreaterThan(0);
+    for (const r of moving) expect(r.media).toEqual(["(prefers-reduced-motion: no-preference)"]);
+  });
+});
+
+describe("the headlines", () => {
+  const own = rules.filter((r) => r.layer === "patterns" && r.selector.startsWith(".Headline"));
+  const desktop = [normalize(`(min-width: ${TWO_COLUMNS_FROM})`)];
+  const decl = (selector: string, media: string[] = []) =>
+    Object.fromEntries(
+      own.find((r) => r.selector === selector && r.media.join() === media.join())?.declarations ??
+        [],
+    );
+
+  test("a headline's size is base + height ÷ 200 × span, from its tier's variables", () => {
+    expect(decl(".Headline-title")["font-size"]).toBe(
+      "calc(var(--headline-base) + var(--headline-height) / 200 * var(--headline-span))",
+    );
+    expect(decl(".Headline-title")["--headline-height"]).toBe(
+      "calc(var(--headline-tens) * 10 + var(--headline-ones))",
+    );
+    for (const tier of ["lead", "second", "third"]) {
+      const phone = decl(`.Headline-title-${tier}`);
+      expect(phone["--headline-base"]).toBe(`var(--headline-${tier}-phone-base)`);
+      expect(phone["--headline-span"]).toBe(`var(--headline-${tier}-phone-span)`);
+      // Exact: the desktop block sets the size variables and, for the third
+      // tier only, board 01's tracking.
+      expect(decl(`.Headline-title-${tier}`, desktop)).toEqual({
+        "--headline-base": `var(--headline-${tier}-base)`,
+        "--headline-span": `var(--headline-${tier}-span)`,
+        ...(tier === "third" ? { "letter-spacing": "var(--type-headline-3-tracking)" } : {}),
+      });
+    }
+    // Board 02: no tracking on the third tier on phones.
+    expect(decl(".Headline-title-third")["letter-spacing"]).toBeUndefined();
+  });
+
+  test("every height from 000 to 200 is read digit by digit", () => {
+    for (let tens = 0; tens <= 20; tens++) {
+      const t = String(tens).padStart(2, "0");
+      expect(decl(`.Headline-title[data-height^="${t}"]`)).toEqual({
+        "--headline-tens": `${tens}`,
+      });
+    }
+    for (let ones = 0; ones <= 9; ones++) {
+      expect(decl(`.Headline-title[data-height$="${ones}"]`)).toEqual({
+        "--headline-ones": `${ones}`,
+      });
+    }
+    expect(own.some((r) => r.selector.includes('^="21"'))).toBe(false);
+  });
+
+  test("red for a wave formed today and for the kicker; ink-2 at 500 for a wave going out", () => {
+    expect(decl(".Headline-new").color).toBe("var(--red)");
+    expect(decl(".Headline-kicker").color).toBe("var(--red)");
+    expect(decl(".Headline-number").color).toBe("var(--ink)");
+    expect(decl(".Headline-title").color).toBe("var(--ink)");
+    expect(decl(".Headline-title.Headline-fading")).toEqual({
+      color: "var(--ink-2)",
+      "font-weight": "var(--headline-fading-weight)",
+    });
+  });
+
+  test("hovered, a red underline and no movement", () => {
+    const hover = decl(".Headline-link:hover");
+    expect(hover["text-decoration-color"]).toBe("var(--red)");
+    expect(hover["text-decoration"]).toBe("underline");
+    for (const r of own) {
+      expect(cssValue(r, "transform")).toBeUndefined();
+      expect(cssValue(r, "translate")).toBeUndefined();
+    }
+  });
+
+  test("the second tier under a heavy rule, the third under a thin one, in two and three columns", () => {
+    expect(decl(".Headline-story")["border-top"]).toBe("var(--rule-thin) solid var(--ink)");
+    expect(decl(".Headline-second")["border-top-width"]).toBe("var(--rule-heavy)");
+    expect(decl(".Headline-columns-second", desktop)["grid-template-columns"]).toBe(
+      "repeat(2,minmax(0,1fr))",
+    );
+    expect(decl(".Headline-columns-third", desktop)["grid-template-columns"]).toBe(
+      "repeat(3,minmax(0,1fr))",
+    );
+    expect(decl(".Headline-columns")["grid-template-columns"]).toBe("minmax(0,1fr)");
+  });
+
+  test("the trend line is blue and draws itself once, only when motion is allowed", () => {
+    expect(decl(".Headline-chart-line").stroke).toBe("var(--blue)");
+    expect(decl(".Headline-chart-area").fill).toBe("var(--tint)");
+    expect(decl(".Headline-chart-line", ["(prefers-reduced-motion: no-preference)"])).toEqual({
+      "stroke-dasharray": "1",
+      animation: "headline-draw var(--headline-trend-draw) ease-out both",
+    });
+  });
+});
+
 describe("the CSS reader", () => {
   test("reads statements, nesting with &, media inside a rule, comments and strings", () => {
     const read = cssRules(

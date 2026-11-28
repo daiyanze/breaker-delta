@@ -6,6 +6,7 @@ import {
   ECHO_STACK,
   FONT_FILES,
   fontFaceCss,
+  HEADLINE,
   ICON,
   MARK,
   PHONE,
@@ -16,6 +17,7 @@ import {
   typeClassesCss,
   typeStyle,
 } from "./index.ts";
+import { TYPE_STYLES, type TypeStyle } from "./tokens.gen.ts";
 
 // Checked against `tokens.json` itself, not against the generated file.
 const [root = "", forcedLight = "", systemDark = "", forcedDark = ""] = tokensCss().split("\n");
@@ -230,5 +232,58 @@ describe("supplement: values the design states only in prose", () => {
     const readme = await Bun.file(`${dir}/system/components/EchoStack/README.md`).text();
     expect(readme).toContain(`每层间隔 ${Number.parseFloat(ECHO_STACK.step)} 秒`);
     expect(readme).toContain(`${Number.parseFloat(ECHO_STACK.loop)} 秒一个循环`);
+  });
+
+  test("the headline sizes are the Headline README's, and fill the type scale on desktop", async () => {
+    const dir = `${import.meta.dir}/../../../../design`;
+    const readme = await Bun.file(`${dir}/system/components/Headline/README.md`).text();
+    const n = (v: string) => Number.parseFloat(v);
+    const h = HEADLINE;
+    expect(readme).toContain(
+      `| 头条 | 第 1 名 | ${n(h.leadBase)} + 浪高 ÷ 200 × ${n(h.leadSpan)} | ${n(h.leadPhoneBase)} + 浪高 ÷ 200 × ${n(h.leadPhoneSpan)} |`,
+    );
+    expect(readme).toContain(
+      `| 第二层 | 第 2、3 名 | ${n(h.secondBase)} + 浪高 ÷ 200 × ${n(h.secondSpan)} | ${n(h.secondPhoneBase)} + 浪高 ÷ 200 × ${n(h.secondPhoneSpan)} |`,
+    );
+    expect(readme).toContain(
+      `| 第三层 | 第 4 到 6 名 | ${n(h.thirdBase)} + 浪高 ÷ 200 × ${n(h.thirdSpan)} | ${n(h.thirdPhoneBase)} + 浪高 ÷ 200 × ${n(h.thirdPhoneSpan)} |`,
+    );
+    expect(readme).toContain(`字重 ${h.fadingWeight}`);
+    const size = (name: TypeStyle) => n(TYPE_STYLES[name].fontSize);
+    expect(n(h.leadBase) + n(h.leadSpan)).toBe(size("headline-lead"));
+    expect(n(h.secondBase) + n(h.secondSpan)).toBe(size("headline-2"));
+    expect(n(h.thirdBase) + n(h.thirdSpan)).toBe(size("headline-3"));
+    const system = await Bun.file(`${dir}/system/README.md`).text();
+    expect(system).toContain(`| 头条走势线 | 加载时自己画出来 | ${n(h.trendDraw)} 秒，一次 |`);
+  });
+
+  test("the headline sizes the type scale lacks are the boards'", async () => {
+    const dir = `${import.meta.dir}/../../../../design/boards`;
+    const desk = await Bun.file(`${dir}/Front2.dc.html`).text();
+    const phone = await Bun.file(`${dir}/FrontMobile.dc.html`).text();
+    const h = HEADLINE;
+    expect(desk).toContain(
+      `font-size: ${h.secondNumber}; font-weight: 900; line-height: 1; color: {{ h.nfg }}`,
+    );
+    expect(desk).toContain(
+      `font-size: ${h.thirdNumber}; font-weight: 900; line-height: 1; color: {{ h.nfg }}`,
+    );
+    expect(phone).toContain(
+      `font-style: italic; font-size: ${h.leadPhoneKicker}; color: var(--red)">{{ lead.kick }}`,
+    );
+    expect(phone).toContain(`font-size: ${h.leadPhoneNumber}; font-weight: 900; line-height: 0.76`);
+    expect(phone).toContain(
+      `flex: 0 0 ${h.phoneNumberColumn}; font-size: ${h.secondPhoneNumber}; font-weight: 900`,
+    );
+    expect(phone).toContain(
+      `flex: 0 0 ${h.phoneNumberColumn}; font-size: ${h.thirdPhoneNumber}; font-weight: 900`,
+    );
+  });
+
+  test("the headline values are variables for its CSS", () => {
+    for (const [name, v] of Object.entries(HEADLINE)) {
+      const kebab = name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+      expect(root).toContain(`--headline-${kebab}:${v};`);
+    }
   });
 });
