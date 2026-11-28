@@ -13,8 +13,16 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
 
 - `up` (no fixtures), `get /`: the placeholder, "The site arrives in
   milestone M3".
-- `up --fixtures busy`, `get /`: "The ... edition. Sea state: ...", an
+- `up --fixtures busy`, `get /`: the date strip first (#109): "Thursday,
+  November 19, 2026", "No. 323. Sea state: choppy.", "16 waves up", "5 new
+  today, scanned 14:00", then the language menu, the theme switch and the
+  search entry. In the saved file: "The ... edition. Sea state: ...", an
   ordered list of topics linking to `/topic/<slug>`, and a Classifieds list.
+- `get "/?set=fresh"`: the strip with "Sea state: flat.", "0 waves up" and
+  "first scan at 15:00"; "The sea is flat." and the next scan time.
+- `get /zh/` on `busy`: the strip reads "2026年11月19日 星期四" and
+  "第 323 期。海况：有浪。"; `/ja/`: "2026年11月19日（木）" and
+  "第323号。海況：波あり。".
 - On `busy`, a "Fading notices" band (#122) between the front page and
   the classifieds: one `<article class="Notice">` per wave in the
   edition's `ebb.notices`, each "A wave since Nov 13. Peaked at 188.
@@ -36,7 +44,6 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
   verdicts yet." and the band says "The first test comes due on Nov 26.";
   it is never blank. In a browser at 1440 the link sits under the note in
   the rail; at 390 the stubs are one column and the link follows them.
-- `get "/?set=fresh"`: "The sea is flat." and the next scan time.
 - `get /ja/` on `busy`: `<html lang="ja">`, Japanese headlines where
   the set has them, the source's own headline elsewhere.
 - `get "/ja/?set=quiet"` (English only): redirected to `/?set=quiet`,
@@ -59,18 +66,29 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
   `<script type="module" src="/client/loader.js">` (#272). `get
   /client/loader.js` and `get /client/ThemeSwitch.island.js`: 200
   `text/javascript`.
-- Every page opens with the masthead (#110): `<header class="page"><div
-  class="Masthead">`, the round mark and "Breaker Delta" as one link home
-  (the front page's `<h1>`), the navigation (Front page, Changes, Echoes,
-  Track record, Sources, About; the front page's item with
-  `aria-current="page"`), on `/zh/` and `/ja/` in that language with
-  `/zh/…` and `/ja/…` links, then the wave line. `get` prints it as
-  `<header class="page"><!-- masthead --></header>`; the saved file has it
-  all. In a browser at 1440: the navigation at the wordmark's right, a red
-  line under "Front page", a boat sailing the wave. At 390: a "Sections"
-  button that opens the same links. With reduced motion on, the wave and
-  the boat stand still.
-- The masthead's row of tools holds the theme switch island (#105),
+- Every page's header holds the masthead (#110), `<div class="Masthead">`:
+  the round mark and "Breaker Delta" as one link home (the front page's
+  `<h1>`), the navigation (Front page, Changes, Echoes, Track record,
+  Sources, About; the front page's item with `aria-current="page"`), on
+  `/zh/` and `/ja/` in that language with `/zh/…` and `/ja/…` links, then
+  the wave line. On the front page of a fixture set the header opens with
+  the date strip (#109), `<header class="page"><div class="DateStrip">`,
+  and the masthead follows it in the same header; the placeholder's header
+  is the masthead alone. `get` prints a page only when the instance reads
+  fixtures (README, "Fetched content stays out of the session"), and
+  `preview` shortens the masthead to `<!-- masthead -->` and keeps the
+  strip: on `busy` the strip alone fills the 2000 characters (they end
+  inside the theme switch), and the saved file, read through `preview` with
+  no limit, has `…</div></div><!-- masthead --></header><main
+  class="page">`. On the placeholder `get` prints no body; its saved file,
+  read through `preview`, has `<header class="page"><!-- masthead
+  --></header>`. In a browser at 1440: the navigation at the wordmark's
+  right, a red line under "Front page", a boat sailing the wave. At 390: a
+  "Sections" button that opens the same links. With reduced motion on, the
+  wave and the boat stand still.
+- The date strip's controls hold the theme switch island (#105), once on
+  the page, after the language menu and before the search entry; the
+  masthead has no row of tools on the front page.
   `<bd-island name="ThemeSwitch" props="…"><button class="ThemeSwitch">`:
   a 44px square with a 1px outline and a half-filled circle (boards 01 and
   02), named "Switch to dark mode" in the light theme and "Switch to light

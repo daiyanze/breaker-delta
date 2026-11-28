@@ -8,6 +8,7 @@
  */
 
 import band from "../patterns/Band/Band.css" with { type: "text" };
+import dateStrip from "../patterns/DateStrip/DateStrip.css" with { type: "text" };
 import echoStack from "../patterns/EchoStack/EchoStack.css" with { type: "text" };
 import fadingNotices from "../patterns/FadingNotices/FadingNotices.css" with { type: "text" };
 import footer from "../patterns/Footer/Footer.css" with { type: "text" };
@@ -57,6 +58,7 @@ export const CSS_FILES: readonly { path: string; layer: Layer; text: string }[] 
   { path: "primitives/SearchEntry/SearchEntry.css", layer: "primitives", text: searchEntry },
   { path: "primitives/ThemeSwitch/ThemeSwitch.css", layer: "primitives", text: themeSwitch },
   { path: "patterns/Band/Band.css", layer: "patterns", text: band },
+  { path: "patterns/DateStrip/DateStrip.css", layer: "patterns", text: dateStrip },
   { path: "patterns/EchoStack/EchoStack.css", layer: "patterns", text: echoStack },
   { path: "patterns/FadingNotices/FadingNotices.css", layer: "patterns", text: fadingNotices },
   { path: "patterns/Headline/Headline.css", layer: "patterns", text: headline },

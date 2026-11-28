@@ -17,7 +17,8 @@ v up --fixtures busy
 v doctor
 
 front="$(v get /)"
-if ! grep -q "edition. Sea state" <<<"$front"; then fail "front page has no edition line"; fi
+# The date strip (#109) opens the page with the edition's day, sea state and counts.
+if ! grep -q "No. 323. Sea state: choppy." <<<"$front"; then fail "front page has no date strip line"; fi
 
 v tick
 runs="$(v sql "SELECT status FROM runs")"

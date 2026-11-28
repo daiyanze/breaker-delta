@@ -17,7 +17,8 @@ page (default light, English); the links at its top go to the other five.
   (primitives): default, counts, long, zh, ja`, `Notice (primitives):
   default, low, tall, long, zh, ja`, `SearchEntry (primitives):
   default, long, zh, ja`, `ThemeSwitch (primitives): default, long, zh,
-  ja`, `Band (patterns): default, note, link, long, zh, ja, front`, `EchoStack
+  ja`, `Band (patterns): default, note, link, long, zh, ja, front`,
+  `DateStrip (patterns): default, calm, flat, long, zh, ja`, `EchoStack
   (patterns): default, mid, low, tallest`, `FadingNotices (patterns):
   default, one, none, long, zh, ja`, `Headline (patterns): default,
   formed, fading, tallest, long, zh, ja`, `Index (patterns): default, open,
