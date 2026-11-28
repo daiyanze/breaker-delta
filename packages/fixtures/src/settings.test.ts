@@ -14,6 +14,9 @@ describe("settings defaults (#16)", () => {
     expect(d.heatNormalisation).toBe("none");
     expect(d.heatReferencePercentile).toBe(90);
     expect(d.summariesPerRun).toBe(3);
+    expect(d.reviewWindowDays).toBe(14);
+    // The owner, 2026-11-28 (#303).
+    expect(d.tideMinWaves).toBe(2);
     expect(d.timeZone).toBe("Asia/Tokyo");
     expect(d.mailSendTime).toBe("08:00");
     expect(d.assignProviders).toEqual([]);

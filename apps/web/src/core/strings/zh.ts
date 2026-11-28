@@ -7,9 +7,9 @@ export const zh: Table = {
   "front.flat.name": "海面风平浪静。",
   "front.flat.text": "还没有扫描过任何内容。下次扫描：{next}。",
   "verdicts.name": "我们说对了吗？",
-  "verdicts.note": "每个浪都有一条复核标准，成浪那一刻锁定，14 天后对照外部报道检验。",
+  "verdicts.note": "每个浪都有一条复核标准，成浪那一刻锁定，{days} 天后对照外部报道检验。",
   "verdicts.note.before":
-    "每个浪都有一条复核标准，成浪那一刻锁定，14 天后对照外部报道检验。还没有结论。结论出来后，票根会盖上章。",
+    "每个浪都有一条复核标准，成浪那一刻锁定，{days} 天后对照外部报道检验。还没有结论。结论出来后，票根会盖上章。",
   "verdicts.link": "查看战绩",
   "verdicts.firstDue": "第一条复核将于{date}到期。",
   "verdicts.noneRegistered": "还没有成浪，所以还没有锁定的复核。",

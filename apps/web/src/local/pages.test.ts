@@ -329,6 +329,28 @@ describe("were we right?, issue 123", () => {
     expect(html).not.toContain("TicketStubs");
   });
 
+  test("the note names the reviewWindowDays setting, in each language, issue 303", async () => {
+    const windowOf = (q: ReadQueries, reviewWindowDays: number): ReadQueries => ({
+      ...q,
+      siteMeta: async () => ({ ...(await q.siteMeta()), reviewWindowDays }),
+    });
+    const busy = windowOf(createFixtureReadQueries("busy"), 30);
+    expect(band(await front(busy))).toContain(
+      '<p class="Band-note">Every wave gets one test, locked the moment it forms and checked 30 days later against outside reporting.</p>',
+    );
+    expect(band(await front(busy, "zh"))).toContain(
+      '<p class="Band-note">每个浪都有一条复核标准，成浪那一刻锁定，30 天后对照外部报道检验。</p>',
+    );
+    expect(band(await front(busy, "ja"))).toContain(
+      '<p class="Band-note">波ごとに検証の基準を 1 つ、波になったその時に固定し、30 日後に外部の報道と照らし合わせます。</p>',
+    );
+    // Before any verdict, the longer note takes the same number.
+    const quiet = windowOf(createFixtureReadQueries("quiet"), 7);
+    expect(band(await front(quiet))).toContain(
+      "checked 7 days later against outside reporting. No verdicts yet.",
+    );
+  });
+
   test("with verdicts but none recent and nothing listed as due, that none is due", async () => {
     const base = createFixtureReadQueries("busy");
     const plain = await base.edition();
@@ -671,6 +693,20 @@ describe("the tide table", () => {
     for (const set of ["quiet", "fresh"] as const) {
       expect(await front(createFixtureReadQueries(set))).not.toContain("TideTable");
     }
+  });
+
+  test("how many waves it needs is the tideMinWaves setting, issue 303", async () => {
+    const busy = createFixtureReadQueries("busy");
+    const quiet = createFixtureReadQueries("quiet");
+    const needing = (q: ReadQueries, tideMinWaves: number): ReadQueries => ({
+      ...q,
+      siteMeta: async () => ({ ...(await q.siteMeta()), tideMinWaves }),
+    });
+    // Busy has five waves formed today, quiet one.
+    expect(await front(needing(busy, 5))).toContain("TideTable");
+    expect(await front(needing(busy, 6))).not.toContain("TideTable");
+    expect(await front(quiet)).not.toContain("TideTable");
+    expect(await front(needing(quiet, 1))).toContain('<h2 id="band-tide"');
   });
 
   test("a formation time is read in the site's time zone", () => {

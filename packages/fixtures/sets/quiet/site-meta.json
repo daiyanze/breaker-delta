@@ -9,6 +9,8 @@
   "lastSlot": "20261119T0500",
   "nextRunAt": "2026-11-19T14:30:00+09:00",
   "runIntervalMinutes": 30,
+  "reviewWindowDays": 14,
+  "tideMinWaves": 2,
   "summariesEnabled": true,
   "mail": {
     "enabled": false

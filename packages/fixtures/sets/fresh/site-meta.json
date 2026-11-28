@@ -11,6 +11,8 @@
   "lastSlot": null,
   "nextRunAt": "2026-11-19T15:00:00+09:00",
   "runIntervalMinutes": 60,
+  "reviewWindowDays": 14,
+  "tideMinWaves": 2,
   "summariesEnabled": false,
   "mail": {
     "enabled": false

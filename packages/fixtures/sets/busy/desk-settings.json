@@ -13,6 +13,7 @@
     "rewriteAfterNewEchoes": 5,
     "summariesPerRun": 10,
     "reviewWindowDays": 14,
+    "tideMinWaves": 2,
     "languages": [
       "en",
       "zh",

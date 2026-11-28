@@ -100,6 +100,10 @@ export const SiteMetaSchema = z.object({
   lastSlot: SlotSchema.nullable(),
   nextRunAt: InstantSchema,
   runIntervalMinutes: z.number().int().min(15),
+  /** The `reviewWindowDays` setting: the days the "Were we right?" note names. */
+  reviewWindowDays: z.number().int().positive(),
+  /** The `tideMinWaves` setting: the tide table band needs at least this many waves formed today. */
+  tideMinWaves: z.number().int().min(1),
   /** False when no summary writer is set up: pages show sources' own headlines only. */
   summariesEnabled: z.boolean(),
   mail: z.object({ enabled: z.boolean() }),

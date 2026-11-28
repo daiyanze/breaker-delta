@@ -256,6 +256,13 @@ describe("rules that hold in every set", () => {
       }
     });
 
+    test(`${name}: the settings the site reads are the set's settings (#303)`, () => {
+      const settings = DeskSettingsSchema.parse(set.deskSettings).current;
+      expect(meta.tideMinWaves).toBe(settings.tideMinWaves);
+      expect(meta.reviewWindowDays).toBe(settings.reviewWindowDays);
+      expect(meta.runIntervalMinutes).toBe(settings.runIntervalMinutes);
+    });
+
     test(`${name}: share card keys match their cards`, () => {
       for (const [key, raw] of Object.entries(set.shareCards)) {
         const card = ShareCardDataSchema.parse(raw);
