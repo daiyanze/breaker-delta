@@ -30,6 +30,13 @@ export {
   LanguageMenu,
   type LanguageMenuProps,
 } from "./LanguageMenu/LanguageMenu.tsx";
+export {
+  kindOf,
+  SOURCE_KINDS,
+  type SourceKind,
+  SourceTile,
+  type SourceTileProps,
+} from "./SourceTile/SourceTile.tsx";
 export { STAMP_KINDS, Stamp, type StampKind, type StampProps } from "./Stamp/Stamp.tsx";
 export { type StubText, TicketStub, type TicketStubProps } from "./TicketStub/TicketStub.tsx";
 export { TicketStubs, type TicketStubsProps } from "./TicketStubs/TicketStubs.tsx";

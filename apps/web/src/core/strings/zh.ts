@@ -15,6 +15,8 @@ export const zh: Table = {
   "language.menu": "语言：{language}",
   "theme.toDark": "切换到深色模式",
   "theme.toLight": "切换到浅色模式",
+  "source.started": "故事开始的来源",
+  "source.later": "后来跟进的来源",
   "echoStack.label": "回波叠成浪，高 {layers} 层",
   "headline.kicker.tallest": "此刻最高的浪",
   "headline.kicker.formed": "今天新成，已是最高",

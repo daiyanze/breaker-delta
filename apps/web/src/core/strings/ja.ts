@@ -15,6 +15,8 @@ export const ja: Table = {
   "language.menu": "言語：{language}",
   "theme.toDark": "ダークモードに切り替える",
   "theme.toLight": "ライトモードに切り替える",
+  "source.started": "話が始まった情報源",
+  "source.later": "後から取り上げた情報源",
   "echoStack.label": "エコーが重なって波に、{layers} 層の高さ",
   "headline.kicker.tallest": "いまいちばん高い波",
   "headline.kicker.formed": "きょうできて、もういちばん高い",
