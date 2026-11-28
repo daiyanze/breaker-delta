@@ -30,7 +30,7 @@ describe("every page uses the band", () => {
       const body = html.slice(html.indexOf("<body>") + 6, html.indexOf("</body>"));
       const outside = body
         .replace(
-          /^<header class="page">(?:<div class="DateStrip">[\s\S]*?<\/a><\/span><\/div><\/div>)?<h1>[^<]+<\/h1><\/header>/,
+          /^<header class="page">(?:<div class="DateStrip">[\s\S]*?<\/a><\/span><\/div><\/div>)?<div class="Masthead">[\s\S]*?<\/header>/,
           "",
         )
         .replace(
@@ -44,7 +44,7 @@ describe("every page uses the band", () => {
   test("each page has its heading and its bands, named by their rail headings", async () => {
     const { placeholder, busy, fresh } = await pages();
     expect(placeholder).toContain('<html lang="en">');
-    expect(placeholder).toContain("<h1>Breaker Delta</h1>");
+    expect(placeholder).toContain('<span class="Masthead-name">Breaker Delta</span></a></h1>');
     expect(placeholder).toContain('aria-labelledby="band-scaffold"');
     expect(placeholder).toContain("2.0 scaffold. The site arrives in milestone M3.");
     expect(busy).toContain('aria-labelledby="band-front"');
@@ -60,7 +60,7 @@ describe("every page uses the band", () => {
     const { placeholder, busy, fresh } = await pages();
     for (const html of [busy, fresh]) {
       expect(html).toContain(
-        '<bd-island name="ThemeSwitch" props="{&quot;toDark&quot;:&quot;Switch to dark mode&quot;,&quot;toLight&quot;:&quot;Switch to light mode&quot;}"><button type="button" class="ThemeSwitch">',
+        '</details></div><bd-island name="ThemeSwitch" props="{&quot;toDark&quot;:&quot;Switch to dark mode&quot;,&quot;toLight&quot;:&quot;Switch to light mode&quot;}"><button type="button" class="ThemeSwitch">',
       );
       // In the date strip, before the search link (#109).
       expect(html).toContain(
@@ -147,8 +147,50 @@ describe("the date strip", () => {
     expect(controls).toContain('</bd-island><span class="SearchEntry"><a class="Button');
     expect(controls).toContain('href="/ja/search"');
     expect(controls).toContain(
-      '<span class="SearchEntry-label">検索</span></a></span></div></div><h1>',
+      '<span class="SearchEntry-label">検索</span></a></span></div></div><div class="Masthead">',
     );
+  });
+});
+
+// #110: every public page opens with the same masthead, in its own language.
+describe("every page has the masthead", () => {
+  const masthead = (html: string) => {
+    // In the page's header, after the date strip where the page has one (#109).
+    const at = html.indexOf('<div class="Masthead">');
+    return html.startsWith('<header class="page">', html.indexOf("<body>") + 6) && at !== -1
+      ? html.slice(at, html.indexOf("</header>", at))
+      : "";
+  };
+
+  test("the placeholder and every fixture set's front page, the front page marked", async () => {
+    const pages = [
+      await front(null),
+      ...(await Promise.all(
+        (["busy", "fresh", "quiet"] as const).map((s) => front(createFixtureReadQueries(s))),
+      )),
+    ];
+    for (const html of pages) {
+      const m = masthead(html);
+      expect(m).toContain('<h1 class="Masthead-title"><a class="Masthead-home" href="/">');
+      expect(m).toContain('<nav class="Masthead-nav" aria-label="Main">');
+      expect(m).toContain('<a class="Masthead-link" href="/" aria-current="page">Front page</a>');
+      expect(m).toContain('<a class="Masthead-link" href="/record">Track record</a>');
+      expect(m).toContain('<summary class="Masthead-button">Sections<svg');
+      expect(m.match(/aria-current="page"/g)?.length).toBe(2);
+      expect(html.match(/class="Masthead"/g)?.length).toBe(1);
+    }
+  });
+
+  test("its links and labels are in the page's language", async () => {
+    const zh = masthead(await front(createFixtureReadQueries("busy"), "zh"));
+    expect(zh).toContain('<a class="Masthead-home" href="/zh/">');
+    expect(zh).toContain('<nav class="Masthead-nav" aria-label="主导航">');
+    expect(zh).toContain('<a class="Masthead-link" href="/zh/" aria-current="page">头版</a>');
+    expect(zh).toContain('<a class="Masthead-link" href="/zh/record">战绩</a>');
+    expect(zh).toContain('<summary class="Masthead-button">栏目<svg');
+    expect(zh).toContain('<span class="Masthead-name">Breaker Delta</span>');
+    const ja = masthead(await front(createFixtureReadQueries("busy"), "ja"));
+    expect(ja).toContain('<a class="Masthead-link" href="/ja/changes">変更</a>');
   });
 });
 

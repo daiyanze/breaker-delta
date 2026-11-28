@@ -248,7 +248,9 @@ async function webSmoke() {
     const body = await res.text();
     record(
       "bd-web: the front page answers 200 with its heading",
-      res.status === 200 && body.includes("<h1>Breaker Delta</h1>"),
+      // The masthead's wordmark is the front page's heading (#110).
+      res.status === 200 &&
+        body.includes('<span class="Masthead-name">Breaker Delta</span></a></h1>'),
       `${res.status}`,
     );
   } catch (err) {
