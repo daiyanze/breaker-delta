@@ -474,3 +474,103 @@ describe("the CSS reader", () => {
     expect(() => parseCss('.a { content: "x }')).toThrow("not closed");
   });
 });
+
+// #111: the footer's motion and its phone crop, in the view box's units
+// (1440 × 510, from x = 0). The drawing's geometry: `Footer.test.tsx`.
+describe("the footer", () => {
+  const MOTION = normalize("(prefers-reduced-motion: no-preference)");
+  const footer = (selector: string, media: string[] = []) =>
+    rules.find(
+      (r) => r.layer === "patterns" && r.selector === selector && r.media.join() === media.join(),
+    ) ?? { declarations: [] };
+  const keyframes = (name: string) =>
+    CSS_FILES.find((f) => f.path === "patterns/Footer/Footer.css")
+      ?.text.split(`@keyframes ${name} {`)[1]
+      ?.split("\n  }\n")[0] ?? "";
+
+  test("the waves drift one period of their sine, 240 of 1440, so they loop without a gap", () => {
+    expect(normalize(keyframes("Footer-drift"))).toContain(
+      normalize("transform: translateX(calc(-240 / 1440 * 100%))"),
+    );
+    expect(cssValue(footer(".Footer-drift"), "transform-box")).toBe("view-box");
+  });
+
+  test("the beam turns about the lamp, 1132,92, between the supplement's angles", () => {
+    const beam = footer(".Footer-beam");
+    expect(cssValue(beam, "transform-box")).toBe("view-box");
+    expect(cssValue(beam, "transform-origin")).toBe(
+      normalize("calc(1132 / 1440 * 100%) calc(92 / 510 * 100%)"),
+    );
+    expect(cssValue(beam, "opacity")).toBe("var(--footer-beam-opacity)");
+    expect(cssValue(footer(".Footer-beam", [MOTION]), "animation")).toBe(
+      "Footer-sweep var(--footer-beam-sweep) ease-in-out infinite",
+    );
+    const sweep = normalize(keyframes("Footer-sweep"));
+    expect(sweep).toContain("rotate(var(--footer-beam-from))");
+    expect(sweep).toContain("rotate(var(--footer-beam-to))");
+  });
+
+  test("each wave layer and the boat take their own timing; the middle layer runs the other way", () => {
+    const anim = (s: string) => cssValue(footer(s, [MOTION]), "animation");
+    expect(anim(".Footer-drift-back")).toBe("Footer-drift var(--footer-wave-back) linear infinite");
+    expect(anim(".Footer-drift-mid")).toBe(
+      "Footer-drift var(--footer-wave-mid) linear infinite reverse",
+    );
+    expect(anim(".Footer-drift-front")).toBe(
+      "Footer-drift var(--footer-wave-front) linear infinite",
+    );
+    expect(anim(".Footer-boat")).toBe("Footer-bob var(--footer-boat-bob) ease-in-out infinite");
+    expect(normalize(keyframes("Footer-bob"))).toContain(
+      "translateY(var(--footer-boat-rise)) rotate(var(--footer-boat-pitch))",
+    );
+  });
+
+  // Review of #291: a timing, angle, opacity or weight is a design value, so
+  // it comes from `FOOTER` in the supplement (ADR 0020, section 5).
+  test("the footer's CSS holds no timing, angle, opacity or weight of its own", () => {
+    const text = CSS_FILES.find((f) => f.path === "patterns/Footer/Footer.css")?.text ?? "";
+    const code = text.replace(/\/\*[\s\S]*?\*\//g, "");
+    const literals = (s: string) =>
+      [...s.matchAll(/(?<![\w-])-?\d*\.?\d+(?:s|ms|deg)\b|(?:opacity|font-weight):\s*[\d.]+/g)].map(
+        (m) => m[0],
+      );
+    expect(literals(code)).toEqual([]);
+    expect(
+      literals(`${code} .x { opacity: 0.55; animation: a 7s; transform: rotate(-4deg) }`),
+    ).toEqual(["opacity: 0.55", "7s", "-4deg"]);
+  });
+
+  test("on phones only the right half shows (x 700 to 1440); from the breakpoint all of it", () => {
+    expect(cssValue(footer(".Footer-art"), "overflow")).toBe("hidden");
+    const phone = footer(".Footer-svg");
+    expect(cssValue(phone, "max-width")).toBe("none");
+    expect(cssValue(phone, "width")).toBe(normalize("calc(1440 / 740 * 100%)"));
+    expect(cssValue(phone, "margin-inline-start")).toBe(normalize("calc(-700 / 740 * 100%)"));
+    const wide = footer(".Footer-svg", [normalize(`(min-width: ${TWO_COLUMNS_FROM})`)]);
+    expect(cssValue(wide, "width")).toBe("100%");
+    expect(cssValue(wide, "margin-inline-start")).toBe("0");
+  });
+
+  test("each of the footer's animations waits for motion to be allowed, so at rest nothing moves", () => {
+    const animated = rules.filter(
+      (r) =>
+        r.selector.startsWith(".Footer") && r.declarations.some(([p]) => p.startsWith("animation")),
+    );
+    expect(animated.map((r) => [r.selector, r.media])).toEqual(
+      [
+        ".Footer-beam",
+        ".Footer-drift-back",
+        ".Footer-drift-mid",
+        ".Footer-drift-front",
+        ".Footer-boat",
+      ].map((s) => [s, [MOTION]]),
+    );
+  });
+
+  test("the bar's text is the light paper in both themes, on the page's solid", () => {
+    expect(cssValue(footer(".Footer-bar"), "background")).toBe("var(--solid)");
+    const notes = footer(".Footer-notes");
+    expect(cssValue(notes, "color-scheme")).toBe("light");
+    expect(cssValue(notes, "color")).toBe("var(--paper)");
+  });
+});

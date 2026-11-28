@@ -15,7 +15,8 @@ import { handle, type SiteVars } from "../select.ts";
 // page's head holds the theme script and the island loader, and the front
 // page's header the theme switch island. #114 and #119 changed it on
 // purpose: the front page's six tallest waves are the three tiers of
-// headlines, the lead with the echo stack. Update with `bun test --update-snapshots`
+// headlines, the lead with the echo stack. #111 changed it on purpose: the
+// front page ends with the footer, its form only where mail is on. Update with `bun test --update-snapshots`
 // only when a change to the output is intended, and say so in the PR.
 
 async function render(path: string, vars: SiteVars): Promise<string> {

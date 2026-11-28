@@ -52,6 +52,18 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
 - `--sun` computes to the same colour in both themes. At 1440 and 390
   wide, `document.documentElement.scrollWidth` equals the window's
   `innerWidth`: no horizontal scrollbar.
+- The front page ends with the footer (#111), `</main><footer
+  class="Footer">`: on `busy`, which sends email, the subscribe form
+  ("One email a day, with the new waves.", posting to `/subscribe`);
+  on `?set=fresh` and `?set=quiet` no form, as the site sends no email.
+  Then four links (three to `/about#height`, `#own`, `#open`, one to the
+  repository), the lighthouse drawing and the bar "Breaker Delta is open
+  source."; on `/zh/` and `/ja/` in that language. In a browser: the waves
+  drift and loop without a gap, the beam sweeps without being cut at the
+  top; under reduced motion nothing moves. At 390 wide only the drawing's
+  right half shows (the lighthouse and the boat's side) and the links sit
+  two to a row with their short labels. In the dark theme the rock and the
+  front wave are darker than the page.
 - The placeholder (`up` with no fixtures) has no island: its network list
   holds `loader.js` and no other JavaScript.
 
