@@ -23,8 +23,8 @@ other data file, not even one in `src/tokens`.
 | `build` | `buildClient()`: the client files, bundled with Bun | everything above, `bun`, `node:` |
 
 `tokens` (#269), `styles` and `build` (#270), `runtime` and `patterns`
-(#271) and `primitives` (#272) exist today; `patterns` holds `Band`, `DateStrip`,
-`LanguageMenu`, `Masthead`, `TideTable` and `SourceTile` (with its island), `primitives` `Button`,
+(#271) and `primitives` (#272) exist today; `patterns` holds `Band`,
+`DateStrip`, `LanguageMenu`, `Masthead`, `TideTable` and `SourceTile` (with its island), `primitives` `Button`,
 `Filters`, `SearchEntry` and the `ThemeSwitch` island; `catalog` (#258)
 lists them. A file directly under `src/` is
 under no rule and fails `check-deps`.

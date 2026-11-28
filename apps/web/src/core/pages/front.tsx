@@ -3,9 +3,9 @@
  * A bare front page: enough to prove a page renders from the read contracts
  * alone. Every piece of text is a plain string; the renderer escapes it.
  * Interface text comes from the string tables in the page's language (#107).
- * The date strip (#109) opens the page above the masthead (#110), with the
- * language menu and the theme switch, the page's one island (#105). The six
- * tallest
+ * The header is the date strip (#109) above the masthead (#110); the strip
+ * holds the language menu and the theme switch, the page's one island
+ * (#105), so the masthead has no row of tools of its own. The six tallest
  * waves are the headlines in three tiers (#119, boards 01 and 02), the lead
  * with the echo stack (#114). Beside them, the index (#120) lists every
  * wave, the six included, in the front band's right rail. The tide table
@@ -313,13 +313,13 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
   return {
     document: (
       <Document lang={ctx.lang} title={meta.siteName} head={languages.head}>
-        <header class="page">{pageStrip(ctx, meta, edition, languages.menu)}</header>
         {pageMasthead({
           lang: ctx.lang,
           site: meta,
           current: "front",
           name: meta.siteName,
           heading: true,
+          strip: pageStrip(ctx, meta, edition, languages.menu),
         })}
         <main class="page">{bands}</main>
         {siteFooter(ctx, meta)}
