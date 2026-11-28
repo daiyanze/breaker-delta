@@ -74,12 +74,15 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
   the wave line. On the front page of a fixture set the header opens with
   the date strip (#109), `<header class="page"><div class="DateStrip">`,
   and the masthead follows it in the same header; the placeholder's header
-  is the masthead alone. `get` shortens the masthead to `<!-- masthead
-  -->` and keeps the strip: on the placeholder it prints `<header
-  class="page"><!-- masthead --></header>`; on `busy` the strip alone fills
+  is the masthead alone. `get` prints a page only when the instance reads
+  fixtures (README, "get"), and `preview` shortens the masthead to
+  `<!-- masthead -->` and keeps the strip: on `busy` the strip alone fills
   the 2000 characters (they end inside the theme switch), and the saved
   file, read through `preview`, has `…</div></div><!-- masthead
-  --></header><main class="page">`. In a browser at 1440: the navigation at the wordmark's right, a red
+  --></header><main class="page">`. On the placeholder `get` prints no
+  body; its saved file, read through `preview`, has `<header
+  class="page"><!-- masthead --></header>`. In a browser at 1440: the
+  navigation at the wordmark's right, a red
   line under "Front page", a boat sailing the wave. At 390: a "Sections"
   button that opens the same links. With reduced motion on, the wave and
   the boat stand still.
