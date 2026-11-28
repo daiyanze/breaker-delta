@@ -44,7 +44,6 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
   verdicts yet." and the band says "The first test comes due on Nov 26.";
   it is never blank. In a browser at 1440 the link sits under the note in
   the rail; at 390 the stubs are one column and the link follows them.
-- `get "/?set=fresh"`: "The sea is flat." and the next scan time.
 - `get /ja/` on `busy`: `<html lang="ja">`, Japanese headlines where
   the set has them, the source's own headline elsewhere.
 - `get "/ja/?set=quiet"` (English only): redirected to `/?set=quiet`,
@@ -67,18 +66,26 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
   `<script type="module" src="/client/loader.js">` (#272). `get
   /client/loader.js` and `get /client/ThemeSwitch.island.js`: 200
   `text/javascript`.
-- Every page opens with the masthead (#110): `<header class="page"><div
-  class="Masthead">`, the round mark and "Breaker Delta" as one link home
-  (the front page's `<h1>`), the navigation (Front page, Changes, Echoes,
-  Track record, Sources, About; the front page's item with
-  `aria-current="page"`), on `/zh/` and `/ja/` in that language with
-  `/zh/…` and `/ja/…` links, then the wave line. `get` prints it as
-  `<header class="page"><!-- masthead --></header>`; the saved file has it
-  all. In a browser at 1440: the navigation at the wordmark's right, a red
+- Every page's header holds the masthead (#110), `<div class="Masthead">`:
+  the round mark and "Breaker Delta" as one link home (the front page's
+  `<h1>`), the navigation (Front page, Changes, Echoes, Track record,
+  Sources, About; the front page's item with `aria-current="page"`), on
+  `/zh/` and `/ja/` in that language with `/zh/…` and `/ja/…` links, then
+  the wave line. On the front page of a fixture set the header opens with
+  the date strip (#109), `<header class="page"><div class="DateStrip">`,
+  and the masthead follows it in the same header; the placeholder's header
+  is the masthead alone. `get` shortens the masthead to `<!-- masthead
+  -->` and keeps the strip: on the placeholder it prints `<header
+  class="page"><!-- masthead --></header>`; on `busy` the strip alone fills
+  the 2000 characters (they end inside the theme switch), and the saved
+  file, read through `preview`, has `…</div></div><!-- masthead
+  --></header><main class="page">`. In a browser at 1440: the navigation at the wordmark's right, a red
   line under "Front page", a boat sailing the wave. At 390: a "Sections"
   button that opens the same links. With reduced motion on, the wave and
   the boat stand still.
-- The masthead's row of tools holds the theme switch island (#105),
+- The date strip's controls hold the theme switch island (#105), once on
+  the page, after the language menu and before the search entry; the
+  masthead has no row of tools on the front page.
   `<bd-island name="ThemeSwitch" props="…"><button class="ThemeSwitch">`:
   a 44px square with a 1px outline and a half-filled circle (boards 01 and
   02), named "Switch to dark mode" in the light theme and "Switch to light
