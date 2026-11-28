@@ -9,18 +9,34 @@
 
 import band from "../patterns/Band/Band.css" with { type: "text" };
 import echoStack from "../patterns/EchoStack/EchoStack.css" with { type: "text" };
+import fadingNotices from "../patterns/FadingNotices/FadingNotices.css" with { type: "text" };
+import footer from "../patterns/Footer/Footer.css" with { type: "text" };
 import headline from "../patterns/Headline/Headline.css" with { type: "text" };
+import index from "../patterns/Index/Index.css" with { type: "text" };
+import indexRow from "../patterns/IndexRow/IndexRow.css" with { type: "text" };
 import languageMenu from "../patterns/LanguageMenu/LanguageMenu.css" with { type: "text" };
+import sourceTile from "../patterns/SourceTile/SourceTile.css" with { type: "text" };
 import stamp from "../patterns/Stamp/Stamp.css" with { type: "text" };
 import ticketStub from "../patterns/TicketStub/TicketStub.css" with { type: "text" };
 import ticketStubs from "../patterns/TicketStubs/TicketStubs.css" with { type: "text" };
+import tideTable from "../patterns/TideTable/TideTable.css" with { type: "text" };
 import verdictMark from "../patterns/VerdictMark/VerdictMark.css" with { type: "text" };
 import verdictMarks from "../patterns/VerdictMarks/VerdictMarks.css" with { type: "text" };
+import button from "../primitives/Button/Button.css" with { type: "text" };
+import filters from "../primitives/Filters/Filters.css" with { type: "text" };
+import notice from "../primitives/Notice/Notice.css" with { type: "text" };
+import searchEntry from "../primitives/SearchEntry/SearchEntry.css" with { type: "text" };
 import themeSwitch from "../primitives/ThemeSwitch/ThemeSwitch.css" with { type: "text" };
 import { fontFaceCss, tokensCss, typeClassesCss } from "../tokens/index.ts";
 import base from "./base.css" with { type: "text" };
 
-export { bandColumns, fontLoading, smallType, tabularFigures } from "./checks.ts";
+export {
+  bandColumns,
+  controlHeights,
+  fontLoading,
+  smallType,
+  tabularFigures,
+} from "./checks.ts";
 export { type CssBlock, type CssRule, cssRules, cssValue, normalize, parseCss } from "./css.ts";
 
 /** The cascade layers, first to last: a later layer wins over an earlier one. */
@@ -33,14 +49,25 @@ export const FONTS = "/fonts";
 /** Every `.css` file of the package, with its path under `src` and its layer, in layer order. */
 export const CSS_FILES: readonly { path: string; layer: Layer; text: string }[] = [
   { path: "styles/base.css", layer: "base", text: base },
+  // Button first: SearchEntry builds on its classes and overrides them.
+  { path: "primitives/Button/Button.css", layer: "primitives", text: button },
+  { path: "primitives/Filters/Filters.css", layer: "primitives", text: filters },
+  { path: "primitives/Notice/Notice.css", layer: "primitives", text: notice },
+  { path: "primitives/SearchEntry/SearchEntry.css", layer: "primitives", text: searchEntry },
   { path: "primitives/ThemeSwitch/ThemeSwitch.css", layer: "primitives", text: themeSwitch },
   { path: "patterns/Band/Band.css", layer: "patterns", text: band },
   { path: "patterns/EchoStack/EchoStack.css", layer: "patterns", text: echoStack },
+  { path: "patterns/FadingNotices/FadingNotices.css", layer: "patterns", text: fadingNotices },
   { path: "patterns/Headline/Headline.css", layer: "patterns", text: headline },
+  { path: "patterns/Index/Index.css", layer: "patterns", text: index },
+  { path: "patterns/IndexRow/IndexRow.css", layer: "patterns", text: indexRow },
   { path: "patterns/LanguageMenu/LanguageMenu.css", layer: "patterns", text: languageMenu },
+  { path: "patterns/SourceTile/SourceTile.css", layer: "patterns", text: sourceTile },
+  { path: "patterns/Footer/Footer.css", layer: "patterns", text: footer },
   { path: "patterns/Stamp/Stamp.css", layer: "patterns", text: stamp },
   { path: "patterns/TicketStub/TicketStub.css", layer: "patterns", text: ticketStub },
   { path: "patterns/TicketStubs/TicketStubs.css", layer: "patterns", text: ticketStubs },
+  { path: "patterns/TideTable/TideTable.css", layer: "patterns", text: tideTable },
   { path: "patterns/VerdictMark/VerdictMark.css", layer: "patterns", text: verdictMark },
   { path: "patterns/VerdictMarks/VerdictMarks.css", layer: "patterns", text: verdictMarks },
 ];

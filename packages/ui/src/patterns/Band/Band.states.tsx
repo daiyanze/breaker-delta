@@ -43,4 +43,15 @@ export default states(Band, {
     note: "今日できた波。",
     children: <p>今日の海のようす。</p>,
   },
+  // The front page's band (#120): the content left, the aside in the right rail.
+  front: {
+    id: "front-aside",
+    name: "Front page",
+    aside: (
+      <aside aria-label="The index">
+        <p>The whole ranking, on the right.</p>
+      </aside>
+    ),
+    children: <p>The headlines, on the left. The section's name is read out, not shown.</p>,
+  },
 });

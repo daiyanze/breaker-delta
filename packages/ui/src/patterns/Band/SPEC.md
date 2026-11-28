@@ -24,6 +24,9 @@ sections with `Band` and nothing of its own.
   labels the section.
 - `name`: the section name, finished text in the page's language.
 - `note`: one sentence under the name, optional.
+- `rail`: more of the rail under the note, optional: a link or the
+  section's one illustration, as the fading notices' sunset (#122). The
+  component that passes it styles it.
 - `highlight`: the name on a `sun` highlight (design system, colours:
   `sun` is "栏目名高亮", the section name marked "look here"; board 01's
   "Were we right?"). One band on a page at most.
@@ -33,6 +36,12 @@ sections with `Band` and nothing of its own.
   it comes after the content (board 02). At least `control-min-height`
   tall.
 - `children`: the content column.
+- `aside`: the front page's right rail (the index, #120). With it the
+  band is the front band, the one exception of "版式" ("头版区例外：内容在左，
+  索引在右"): the content on the left, the aside in a right rail at most
+  `rail` wide and as tall as the content, not sticky, under the content on
+  phones. The name is still the section's heading, read out but not shown,
+  as boards 01 and 02 show none.
 
 ## States
 
@@ -43,10 +52,14 @@ sections with `Band` and nothing of its own.
 - `long`: a long name and note, which set the rail's wrapping.
 - `zh`, `ja`: each language's own text, since the rail's name sets its
   layout.
+- `front`: with an `aside`, the front band's layout (#120).
 
 ## Do not
 
-- Put a second heading level in the rail, or the content in the rail.
+- Put a second heading level in the rail, or the content in the rail:
+  `rail` holds what the board draws under the note, not the section's
+  content.
 - Change the columns or the breakpoint per page: the sheet's band rule
-  (`bandColumns` in `src/styles/checks.ts`) holds them.
+  (`bandColumns` in `src/styles/checks.ts`) holds them. `aside` is for the
+  front page's band alone.
 - Nest a band in a band.

@@ -12,11 +12,21 @@ page (default light, English); the links at its top go to the other five.
 
 - `get /_catalog`: 200. `get` prints the first 2000 characters from
   `<body>`: "This page: light, English.", the links to the six pages, and a list
-  of every component with its layer and state names (`ThemeSwitch
-  (primitives): default, long, zh, ja`, `Band (patterns): default, note, link,
-  long, zh, ja`, `EchoStack (patterns): default, mid, low, tallest`,
-  `Headline (patterns): default, formed, fading, tallest, long, zh, ja`,
-  `LanguageMenu (patterns): default, open, long, zh, ja`).
+  of every component with its layer and state names (`Button
+  (primitives): default, solid, secondary, link, long, zh, ja`, `Filters
+  (primitives): default, counts, long, zh, ja`, `Notice (primitives):
+  default, low, tall, long, zh, ja`, `SearchEntry (primitives):
+  default, long, zh, ja`, `ThemeSwitch (primitives): default, long, zh,
+  ja`, `Band (patterns): default, note, link, long, zh, ja, front`, `EchoStack
+  (patterns): default, mid, low, tallest`, `FadingNotices (patterns):
+  default, one, none, long, zh, ja`, `Headline (patterns): default,
+  formed, fading, tallest, long, zh, ja`, `Index (patterns): default, open,
+  quiet, long, zh, ja`, `IndexRow (patterns): default, new, down, level,
+  long, zh, ja`, `LanguageMenu (patterns): default, open, long, zh, ja`,
+  `TideTable (patterns): default, two, late, long, zh, ja`,
+  `SourceTile (patterns): solid, outline, account, search, mail, code,
+  favicon, favicon-solid, favicon-failed, small, long, zh, ja`, `Footer
+  (patterns): default, no-form, long, zh, ja`).
   The rest is in the file `get` saved: `<html lang="en"
   data-theme="light">`, and one section per component with one
   `data-shot="<Name>/<state>"` element per state.
@@ -36,6 +46,11 @@ page (default light, English); the links at its top go to the other five.
   (an island): clicking it flips the page's theme and stores the choice,
   which the next catalog page then shows instead of its `?theme=`. Clear
   `localStorage["bd-theme"]` to go back.
+- From the keyboard (#112): Tab shows a 3px `blue` ring clear of each
+  control's edge; Enter on the language menu's button opens it, Esc closes
+  it and leaves the focus on the button; a click outside an open menu
+  closes it. Every control is at least 44px high, and at 390 wide nothing
+  scrolls sideways.
 - `bun run ui:screens` passes against the baselines of its OS, and names
   the components whose shots changed when it fails.
 

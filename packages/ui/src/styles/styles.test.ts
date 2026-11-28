@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { TWO_COLUMNS_FROM } from "../tokens/index.ts";
+import { INDEX_PHONE_ROWS, TWO_COLUMNS_FROM } from "../tokens/index.ts";
 import { COLORS, SHADOWS, TYPE_STYLES } from "../tokens/tokens.gen.ts";
 import { bandColumns, fontLoading, smallType, tabularFigures } from "./checks.ts";
 import { cssRules, cssValue, normalize, parseCss } from "./css.ts";
@@ -339,6 +339,64 @@ describe("the theme switch", () => {
   });
 });
 
+// The source tile (#113); its markup: `patterns/SourceTile/SourceTile.test.tsx`.
+describe("the source tile", () => {
+  const own = (selector: string) =>
+    Object.fromEntries(
+      rules
+        .filter((r) => r.layer === "patterns" && r.selector === selector && r.media.length === 0)
+        .flatMap((r) => r.declarations),
+    );
+
+  test("solid and outlined differ by a filled ground, kept in forced colours", () => {
+    expect(own('.SourceTile-tile[data-fill="solid"]')).toEqual({
+      "border-color": "var(--ink)",
+      background: "var(--ink)",
+      color: "var(--paper)",
+      "forced-color-adjust": "none",
+    });
+    const tile = own(".SourceTile-tile");
+    expect(tile.background).toBe("transparent");
+    expect(tile.color).toBe("inherit");
+    expect(tile.border).toBe("var(--source-tile-border) solid currentcolor");
+    expect(tile["border-radius"]).toBe("var(--radius-tile)");
+  });
+
+  test("34px with a 20px icon, or 30px with the interface icon in the classifieds", () => {
+    expect(own(".SourceTile")["--source-tile-box"]).toBe("var(--source-tile-size)");
+    expect(own(".SourceTile")["--source-tile-glyph"]).toBe("var(--source-tile-icon)");
+    const small = own('.SourceTile[data-size="small"]');
+    expect(small["--source-tile-box"]).toBe("var(--source-tile-small-size)");
+    expect(small["--source-tile-glyph"]).toBe("var(--icon-size)");
+    expect(own(".SourceTile-tile")["inline-size"]).toBe("var(--source-tile-box)");
+    expect(own(".SourceTile-tile")["block-size"]).toBe("var(--source-tile-box)");
+  });
+
+  test("a favicon is drawn only once marked loaded, and only then hides the generic icon", () => {
+    // Not loaded (failed, still loading, or JavaScript off): nothing drawn,
+    // so no broken-image mark, and the generic icon stays.
+    expect(own(".SourceTile-favicon").display).toBe("none");
+    expect(own(".SourceTile-glyph").display).toBeUndefined();
+    expect(own(".SourceTile-favicon[data-loaded]")).toEqual({ display: "block" });
+    expect(own(".SourceTile-favicon[data-loaded] + .SourceTile-glyph")).toEqual({
+      display: "none",
+    });
+    // No other rule hides the generic icon.
+    const hides = rules.filter(
+      (r) => r.selector.includes("SourceTile-glyph") && cssValue(r, "display") === "none",
+    );
+    expect(hides.map((r) => r.selector)).toEqual([
+      ".SourceTile-favicon[data-loaded] + .SourceTile-glyph",
+    ]);
+  });
+
+  test("the tile keeps its size and the name may shrink, so a long name wraps", () => {
+    expect(own(".SourceTile-tile").flex).toBe("none");
+    expect(own(".SourceTile-name")["min-width"]).toBe("0");
+    expect(own(".SourceTile")["min-width"]).toBe("0");
+  });
+});
+
 describe("the echo stack", () => {
   const own = rules.filter((r) => r.layer === "patterns" && r.selector.startsWith(".EchoStack"));
   const decl = (selector: string, media: string[] = []) =>
@@ -491,6 +549,80 @@ describe("the headlines", () => {
   });
 });
 
+describe("the index and the front band (issue 120)", () => {
+  const own = rules.filter(
+    (r) =>
+      r.layer === "patterns" &&
+      (r.selector.startsWith(".Index") || r.selector.startsWith('.Band[data-variant="front"]')),
+  );
+  const desktop = [normalize(`(min-width: ${TWO_COLUMNS_FROM})`)];
+  const decl = (selector: string, media: string[] = []) =>
+    Object.fromEntries(
+      own.find((r) => r.selector === selector && r.media.join() === media.join())?.declarations ??
+        [],
+    );
+
+  test("the front band: content left, the index in a right rail at most `rail` wide; the name read out, not shown", () => {
+    expect(decl('.Band[data-variant="front"]', desktop)["grid-template-columns"]).toBe(
+      "minmax(0,1fr) minmax(0,var(--rail))",
+    );
+    expect(decl('.Band[data-variant="front"] > .Band-rail')).toEqual({
+      position: "absolute",
+      inset: "0",
+      "align-self": "stretch",
+      overflow: "hidden",
+      "clip-path": "inset(50%)",
+      "white-space": "nowrap",
+    });
+    // Without the variant the band keeps its own columns.
+    expect(bandColumns(css)).toEqual([]);
+  });
+
+  test("phones show the first INDEX_PHONE_ROWS rows until the button is pressed; desktop shows all, no button", () => {
+    const hidden = own.filter((r) => r.selector.includes(":nth-child("));
+    expect(hidden.map((r) => [r.selector, r.media])).toEqual([
+      [`.Index-list:not(.Index-open) > .Index-item:nth-child(n + ${INDEX_PHONE_ROWS + 1})`, []],
+      [
+        `.Index-list:not(.Index-open) > .Index-item:nth-child(n + ${INDEX_PHONE_ROWS + 1})`,
+        desktop,
+      ],
+    ]);
+    expect(cssValue(hidden[0] ?? { declarations: [] }, "display")).toBe("none");
+    expect(cssValue(hidden[1] ?? { declarations: [] }, "display")).toBe("block");
+    expect(decl(".Index-more", desktop).display).toBe("none");
+  });
+
+  // Review of #301: `space-between` set a two-wave ranking ~550px apart.
+  test("on desktop the rows stack from the top and share out the column, each growing to a capped height", () => {
+    expect(decl(".Index-list", desktop)).toEqual({
+      flex: "1 1 auto",
+      display: "grid",
+      "grid-auto-rows": "minmax(min-content,calc(var(--control-min-height) + var(--space-5)))",
+      "align-content": "start",
+    });
+    expect(decl(".Index", desktop).flex).toBe("1 1 auto");
+    for (const r of own) expect(cssValue(r, "justify-content")).not.toBe("space-between");
+  });
+
+  test("the phone button's outline is the control outline", () => {
+    expect(decl(".Index-more").border).toBe("var(--control-outline) solid var(--ink)");
+  });
+
+  test("a row: the leader a 2px dotted hair line, the number in a fixed column, red only when formed today", () => {
+    expect(decl(".IndexRow-leader")["border-bottom"]).toBe(
+      "var(--index-leader) dotted var(--hair)",
+    );
+    expect(decl(".IndexRow-number").flex).toBe("0 0 var(--index-number-column)");
+    expect(decl(".IndexRow-number")["text-align"]).toBe("right");
+    expect(decl(".IndexRow-rank").color).toBe("var(--ink-2)");
+    expect(decl(".IndexRow-change").color).toBe("var(--ink-2)");
+    expect(decl(".IndexRow-change.IndexRow-new, .IndexRow-number.IndexRow-new").color).toBe(
+      "var(--red)",
+    );
+    expect(decl(".IndexRow")["min-block-size"]).toBe("var(--control-min-height)");
+  });
+});
+
 describe("the CSS reader", () => {
   test("reads statements, nesting with &, media inside a rule, comments and strings", () => {
     const read = cssRules(
@@ -510,5 +642,105 @@ describe("the CSS reader", () => {
     expect(() => parseCss(".a { gap: 0;")).toThrow("not closed");
     expect(() => parseCss(".a { } }")).toThrow("closes nothing");
     expect(() => parseCss('.a { content: "x }')).toThrow("not closed");
+  });
+});
+
+// #111: the footer's motion and its phone crop, in the view box's units
+// (1440 × 510, from x = 0). The drawing's geometry: `Footer.test.tsx`.
+describe("the footer", () => {
+  const MOTION = normalize("(prefers-reduced-motion: no-preference)");
+  const footer = (selector: string, media: string[] = []) =>
+    rules.find(
+      (r) => r.layer === "patterns" && r.selector === selector && r.media.join() === media.join(),
+    ) ?? { declarations: [] };
+  const keyframes = (name: string) =>
+    CSS_FILES.find((f) => f.path === "patterns/Footer/Footer.css")
+      ?.text.split(`@keyframes ${name} {`)[1]
+      ?.split("\n  }\n")[0] ?? "";
+
+  test("the waves drift one period of their sine, 240 of 1440, so they loop without a gap", () => {
+    expect(normalize(keyframes("Footer-drift"))).toContain(
+      normalize("transform: translateX(calc(-240 / 1440 * 100%))"),
+    );
+    expect(cssValue(footer(".Footer-drift"), "transform-box")).toBe("view-box");
+  });
+
+  test("the beam turns about the lamp, 1132,92, between the supplement's angles", () => {
+    const beam = footer(".Footer-beam");
+    expect(cssValue(beam, "transform-box")).toBe("view-box");
+    expect(cssValue(beam, "transform-origin")).toBe(
+      normalize("calc(1132 / 1440 * 100%) calc(92 / 510 * 100%)"),
+    );
+    expect(cssValue(beam, "opacity")).toBe("var(--footer-beam-opacity)");
+    expect(cssValue(footer(".Footer-beam", [MOTION]), "animation")).toBe(
+      "Footer-sweep var(--footer-beam-sweep) ease-in-out infinite",
+    );
+    const sweep = normalize(keyframes("Footer-sweep"));
+    expect(sweep).toContain("rotate(var(--footer-beam-from))");
+    expect(sweep).toContain("rotate(var(--footer-beam-to))");
+  });
+
+  test("each wave layer and the boat take their own timing; the middle layer runs the other way", () => {
+    const anim = (s: string) => cssValue(footer(s, [MOTION]), "animation");
+    expect(anim(".Footer-drift-back")).toBe("Footer-drift var(--footer-wave-back) linear infinite");
+    expect(anim(".Footer-drift-mid")).toBe(
+      "Footer-drift var(--footer-wave-mid) linear infinite reverse",
+    );
+    expect(anim(".Footer-drift-front")).toBe(
+      "Footer-drift var(--footer-wave-front) linear infinite",
+    );
+    expect(anim(".Footer-boat")).toBe("Footer-bob var(--footer-boat-bob) ease-in-out infinite");
+    expect(normalize(keyframes("Footer-bob"))).toContain(
+      "translateY(var(--footer-boat-rise)) rotate(var(--footer-boat-pitch))",
+    );
+  });
+
+  // Review of #291: a timing, angle, opacity or weight is a design value, so
+  // it comes from `FOOTER` in the supplement (ADR 0020, section 5).
+  test("the footer's CSS holds no timing, angle, opacity or weight of its own", () => {
+    const text = CSS_FILES.find((f) => f.path === "patterns/Footer/Footer.css")?.text ?? "";
+    const code = text.replace(/\/\*[\s\S]*?\*\//g, "");
+    const literals = (s: string) =>
+      [...s.matchAll(/(?<![\w-])-?\d*\.?\d+(?:s|ms|deg)\b|(?:opacity|font-weight):\s*[\d.]+/g)].map(
+        (m) => m[0],
+      );
+    expect(literals(code)).toEqual([]);
+    expect(
+      literals(`${code} .x { opacity: 0.55; animation: a 7s; transform: rotate(-4deg) }`),
+    ).toEqual(["opacity: 0.55", "7s", "-4deg"]);
+  });
+
+  test("on phones only the right half shows (x 700 to 1440); from the breakpoint all of it", () => {
+    expect(cssValue(footer(".Footer-art"), "overflow")).toBe("hidden");
+    const phone = footer(".Footer-svg");
+    expect(cssValue(phone, "max-width")).toBe("none");
+    expect(cssValue(phone, "width")).toBe(normalize("calc(1440 / 740 * 100%)"));
+    expect(cssValue(phone, "margin-inline-start")).toBe(normalize("calc(-700 / 740 * 100%)"));
+    const wide = footer(".Footer-svg", [normalize(`(min-width: ${TWO_COLUMNS_FROM})`)]);
+    expect(cssValue(wide, "width")).toBe("100%");
+    expect(cssValue(wide, "margin-inline-start")).toBe("0");
+  });
+
+  test("each of the footer's animations waits for motion to be allowed, so at rest nothing moves", () => {
+    const animated = rules.filter(
+      (r) =>
+        r.selector.startsWith(".Footer") && r.declarations.some(([p]) => p.startsWith("animation")),
+    );
+    expect(animated.map((r) => [r.selector, r.media])).toEqual(
+      [
+        ".Footer-beam",
+        ".Footer-drift-back",
+        ".Footer-drift-mid",
+        ".Footer-drift-front",
+        ".Footer-boat",
+      ].map((s) => [s, [MOTION]]),
+    );
+  });
+
+  test("the bar's text is the light paper in both themes, on the page's solid", () => {
+    expect(cssValue(footer(".Footer-bar"), "background")).toBe("var(--solid)");
+    const notes = footer(".Footer-notes");
+    expect(cssValue(notes, "color-scheme")).toBe("light");
+    expect(cssValue(notes, "color")).toBe("var(--paper)");
   });
 });
