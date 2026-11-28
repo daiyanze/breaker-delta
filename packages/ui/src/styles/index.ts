@@ -9,6 +9,7 @@
 
 import band from "../patterns/Band/Band.css" with { type: "text" };
 import echoStack from "../patterns/EchoStack/EchoStack.css" with { type: "text" };
+import fadingNotices from "../patterns/FadingNotices/FadingNotices.css" with { type: "text" };
 import footer from "../patterns/Footer/Footer.css" with { type: "text" };
 import headline from "../patterns/Headline/Headline.css" with { type: "text" };
 import index from "../patterns/Index/Index.css" with { type: "text" };
@@ -22,6 +23,7 @@ import verdictMark from "../patterns/VerdictMark/VerdictMark.css" with { type: "
 import verdictMarks from "../patterns/VerdictMarks/VerdictMarks.css" with { type: "text" };
 import button from "../primitives/Button/Button.css" with { type: "text" };
 import filters from "../primitives/Filters/Filters.css" with { type: "text" };
+import notice from "../primitives/Notice/Notice.css" with { type: "text" };
 import searchEntry from "../primitives/SearchEntry/SearchEntry.css" with { type: "text" };
 import themeSwitch from "../primitives/ThemeSwitch/ThemeSwitch.css" with { type: "text" };
 import { fontFaceCss, tokensCss, typeClassesCss } from "../tokens/index.ts";
@@ -49,10 +51,12 @@ export const CSS_FILES: readonly { path: string; layer: Layer; text: string }[] 
   // Button first: SearchEntry builds on its classes and overrides them.
   { path: "primitives/Button/Button.css", layer: "primitives", text: button },
   { path: "primitives/Filters/Filters.css", layer: "primitives", text: filters },
+  { path: "primitives/Notice/Notice.css", layer: "primitives", text: notice },
   { path: "primitives/SearchEntry/SearchEntry.css", layer: "primitives", text: searchEntry },
   { path: "primitives/ThemeSwitch/ThemeSwitch.css", layer: "primitives", text: themeSwitch },
   { path: "patterns/Band/Band.css", layer: "patterns", text: band },
   { path: "patterns/EchoStack/EchoStack.css", layer: "patterns", text: echoStack },
+  { path: "patterns/FadingNotices/FadingNotices.css", layer: "patterns", text: fadingNotices },
   { path: "patterns/Headline/Headline.css", layer: "patterns", text: headline },
   { path: "patterns/Index/Index.css", layer: "patterns", text: index },
   { path: "patterns/IndexRow/IndexRow.css", layer: "patterns", text: indexRow },

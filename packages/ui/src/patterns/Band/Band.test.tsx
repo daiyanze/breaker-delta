@@ -49,6 +49,17 @@ describe("band markup", () => {
     expect(renderToString(<Band id="a" name="A" />)).not.toContain("Band-note");
   });
 
+  test("the rail's own content follows the note, inside the rail, issue 122", () => {
+    const html = renderToString(
+      <Band id="a" name="A" note="N" rail={<a href="/x">More</a>}>
+        <p>x</p>
+      </Band>,
+    );
+    expect(html).toContain(
+      '<div class="Band-rail"><h2 id="band-a" class="Band-name">A</h2><p class="Band-note">N</p><a href="/x">More</a></div><div class="Band-body">',
+    );
+  });
+
   test("no aside, no right rail", () => {
     const html = renderToString(<Band id="a" name="A" />);
     expect(html).not.toContain("Band-aside");

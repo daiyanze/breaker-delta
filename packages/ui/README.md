@@ -105,6 +105,15 @@ under no rule and fails `check-deps`.
   the globe alone. A drop-down menu (`data-menu`): Esc closes it. `open` starts it open, for the catalog's `open` and
   `long` states; pages leave it out. Classes `.LanguageMenu`, `-details`,
   `-button`, `-icon`, `-current`, `-chevron`, `-list`, `-link`.
+- `Notice` (`primitives/Notice`, #122): the double-ruled notice, in its
+  ebb form: a ripple whose amplitude follows the height (`RIPPLE`), the
+  topic's name, an obituary-style sentence and the height now, all as
+  finished text. `FadingNotices` (`patterns/FadingNotices`) is the front
+  page's section of them in a `Band`, the rail's link and sunset passed
+  through the band's `rail`; with no notice it is one sentence. Classes
+  `.Notice`, `-ripple`, `-ripple-line`, `-title`, `-link`, `-text`,
+  `-now`; `.FadingNotices`, `-rail`, `-flat`, `-sunset`, `-list`,
+  `-item`, `-none`.
 - `SourceTile` (`patterns/SourceTile`, boards 01 and 03, #113): the small
   square before a source's name, solid where the story started and
   outlined for a later source, with the site's favicon or a generic icon
@@ -195,11 +204,14 @@ no Bun or Cloudflare types, so emails and share cards can import it.
   padding, the focus ring, the icon size and stroke, the theme switch's
   icon size, the source tile's sizes, the echo stack's and the headlines'
   sizes, the footer's timings, angles, beam opacity and link weight, the
-  index's values and phone row count, the two-column breakpoint), each
-  with the text it comes from. No other file holds a design value. All but
-  the breakpoint and the index's row count are also CSS variables:
-  `--phone-*`, `--control-*`, `--focus-*`, `--icon-*`, `--source-tile-*`,
-  `--echo-stack-*`, `--headline-*`, `--footer-*`, `--index-*`.
+  index's values and phone row count, the two-column breakpoint, the ebb
+  notice's ripple rule and cycle, the illustration line width, the CJK
+  weight in place of italic), each with the text it comes from. No other
+  file holds a design value. All but the breakpoint, the index's row count
+  and the ripple's numbers are also CSS variables: `--phone-*`,
+  `--control-*`, `--focus-*`, `--icon-*`, `--source-tile-*`,
+  `--echo-stack-*`, `--headline-*`, `--footer-*`, `--index-*`,
+  `--ripple-cycle`, `--illustration-stroke`, `--cjk-emphasis-weight`.
 - `contrast.test.ts` computes the WCAG 2.2 contrast of every text and
   background pair the design uses, in both themes: 4.5:1 for text, 3:1 for
   a control's outline. A new colour token fails it until it is placed.

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import tokens from "../../../../design/system/tokens.json" with { type: "json" };
 import {
+  CJK,
   CONTROL,
   colorOf,
   ECHO_STACK,
@@ -10,10 +11,12 @@ import {
   fontFaceCss,
   HEADLINE,
   ICON,
+  ILLUSTRATION,
   INDEX,
   INDEX_PHONE_ROWS,
   MARK,
   PHONE,
+  RIPPLE,
   SOURCE_TILE,
   STAMP,
   STUB,
@@ -91,6 +94,12 @@ describe("design tokens as CSS", () => {
     expect(root).toContain(`--stamp-swing-scale:${STAMP.swingScale};`);
     expect(root).toContain(`--stub-ticks-width:${STUB.ticksWidth};`);
     expect(root).toContain(`--mark-size:${MARK.size};`);
+  });
+
+  test("the ripple's cycle and the illustration stroke are variables for the components' CSS", () => {
+    expect(root).toContain(`--ripple-cycle:${RIPPLE.cycle};`);
+    expect(root).toContain(`--illustration-stroke:${ILLUSTRATION.stroke};`);
+    expect(root).toContain(`--cjk-emphasis-weight:${CJK.emphasisWeight};`);
   });
 
   test("the echo stack's sizes and timing are variables for its CSS", () => {
@@ -227,6 +236,28 @@ describe("supplement: values the design states only in prose", () => {
   test("the icon size and stroke are the ones the design system README states", async () => {
     const readme = await Bun.file(`${import.meta.dir}/../../../../design/system/README.md`).text();
     expect(readme).toContain(`线宽约 ${ICON.stroke}，${ICON.size} 画板`);
+  });
+
+  test("the ripple's amplitude and cycle are the ones the design system README states", async () => {
+    const readme = await Bun.file(`${import.meta.dir}/../../../../design/system/README.md`).text();
+    expect(readme).toContain(
+      `| 启事波纹振幅 | 浪高 ÷ ${RIPPLE.per} × ${RIPPLE.scale}，最小 ${RIPPLE.min} |`,
+    );
+    expect(readme).toContain(
+      `| 退潮启事 | 波纹缓慢流动；左栏有落日插画 | ${Number.parseFloat(RIPPLE.cycle)} 秒一循环 |`,
+    );
+  });
+
+  test("the illustration stroke is in the range the design system README states", async () => {
+    const readme = await Bun.file(`${import.meta.dir}/../../../../design/system/README.md`).text();
+    expect(readme).toContain("线宽 2 到 3px");
+    const px = Number.parseFloat(ILLUSTRATION.stroke);
+    expect(px >= 2 && px <= 3).toBe(true);
+  });
+
+  test("the CJK weight in place of italic is the one the design system README states", async () => {
+    const readme = await Bun.file(`${import.meta.dir}/../../../../design/system/README.md`).text();
+    expect(readme).toContain(`英文用斜体的地方改用字重 ${CJK.emphasisWeight}`);
   });
 
   test("the source tile's sizes are the ones its README and boards 01 and 03 state", async () => {

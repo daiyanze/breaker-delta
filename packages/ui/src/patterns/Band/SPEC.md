@@ -24,6 +24,9 @@ sections with `Band` and nothing of its own.
   labels the section.
 - `name`: the section name, finished text in the page's language.
 - `note`: one sentence under the name, optional.
+- `rail`: more of the rail under the note, optional: a link or the
+  section's one illustration, as the fading notices' sunset (#122). The
+  component that passes it styles it.
 - `children`: the content column.
 - `aside`: the front page's right rail (the index, #120). With it the
   band is the front band, the one exception of "版式" ("头版区例外：内容在左，
@@ -43,7 +46,9 @@ sections with `Band` and nothing of its own.
 
 ## Do not
 
-- Put a second heading level in the rail, or the content in the rail.
+- Put a second heading level in the rail, or the content in the rail:
+  `rail` holds what the board draws under the note, not the section's
+  content.
 - Change the columns or the breakpoint per page: the sheet's band rule
   (`bandColumns` in `src/styles/checks.ts`) holds them. `aside` is for the
   front page's band alone.

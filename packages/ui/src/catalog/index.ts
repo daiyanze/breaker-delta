@@ -13,6 +13,7 @@
 import { type ComponentType, h, type VNode } from "preact";
 import bandStates from "../patterns/Band/Band.states.tsx";
 import echoStackStates from "../patterns/EchoStack/EchoStack.states.tsx";
+import fadingNoticesStates from "../patterns/FadingNotices/FadingNotices.states.tsx";
 import footerStates from "../patterns/Footer/Footer.states.tsx";
 import headlineStates from "../patterns/Headline/Headline.states.tsx";
 import indexStates from "../patterns/Index/Index.states.tsx";
@@ -26,6 +27,7 @@ import verdictMarkStates from "../patterns/VerdictMark/VerdictMark.states.tsx";
 import verdictMarksStates from "../patterns/VerdictMarks/VerdictMarks.states.tsx";
 import buttonStates from "../primitives/Button/Button.states.tsx";
 import filtersStates from "../primitives/Filters/Filters.states.tsx";
+import noticeStates from "../primitives/Notice/Notice.states.tsx";
 import searchEntryStates from "../primitives/SearchEntry/SearchEntry.states.tsx";
 import themeSwitchStates from "../primitives/ThemeSwitch/ThemeSwitch.states.tsx";
 import type { States } from "../runtime/index.ts";
@@ -71,10 +73,12 @@ function entry<P>(name: string, layer: ComponentLayer, declared: States<P>): Cat
 export const CATALOG: readonly CatalogEntry[] = [
   entry("Button", "primitives", buttonStates),
   entry("Filters", "primitives", filtersStates),
+  entry("Notice", "primitives", noticeStates),
   entry("SearchEntry", "primitives", searchEntryStates),
   entry("ThemeSwitch", "primitives", themeSwitchStates),
   entry("Band", "patterns", bandStates),
   entry("EchoStack", "patterns", echoStackStates),
+  entry("FadingNotices", "patterns", fadingNoticesStates),
   entry("Headline", "patterns", headlineStates),
   entry("Index", "patterns", indexStates),
   entry("IndexRow", "patterns", indexRowStates),

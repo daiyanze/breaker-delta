@@ -228,3 +228,38 @@ export const INDEX_PHONE_ROWS = 8;
  * the `space-8` gap and a content column of about 480px still fit.
  */
 export const TWO_COLUMNS_FROM = "960px";
+
+/**
+ * The ebb notice's ripple: design system README, "数据驱动的规则",
+ * "启事波纹振幅 | 浪高 ÷ 200 × 16，最小 2" (amplitude = height ÷ 200 × 16, at
+ * least 2), and "图和动效清单", "退潮启事 | 波纹缓慢流动；左栏有落日插画 |
+ * 9 秒一循环" (the ripple drifts slowly, one cycle in 9 seconds).
+ * `tokens.test.ts` checks that the README still says so. The amplitude is in
+ * the ripple's own drawing units, a 240 × 40 board as on boards 01 and 02.
+ */
+export const RIPPLE = {
+  per: 200,
+  scale: 16,
+  min: 2,
+  cycle: "9s",
+} as const;
+
+/**
+ * Drawn lines in illustrations: design system README, "插画风格", "线宽 2 到
+ * 3px" (a line of 2 to 3px). Board 01 draws the ebb notices' ripple and the
+ * sunset at 2.5. `tokens.test.ts` checks that the README still says so and
+ * that the value is in that range.
+ */
+export const ILLUSTRATION = {
+  stroke: "2.5px",
+} as const;
+
+/**
+ * Chinese and Japanese have no italic: design system README, `display`,
+ * "英文用斜体的地方改用字重 500" (where English uses italic, weight 500
+ * instead); board 35 says the same. `tokens.test.ts` checks that the README
+ * still says so.
+ */
+export const CJK = {
+  emphasisWeight: 500,
+} as const;

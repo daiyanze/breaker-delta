@@ -18,7 +18,9 @@ import { handle, type SiteVars } from "../select.ts";
 // headlines, the lead with the echo stack. #111 changed it on purpose: the
 // front page ends with the footer, its form only where mail is on. #120
 // changed it on purpose: the front band holds the index island in its right
-// rail, every wave a row, in place of the plain list of ranks 7 on. Update with `bun test --update-snapshots`
+// rail, every wave a row, in place of the plain list of ranks 7 on. #122
+// changed it on purpose: the front page has the fading notices band
+// between the front page and the classifieds. Update with `bun test --update-snapshots`
 // only when a change to the output is intended, and say so in the PR.
 
 async function render(path: string, vars: SiteVars): Promise<string> {

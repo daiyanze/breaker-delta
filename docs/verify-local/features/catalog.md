@@ -14,10 +14,12 @@ page (default light, English); the links at its top go to the other five.
   `<body>`: "This page: light, English.", the links to the six pages, and a list
   of every component with its layer and state names (`Button
   (primitives): default, solid, secondary, link, long, zh, ja`, `Filters
-  (primitives): default, counts, long, zh, ja`, `SearchEntry (primitives):
+  (primitives): default, counts, long, zh, ja`, `Notice (primitives):
+  default, low, tall, long, zh, ja`, `SearchEntry (primitives):
   default, long, zh, ja`, `ThemeSwitch (primitives): default, long, zh,
   ja`, `Band (patterns): default, note, long, zh, ja, front`, `EchoStack
-  (patterns): default, mid, low, tallest`, `Headline (patterns): default,
+  (patterns): default, mid, low, tallest`, `FadingNotices (patterns):
+  default, one, none, long, zh, ja`, `Headline (patterns): default,
   formed, fading, tallest, long, zh, ja`, `Index (patterns): default, open,
   quiet, long, zh, ja`, `IndexRow (patterns): default, new, down, level,
   long, zh, ja`, `LanguageMenu (patterns): default, open, long, zh, ja`,

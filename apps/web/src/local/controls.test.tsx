@@ -35,6 +35,7 @@ function controlClasses(): string[] {
  */
 const TEXT_LINKS: Readonly<Record<string, string>> = {
   "Headline-link": "a headline's title (Headline, issue 119)",
+  "Notice-link": "the topic's title in an ebb notice (Notice, issue 122)",
   "TicketStub-topic": "the topic's title in a ticket stub (TicketStub, issue 115)",
 };
 
@@ -45,6 +46,7 @@ describe("no control is shorter than 44px (issue 112)", () => {
     const classes = found.filter((c) => !(c in TEXT_LINKS));
     expect(classes).toEqual([
       "Button",
+      "FadingNotices-flat",
       "Filters-item",
       "Footer-field",
       "Footer-link",

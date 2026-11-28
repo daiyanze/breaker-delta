@@ -170,9 +170,15 @@ describe("the three tiers of headlines, issue 119", () => {
     expect(titles(en, "second")).toEqual([at(1), at(2)]);
     expect(titles(en, "third")).toEqual([at(3), at(4), at(5)]);
     expect(en).not.toContain("<ol start=");
-    // A headline links each of the six tallest waves; the index (#120) links every wave once.
+    // In the front band, a headline links each of the six tallest waves and
+    // the index (#120) links every wave once. A falling wave is linked again
+    // from its fading notice further down (issue 122), outside this band.
+    const band = en.slice(
+      en.indexOf('aria-labelledby="band-front"'),
+      en.indexOf('aria-labelledby="band-fading"'),
+    );
     slugs.forEach((s, k) => {
-      expect([s, en.split(`href="${s}"`).length - 1]).toEqual([s, k < 6 ? 2 : 1]);
+      expect([s, band.split(`href="${s}"`).length - 1]).toEqual([s, k < 6 ? 2 : 1]);
     });
   });
 
@@ -327,7 +333,8 @@ describe("model text renders as text", () => {
     expect(body(html)).not.toContain("<script");
     expect(html).not.toContain("<img");
     const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
-    expect(main).not.toMatch(/href="(?!\/topic\/|https:\/\/)/);
+    // The site's own links: topics, and the changes that went flat (#122).
+    expect(main).not.toMatch(/href="(?!\/topic\/|https:\/\/|\/changes\?type=went_flat")/);
     expect(html).not.toContain('" onmouseover');
     expect(html).toContain("&lt;img src=x onerror=alert(1)>");
   });
@@ -356,6 +363,110 @@ describe("the renderer escapes fixture text", () => {
     expect(body(html)).not.toContain("<script");
     expect(html).not.toContain(" & ");
     expect(html).not.toContain('"quoted"');
+  });
+});
+
+// #122: the fading notices, from the edition's `ebb`. The sentence is the
+// fixed pattern of the string tables; the numbers are the data's.
+describe("the fading notices", () => {
+  const notices = (html: string) =>
+    html.slice(html.indexOf('<section class="Band" aria-labelledby="band-fading">'));
+
+  test("one notice per wave going out, its numbers from the data", async () => {
+    const q = createFixtureReadQueries("busy");
+    const edition = await q.edition();
+    if (edition === null) throw new Error("busy has an edition");
+    const html = notices(await front(q));
+    expect(html).toContain('<h2 id="band-fading" class="Band-name">Fading notices</h2>');
+    expect(html.match(/<article class="Notice">/g)?.length).toBe(edition.ebb.notices.length);
+    for (const n of edition.ebb.notices) {
+      expect(html).toContain(`href="/topic/${n.slug}"`);
+      expect(html).toContain(
+        `Peaked at ${Math.round(n.peak.height)}. Survived by ${n.echoCount} echoes.`,
+      );
+    }
+    // Board 01's first notice: formed Nov 13 (JST), peak 188, 22 echoes, now 144, down 18%.
+    expect(html).toContain(
+      '<p class="Notice-text">A wave since Nov 13. Peaked at 188. Survived by 22 echoes.</p><p class="Notice-now">Now 144, down 18% in 24 hours</p>',
+    );
+    expect(html).toContain('aria-label="A wave line flattening, now at 144"');
+    expect(html).toContain(
+      `<a class="FadingNotices-flat" href="/changes?type=went_flat">Read the ${edition.ebb.wentFlat24h} that went flat</a>`,
+    );
+  });
+
+  test("in each language, with the day in that language and links in its path", async () => {
+    const q = createFixtureReadQueries("busy");
+    const zh = notices(await front(q, "zh"));
+    expect(zh).toContain('<h2 id="band-fading" class="Band-name">退潮启事</h2>');
+    expect(zh).toContain("11月13日成浪。最高 188。身后留下 22 条回波。");
+    expect(zh).toContain("现在 144，24 小时内下降 18%");
+    expect(zh).toContain('href="/zh/topic/frontier-model-backlash" lang="zh"');
+    expect(zh).toContain('href="/zh/changes?type=went_flat"');
+    const ja = notices(await front(q, "ja"));
+    expect(ja).toContain("11月13日に波となる。最高 188。遺したエコーは 22 件。");
+  });
+
+  test("no link when no wave went flat; one echo is an echo; no fall, no percentage", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    const first = plain?.ebb.notices[0];
+    if (plain === null || plain === undefined || first === undefined) {
+      throw new Error("busy has ebb notices");
+    }
+    const ebb = {
+      wentFlat24h: 0,
+      notices: [{ ...first, echoCount: 1, change24h: null, height: 143.6 }],
+    };
+    const html = notices(await front({ ...base, edition: async () => ({ ...plain, ebb }) }));
+    expect(html).not.toContain("FadingNotices-flat");
+    expect(html).toContain("Survived by 1 echo.</p>");
+    expect(html).toContain('<p class="Notice-now">Now 144</p>');
+  });
+
+  test("a wave that rose in 24 hours shows its height and no fall", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    const first = plain?.ebb.notices[0];
+    if (plain === null || first === undefined) throw new Error("busy has ebb notices");
+    const ebb = { wentFlat24h: 0, notices: [{ ...first, change24h: 5 }] };
+    const html = notices(await front({ ...base, edition: async () => ({ ...plain, ebb }) }));
+    expect(html).toContain(`<p class="Notice-now">Now ${Math.round(first.height)}</p>`);
+    expect(html).not.toContain("down");
+  });
+
+  test("the day a wave formed is the site's day, not the machine's", async () => {
+    // 09:00 in Tokyo is 13:00 the day before in Pago Pago (UTC-11): a page
+    // that formatted the day in the machine's zone (JST or UTC here and in
+    // CI) would print Nov 13.
+    const base = createFixtureReadQueries("busy");
+    const meta = await base.siteMeta();
+    const plain = await base.edition();
+    const first = plain?.ebb.notices[0];
+    if (plain === null || first === undefined) throw new Error("busy has ebb notices");
+    const ebb = {
+      wentFlat24h: 0,
+      notices: [{ ...first, formedAt: "2026-11-13T09:00:00+09:00" }],
+    };
+    const html = notices(
+      await front({
+        ...base,
+        siteMeta: async () => ({ ...meta, timeZone: "Pacific/Pago_Pago" }),
+        edition: async () => ({ ...plain, ebb }),
+      }),
+    );
+    expect(html).toContain('<p class="Notice-text">A wave since Nov 12.');
+  });
+
+  test("when no wave is going out, the whole section is one sentence", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    if (plain === null) throw new Error("busy has an edition");
+    const ebb = { wentFlat24h: 3, notices: [] };
+    const html = await front({ ...base, edition: async () => ({ ...plain, ebb }) });
+    expect(html).toContain(
+      '<section class="Band" aria-labelledby="band-fading"><div class="Band-rail"><h2 id="band-fading" class="Band-name">Fading notices</h2></div><div class="Band-body"><div class="FadingNotices"><p class="FadingNotices-none">No wave is going out.</p></div></div></section>',
+    );
   });
 });
 
