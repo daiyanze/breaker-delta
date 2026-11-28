@@ -13,9 +13,9 @@ export const en = {
   "front.flat.text": "Nothing has been scanned yet. Next scan: {next}.",
   "verdicts.name": "Were we right?",
   "verdicts.note":
-    "Every wave gets one test, locked the moment it forms and checked 14 days later against outside reporting.",
+    "Every wave gets one test, locked the moment it forms and checked {days} days later against outside reporting.",
   "verdicts.note.before":
-    "Every wave gets one test, locked the moment it forms and checked 14 days later against outside reporting. No verdicts yet. When they land, each stub gets stamped.",
+    "Every wave gets one test, locked the moment it forms and checked {days} days later against outside reporting. No verdicts yet. When they land, each stub gets stamped.",
   "verdicts.link": "Open the track record",
   "verdicts.firstDue": "The first test comes due on {date}.",
   "verdicts.noneRegistered": "No wave has formed yet, so no test is locked.",

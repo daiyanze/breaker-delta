@@ -118,7 +118,9 @@ export async function verdictsBand(
     <Band
       id="verdicts"
       name={t("verdicts.name")}
-      note={t(noVerdictYet ? "verdicts.note.before" : "verdicts.note")}
+      note={t(noVerdictYet ? "verdicts.note.before" : "verdicts.note", {
+        days: meta.reviewWindowDays,
+      })}
       highlight
       link={{ href: pathIn(TRACK_RECORD_PATH, lang, meta), text: t("verdicts.link") }}
     >

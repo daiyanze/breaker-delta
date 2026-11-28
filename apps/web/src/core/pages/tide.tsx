@@ -2,16 +2,14 @@
 /**
  * The front page's tide table band (#121): the edition's waves formed
  * today, placed at the hour each formed in the site's time zone. Board 19
- * leaves the band out with fewer than two (`TIDE_MIN_WAVES`).
+ * leaves the band out with too few ("the tide table needs more than one new
+ * wave"); how few is the `tideMinWaves` setting, read from `SiteMeta` (#303).
  */
 import type { Edition, Language, RankRow, SiteMeta } from "@bd/contracts";
 import { Band, TideTable, type TideWave } from "@bd/ui/patterns";
 import type { VNode } from "preact";
 import { pathIn } from "../languages.ts";
 import type { Translate } from "../strings/index.ts";
-
-/** Board 19: "the tide table needs more than one new wave". */
-export const TIDE_MIN_WAVES = 2;
 
 /** An instant's local clock time in `timeZone`: `HH:MM` and the hour of the day as a number. */
 export function localClock(instant: string, timeZone: string): { at: string; hour: number } {
@@ -32,7 +30,7 @@ const hourOf = (label: string) => {
   return Number(hh) + Number(mm) / 60;
 };
 
-/** The band, or null when fewer than two waves formed today. */
+/** The band, or null when fewer than `meta.tideMinWaves` waves formed today. */
 export function tideBand(
   edition: Edition,
   meta: SiteMeta,
@@ -54,7 +52,7 @@ export function tideBand(
       height: entry.height,
     });
   }
-  if (waves.length < TIDE_MIN_WAVES) return null;
+  if (waves.length < meta.tideMinWaves) return null;
   const times = waves.map((w) => w.at).sort();
   return (
     <Band id="tide" name={t("tide.name")} note={t("tide.note")}>

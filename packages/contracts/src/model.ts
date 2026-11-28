@@ -58,7 +58,10 @@ export const SettingsSchema = z.object({
   risingPercent24h: z.number().positive().default(50),
   rewriteAfterNewEchoes: z.number().int().positive().default(5),
   summariesPerRun: z.number().int().min(0).default(3),
+  /** Days from a wave forming to its test coming due; the site states it in "Were we right?" (#303). */
   reviewWindowDays: z.number().int().positive().default(14),
+  /** The front page's tide table band is left out with fewer waves formed today than this (#121, #303). */
+  tideMinWaves: z.number().int().min(1).default(2),
   languages: z.array(LanguageSchema).min(1).default(["en", "zh", "ja"]),
   keywordsInclude: z.array(z.string()).default([]),
   keywordsExclude: z.array(z.string()).default([]),
