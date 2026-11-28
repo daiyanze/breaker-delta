@@ -15,6 +15,7 @@ page (default light, English); the links at its top go to the other five.
   of every component with its layer and state names (`ThemeSwitch
   (primitives): default, long, zh, ja`, `Band (patterns): default, note, link,
   long, zh, ja`, `EchoStack (patterns): default, mid, low, tallest`,
+  `Headline (patterns): default, formed, fading, tallest, long, zh, ja`,
   `LanguageMenu (patterns): default, open, long, zh, ja`).
   The rest is in the file `get` saved: `<html lang="en"
   data-theme="light">`, and one section per component with one

@@ -95,6 +95,44 @@ export const ECHO_STACK = {
 } as const;
 
 /**
+ * The front page's three tiers of headlines (#119,
+ * `design/system/components/Headline/README.md`). A headline's size is
+ * `base + height ÷ 200 × span`: the README's table, desktop and phone. On
+ * desktop, base + span is the size of the tier's type style in
+ * `tokens.json` (`headline-lead` 96, `headline-2` 46, `headline-3` 30).
+ * A wave going out is set at the README's weight 500 ("字重 500").
+ * The kicker's and wave numbers' phone sizes, the numbers' desktop sizes
+ * below the lead and the phone number column are the boards' (01
+ * `Front2.dc.html`, 02 `FrontMobile.dc.html`): the type scale has only the
+ * lead's number (`wave-number`) and kicker. The trend line draws itself in
+ * the design system README's "1.8 秒，一次" (1.8 s, once). `tokens.test.ts`
+ * checks that the README and the boards still say so.
+ */
+export const HEADLINE = {
+  leadBase: "44px",
+  leadSpan: "52px",
+  leadPhoneBase: "30px",
+  leadPhoneSpan: "18px",
+  secondBase: "22px",
+  secondSpan: "24px",
+  secondPhoneBase: "19px",
+  secondPhoneSpan: "8px",
+  thirdBase: "17px",
+  thirdSpan: "13px",
+  thirdPhoneBase: "16px",
+  thirdPhoneSpan: "4px",
+  fadingWeight: "500",
+  leadPhoneKicker: "19px",
+  leadPhoneNumber: "104px",
+  secondNumber: "40px",
+  secondPhoneNumber: "34px",
+  thirdNumber: "28px",
+  thirdPhoneNumber: "26px",
+  phoneNumberColumn: "62px",
+  trendDraw: "1.8s",
+} as const;
+
+/**
  * Below this width a band is one column: the rail becomes a heading above
  * the content. The design system names no breakpoint; this is the agent's
  * choice (#106): the narrowest width where the rail at its full `rail` width,

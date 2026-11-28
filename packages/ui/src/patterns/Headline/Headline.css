@@ -1,0 +1,459 @@
+/*
+ * The front page's three tiers of headlines (#119,
+ * `design/system/components/Headline`, boards 01 and 02). A headline's size
+ * is `base + height ÷ 200 × span`, per tier, from the `--headline-*`
+ * variables (`src/tokens/supplement.ts`): the phone values first, the
+ * desktop ones from the two-column breakpoint (`TWO_COLUMNS_FROM`). The
+ * height comes from the title's `data-height`, three digits; the rules at
+ * the end turn its first two digits and its last into numbers. A wave
+ * formed today has a red number, a wave going out an `ink-2` headline at
+ * weight 500. Hovered, a headline gets a red underline and does not move.
+ * The trend line draws itself once when motion is allowed. The markup is
+ * `Headline.tsx`.
+ */
+@layer patterns {
+  .Headline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+
+    @media (min-width: 960px) {
+      gap: var(--space-7);
+    }
+  }
+
+  /* ---------------------------------------------------------- the lead */
+
+  .Headline-lead {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+
+    @media (min-width: 960px) {
+      gap: var(--space-4);
+    }
+  }
+
+  .Headline-kicker {
+    margin: 0;
+    color: var(--red);
+    font-family: var(--font-display);
+    font-size: var(--headline-lead-phone-kicker);
+    line-height: var(--type-kicker-line);
+    font-weight: var(--type-kicker-weight);
+    font-style: var(--type-kicker-style);
+    letter-spacing: var(--type-kicker-tracking);
+
+    @media (min-width: 960px) {
+      font-size: var(--type-kicker-size);
+    }
+  }
+
+  .Headline-figures {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-4);
+
+    @media (min-width: 960px) {
+      column-gap: var(--space-6);
+    }
+  }
+
+  /* On phones the trend line is a row of its own, under the stack and the number. */
+  .Headline-trend {
+    flex: 1 1 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+
+    @media (min-width: 960px) {
+      flex: 1 1 0;
+    }
+  }
+
+  .Headline-lead-note {
+    margin: 0;
+  }
+
+  .Headline-chart {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+  }
+
+  .Headline-chart-area {
+    fill: var(--tint);
+  }
+
+  .Headline-chart-line {
+    fill: none;
+    stroke: var(--blue);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    @media (min-width: 960px) {
+      stroke-width: 3;
+    }
+  }
+
+  .Headline-chart-base {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 3;
+
+    @media (min-width: 960px) {
+      stroke-width: 2;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .Headline-chart-line {
+      stroke-dasharray: 1;
+      animation: headline-draw var(--headline-trend-draw) ease-out both;
+    }
+  }
+
+  @keyframes headline-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* ------------------------------------------------------------- numbers */
+
+  .Headline-number {
+    font-family: var(--font-display);
+    font-weight: var(--type-wave-number-weight);
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .Headline-new {
+    color: var(--red);
+  }
+
+  .Headline-number-lead {
+    font-size: var(--headline-lead-phone-number);
+    line-height: var(--type-wave-number-line);
+    letter-spacing: var(--type-wave-number-tracking);
+
+    @media (min-width: 960px) {
+      font-size: var(--type-wave-number-size);
+    }
+  }
+
+  .Headline-number-second {
+    font-size: var(--headline-second-phone-number);
+
+    @media (min-width: 960px) {
+      font-size: var(--headline-second-number);
+    }
+  }
+
+  .Headline-number-third {
+    font-size: var(--headline-third-phone-number);
+
+    @media (min-width: 960px) {
+      font-size: var(--headline-third-number);
+    }
+  }
+
+  /* ---------------------------------------------- the second and third tiers */
+
+  /* Newspaper columns on desktop: two for the second tier, three for the third. */
+  .Headline-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+
+    @media (min-width: 960px) {
+      column-gap: var(--space-7);
+      row-gap: var(--space-6);
+    }
+  }
+
+  .Headline-columns-second {
+    @media (min-width: 960px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .Headline-columns-third {
+    @media (min-width: 960px) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--space-6);
+    }
+  }
+
+  /* On phones the number sits in a column of its own, left of the headline. */
+  .Headline-story {
+    display: grid;
+    grid-template-columns: var(--headline-phone-number-column) minmax(0, 1fr);
+    align-content: start;
+    column-gap: var(--space-3);
+    row-gap: var(--space-1);
+    padding-top: var(--space-3);
+    border-top: var(--rule-thin) solid var(--ink);
+
+    @media (min-width: 960px) {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--space-2);
+    }
+
+    & > .Headline-number {
+      grid-row: 1 / span 2;
+
+      @media (min-width: 960px) {
+        grid-row: auto;
+      }
+    }
+
+    & > :not(.Headline-number) {
+      grid-column: 2;
+
+      @media (min-width: 960px) {
+        grid-column: 1;
+      }
+    }
+  }
+
+  .Headline-second {
+    border-top-width: var(--rule-heavy);
+  }
+
+  .Headline-note {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--type-small-size);
+    line-height: var(--type-small-line);
+  }
+
+  /* The second tier names its sources and echoes on desktop only, as on the boards. */
+  .Headline-meta {
+    display: none;
+
+    @media (min-width: 960px) {
+      display: inline;
+    }
+  }
+
+  .Headline-key {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--type-small-size);
+    line-height: var(--type-small-line);
+  }
+
+  /* ------------------------------------------------------------ headlines */
+
+  .Headline-title {
+    --headline-tens: 0;
+    --headline-ones: 0;
+    --headline-height: calc(var(--headline-tens) * 10 + var(--headline-ones));
+
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: calc(var(--headline-base) + var(--headline-height) / 200 * var(--headline-span));
+  }
+
+  .Headline-title-lead {
+    --headline-base: var(--headline-lead-phone-base);
+    --headline-span: var(--headline-lead-phone-span);
+
+    line-height: var(--type-headline-lead-line);
+    font-weight: var(--type-headline-lead-weight);
+    letter-spacing: var(--type-headline-lead-tracking);
+    text-wrap: balance;
+
+    @media (min-width: 960px) {
+      --headline-base: var(--headline-lead-base);
+      --headline-span: var(--headline-lead-span);
+    }
+  }
+
+  .Headline-title-second {
+    --headline-base: var(--headline-second-phone-base);
+    --headline-span: var(--headline-second-phone-span);
+
+    line-height: var(--type-headline-2-line);
+    font-weight: var(--type-headline-2-weight);
+    letter-spacing: var(--type-headline-2-tracking);
+    text-wrap: balance;
+
+    @media (min-width: 960px) {
+      --headline-base: var(--headline-second-base);
+      --headline-span: var(--headline-second-span);
+    }
+  }
+
+  .Headline-title-third {
+    --headline-base: var(--headline-third-phone-base);
+    --headline-span: var(--headline-third-phone-span);
+
+    line-height: var(--type-headline-3-line);
+    font-weight: var(--type-headline-3-weight);
+    text-wrap: pretty;
+
+    /* Board 02 sets the third tier on phones without tracking; board 01 tracks it. */
+    @media (min-width: 960px) {
+      --headline-base: var(--headline-third-base);
+      --headline-span: var(--headline-third-span);
+
+      letter-spacing: var(--type-headline-3-tracking);
+    }
+  }
+
+  .Headline-title.Headline-fading {
+    color: var(--ink-2);
+    font-weight: var(--headline-fading-weight);
+  }
+
+  .Headline-link {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+      text-decoration-color: var(--red);
+      text-decoration-thickness: 0.06em;
+      text-underline-offset: 0.14em;
+    }
+  }
+
+  /*
+   * The height in `data-height`, "000" to "200": its first two digits are
+   * the tens, its last the ones. Values that are not three digits match
+   * none, and the headline takes its tier's base size.
+   */
+  .Headline-title[data-height^="00"] {
+    --headline-tens: 0;
+  }
+
+  .Headline-title[data-height^="01"] {
+    --headline-tens: 1;
+  }
+
+  .Headline-title[data-height^="02"] {
+    --headline-tens: 2;
+  }
+
+  .Headline-title[data-height^="03"] {
+    --headline-tens: 3;
+  }
+
+  .Headline-title[data-height^="04"] {
+    --headline-tens: 4;
+  }
+
+  .Headline-title[data-height^="05"] {
+    --headline-tens: 5;
+  }
+
+  .Headline-title[data-height^="06"] {
+    --headline-tens: 6;
+  }
+
+  .Headline-title[data-height^="07"] {
+    --headline-tens: 7;
+  }
+
+  .Headline-title[data-height^="08"] {
+    --headline-tens: 8;
+  }
+
+  .Headline-title[data-height^="09"] {
+    --headline-tens: 9;
+  }
+
+  .Headline-title[data-height^="10"] {
+    --headline-tens: 10;
+  }
+
+  .Headline-title[data-height^="11"] {
+    --headline-tens: 11;
+  }
+
+  .Headline-title[data-height^="12"] {
+    --headline-tens: 12;
+  }
+
+  .Headline-title[data-height^="13"] {
+    --headline-tens: 13;
+  }
+
+  .Headline-title[data-height^="14"] {
+    --headline-tens: 14;
+  }
+
+  .Headline-title[data-height^="15"] {
+    --headline-tens: 15;
+  }
+
+  .Headline-title[data-height^="16"] {
+    --headline-tens: 16;
+  }
+
+  .Headline-title[data-height^="17"] {
+    --headline-tens: 17;
+  }
+
+  .Headline-title[data-height^="18"] {
+    --headline-tens: 18;
+  }
+
+  .Headline-title[data-height^="19"] {
+    --headline-tens: 19;
+  }
+
+  .Headline-title[data-height^="20"] {
+    --headline-tens: 20;
+  }
+
+  .Headline-title[data-height$="0"] {
+    --headline-ones: 0;
+  }
+
+  .Headline-title[data-height$="1"] {
+    --headline-ones: 1;
+  }
+
+  .Headline-title[data-height$="2"] {
+    --headline-ones: 2;
+  }
+
+  .Headline-title[data-height$="3"] {
+    --headline-ones: 3;
+  }
+
+  .Headline-title[data-height$="4"] {
+    --headline-ones: 4;
+  }
+
+  .Headline-title[data-height$="5"] {
+    --headline-ones: 5;
+  }
+
+  .Headline-title[data-height$="6"] {
+    --headline-ones: 6;
+  }
+
+  .Headline-title[data-height$="7"] {
+    --headline-ones: 7;
+  }
+
+  .Headline-title[data-height$="8"] {
+    --headline-ones: 8;
+  }
+
+  .Headline-title[data-height$="9"] {
+    --headline-ones: 9;
+  }
+}
