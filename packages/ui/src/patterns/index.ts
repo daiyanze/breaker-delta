@@ -11,6 +11,12 @@ export {
   MIN_LAYERS as ECHO_STACK_MIN_LAYERS,
 } from "./EchoStack/EchoStack.tsx";
 export {
+  Footer,
+  type FooterLink,
+  type FooterProps,
+  type FooterSubscribe,
+} from "./Footer/Footer.tsx";
+export {
   FULL_HEIGHT as HEADLINE_FULL_HEIGHT,
   Headline,
   type HeadlineLead,

@@ -95,6 +95,18 @@ under no rule and fails `check-deps`.
   the globe alone. `open` starts it open, for the catalog's `open` and
   `long` states; pages leave it out. Classes `.LanguageMenu`, `-details`,
   `-button`, `-icon`, `-current`, `-chevron`, `-list`, `-link`.
+- `Footer` (`patterns/Footer`, boards 01 and 02, #111): the footer every
+  public page ends with: the subscribe form (left out with no `subscribe`
+  prop, when the site sends no email), the links, the lighthouse drawing
+  with its CSS-only motion (still under reduced motion), and the solid
+  bar. On phones the drawing shows its right half. Classes `.Footer`,
+  `-top`, `-form`, `-label`, `-field`, `-submit`, `-nav`, `-link`,
+  `-long`, `-short`, `-art`, `-svg`, `-bar`, `-notes`, `-note`; in the
+  drawing `-beam`, `-gulls`, `-solid`, `-edge`, `-tower`, `-red`, `-lamp`,
+  `-drift` (`-drift-back`, `-drift-mid`, `-drift-front`), `-sky`, `-blue`,
+  `-hatch`, `-boat`, `-mast`, `-jib`. Its timings, angles, beam opacity
+  and link weight are `--footer-*` (`FOOTER` in `supplement.ts`); the
+  field's id is unique per footer (`useId`). `SPEC.md` in its folder.
 - `ThemeSwitch` (`primitives/ThemeSwitch`, an island): the masthead's
   square icon button (#105) that flips `<html data-theme>` and stores the
   choice. Props `toDark` and `toLight`, its name in each theme, as finished
@@ -146,13 +158,14 @@ no Bun or Cloudflare types, so emails and share cards can import it.
   export changes, run `bun run --filter @bd/ui tokens` and commit the result;
   `scripts/generate-tokens.test.ts` fails while the two differ.
 - `supplement.ts` holds the values the design states only in prose or not at
-  all (the phone gutter and section size, the control height, the icon
-  size and stroke, the theme switch's icon size, the echo stack's and the
-  headlines' sizes, the index's values and phone row count, the two-column
+  all (the phone gutter and section size, the control height and outline,
+  the icon size and stroke, the theme switch's icon size, the echo stack's
+  and the headlines' sizes, the footer's timings, angles, beam opacity and
+  link weight, the index's values and phone row count, the two-column
   breakpoint), each with the text it comes from. No other file holds a
-  design value. All but the breakpoint and the row count are also CSS
-  variables: `--phone-*`, `--control-*`, `--icon-*`, `--echo-stack-*`,
-  `--headline-*`, `--index-*`.
+  design value. All but the breakpoint and the index's row count are also
+  CSS variables: `--phone-*`, `--control-*`, `--icon-*`, `--echo-stack-*`,
+  `--headline-*`, `--footer-*`, `--index-*`.
 - `contrast.test.ts` computes the WCAG 2.2 contrast of every text and
   background pair the design uses, in both themes: 4.5:1 for text, 3:1 for
   a control's outline. A new colour token fails it until it is placed.

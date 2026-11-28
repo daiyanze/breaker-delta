@@ -11,6 +11,7 @@
 import {
   CONTROL,
   ECHO_STACK,
+  FOOTER,
   HEADLINE,
   ICON,
   INDEX,
@@ -38,6 +39,7 @@ export { FONT_FILES, type FontFile, fontFaceCss } from "./fonts.ts";
 export {
   CONTROL,
   ECHO_STACK,
+  FOOTER,
   HEADLINE,
   ICON,
   INDEX,
@@ -143,6 +145,7 @@ function staticVars(): string {
   }
   for (const [name, v] of Object.entries(HEADLINE)) out.push(decl(`headline-${kebab(name)}`, v));
   for (const [name, v] of Object.entries(INDEX)) out.push(decl(`index-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(FOOTER)) out.push(decl(`footer-${kebab(name)}`, v));
   return out.join("");
 }
 

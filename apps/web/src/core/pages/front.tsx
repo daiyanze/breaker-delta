@@ -26,6 +26,7 @@ import type { VNode } from "preact";
 import { pathIn } from "../languages.ts";
 import type { RouteContext } from "../routes.ts";
 import { type Translate, translator } from "../strings/index.ts";
+import { siteFooter } from "./footer.tsx";
 import { pageLanguages } from "./head.tsx";
 
 /** The model headline in `lang` when there is one, else the source's own headline. */
@@ -253,6 +254,7 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
           <ThemeSwitch toDark={t("theme.toDark")} toLight={t("theme.toLight")} />
         </header>
         <main class="page">{bands}</main>
+        {siteFooter(ctx, meta)}
       </Document>
     ),
   };

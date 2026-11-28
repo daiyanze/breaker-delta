@@ -27,6 +27,41 @@ export const PHONE = {
 export const CONTROL = {
   minHeight: "44px",
   height: "48px",
+  /** The default and solid button's outline, the same README: "2px `ink` 描边". */
+  outline: "2px",
+} as const;
+
+/**
+ * The footer's drawing and links (#111). `tokens.test.ts` checks each
+ * against its text.
+ *
+ * From `design/system/README.md`:
+ * - `beamOpacity`: "灯塔光束的 55% 黄色是唯一例外" (the beam's 55% yellow
+ *   is the one translucent colour).
+ * - `beamSweep`: "光束 7 秒一个来回" (the beam, 7 seconds there and back).
+ *
+ * Not in the README, from boards 01 and 02 as drawn (agent's choice, #111):
+ * - `waveBack`, `waveMid`, `waveFront`: one drift period of each wave layer,
+ *   `.w1{animation:drift 22s …}`, `.w2{… 13s …}`, `.w3{… 9s …}`.
+ * - `beamFrom`, `beamTo`: `@keyframes sweep`, from -4deg to 6deg and back.
+ * - `boatBob`, `boatRise`, `boatPitch`: `.boat{animation:bob 4s …}` and
+ *   `@keyframes bob`, down 6px and back, pitching ±2deg. The 6px is in the
+ *   drawing's units: a length in a transform of an SVG element is in its
+ *   user units.
+ * - `linkWeight`: `.tp .nav a{… font-weight:500}`, the footer's links.
+ */
+export const FOOTER = {
+  beamOpacity: "0.55",
+  beamSweep: "7s",
+  waveBack: "22s",
+  waveMid: "13s",
+  waveFront: "9s",
+  beamFrom: "-4deg",
+  beamTo: "6deg",
+  boatBob: "4s",
+  boatRise: "6px",
+  boatPitch: "2deg",
+  linkWeight: "500",
 } as const;
 
 /**

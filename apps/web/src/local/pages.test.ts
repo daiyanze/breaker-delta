@@ -32,7 +32,10 @@ describe("every page uses the band", () => {
           /^<header class="page">(?:<div class="LanguageMenu">[\s\S]*?<\/details><\/div>)?<h1>[^<]+<\/h1>(?:<bd-island name="ThemeSwitch"[^>]*>[\s\S]*?<\/bd-island>)?<\/header>/,
           "",
         )
-        .replace(/^<main class="page">(?:<section class="Band"[\s\S]*?<\/section>)+<\/main>$/, "");
+        .replace(
+          /^<main class="page">(?:<section class="Band"[\s\S]*?<\/section>)+<\/main>(?:<footer class="Footer">[\s\S]*<\/footer>)?$/,
+          "",
+        );
       expect({ name, outside }).toEqual({ name, outside: "" });
     }
   });
@@ -74,6 +77,46 @@ describe("every page uses the band", () => {
     for (const html of [placeholder, busy]) {
       expect(html).toContain('<script type="module" src="/client/loader.js"></script>');
     }
+  });
+});
+
+// #111: every page ends with the footer, in the page's language. The form
+// shows only when the site sends email (#81 hides it otherwise).
+describe("the footer", () => {
+  test("the busy set sends email, so its footer has the form; fresh and quiet do not", async () => {
+    const busy = await front(createFixtureReadQueries("busy"));
+    expect(busy).toContain(
+      '</main><footer class="Footer"><div class="Footer-top"><form class="Footer-form" method="post" action="/subscribe">',
+    );
+    expect(busy).toContain(">One email a day, with the new waves.</label>");
+    for (const set of ["fresh", "quiet"] as const) {
+      const html = await front(createFixtureReadQueries(set));
+      expect(html).toContain('</main><footer class="Footer"><div class="Footer-top"><nav');
+      expect(html).not.toContain("<form");
+    }
+  });
+
+  test("its text and links follow the page's language", async () => {
+    const zh = await front(createFixtureReadQueries("busy"), "zh");
+    expect(zh).toContain('action="/zh/subscribe"');
+    expect(zh).toContain(">每天一封邮件，带来新成的浪。</label>");
+    expect(zh).toContain('<nav class="Footer-nav" aria-label="页脚">');
+    expect(zh).toContain(
+      '<a class="Footer-link" href="/zh/about#height"><span class="Footer-long">浪高是怎么算的</span><span class="Footer-short">浪高怎么算</span></a>',
+    );
+    expect(zh).toContain('<span class="Footer-note">Breaker Delta 是开源项目。</span>');
+    // Every link: the three about sections in the page's language, then the repository.
+    const links = (html: string) =>
+      [...html.matchAll(/<a class="Footer-link" href="([^"]+)"/g)].map((m) => m[1]);
+    const repo = "https://github.com/daiyanze/breaker-delta";
+    expect(links(zh)).toEqual(["/zh/about#height", "/zh/about#own", "/zh/about#open", repo]);
+    const ja = await front(createFixtureReadQueries("busy"), "ja");
+    expect(links(ja)).toEqual(["/ja/about#height", "/ja/about#own", "/ja/about#open", repo]);
+    const en = await front(createFixtureReadQueries("busy"));
+    expect(links(en)).toEqual(["/about#height", "/about#own", "/about#open", repo]);
+    expect(en).toContain(
+      '<a class="Footer-link" href="https://github.com/daiyanze/breaker-delta">GitHub</a>',
+    );
   });
 });
 
@@ -283,7 +326,8 @@ describe("model text renders as text", () => {
     expect(count(html, /<a\b/g)).toBe(count(before, /<a\b/g));
     expect(body(html)).not.toContain("<script");
     expect(html).not.toContain("<img");
-    expect(html.slice(html.indexOf("<main"))).not.toMatch(/href="(?!\/topic\/|https:\/\/)/);
+    const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
+    expect(main).not.toMatch(/href="(?!\/topic\/|https:\/\/)/);
     expect(html).not.toContain('" onmouseover');
     expect(html).toContain("&lt;img src=x onerror=alert(1)>");
   });
