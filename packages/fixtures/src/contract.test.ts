@@ -20,7 +20,7 @@ import {
   TrackRecordSchema,
   VerdictQueueSchema,
 } from "@bd/contracts";
-import { deskContractChecks, fixtureProbes, readContractChecks } from "./contract.ts";
+import { deskContractChecks, fixtureProbes, readContractChecks, seaStateFor } from "./contract.ts";
 import { createFixtureDeskQueries, createFixtureReadQueries, shareCardKey } from "./index.ts";
 import { FIXTURE_SET_NAMES, type FixtureSetName, RAW_SETS } from "./sets.ts";
 
@@ -94,6 +94,37 @@ describe("the fixture query layer passes the contract checks", () => {
       });
     }
   }
+});
+
+// #109: the sea state has three levels, chosen by rule from "formed today".
+describe("the sea state rule", () => {
+  test("four or more formed today is choppy, two or three moderate, otherwise calm", () => {
+    expect([0, 1, 2, 3, 4, 5, 40].map(seaStateFor)).toEqual([
+      "calm",
+      "calm",
+      "moderate",
+      "moderate",
+      "choppy",
+      "choppy",
+      "choppy",
+    ]);
+  });
+
+  test("an edition whose sea state breaks the rule fails the edition checks", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    if (plain === null) throw new Error("busy has an edition");
+    for (const seaState of ["calm", "moderate", "flat"] as const) {
+      const q = { ...base, edition: async () => ({ ...plain, seaState }) };
+      const checks = readContractChecks(q, { ...fixtureProbes("busy"), slots: [plain.slot] });
+      for (const name of ["edition()", `edition(${plain.slot})`]) {
+        const check = checks.find((c) => c.name === name);
+        if (check === undefined) throw new Error(`no check ${name}`);
+        const value = await check.run();
+        expect(() => check.schema.parse(value)).toThrow("seaState does not follow the rule");
+      }
+    }
+  });
 });
 
 describe("the cases from issue #162 each have a fixture", () => {

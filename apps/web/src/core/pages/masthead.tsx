@@ -3,7 +3,8 @@
  * The masthead every public page opens with (#110): the `Masthead` of
  * `@bd/ui`, filled from the string tables in the page's language, each
  * section's link in that language too. Pages that are not built yet are
- * linked already, at the paths their issues will serve them on.
+ * linked already, at the paths their issues will serve them on. A page with
+ * the date strip (#109) puts it first in the same header.
  */
 import type { Language } from "@bd/contracts";
 import { Masthead } from "@bd/ui/patterns";
@@ -33,8 +34,14 @@ export interface MastheadOptions {
   name: string;
   /** The wordmark is the page's heading: the front page's. */
   heading?: boolean;
-  /** The language menu and the theme switch. */
+  /**
+   * The language menu and the theme switch, for a page without the date
+   * strip. A page with the strip passes them to it and leaves this out, so
+   * each control is on the page once.
+   */
   tools?: ComponentChildren;
+  /** The date strip (#109), above the masthead in the same header. */
+  strip?: ComponentChildren;
 }
 
 export function pageMasthead(o: MastheadOptions): VNode {
@@ -42,6 +49,7 @@ export function pageMasthead(o: MastheadOptions): VNode {
   const path = (p: string) => (o.site === undefined ? p : pathIn(p, o.lang, o.site));
   return (
     <header class="page">
+      {o.strip}
       <Masthead
         home={path("/")}
         name={o.name}

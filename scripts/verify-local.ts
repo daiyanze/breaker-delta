@@ -259,14 +259,19 @@ async function get(args: string[]) {
  * page's `<body>`, since `<head>` holds links and metadata that would fill the
  * limit on their own; other bodies from the start. The site's masthead
  * (#110), the same on every page and mostly drawings, is shortened to
- * `MASTHEAD_SHOWN` for the same reason. The full response is in the saved
+ * `MASTHEAD_SHOWN` for the same reason; the date strip before it (#109) is
+ * printed. The full response is in the saved
  * file.
  */
 export function preview(body: string, limit = 2000): string {
   const at = body.search(/<body[\s>]/i);
   const page = body
     .slice(at === -1 ? 0 : at)
-    .replace(/<header class="page"><div class="Masthead">[\s\S]*?<\/header>/, MASTHEAD_SHOWN);
+    // A date strip (#109) before the masthead in the same header is kept.
+    .replace(
+      /<header class="page">((?:(?!<\/header>)[\s\S])*?)<div class="Masthead">[\s\S]*?<\/header>/,
+      (_, before: string) => MASTHEAD_SHOWN.replace("<!--", `${before}<!--`),
+    );
   return page.slice(0, limit);
 }
 

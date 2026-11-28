@@ -2,10 +2,10 @@
 /**
  * A bare front page: enough to prove a page renders from the read contracts
  * alone. Every piece of text is a plain string; the renderer escapes it.
- * Interface text comes from the string tables in the page's language (#107),
- * the theme switch's two names included. The switch is its one island
- * (#105), in the masthead's row of tools with the language menu (#110).
- * The six tallest
+ * Interface text comes from the string tables in the page's language (#107).
+ * The header is the date strip (#109) above the masthead (#110); the strip
+ * holds the language menu and the theme switch, the page's one island
+ * (#105), so the masthead has no row of tools of its own. The six tallest
  * waves are the headlines in three tiers (#119, boards 01 and 02), the lead
  * with the echo stack (#114). Beside them, the index (#120) lists every
  * wave, the six included, in the front band's right rail. The tide table
@@ -24,7 +24,6 @@ import {
   Index,
   type IndexRowProps,
 } from "@bd/ui/patterns";
-import { ThemeSwitch } from "@bd/ui/primitives";
 import { Document } from "@bd/ui/runtime";
 import { INDEX_PHONE_ROWS } from "@bd/ui/tokens";
 import type { VNode } from "preact";
@@ -34,6 +33,7 @@ import { type Translate, translator } from "../strings/index.ts";
 import { siteFooter } from "./footer.tsx";
 import { pageLanguages } from "./head.tsx";
 import { pageMasthead } from "./masthead.tsx";
+import { pageStrip } from "./strip.tsx";
 import { tideBand } from "./tide.tsx";
 import { verdictsBand } from "./verdicts.tsx";
 
@@ -319,12 +319,7 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
           current: "front",
           name: meta.siteName,
           heading: true,
-          tools: (
-            <>
-              {languages.menu}
-              <ThemeSwitch toDark={t("theme.toDark")} toLight={t("theme.toLight")} />
-            </>
-          ),
+          strip: pageStrip(ctx, meta, edition, languages.menu),
         })}
         <main class="page">{bands}</main>
         {siteFooter(ctx, meta)}
