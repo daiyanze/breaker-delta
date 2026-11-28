@@ -196,6 +196,32 @@ export const HEADLINE = {
 } as const;
 
 /**
+ * The index beside the headlines (#120,
+ * `design/system/components/IndexRow/README.md`): "短标题 600 字重" (the
+ * short title at weight 600), "2px `hair` 点线" (a 2px dotted leader) and
+ * "浪高数字右对齐，占固定 38px" (the number right-aligned in a fixed 38px
+ * column). The number's size (22px) and the rank's column (24px on
+ * desktop, 22px on phones) are the boards' (01 `Front2.dc.html`, 02
+ * `FrontMobile.dc.html`): the type scale has no style for them.
+ * `tokens.test.ts` checks that the README and the boards still say so.
+ */
+export const INDEX = {
+  titleWeight: "600",
+  leader: "2px",
+  numberColumn: "38px",
+  numberSize: "22px",
+  rankColumn: "24px",
+  phoneRankColumn: "22px",
+} as const;
+
+/**
+ * The rows the index shows on phones before its "Show all" button: the
+ * IndexRow README, "手机只显示前 8 行" (phones show the first 8 rows).
+ * `tokens.test.ts` checks that the README still says so.
+ */
+export const INDEX_PHONE_ROWS = 8;
+
+/**
  * Below this width a band is one column: the rail becomes a heading above
  * the content. The design system names no breakpoint; this is the agent's
  * choice (#106): the narrowest width where the rail at its full `rail` width,

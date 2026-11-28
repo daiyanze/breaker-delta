@@ -12,6 +12,8 @@ import echoStack from "../patterns/EchoStack/EchoStack.css" with { type: "text" 
 import fadingNotices from "../patterns/FadingNotices/FadingNotices.css" with { type: "text" };
 import footer from "../patterns/Footer/Footer.css" with { type: "text" };
 import headline from "../patterns/Headline/Headline.css" with { type: "text" };
+import index from "../patterns/Index/Index.css" with { type: "text" };
+import indexRow from "../patterns/IndexRow/IndexRow.css" with { type: "text" };
 import languageMenu from "../patterns/LanguageMenu/LanguageMenu.css" with { type: "text" };
 import sourceTile from "../patterns/SourceTile/SourceTile.css" with { type: "text" };
 import stamp from "../patterns/Stamp/Stamp.css" with { type: "text" };
@@ -56,6 +58,8 @@ export const CSS_FILES: readonly { path: string; layer: Layer; text: string }[] 
   { path: "patterns/EchoStack/EchoStack.css", layer: "patterns", text: echoStack },
   { path: "patterns/FadingNotices/FadingNotices.css", layer: "patterns", text: fadingNotices },
   { path: "patterns/Headline/Headline.css", layer: "patterns", text: headline },
+  { path: "patterns/Index/Index.css", layer: "patterns", text: index },
+  { path: "patterns/IndexRow/IndexRow.css", layer: "patterns", text: indexRow },
   { path: "patterns/LanguageMenu/LanguageMenu.css", layer: "patterns", text: languageMenu },
   { path: "patterns/SourceTile/SourceTile.css", layer: "patterns", text: sourceTile },
   { path: "patterns/Footer/Footer.css", layer: "patterns", text: footer },

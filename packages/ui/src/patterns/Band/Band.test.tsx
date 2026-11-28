@@ -59,6 +59,26 @@ describe("band markup", () => {
       '<div class="Band-rail"><h2 id="band-a" class="Band-name">A</h2><p class="Band-note">N</p><a href="/x">More</a></div><div class="Band-body">',
     );
   });
+
+  test("no aside, no right rail", () => {
+    const html = renderToString(<Band id="a" name="A" />);
+    expect(html).not.toContain("Band-aside");
+    expect(html).not.toContain("data-variant");
+  });
+
+  test("with an aside, the front band: still named by its heading, the aside after the content", () => {
+    const html = renderToString(
+      <Band id="front" name="Front page" aside={<aside>index</aside>}>
+        <p>x</p>
+      </Band>,
+    );
+    expect(html).toBe(
+      '<section class="Band" data-variant="front" aria-labelledby="band-front">' +
+        '<div class="Band-rail"><h2 id="band-front" class="Band-name">Front page</h2></div>' +
+        '<div class="Band-body"><p>x</p></div>' +
+        '<div class="Band-aside"><aside>index</aside></div></section>',
+    );
+  });
 });
 
 describe("band states", () => {

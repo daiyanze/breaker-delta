@@ -28,6 +28,12 @@ sections with `Band` and nothing of its own.
   section's one illustration, as the fading notices' sunset (#122). The
   component that passes it styles it.
 - `children`: the content column.
+- `aside`: the front page's right rail (the index, #120). With it the
+  band is the front band, the one exception of "版式" ("头版区例外：内容在左，
+  索引在右"): the content on the left, the aside in a right rail at most
+  `rail` wide and as tall as the content, not sticky, under the content on
+  phones. The name is still the section's heading, read out but not shown,
+  as boards 01 and 02 show none.
 
 ## States
 
@@ -36,6 +42,7 @@ sections with `Band` and nothing of its own.
 - `long`: a long name and note, which set the rail's wrapping.
 - `zh`, `ja`: each language's own text, since the rail's name sets its
   layout.
+- `front`: with an `aside`, the front band's layout (#120).
 
 ## Do not
 
@@ -43,5 +50,6 @@ sections with `Band` and nothing of its own.
   `rail` holds what the board draws under the note, not the section's
   content.
 - Change the columns or the breakpoint per page: the sheet's band rule
-  (`bandColumns` in `src/styles/checks.ts`) holds them.
+  (`bandColumns` in `src/styles/checks.ts`) holds them. `aside` is for the
+  front page's band alone.
 - Nest a band in a band.

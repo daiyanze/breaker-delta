@@ -51,6 +51,8 @@ describe("no control is shorter than 44px (issue 112)", () => {
       "Footer-field",
       "Footer-link",
       "Footer-submit",
+      "Index-more",
+      "IndexRow",
       "LanguageMenu-button",
       "LanguageMenu-link",
       "ThemeSwitch",

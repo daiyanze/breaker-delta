@@ -17,6 +17,7 @@ import {
   HEADLINE,
   ICON,
   ILLUSTRATION,
+  INDEX,
   MARK,
   PHONE,
   RIPPLE,
@@ -49,6 +50,8 @@ export {
   HEADLINE,
   ICON,
   ILLUSTRATION,
+  INDEX,
+  INDEX_PHONE_ROWS,
   MARK,
   PHONE,
   RIPPLE,
@@ -159,6 +162,7 @@ function staticVars(): string {
     out.push(decl(`echo-stack-${kebab(name)}`, v));
   }
   for (const [name, v] of Object.entries(HEADLINE)) out.push(decl(`headline-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(INDEX)) out.push(decl(`index-${kebab(name)}`, v));
   for (const [name, v] of Object.entries(FOOTER)) out.push(decl(`footer-${kebab(name)}`, v));
   for (const [name, v] of Object.entries(FOCUS)) out.push(decl(`focus-${kebab(name)}`, v));
   return out.join("");
