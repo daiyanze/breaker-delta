@@ -257,22 +257,27 @@ export function readSource(path: string, source: string): Read {
 
 const SKIP = new Set(["node_modules", ".git", "dist", ".wrangler", ".wrangler-dist", "public"]);
 
-function walk(root: string, dir: string): string[] {
+type ReadDir = (path: string) => string[];
+
+function walk(root: string, dir: string, readdir: ReadDir): string[] {
   const full = join(root, dir);
   if (!existsSync(full)) return [];
-  return readdirSync(full).flatMap((name) => {
+  return readdir(full).flatMap((name) => {
     if (SKIP.has(name)) return [];
     const path = dir === "" ? name : `${dir}/${name}`;
-    return statSync(join(root, path)).isDirectory() ? walk(root, path) : [path];
+    return statSync(join(root, path)).isDirectory() ? walk(root, path, readdir) : [path];
   });
 }
+
+/** Byte order, as `git ls-files` prints it, so findings come out the same on every machine. */
+const byPath = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
 /**
  * The files to check, from the repository root: what git tracks or would
  * add (ignored build output such as `apps/web/public/client` is left out),
  * or, outside a repository, every file under `apps` and `packages`.
  */
-export function listFiles(root: string): string[] {
+export function listFiles(root: string, readdir: ReadDir = readdirSync): string[] {
   const git = spawnSync("git", ["ls-files", "--cached", "--others", "--exclude-standard"], {
     cwd: root,
     encoding: "utf8",
@@ -280,9 +285,11 @@ export function listFiles(root: string): string[] {
   if (git.status === 0 && existsSync(join(root, ".git"))) {
     return git.stdout
       .split("\n")
-      .filter((p) => /^(apps|packages)\//.test(p) && existsSync(join(root, p)));
+      .filter((p) => /^(apps|packages)\//.test(p) && existsSync(join(root, p)))
+      .sort(byPath);
   }
-  return [...walk(root, "apps"), ...walk(root, "packages")];
+  // readdir's order is the file system's (#298: CI runners and APFS differ).
+  return [...walk(root, "apps", readdir), ...walk(root, "packages", readdir)].sort(byPath);
 }
 
 interface Found {

@@ -67,6 +67,15 @@ under no rule and fails `check-deps`.
   motion is allowed. It takes the height and a finished `label` that names
   the number of sheets. Classes `.EchoStack`, `-sheet`, `-blue`, `-sky`,
   `-top`, `-base`.
+- `Headline` (`patterns/Headline`, boards 01 and 02, #119): the front
+  page's three tiers of headlines, the lead (red kicker, headline, echo
+  stack, height, a trend line that draws itself once) and ranks 2 and 3,
+  then 4 to 6, in newspaper columns. A headline's size is `base + height ÷
+  200 × span` per tier (`HEADLINE` in the supplement), set by its CSS from
+  the title's three-digit `data-height`, so no style attribute. It takes
+  finished text. Classes `.Headline`, `-lead`, `-story`, `-second`,
+  `-third`, `-columns`, `-title`, `-fading`, `-link`, `-number`, `-new`,
+  `-kicker`, `-figures`, `-trend`, `-chart`, `-note`, `-meta`, `-key`.
 - `LanguageMenu` (`patterns/LanguageMenu`, boards 01 and 02, #107): links to
   the same page in each language inside a `<details>`, so it opens without
   JavaScript; the current one has `aria-current`. It takes finished text:
@@ -91,6 +100,13 @@ under no rule and fails `check-deps`.
   choice. Props `toDark` and `toLight`, its name in each theme, as finished
   text (the site passes them from its string tables); the stylesheet shows
   the one that applies. `SPEC.md` in its folder.
+- `Stamp`, `TicketStub`, `TicketStubs`, `VerdictMark`, `VerdictMarks`
+  (`patterns`, boards 01, 03, 06 and 07, #115): how a 14-day test and its
+  verdict are shown. A stamp's kind (`data-kind`) is told by its text and
+  its frame, a mark's by its shape, never by colour alone; a hovered stamp
+  or stub wobbles the stamp for 0.2 seconds, unless motion is reduced. The
+  values the design gives only in prose are `STAMP`, `STUB` and `MARK` in
+  `supplement.ts`. `SPEC.md` in each folder.
 
 ## `@bd/ui/styles` and `@bd/ui/build`
 
@@ -131,11 +147,12 @@ no Bun or Cloudflare types, so emails and share cards can import it.
   `scripts/generate-tokens.test.ts` fails while the two differ.
 - `supplement.ts` holds the values the design states only in prose or not at
   all (the phone gutter and section size, the control height and outline,
-  the icon size and stroke, the theme switch's icon size, the footer's
-  timings, angles, beam opacity and link weight, the two-column
-  breakpoint), each with the text it comes from. No other file holds a
-  design value. All but the breakpoint are also CSS variables: `--phone-*`,
-  `--control-*`, `--icon-*`, `--footer-*`.
+  the icon size and stroke, the theme switch's icon size, the echo stack's
+  and the headlines' sizes, the footer's timings, angles, beam opacity and
+  link weight, the two-column breakpoint), each with the text it comes
+  from. No other file holds a design value. All but the breakpoint are
+  also CSS variables: `--phone-*`, `--control-*`, `--icon-*`,
+  `--echo-stack-*`, `--headline-*`, `--footer-*`.
 - `contrast.test.ts` computes the WCAG 2.2 contrast of every text and
   background pair the design uses, in both themes: 4.5:1 for text, 3:1 for
   a control's outline. A new colour token fails it until it is placed.

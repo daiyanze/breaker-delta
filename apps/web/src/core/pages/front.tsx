@@ -4,12 +4,19 @@
  * alone. Every piece of text is a plain string; the renderer escapes it.
  * Interface text comes from the string tables in the page's language (#107),
  * the theme switch's two names included. The switch is its one island
- * (#105); it moves into the masthead's top bar with #110. The tallest wave
- * has the echo stack beside its height (#114, board 01); the lead's own
- * layout comes with the headlines (#119).
+ * (#105); it moves into the masthead's top bar with #110. The six tallest
+ * waves are the headlines in three tiers (#119, boards 01 and 02), the lead
+ * with the echo stack (#114); the rest stay a plain list until the index
+ * (#120) takes them.
  */
-import type { Language, RankRow } from "@bd/contracts";
-import { Band, EchoStack, echoStackLayers } from "@bd/ui/patterns";
+import type { Edition, Language, RankRow } from "@bd/contracts";
+import {
+  Band,
+  echoStackLayers,
+  Headline,
+  type HeadlineLead,
+  type HeadlineStory,
+} from "@bd/ui/patterns";
 import { ThemeSwitch } from "@bd/ui/primitives";
 import { Document } from "@bd/ui/runtime";
 import type { VNode } from "preact";
@@ -30,11 +37,115 @@ const fixtureNote = (t: Translate) => (
   </p>
 );
 
+/** Ranks 2 and 3 are the second tier, 4 to 6 the third; from 7 on, the index (#120). */
+const SECOND_FROM = 1;
+const THIRD_FROM = 3;
+const INDEX_FROM = 6;
+
+interface Tiers {
+  edition: Edition;
+  t: Translate;
+  lang: Language;
+  /** The site's IANA time zone, for calendar days. */
+  timeZone: string;
+  href: (row: RankRow) => string;
+}
+
+/** The calendar day of `instant` in `timeZone`, as "2026-11-19". */
+function dayIn(instant: string, timeZone: string): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date(instant));
+  const part = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}
+
+/** The day before `day` ("2026-11-19" gives "2026-11-18"). */
+function dayBefore(day: string): string {
+  const d = new Date(`${day}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+/**
+ * The line under a headline, and whether the wave is going out. A null
+ * change means there was no wave up 24 hours ago: one that formed today,
+ * one that formed yesterday, or an older one that went flat and came back
+ * (the pipeline's `baseHeight`), told apart by `formedAt`'s day in the
+ * site's time zone. A change is worded as it is shown, rounded: a wave
+ * that rounds to 0% is level, not down, and is not set as going out.
+ */
+function change(row: RankRow, formed: "today" | "yesterday" | "earlier", t: Translate) {
+  if (row.change24h === null) {
+    const key = {
+      today: "headline.new",
+      yesterday: "headline.newYesterday",
+      earlier: "headline.again",
+    } as const;
+    return { delta: t(key[formed]), fading: false };
+  }
+  const percent = Math.round(row.change24h);
+  if (percent < 0) return { delta: t("headline.down", { percent: -percent }), fading: true };
+  if (percent > 0) return { delta: t("headline.up", { percent }), fading: false };
+  return { delta: t("headline.level"), fading: false };
+}
+
+/**
+ * One ranked wave as a headline. Formed today: `formedAt` falls on the
+ * edition's day in the site's time zone. Going out: down over 24 hours
+ * (`design/system/components/Headline`).
+ */
+function story(row: RankRow, { edition, t, lang, timeZone, href }: Tiers): HeadlineStory {
+  const today = dayIn(edition.startsAt, timeZone);
+  const day = dayIn(row.formedAt, timeZone);
+  const formed = day === today ? "today" : day === dayBefore(today) ? "yesterday" : "earlier";
+  const { delta, fading } = change(row, formed, t);
+  return {
+    href: href(row),
+    title: headline(row, lang),
+    height: row.height,
+    formedToday: formed === "today",
+    fading,
+    delta,
+    meta: t("headline.meta", { sources: row.sourceCount, echoes: row.echoCount }),
+  };
+}
+
+function lead(row: RankRow, tiers: Tiers): HeadlineLead {
+  const { t, edition } = tiers;
+  const s = story(row, tiers);
+  return {
+    ...s,
+    kicker: t(s.formedToday ? "headline.kicker.formed" : "headline.kicker.tallest"),
+    stackLabel: t("echoStack.label", { layers: echoStackLayers(row.height) }),
+    trend: row.trend,
+    trendLabel: t("headline.trend", { time: edition.label }),
+  };
+}
+
+function headlines(tiers: Tiers): VNode | null {
+  const { ranking } = tiers.edition;
+  const top = ranking[0];
+  if (top === undefined) return null;
+  return (
+    <Headline
+      lead={lead(top, tiers)}
+      second={ranking.slice(SECOND_FROM, THIRD_FROM).map((r) => story(r, tiers))}
+      third={ranking.slice(THIRD_FROM, INDEX_FROM).map((r) => story(r, tiers))}
+      note={tiers.t("headline.key")}
+    />
+  );
+}
+
 export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }> {
   const meta = await ctx.queries.siteMeta();
   const edition = await ctx.queries.edition();
   const t = translator(ctx.lang);
   const languages = pageLanguages(ctx, meta);
+  const href = (row: RankRow) => pathIn(`/topic/${row.slug}`, ctx.lang, meta);
   const bands =
     edition === null ? (
       <Band id="front" name={t("front.flat.name")}>
@@ -52,25 +163,22 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
               formed: edition.formedToday,
             })}
           </p>
-          <ol>
-            {edition.ranking.map((row, i) => {
-              const h = headline(row, ctx.lang);
-              return (
-                <li key={row.slug}>
-                  {i === 0 ? (
-                    <EchoStack
-                      height={row.height}
-                      label={t("echoStack.label", { layers: echoStackLayers(row.height) })}
-                    />
-                  ) : null}
-                  <a href={pathIn(`/topic/${row.slug}`, ctx.lang, meta)} lang={h.lang}>
-                    {h.text}
-                  </a>{" "}
-                  <data value={row.height}>{Math.round(row.height)}</data>
-                </li>
-              );
-            })}
-          </ol>
+          {headlines({ edition, t, lang: ctx.lang, timeZone: meta.timeZone, href })}
+          {edition.ranking.length > INDEX_FROM ? (
+            <ol start={INDEX_FROM + 1}>
+              {edition.ranking.slice(INDEX_FROM).map((row) => {
+                const h = headline(row, ctx.lang);
+                return (
+                  <li key={row.slug}>
+                    <a href={href(row)} lang={h.lang}>
+                      {h.text}
+                    </a>{" "}
+                    <data value={row.height}>{Math.round(row.height)}</data>
+                  </li>
+                );
+              })}
+            </ol>
+          ) : null}
         </Band>
         <Band id="classifieds" name={t("classifieds.name")}>
           <ul>
