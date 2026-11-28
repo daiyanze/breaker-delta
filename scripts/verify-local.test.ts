@@ -1,5 +1,11 @@
 import { expect, test } from "bun:test";
-import { evidenceName, fixtureSets, parseStartLine, preview } from "./verify-local.ts";
+import {
+  evidenceName,
+  fixtureSets,
+  MASTHEAD_SHOWN,
+  parseStartLine,
+  preview,
+} from "./verify-local.ts";
 
 test("reads both URLs from the launcher's start-up line", () => {
   const log =
@@ -31,4 +37,17 @@ test("a page is printed from <body>, however long its <head> is", () => {
   expect(preview(page)).toStartWith("<body><p>edition</p>");
   expect(preview('{"ok":true}')).toBe('{"ok":true}');
   expect(preview(page, 10)).toBe("<body><p>e");
+});
+
+// The same failure as L15, from the other side: #110's masthead filled the
+// first 2000 characters of `<body>` and pushed the edition line out.
+test("a page is printed with its masthead shortened, however long the masthead is", () => {
+  const masthead = `<header class="page"><div class="Masthead"><svg>${"x".repeat(5000)}</svg></div></header>`;
+  const page = `<html><head></head><body>${masthead}<main class="page"><p>edition</p></main></body></html>`;
+  expect(preview(page)).toBe(
+    `<body>${MASTHEAD_SHOWN}<main class="page"><p>edition</p></main></body></html>`,
+  );
+  // A header that is not the masthead, the catalog's, is printed as it is.
+  const catalog = `<body><header class="page"><h1>Catalog</h1></header><main></main></body>`;
+  expect(preview(catalog)).toBe(catalog);
 });
