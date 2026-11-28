@@ -23,6 +23,7 @@ import sourceTileStates from "../patterns/SourceTile/SourceTile.states.tsx";
 import stampStates from "../patterns/Stamp/Stamp.states.tsx";
 import ticketStubStates from "../patterns/TicketStub/TicketStub.states.tsx";
 import ticketStubsStates from "../patterns/TicketStubs/TicketStubs.states.tsx";
+import tideTableStates from "../patterns/TideTable/TideTable.states.tsx";
 import verdictMarkStates from "../patterns/VerdictMark/VerdictMark.states.tsx";
 import verdictMarksStates from "../patterns/VerdictMarks/VerdictMarks.states.tsx";
 import buttonStates from "../primitives/Button/Button.states.tsx";
@@ -88,6 +89,7 @@ export const CATALOG: readonly CatalogEntry[] = [
   entry("Stamp", "patterns", stampStates),
   entry("TicketStub", "patterns", ticketStubStates),
   entry("TicketStubs", "patterns", ticketStubsStates),
+  entry("TideTable", "patterns", tideTableStates),
   entry("VerdictMark", "patterns", verdictMarkStates),
   entry("VerdictMarks", "patterns", verdictMarksStates),
 ];

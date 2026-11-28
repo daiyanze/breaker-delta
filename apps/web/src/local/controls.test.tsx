@@ -56,6 +56,7 @@ describe("no control is shorter than 44px (issue 112)", () => {
       "LanguageMenu-button",
       "LanguageMenu-link",
       "ThemeSwitch",
+      "TideTable-link",
     ]);
     expect(controlHeights(uiCss(), classes)).toEqual([]);
   });

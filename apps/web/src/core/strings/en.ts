@@ -23,6 +23,13 @@ export const en = {
   "ebb.ripple": "A wave line flattening, now at {height}",
   "ebb.none": "No wave is going out.",
   "classifieds.name": "Classifieds",
+  "tide.name": "Tide table",
+  "tide.note":
+    "What became a wave today, at the hour it formed. The sea rises where several formed close together.",
+  "tide.summary": "{count} stories became waves today, between {first} and {last}.",
+  "tide.now": "now",
+  "tide.later": "still to come",
+  "tide.high": "high water, {time}",
   "fixture.note": "Fixture data.",
   "sea.flat": "flat",
   "sea.calm": "calm",

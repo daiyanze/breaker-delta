@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { type RankRow, RankRowSchema, type ReadQueries } from "@bd/contracts";
 import { createFixtureReadQueries } from "@bd/fixtures";
 import { echoStackLayers } from "@bd/ui/patterns";
+import { localClock } from "../core/pages/tide.tsx";
 import { createSite } from "../core/site.ts";
 
 // The site core cannot import fixtures (check-deps), so the pages it renders
@@ -172,11 +173,11 @@ describe("the three tiers of headlines, issue 119", () => {
     expect(en).not.toContain("<ol start=");
     // In the front band, a headline links each of the six tallest waves and
     // the index (#120) links every wave once. A falling wave is linked again
-    // from its fading notice further down (issue 122), outside this band.
-    const band = en.slice(
-      en.indexOf('aria-labelledby="band-front"'),
-      en.indexOf('aria-labelledby="band-fading"'),
-    );
+    // from its fading notice further down (issue 122), and a wave formed
+    // today from the tide table (#121), both outside this band: the slice
+    // ends where the next band starts.
+    const start = en.indexOf('aria-labelledby="band-front"');
+    const band = en.slice(start, en.indexOf('<section class="Band"', start));
     slugs.forEach((s, k) => {
       expect([s, band.split(`href="${s}"`).length - 1]).toEqual([s, k < 6 ? 2 : 1]);
     });
@@ -363,6 +364,48 @@ describe("the renderer escapes fixture text", () => {
     expect(body(html)).not.toContain("<script");
     expect(html).not.toContain(" & ");
     expect(html).not.toContain('"quoted"');
+  });
+});
+
+// #121: the tide table, from the edition's `tideTable` and the site's time zone.
+describe("the tide table", () => {
+  test("the busy front page has it after the front band, one dot and one link per wave", async () => {
+    const html = await front(createFixtureReadQueries("busy"));
+    const main = html.slice(html.indexOf("<main"));
+    expect(main.indexOf('id="band-front"')).toBeLessThan(main.indexOf('id="band-tide"'));
+    // Board 01's order: front page, tide table, fading notices, classifieds.
+    expect(main.indexOf('id="band-tide"')).toBeLessThan(main.indexOf('id="band-fading"'));
+    expect(main.indexOf('id="band-fading"')).toBeLessThan(main.indexOf('id="band-classifieds"'));
+    expect(main).toContain('<h2 id="band-tide" class="Band-name">Tide table</h2>');
+    expect(main).toContain('aria-label="5 stories became waves today, between 08:00 and 14:00."');
+    expect(main.match(/<circle class="TideTable-dot"/g)?.length).toBe(5);
+    // Latest first; a wave with no summary keeps its source's own headline.
+    expect(main).toContain(
+      '<a class="TideTable-link" href="/topic/open-weights-quarter-price"><span class="TideTable-at">14:00</span><span class="TideTable-title" lang="en">Open-weights model released with pricing at 25% of flagship</span><span class="TideTable-wave">126</span></a>',
+    );
+    expect(main).toContain('<text class="TideTable-nowLabel" x="58.333%" y="22">now</text>');
+  });
+
+  test("in Chinese, its text and links are the page's language", async () => {
+    const html = await front(createFixtureReadQueries("busy"), "zh");
+    expect(html).toContain('<h2 id="band-tide" class="Band-name">潮汐表</h2>');
+    expect(html).toContain('aria-label="今天有 5 个故事成了浪，时间在 08:00 到 14:00 之间。"');
+    expect(html).toContain(
+      '<a class="TideTable-link" href="/zh/topic/six-banks-offline"><span class="TideTable-at">10:00</span><span class="TideTable-title" lang="zh">美国六家银行同一个下午相继宕机</span>',
+    );
+    expect(html).toContain(">满潮 09:30</text>");
+  });
+
+  test("left out with one new wave (board 19) and on a flat sea", async () => {
+    for (const set of ["quiet", "fresh"] as const) {
+      expect(await front(createFixtureReadQueries(set))).not.toContain("TideTable");
+    }
+  });
+
+  test("a formation time is read in the site's time zone", () => {
+    expect(localClock("2026-11-19T08:00:00+09:00", "Asia/Tokyo")).toEqual({ at: "08:00", hour: 8 });
+    expect(localClock("2026-11-18T23:30:00Z", "Asia/Tokyo")).toEqual({ at: "08:30", hour: 8.5 });
+    expect(localClock("2026-11-19T00:45:00+09:00", "UTC")).toEqual({ at: "15:45", hour: 15.75 });
   });
 });
 

@@ -23,6 +23,7 @@ page (default light, English); the links at its top go to the other five.
   formed, fading, tallest, long, zh, ja`, `Index (patterns): default, open,
   quiet, long, zh, ja`, `IndexRow (patterns): default, new, down, level,
   long, zh, ja`, `LanguageMenu (patterns): default, open, long, zh, ja`,
+  `TideTable (patterns): default, two, late, long, zh, ja`,
   `SourceTile (patterns): solid, outline, account, search, mail, code,
   favicon, favicon-solid, favicon-failed, small, long, zh, ja`, `Footer
   (patterns): default, no-form, long, zh, ja`).

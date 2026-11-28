@@ -7,7 +7,8 @@
  * (#105); it moves into the masthead's top bar with #110. The six tallest
  * waves are the headlines in three tiers (#119, boards 01 and 02), the lead
  * with the echo stack (#114). Beside them, the index (#120) lists every
- * wave, the six included, in the front band's right rail.
+ * wave, the six included, in the front band's right rail. The tide table
+ * (#121) follows the front band, before the fading notices (board 01).
  */
 import type { Edition, Language, RankRow, SiteMeta } from "@bd/contracts";
 import {
@@ -30,6 +31,7 @@ import type { RouteContext } from "../routes.ts";
 import { type Translate, translator } from "../strings/index.ts";
 import { siteFooter } from "./footer.tsx";
 import { pageLanguages } from "./head.tsx";
+import { tideBand } from "./tide.tsx";
 
 /** The model headline in `lang` when there is one, else the source's own headline. */
 function headline(row: Pick<RankRow, "headlines" | "sourceHeadline">, lang: Language) {
@@ -282,6 +284,7 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
           </p>
           {headlines(tiers(edition))}
         </Band>
+        {tideBand(edition, meta, ctx.lang, t, (row) => headline(row, ctx.lang))}
         <FadingNotices {...fadingNotices(edition.ebb, meta, ctx.lang, t)} />
         <Band id="classifieds" name={t("classifieds.name")}>
           <ul>

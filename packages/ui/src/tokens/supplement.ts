@@ -158,6 +158,18 @@ export const ECHO_STACK = {
 } as const;
 
 /**
+ * The tide table's chart (#121): boards 01 and 02 draw it in an SVG 270
+ * high (`viewBox="0 0 860 270"`), the sea surface with `stroke-width: 3`
+ * and each wave's dot with `r="5.5"` (board 01). The design system names
+ * none of them. `tokens.test.ts` checks that board 01 still says so.
+ */
+export const TIDE = {
+  height: "270px",
+  surface: "3px",
+  dot: "5.5px",
+} as const;
+
+/**
  * The front page's three tiers of headlines (#119,
  * `design/system/components/Headline/README.md`). A headline's size is
  * `base + height ÷ 200 × span`: the README's table, desktop and phone. On

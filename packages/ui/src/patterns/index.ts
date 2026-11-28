@@ -43,6 +43,7 @@ export {
 export { STAMP_KINDS, Stamp, type StampKind, type StampProps } from "./Stamp/Stamp.tsx";
 export { type StubText, TicketStub, type TicketStubProps } from "./TicketStub/TicketStub.tsx";
 export { TicketStubs, type TicketStubsProps } from "./TicketStubs/TicketStubs.tsx";
+export { TideTable, type TideTableProps, type TideWave } from "./TideTable/TideTable.tsx";
 export {
   MARK_KINDS,
   type MarkKind,

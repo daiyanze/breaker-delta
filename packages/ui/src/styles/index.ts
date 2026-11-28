@@ -19,6 +19,7 @@ import sourceTile from "../patterns/SourceTile/SourceTile.css" with { type: "tex
 import stamp from "../patterns/Stamp/Stamp.css" with { type: "text" };
 import ticketStub from "../patterns/TicketStub/TicketStub.css" with { type: "text" };
 import ticketStubs from "../patterns/TicketStubs/TicketStubs.css" with { type: "text" };
+import tideTable from "../patterns/TideTable/TideTable.css" with { type: "text" };
 import verdictMark from "../patterns/VerdictMark/VerdictMark.css" with { type: "text" };
 import verdictMarks from "../patterns/VerdictMarks/VerdictMarks.css" with { type: "text" };
 import button from "../primitives/Button/Button.css" with { type: "text" };
@@ -66,6 +67,7 @@ export const CSS_FILES: readonly { path: string; layer: Layer; text: string }[] 
   { path: "patterns/Stamp/Stamp.css", layer: "patterns", text: stamp },
   { path: "patterns/TicketStub/TicketStub.css", layer: "patterns", text: ticketStub },
   { path: "patterns/TicketStubs/TicketStubs.css", layer: "patterns", text: ticketStubs },
+  { path: "patterns/TideTable/TideTable.css", layer: "patterns", text: tideTable },
   { path: "patterns/VerdictMark/VerdictMark.css", layer: "patterns", text: verdictMark },
   { path: "patterns/VerdictMarks/VerdictMarks.css", layer: "patterns", text: verdictMarks },
 ];
