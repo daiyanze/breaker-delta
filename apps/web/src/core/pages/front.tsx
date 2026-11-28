@@ -4,7 +4,8 @@
  * alone. Every piece of text is a plain string; the renderer escapes it.
  * Interface text comes from the string tables in the page's language (#107),
  * the theme switch's two names included. The switch is its one island
- * (#105); it moves into the masthead's top bar with #110. The six tallest
+ * (#105), in the masthead's row of tools with the language menu (#110).
+ * The six tallest
  * waves are the headlines in three tiers (#119, boards 01 and 02), the lead
  * with the echo stack (#114). Beside them, the index (#120) lists every
  * wave, the six included, in the front band's right rail. The tide table
@@ -32,6 +33,7 @@ import type { RouteContext } from "../routes.ts";
 import { type Translate, translator } from "../strings/index.ts";
 import { siteFooter } from "./footer.tsx";
 import { pageLanguages } from "./head.tsx";
+import { pageMasthead } from "./masthead.tsx";
 import { tideBand } from "./tide.tsx";
 import { verdictsBand } from "./verdicts.tsx";
 
@@ -311,11 +313,19 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
   return {
     document: (
       <Document lang={ctx.lang} title={meta.siteName} head={languages.head}>
-        <header class="page">
-          {languages.menu}
-          <h1>{meta.siteName}</h1>
-          <ThemeSwitch toDark={t("theme.toDark")} toLight={t("theme.toLight")} />
-        </header>
+        {pageMasthead({
+          lang: ctx.lang,
+          site: meta,
+          current: "front",
+          name: meta.siteName,
+          heading: true,
+          tools: (
+            <>
+              {languages.menu}
+              <ThemeSwitch toDark={t("theme.toDark")} toLight={t("theme.toLight")} />
+            </>
+          ),
+        })}
         <main class="page">{bands}</main>
         {siteFooter(ctx, meta)}
       </Document>

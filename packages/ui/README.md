@@ -24,7 +24,7 @@ other data file, not even one in `src/tokens`.
 
 `tokens` (#269), `styles` and `build` (#270), `runtime` and `patterns`
 (#271) and `primitives` (#272) exist today; `patterns` holds `Band`,
-`LanguageMenu`, `TideTable` and `SourceTile` (with its island), `primitives` `Button`,
+`LanguageMenu`, `Masthead`, `TideTable` and `SourceTile` (with its island), `primitives` `Button`,
 `Filters`, `SearchEntry` and the `ThemeSwitch` island; `catalog` (#258)
 lists them. A file directly under `src/` is
 under no rule and fails `check-deps`.
@@ -108,6 +108,13 @@ under no rule and fails `check-deps`.
   the globe alone. A drop-down menu (`data-menu`): Esc closes it. `open` starts it open, for the catalog's `open` and
   `long` states; pages leave it out. Classes `.LanguageMenu`, `-details`,
   `-button`, `-icon`, `-current`, `-chevron`, `-list`, `-link`.
+- `Masthead` (`patterns/Masthead`, boards 01 to 23, #110): the tools row
+  (`tools`), the One ink mark and the wordmark as one link home (an `<h1>`
+  with `heading`), the navigation with the `current` page marked, and the
+  wave with its boat, moved by CSS alone and still under reduced motion. On
+  phones the navigation is a `<details>` "Sections" disclosure. Its mark is
+  `oneInkMark` of `apps/web/src/core/icon.ts` redrawn in Preact;
+  `icon.test.ts` compares the shapes. `SPEC.md` in its folder.
 - `Notice` (`primitives/Notice`, #122): the double-ruled notice, in its
   ebb form: a ripple whose amplitude follows the height (`RIPPLE`), the
   topic's name, an obituary-style sentence and the height now, all as
@@ -208,14 +215,14 @@ no Bun or Cloudflare types, so emails and share cards can import it.
   icon size, the source tile's sizes, the echo stack's and the headlines'
   sizes, the footer's timings, angles, beam opacity and link weight, the
   index's values and phone row count, the tide table's height, surface and
-  dot, the two-column breakpoint, the ebb
+  dot, the masthead's sizes and motion, the two-column breakpoint, the ebb
   notice's ripple rule and cycle, the illustration line width, the CJK
   weight in place of italic), each with the text it comes from. No other
   file holds a design value. All but the breakpoint, the index's row count
   and the ripple's numbers are also CSS variables: `--phone-*`,
   `--control-*`, `--focus-*`, `--icon-*`, `--source-tile-*`,
   `--echo-stack-*`, `--headline-*`, `--footer-*`, `--index-*`,
-  `--tide-*`, `--ripple-cycle`, `--illustration-stroke`, `--cjk-emphasis-weight`.
+  `--tide-*`, `--masthead-*`, `--ripple-cycle`, `--illustration-stroke`, `--cjk-emphasis-weight`.
 - `contrast.test.ts` computes the WCAG 2.2 contrast of every text and
   background pair the design uses, in both themes: 4.5:1 for text, 3:1 for
   a control's outline. A new colour token fails it until it is placed.

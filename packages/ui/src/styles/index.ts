@@ -15,6 +15,7 @@ import headline from "../patterns/Headline/Headline.css" with { type: "text" };
 import index from "../patterns/Index/Index.css" with { type: "text" };
 import indexRow from "../patterns/IndexRow/IndexRow.css" with { type: "text" };
 import languageMenu from "../patterns/LanguageMenu/LanguageMenu.css" with { type: "text" };
+import masthead from "../patterns/Masthead/Masthead.css" with { type: "text" };
 import sourceTile from "../patterns/SourceTile/SourceTile.css" with { type: "text" };
 import stamp from "../patterns/Stamp/Stamp.css" with { type: "text" };
 import ticketStub from "../patterns/TicketStub/TicketStub.css" with { type: "text" };
@@ -62,6 +63,7 @@ export const CSS_FILES: readonly { path: string; layer: Layer; text: string }[] 
   { path: "patterns/Index/Index.css", layer: "patterns", text: index },
   { path: "patterns/IndexRow/IndexRow.css", layer: "patterns", text: indexRow },
   { path: "patterns/LanguageMenu/LanguageMenu.css", layer: "patterns", text: languageMenu },
+  { path: "patterns/Masthead/Masthead.css", layer: "patterns", text: masthead },
   { path: "patterns/SourceTile/SourceTile.css", layer: "patterns", text: sourceTile },
   { path: "patterns/Footer/Footer.css", layer: "patterns", text: footer },
   { path: "patterns/Stamp/Stamp.css", layer: "patterns", text: stamp },

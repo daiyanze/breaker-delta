@@ -15,6 +15,7 @@ import {
   INDEX,
   INDEX_PHONE_ROWS,
   MARK,
+  MASTHEAD,
   PHONE,
   RIPPLE,
   SOURCE_TILE,
@@ -104,6 +105,13 @@ describe("design tokens as CSS", () => {
     expect(root).toContain(`--ripple-cycle:${RIPPLE.cycle};`);
     expect(root).toContain(`--illustration-stroke:${ILLUSTRATION.stroke};`);
     expect(root).toContain(`--cjk-emphasis-weight:${CJK.emphasisWeight};`);
+  });
+
+  test("the masthead's values are variables for its CSS", () => {
+    expect(root).toContain(`--masthead-wordmark-phone:${MASTHEAD.wordmarkPhone};`);
+    expect(root).toContain(`--masthead-wave-loop:${MASTHEAD.waveLoop};`);
+    expect(root).toContain(`--masthead-sail-desktop:${MASTHEAD.sailDesktop};`);
+    expect(Object.keys(MASTHEAD)).toHaveLength(15);
   });
 
   test("the echo stack's sizes and timing are variables for its CSS", () => {
@@ -340,6 +348,39 @@ describe("supplement: values the design states only in prose", () => {
         svg: `width="${px}" height="${px}" viewBox="0 0 ${px} ${px}" aria-hidden="true"`,
       });
     }
+  });
+
+  test("the masthead's values are the ones its README and the masthead type style state", async () => {
+    const readme = await Bun.file(
+      `${import.meta.dir}/../../../../design/system/components/Masthead/README.md`,
+    ).text();
+    const m = MASTHEAD;
+    expect(readme).toContain(`高度是字标字号的 ${Number.parseFloat(m.markSize)} 倍`);
+    expect(readme).toContain(`间距 ${m.markGap}`);
+    expect(readme).toContain(`${m.waveStroke} \`ink\` 描边的正弦线，周期 60px`);
+    expect(readme).toContain(`${Number.parseFloat(m.waveLoop)} 秒向左流动 ${m.waveDrift}`);
+    expect(readme).toContain(
+      `每 ${Number.parseFloat(m.boatBeat)} 秒越过一个浪，上下 ±${m.boatRise}、俯仰 ±${Number.parseFloat(m.boatPitch)}°`,
+    );
+    expect(readme).toContain(`圆章 ${m.markPhone}（最简画法），字标 ${m.wordmarkPhone} 单行`);
+    const usage = tokens.type.groups
+      .flatMap((g) => g.styles)
+      .find((s) => s.name === "masthead")?.usage;
+    expect(usage).toContain(
+      `桌面 clamp(${m.wordmarkMin}, ${m.wordmarkFluid}, ${typeStyle("masthead").size})，手机 ${m.wordmarkPhone}`,
+    );
+  });
+
+  test("the wave's height and the boat's crossing times are the ones boards 01 and 02 draw", async () => {
+    const board = (name: string) =>
+      Bun.file(`${import.meta.dir}/../../../../design/boards/${name}.dc.html`).text();
+    const px = Number.parseFloat(MASTHEAD.waveHeight);
+    const desktop = await board("Front2");
+    const phone = await board("FrontMobile");
+    expect(desktop).toContain(`<svg viewBox="0 0 1280 ${px}" preserveAspectRatio="xMidYMid slice"`);
+    expect(phone).toContain(`<svg viewBox="0 0 390 ${px}" preserveAspectRatio="xMidYMid slice"`);
+    expect(desktop).toContain(`.sail{animation:sail ${MASTHEAD.sailDesktop} linear infinite}`);
+    expect(phone).toContain(`.sail{animation-duration:${MASTHEAD.sailPhone}}`);
   });
 
   test("the tide table's height, surface and dot are the ones board 01 draws", async () => {

@@ -91,6 +91,51 @@ export const ICON = {
 } as const;
 
 /**
+ * The masthead (`design/system/components/Masthead/README.md`, #110), from
+ * its README and the `masthead` type style's usage in `tokens.json`
+ * ("桌面 clamp(56px, 7.4vw, 104px)，手机 38px"; the 104px is the style's own
+ * size). `tokens.test.ts` checks that both still say so.
+ *
+ * - `wordmarkMin`, `wordmarkFluid`: the desktop wordmark's lower bound and
+ *   its size relative to the viewport.
+ * - `wordmarkPhone`: "字标 38px 单行" (the phone wordmark, one line).
+ * - `markPhone`: "圆章 34px（最简画法）" (the phone mark, simplest drawing).
+ * - `markSize`: "高度是字标字号的 0.84 倍" (the mark is 0.84 times the
+ *   wordmark's size).
+ * - `markGap`: "间距 0.14em" (between the mark and the wordmark).
+ * - `waveStroke`: "3.5px `ink` 描边的正弦线" (the wave line's stroke).
+ * - `waveDrift`, `waveLoop`: "30 秒向左流动 240px" (the wave moves left 240px
+ *   in 30 seconds, four of its 60px periods, so the loop has no seam).
+ * - `boatRise`, `boatPitch`, `boatBeat`: "每 2.5 秒越过一个浪，上下 ±3.5px、
+ *   俯仰 ±5°" (the boat crosses a wave every 2.5 seconds, ±3.5px up and
+ *   down, ±5° in pitch).
+ *
+ * Not in the README, from boards 01 and 02 (agent's choice to take them as
+ * drawn, #110): `waveHeight`, the 44px the wave and the boat are drawn in;
+ * `sailPhone` and `sailDesktop`, the time the boat takes to cross, 30s on
+ * the phone board's 390px and 87.5s on the desktop board's 1280px. CSS
+ * cannot divide a width by a speed, so the README's "每秒 16px" (16px a
+ * second) holds at those widths and is close between them.
+ */
+export const MASTHEAD = {
+  wordmarkMin: "56px",
+  wordmarkFluid: "7.4vw",
+  wordmarkPhone: "38px",
+  markPhone: "34px",
+  markSize: "0.84em",
+  markGap: "0.14em",
+  waveStroke: "3.5px",
+  waveDrift: "240px",
+  waveLoop: "30s",
+  waveHeight: "44px",
+  boatRise: "3.5px",
+  boatPitch: "5deg",
+  boatBeat: "2.5s",
+  sailPhone: "30s",
+  sailDesktop: "87.5s",
+} as const;
+
+/**
  * The source tile (#113): `design/system/components/SourceTile/README.md`,
  * "尺寸 34px（分类广告里 30px），1.5px 描边" (34px, 30px in the classifieds,
  * a 1.5px outline). Its icon is 20 × 20 in the 34px tile on board 03
