@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { ReadQueries } from "@bd/contracts";
+import { type RankRow, RankRowSchema, type ReadQueries } from "@bd/contracts";
 import { createFixtureReadQueries } from "@bd/fixtures";
 import { echoStackLayers } from "@bd/ui/patterns";
 import { localClock } from "../core/pages/tide.tsx";
@@ -33,7 +33,10 @@ describe("every page uses the band", () => {
           /^<header class="page">(?:<div class="LanguageMenu">[\s\S]*?<\/details><\/div>)?<h1>[^<]+<\/h1>(?:<bd-island name="ThemeSwitch"[^>]*>[\s\S]*?<\/bd-island>)?<\/header>/,
           "",
         )
-        .replace(/^<main class="page">(?:<section class="Band"[\s\S]*?<\/section>)+<\/main>$/, "");
+        .replace(
+          /^<main class="page">(?:<section class="Band"[\s\S]*?<\/section>)+<\/main>(?:<footer class="Footer">[\s\S]*<\/footer>)?$/,
+          "",
+        );
       expect({ name, outside }).toEqual({ name, outside: "" });
     }
   });
@@ -78,6 +81,46 @@ describe("every page uses the band", () => {
   });
 });
 
+// #111: every page ends with the footer, in the page's language. The form
+// shows only when the site sends email (#81 hides it otherwise).
+describe("the footer", () => {
+  test("the busy set sends email, so its footer has the form; fresh and quiet do not", async () => {
+    const busy = await front(createFixtureReadQueries("busy"));
+    expect(busy).toContain(
+      '</main><footer class="Footer"><div class="Footer-top"><form class="Footer-form" method="post" action="/subscribe">',
+    );
+    expect(busy).toContain(">One email a day, with the new waves.</label>");
+    for (const set of ["fresh", "quiet"] as const) {
+      const html = await front(createFixtureReadQueries(set));
+      expect(html).toContain('</main><footer class="Footer"><div class="Footer-top"><nav');
+      expect(html).not.toContain("<form");
+    }
+  });
+
+  test("its text and links follow the page's language", async () => {
+    const zh = await front(createFixtureReadQueries("busy"), "zh");
+    expect(zh).toContain('action="/zh/subscribe"');
+    expect(zh).toContain(">每天一封邮件，带来新成的浪。</label>");
+    expect(zh).toContain('<nav class="Footer-nav" aria-label="页脚">');
+    expect(zh).toContain(
+      '<a class="Footer-link" href="/zh/about#height"><span class="Footer-long">浪高是怎么算的</span><span class="Footer-short">浪高怎么算</span></a>',
+    );
+    expect(zh).toContain('<span class="Footer-note">Breaker Delta 是开源项目。</span>');
+    // Every link: the three about sections in the page's language, then the repository.
+    const links = (html: string) =>
+      [...html.matchAll(/<a class="Footer-link" href="([^"]+)"/g)].map((m) => m[1]);
+    const repo = "https://github.com/daiyanze/breaker-delta";
+    expect(links(zh)).toEqual(["/zh/about#height", "/zh/about#own", "/zh/about#open", repo]);
+    const ja = await front(createFixtureReadQueries("busy"), "ja");
+    expect(links(ja)).toEqual(["/ja/about#height", "/ja/about#own", "/ja/about#open", repo]);
+    const en = await front(createFixtureReadQueries("busy"));
+    expect(links(en)).toEqual(["/about#height", "/about#own", "/about#open", repo]);
+    expect(en).toContain(
+      '<a class="Footer-link" href="https://github.com/daiyanze/breaker-delta">GitHub</a>',
+    );
+  });
+});
+
 describe("the echo stack, issue 114", () => {
   test("the tallest wave has one, its sheets following its height, its label in the page's language", async () => {
     const q = createFixtureReadQueries("busy");
@@ -93,15 +136,176 @@ describe("the echo stack, issue 114", () => {
     const start = en.indexOf('<svg class="EchoStack"');
     const stack = en.slice(start, en.indexOf("</svg>", start));
     expect(stack.match(/<rect /g)).toHaveLength(layers);
-    // It sits in the tallest wave's row, before its height.
-    expect(en.indexOf('<svg class="EchoStack"')).toBeGreaterThan(en.indexOf("<ol><li>"));
-    expect(en.indexOf('<svg class="EchoStack"')).toBeLessThan(en.indexOf("<data "));
+    // It sits in the lead story, under its headline and before its height (#119).
+    expect(en.indexOf('<svg class="EchoStack"')).toBeGreaterThan(en.indexOf("Headline-title-lead"));
+    expect(en.indexOf('<svg class="EchoStack"')).toBeLessThan(en.indexOf("Headline-number-lead"));
     expect(await front(q, "zh")).toContain(`aria-label="回波叠成浪，高 ${layers} 层"`);
     expect(await front(q, "ja")).toContain(`aria-label="エコーが重なって波に、${layers} 層の高さ"`);
   });
 
   test("a flat sea has none", async () => {
     expect(await front(createFixtureReadQueries("fresh"))).not.toContain("EchoStack");
+  });
+});
+
+describe("the three tiers of headlines, issue 119", () => {
+  const titles = (html: string, tier: string) =>
+    [
+      ...html.matchAll(
+        new RegExp(
+          `Headline-title-${tier}[^"]*" data-height="(\\d+)"><a class="Headline-link" href="([^"]+)"`,
+          "g",
+        ),
+      ),
+    ].map((m) => [m[1], m[2]]);
+
+  test("rank 1 is the lead, 2 and 3 the second tier, 4 to 6 the third; the index lists them all", async () => {
+    const q = createFixtureReadQueries("busy");
+    const edition = await q.edition();
+    if (edition === null) throw new Error("busy has an edition");
+    const en = await front(q);
+    const slugs = edition.ranking.map((r) => `/topic/${r.slug}`);
+    const digits = (h: number) => String(Math.min(200, Math.round(h))).padStart(3, "0");
+    const at = (k: number) => [digits(edition.ranking[k]?.height ?? 0), slugs[k]];
+    expect(titles(en, "lead")).toEqual([at(0)]);
+    expect(titles(en, "second")).toEqual([at(1), at(2)]);
+    expect(titles(en, "third")).toEqual([at(3), at(4), at(5)]);
+    expect(en).not.toContain("<ol start=");
+    // In the front band, a headline links each of the six tallest waves and
+    // the index (#120) links every wave once. A falling wave is linked again
+    // from its fading notice further down (issue 122), and a wave formed
+    // today from the tide table (#121), both outside this band: the slice
+    // ends where the next band starts.
+    const start = en.indexOf('aria-labelledby="band-front"');
+    const band = en.slice(start, en.indexOf('<section class="Band"', start));
+    slugs.forEach((s, k) => {
+      expect([s, band.split(`href="${s}"`).length - 1]).toEqual([s, k < 6 ? 2 : 1]);
+    });
+  });
+
+  test("formed today (by formedAt, in the site time zone) is red; down over 24 hours is fading; the kicker says which", async () => {
+    const q = createFixtureReadQueries("busy");
+    const en = await front(q);
+    // Ranks 2 and 3 formed today; rank 5 (frontier-model-backlash) is down 18%.
+    expect(en).toContain(
+      '<data class="Headline-number Headline-number-second Headline-new" value="181">181</data>',
+    );
+    expect(en).toContain(
+      '<data class="Headline-number Headline-number-third" value="144">144</data>',
+    );
+    expect(en).toContain(
+      '<h3 class="Headline-title Headline-title-third Headline-fading" data-height="144"><a class="Headline-link" href="/topic/frontier-model-backlash"',
+    );
+    expect(en.match(/Headline-fading/g)).toHaveLength(1);
+    expect(en).toContain('<p class="Headline-kicker">Tallest wave right now</p>');
+    expect(en).toContain("<strong>Up 63% in 24 hours.</strong> 6 independent sources, 31 echoes.");
+    expect(en).toContain('<p class="Headline-note">Down 18% in 24 hours.</p>');
+    expect(en).toContain('aria-label="Wave height of the tallest story up to 14:00"');
+    // The quiet set's tallest wave formed this run.
+    const quiet = await front(createFixtureReadQueries("quiet"));
+    expect(quiet).toContain('<p class="Headline-kicker">Formed today, already the tallest</p>');
+    expect(quiet).toContain("<strong>New today.</strong>");
+    expect(quiet).toContain('<path class="Headline-chart-line" pathLength="1" d="M4,60 L516,60">');
+  });
+
+  test("the text follows the page's language; the headline keeps its own", async () => {
+    const q = createFixtureReadQueries("busy");
+    const zh = await front(q, "zh");
+    expect(zh).toContain('<p class="Headline-kicker">此刻最高的浪</p>');
+    expect(zh).toContain("<strong>24 小时内上涨 63%。</strong> 6 个独立来源，31 条回波。");
+    expect(zh).toMatch(
+      /Headline-title-lead" data-height="196"><a class="Headline-link" href="\/zh\/topic\/[^"]+" lang="zh">/,
+    );
+    const ja = await front(q, "ja");
+    expect(ja).toContain('<p class="Headline-kicker">いまいちばん高い波</p>');
+  });
+
+  test("a flat sea has no headlines", async () => {
+    expect(await front(createFixtureReadQueries("fresh"))).not.toContain("Headline");
+  });
+});
+
+// Review of #297: the line under a headline is worded from `formedAt` and
+// the rounded change, not from a null change alone.
+describe("the line under a headline, issue 119", () => {
+  /**
+   * The busy front page (edition 2026-11-19 14:00 in Asia/Tokyo) with rank 5,
+   * a third-tier story, changed; returns its title element and its note.
+   */
+  async function rank5(change: Partial<RankRow>, lang?: string) {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    if (plain === null) throw new Error("busy has an edition");
+    expect((await base.siteMeta()).timeZone).toBe("Asia/Tokyo");
+    expect(plain.startsAt).toBe("2026-11-19T14:00:00+09:00");
+    const ranking = plain.ranking.map((r, i) =>
+      i === 4 ? RankRowSchema.parse({ ...r, ...change }) : r,
+    );
+    const html = await front({ ...base, edition: async () => ({ ...plain, ranking }) }, lang);
+    const start = html.indexOf(`/topic/${plain.ranking[4]?.slug}"`);
+    const article = html.slice(
+      html.lastIndexOf("<article", start),
+      html.indexOf("</article>", start),
+    );
+    return {
+      note: /<p class="Headline-note">([^<]*)<\/p>/.exec(article)?.[1],
+      fading: article.includes("Headline-fading"),
+      red: article.includes("Headline-new"),
+    };
+  }
+
+  test("no change 24 hours ago: today, yesterday or earlier, by formedAt's day in the site's time zone", async () => {
+    const cases: [string, string, string, string, boolean][] = [
+      // formedAt, en, zh, ja, red
+      ["2026-11-19T09:00:00+09:00", "New today.", "今天新成。", "きょうできた波。", true],
+      // 15:30 UTC on the 18th is 00:30 on the 19th in Tokyo: today.
+      ["2026-11-18T15:30:00Z", "New today.", "今天新成。", "きょうできた波。", true],
+      ["2026-11-18T23:30:00+09:00", "Formed yesterday.", "昨天新成。", "きのうできた波。", false],
+      // 14:00 UTC on the 18th is 23:00 on the 18th in Tokyo: yesterday.
+      ["2026-11-18T14:00:00Z", "Formed yesterday.", "昨天新成。", "きのうできた波。", false],
+      // Formed three days ago, flat 24 hours ago, up again.
+      [
+        "2026-11-16T09:00:00+09:00",
+        "Up again after going flat.",
+        "退平后再次涌起。",
+        "いったん凪いだあと、ふたたび立った波。",
+        false,
+      ],
+    ];
+    for (const [formedAt, en, zh, ja, red] of cases) {
+      const row = { change24h: null, formedAt };
+      expect({ formedAt, ...(await rank5(row)) }).toEqual({
+        formedAt,
+        note: en,
+        fading: false,
+        red,
+      });
+      expect((await rank5(row, "zh")).note).toBe(zh);
+      expect((await rank5(row, "ja")).note).toBe(ja);
+    }
+  });
+
+  test("a change is worded as it is shown, rounded; a rounded 0 is level and not going out", async () => {
+    const cases: [number, string, boolean][] = [
+      [-0.3, "Level over 24 hours.", false],
+      [0, "Level over 24 hours.", false],
+      [0.4, "Level over 24 hours.", false],
+      [-0.5, "Level over 24 hours.", false],
+      [-0.6, "Down 1% in 24 hours.", true],
+      [0.5, "Up 1% in 24 hours.", false],
+      [-18.4, "Down 18% in 24 hours.", true],
+      [62.7, "Up 63% in 24 hours.", false],
+    ];
+    for (const [change24h, note, fading] of cases) {
+      expect({ change24h, ...(await rank5({ change24h })) }).toEqual({
+        change24h,
+        note,
+        fading,
+        red: false,
+      });
+    }
+    expect((await rank5({ change24h: -0.3 }, "zh")).note).toBe("24 小时内持平。");
+    expect((await rank5({ change24h: -0.3 }, "ja")).note).toBe("24 時間で横ばい。");
   });
 });
 
@@ -129,7 +333,9 @@ describe("model text renders as text", () => {
     expect(count(html, /<a\b/g)).toBe(count(before, /<a\b/g));
     expect(body(html)).not.toContain("<script");
     expect(html).not.toContain("<img");
-    expect(html.slice(html.indexOf("<main"))).not.toMatch(/href="(?!\/topic\/|https:\/\/)/);
+    const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
+    // The site's own links: topics, and the changes that went flat (#122).
+    expect(main).not.toMatch(/href="(?!\/topic\/|https:\/\/|\/changes\?type=went_flat")/);
     expect(html).not.toContain('" onmouseover');
     expect(html).toContain("&lt;img src=x onerror=alert(1)>");
   });
@@ -167,7 +373,9 @@ describe("the tide table", () => {
     const html = await front(createFixtureReadQueries("busy"));
     const main = html.slice(html.indexOf("<main"));
     expect(main.indexOf('id="band-front"')).toBeLessThan(main.indexOf('id="band-tide"'));
-    expect(main.indexOf('id="band-tide"')).toBeLessThan(main.indexOf('id="band-classifieds"'));
+    // Board 01's order: front page, tide table, fading notices, classifieds.
+    expect(main.indexOf('id="band-tide"')).toBeLessThan(main.indexOf('id="band-fading"'));
+    expect(main.indexOf('id="band-fading"')).toBeLessThan(main.indexOf('id="band-classifieds"'));
     expect(main).toContain('<h2 id="band-tide" class="Band-name">Tide table</h2>');
     expect(main).toContain('aria-label="5 stories became waves today, between 08:00 and 14:00."');
     expect(main.match(/<circle class="TideTable-dot"/g)?.length).toBe(5);
@@ -198,5 +406,216 @@ describe("the tide table", () => {
     expect(localClock("2026-11-19T08:00:00+09:00", "Asia/Tokyo")).toEqual({ at: "08:00", hour: 8 });
     expect(localClock("2026-11-18T23:30:00Z", "Asia/Tokyo")).toEqual({ at: "08:30", hour: 8.5 });
     expect(localClock("2026-11-19T00:45:00+09:00", "UTC")).toEqual({ at: "15:45", hour: 15.75 });
+  });
+});
+
+// #122: the fading notices, from the edition's `ebb`. The sentence is the
+// fixed pattern of the string tables; the numbers are the data's.
+describe("the fading notices", () => {
+  const notices = (html: string) =>
+    html.slice(html.indexOf('<section class="Band" aria-labelledby="band-fading">'));
+
+  test("one notice per wave going out, its numbers from the data", async () => {
+    const q = createFixtureReadQueries("busy");
+    const edition = await q.edition();
+    if (edition === null) throw new Error("busy has an edition");
+    const html = notices(await front(q));
+    expect(html).toContain('<h2 id="band-fading" class="Band-name">Fading notices</h2>');
+    expect(html.match(/<article class="Notice">/g)?.length).toBe(edition.ebb.notices.length);
+    for (const n of edition.ebb.notices) {
+      expect(html).toContain(`href="/topic/${n.slug}"`);
+      expect(html).toContain(
+        `Peaked at ${Math.round(n.peak.height)}. Survived by ${n.echoCount} echoes.`,
+      );
+    }
+    // Board 01's first notice: formed Nov 13 (JST), peak 188, 22 echoes, now 144, down 18%.
+    expect(html).toContain(
+      '<p class="Notice-text">A wave since Nov 13. Peaked at 188. Survived by 22 echoes.</p><p class="Notice-now">Now 144, down 18% in 24 hours</p>',
+    );
+    expect(html).toContain('aria-label="A wave line flattening, now at 144"');
+    expect(html).toContain(
+      `<a class="FadingNotices-flat" href="/changes?type=went_flat">Read the ${edition.ebb.wentFlat24h} that went flat</a>`,
+    );
+  });
+
+  test("in each language, with the day in that language and links in its path", async () => {
+    const q = createFixtureReadQueries("busy");
+    const zh = notices(await front(q, "zh"));
+    expect(zh).toContain('<h2 id="band-fading" class="Band-name">退潮启事</h2>');
+    expect(zh).toContain("11月13日成浪。最高 188。身后留下 22 条回波。");
+    expect(zh).toContain("现在 144，24 小时内下降 18%");
+    expect(zh).toContain('href="/zh/topic/frontier-model-backlash" lang="zh"');
+    expect(zh).toContain('href="/zh/changes?type=went_flat"');
+    const ja = notices(await front(q, "ja"));
+    expect(ja).toContain("11月13日に波となる。最高 188。遺したエコーは 22 件。");
+  });
+
+  test("no link when no wave went flat; one echo is an echo; no fall, no percentage", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    const first = plain?.ebb.notices[0];
+    if (plain === null || plain === undefined || first === undefined) {
+      throw new Error("busy has ebb notices");
+    }
+    const ebb = {
+      wentFlat24h: 0,
+      notices: [{ ...first, echoCount: 1, change24h: null, height: 143.6 }],
+    };
+    const html = notices(await front({ ...base, edition: async () => ({ ...plain, ebb }) }));
+    expect(html).not.toContain("FadingNotices-flat");
+    expect(html).toContain("Survived by 1 echo.</p>");
+    expect(html).toContain('<p class="Notice-now">Now 144</p>');
+  });
+
+  test("a wave that rose in 24 hours shows its height and no fall", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    const first = plain?.ebb.notices[0];
+    if (plain === null || first === undefined) throw new Error("busy has ebb notices");
+    const ebb = { wentFlat24h: 0, notices: [{ ...first, change24h: 5 }] };
+    const html = notices(await front({ ...base, edition: async () => ({ ...plain, ebb }) }));
+    expect(html).toContain(`<p class="Notice-now">Now ${Math.round(first.height)}</p>`);
+    expect(html).not.toContain("down");
+  });
+
+  test("the day a wave formed is the site's day, not the machine's", async () => {
+    // 09:00 in Tokyo is 13:00 the day before in Pago Pago (UTC-11): a page
+    // that formatted the day in the machine's zone (JST or UTC here and in
+    // CI) would print Nov 13.
+    const base = createFixtureReadQueries("busy");
+    const meta = await base.siteMeta();
+    const plain = await base.edition();
+    const first = plain?.ebb.notices[0];
+    if (plain === null || first === undefined) throw new Error("busy has ebb notices");
+    const ebb = {
+      wentFlat24h: 0,
+      notices: [{ ...first, formedAt: "2026-11-13T09:00:00+09:00" }],
+    };
+    const html = notices(
+      await front({
+        ...base,
+        siteMeta: async () => ({ ...meta, timeZone: "Pacific/Pago_Pago" }),
+        edition: async () => ({ ...plain, ebb }),
+      }),
+    );
+    expect(html).toContain('<p class="Notice-text">A wave since Nov 12.');
+  });
+
+  test("when no wave is going out, the whole section is one sentence", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    if (plain === null) throw new Error("busy has an edition");
+    const ebb = { wentFlat24h: 3, notices: [] };
+    const html = await front({ ...base, edition: async () => ({ ...plain, ebb }) });
+    expect(html).toContain(
+      '<section class="Band" aria-labelledby="band-fading"><div class="Band-rail"><h2 id="band-fading" class="Band-name">Fading notices</h2></div><div class="Band-body"><div class="FadingNotices"><p class="FadingNotices-none">No wave is going out.</p></div></div></section>',
+    );
+  });
+});
+
+describe("the index, issue 120", () => {
+  /** The index island's server markup. */
+  const indexOf = (html: string) =>
+    html.slice(html.indexOf('<aside class="Index"'), html.indexOf("</aside>") + 8);
+  const ROW =
+    /<a class="IndexRow" href="([^"]+)"><span class="IndexRow-rank">(\d+)<\/span><span class="IndexRow-title" lang="([\w-]+)">([^<]+)<\/span><span class="IndexRow-leader" aria-hidden="true"><\/span><span class="IndexRow-change( IndexRow-new)?">([^<]*)<\/span><data class="IndexRow-number( IndexRow-new)?" value="([\d.]+)">(\d+)<\/data><\/a>/g;
+  const rowsOf = (html: string) =>
+    [...indexOf(html).matchAll(ROW)].map((m) => ({
+      href: m[1],
+      rank: Number(m[2]),
+      lang: m[3],
+      title: m[4],
+      change: m[6],
+      red: m[5] !== undefined && m[7] !== undefined,
+      number: Number(m[9]),
+    }));
+
+  test("every wave, tallest first, each linking to its topic page, in the front band's right rail", async () => {
+    const q = createFixtureReadQueries("busy");
+    const edition = await q.edition();
+    if (edition === null) throw new Error("busy has an edition");
+    const en = await front(q);
+    expect(en).toContain(
+      '<section class="Band" data-variant="front" aria-labelledby="band-front">',
+    );
+    expect(en).toContain('<div class="Band-aside"><bd-island name="Index" props="');
+    const rows = rowsOf(en);
+    expect(rows).toHaveLength(16);
+    expect(rows.map((r) => r.href)).toEqual(edition.ranking.map((r) => `/topic/${r.slug}`));
+    expect(rows.map((r) => r.rank)).toEqual(edition.ranking.map((r) => r.rank));
+    expect(rows.map((r) => r.number)).toEqual(edition.ranking.map((r) => Math.round(r.height)));
+    // The short title, not the headline.
+    expect(rows[0]?.title).toBe("Founder CEO ousted");
+    // The index comes after the headlines in the band, so under them on phones.
+    expect(en.indexOf('<div class="Band-aside">')).toBeGreaterThan(en.indexOf("Headline-key"));
+  });
+
+  test("the change: new (red) for a wave formed today, the rounded percent otherwise, nothing when level", async () => {
+    const en = rowsOf(await front(createFixtureReadQueries("busy")));
+    const at = (rank: number) => en[rank - 1];
+    expect(at(1)).toMatchObject({ change: "+63%", red: false });
+    expect(at(2)).toMatchObject({ change: "new", red: true });
+    expect(at(5)).toMatchObject({ change: "−18%", red: false });
+    expect(at(7)).toMatchObject({ change: "new", red: true });
+    expect(at(16)).toMatchObject({ change: "", red: false });
+    expect(en.filter((r) => r.red).map((r) => r.rank)).toEqual([2, 3, 4, 6, 7]);
+  });
+
+  test("a null change on a wave that formed before today shows nothing and is not red", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    if (plain === null) throw new Error("busy has an edition");
+    const yesterday = { change24h: null, formedAt: "2026-11-18T23:30:00+09:00" };
+    const ranking = plain.ranking.map((r, i) =>
+      i === 7 ? RankRowSchema.parse({ ...r, ...yesterday }) : r,
+    );
+    const rows = rowsOf(await front({ ...base, edition: async () => ({ ...plain, ranking }) }));
+    expect(rows[7]).toMatchObject({ change: "", red: false });
+  });
+
+  // Review of #301: the change is shown rounded, so a fraction under 0.5 is level.
+  test("the change is the rounded percent: 12.6 is +13%, -12.6 is −13%, ±0.4 is level", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    if (plain === null) throw new Error("busy has an edition");
+    const changes = new Map([
+      [0, 12.6],
+      [4, -12.6],
+      [7, 0.4],
+      [8, -0.4],
+    ]);
+    const ranking = plain.ranking.map((r, i) => {
+      const change24h = changes.get(i);
+      return change24h === undefined ? r : RankRowSchema.parse({ ...r, change24h });
+    });
+    const rows = rowsOf(await front({ ...base, edition: async () => ({ ...plain, ranking }) }));
+    expect([0, 4, 7, 8].map((i) => rows[i]?.change)).toEqual(["+13%", "−13%", "", ""]);
+  });
+
+  test("the phone button shows all sixteen; the text follows the page's language, the titles keep theirs", async () => {
+    const q = createFixtureReadQueries("busy");
+    const en = indexOf(await front(q));
+    expect(en).toContain('<h2 id="index-name" class="Index-name">The index</h2>');
+    expect(en).toContain(
+      '<button type="button" class="Index-more" aria-controls="index-list" aria-expanded="false">Show all 16 waves</button>',
+    );
+    expect(en).toContain(
+      '<p class="Index-note">Red numbers formed today. The change is over 24 hours.</p>',
+    );
+    const zhHtml = await front(q, "zh");
+    const zh = rowsOf(zhHtml);
+    expect(zh[0]).toMatchObject({ lang: "zh", title: "创始人 CEO 出局", change: "+63%" });
+    expect(zh[1]).toMatchObject({ change: "新", red: true });
+    // Rank 7 has no Chinese short title or headline: its title keeps its own language.
+    expect(zh[6]?.lang).not.toBe("zh");
+    expect(indexOf(zhHtml)).toContain(">显示全部 16 个浪</button>");
+    expect(indexOf(await front(q, "ja"))).toContain(">16 の波をすべて表示</button>");
+  });
+
+  test("a quiet sea's two waves: no button; a flat sea: no index", async () => {
+    const quiet = indexOf(await front(createFixtureReadQueries("quiet")));
+    expect(rowsOf(quiet)).toHaveLength(2);
+    expect(quiet).not.toContain("<button");
+    expect(await front(createFixtureReadQueries("fresh"))).not.toContain("Index");
   });
 });

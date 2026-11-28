@@ -65,4 +65,35 @@
       margin-top: 0;
     }
   }
+
+  /*
+   * The front page's band (#120, "头版区例外：内容在左，索引在右"): the
+   * content on the left, the aside (the index) in a right rail at most
+   * `rail` wide and as tall as the content, not sticky. On phones the aside
+   * comes under the content. The name is read out, not shown: it covers the
+   * band and is clipped to nothing, as boards 01 and 02 show no name.
+   */
+  .Band[data-variant="front"] {
+    position: relative;
+    row-gap: var(--space-6);
+
+    @media (min-width: 960px) {
+      grid-template-columns: minmax(0, 1fr) minmax(0, var(--rail));
+    }
+
+    & > .Band-rail {
+      position: absolute;
+      inset: 0;
+      align-self: stretch;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  .Band-aside {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
 }

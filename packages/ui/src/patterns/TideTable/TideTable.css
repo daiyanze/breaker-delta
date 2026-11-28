@@ -114,11 +114,11 @@
     font-style: italic;
     font-size: var(--tide-table-label);
 
-    /* Chinese and Japanese have no italic: weight 500 instead (board 35). */
+    /* Chinese and Japanese have no italic: a weight instead (board 35, `--cjk-emphasis-weight`). */
     &:lang(zh),
     &:lang(ja) {
       font-style: normal;
-      font-weight: 500;
+      font-weight: var(--cjk-emphasis-weight);
     }
   }
 

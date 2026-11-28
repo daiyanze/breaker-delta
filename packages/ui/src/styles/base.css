@@ -52,6 +52,16 @@
     color: var(--blue);
   }
 
+  /*
+   * The keyboard focus ring, one for every control on every page (#112):
+   * the boards' `.tp :focus-visible`, a `blue` outline clear of the
+   * control's edge. Only for the keyboard: a click shows none.
+   */
+  :focus-visible {
+    outline: var(--focus-width) solid var(--blue);
+    outline-offset: var(--focus-offset);
+  }
+
   img,
   svg {
     max-width: 100%;

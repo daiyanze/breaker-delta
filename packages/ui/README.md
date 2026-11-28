@@ -24,8 +24,9 @@ other data file, not even one in `src/tokens`.
 
 `tokens` (#269), `styles` and `build` (#270), `runtime` and `patterns`
 (#271) and `primitives` (#272) exist today; `patterns` holds `Band`,
-`EchoStack`, `LanguageMenu` and `TideTable`,
-`primitives` the `ThemeSwitch` island; `catalog` (#258) lists them. A file directly under `src/` is
+`LanguageMenu`, `TideTable` and `SourceTile` (with its island), `primitives` `Button`,
+`Filters`, `SearchEntry` and the `ThemeSwitch` island; `catalog` (#258)
+lists them. A file directly under `src/` is
 under no rule and fails `check-deps`.
 
 ## `@bd/ui/runtime` and `@bd/ui/patterns`
@@ -57,29 +58,109 @@ under no rule and fails `check-deps`.
   `<bd-island>`. It imports nothing up front: Preact and an island's
   module come by dynamic import, so a page without an island loads the
   loader alone.
+- Drop-down menus (`runtime/menu.ts`, #112): a `<details>` with
+  `MENU_ATTRIBUTE` (`data-menu`) opens without JavaScript; the loader,
+  which every page links, closes every open one on Esc (the focus goes back
+  to the button of the one that held it) and one a click lands outside.
+  `menu.ts` is bundled into the loader, so no island may import it.
+- The focus ring (`styles/base.css`, #112): one `:focus-visible` outline
+  for every control, `--focus-width` of `blue`, `--focus-offset` clear of
+  its edge. A component does not style its own.
 - `states(Component, { name: props })` lists a component's states for the
   catalog; the props are checked against the component's.
 - `Band` (`patterns/Band`): a section with its name in the rail. Classes
   `.Band` and `.Band-rail`, `.Band-name`, `.Band-note`, `.Band-body`; the
-  heading's id is `band-<id>`.
+  heading's id is `band-<id>`. With `aside` it is the front page's band
+  (`data-variant="front"`, #120): the content left, the aside (`.Band-aside`,
+  the index) in the right rail, the name read out but not shown.
 - `EchoStack` (`patterns/EchoStack`, boards 01 to 03, #114): the stack of
   sheets beside a wave-height number, an SVG of `echoStackLayers(height)`
   sheets (height ÷ 200 × 12, 3 to 15) that drop in on a CSS loop when
   motion is allowed. It takes the height and a finished `label` that names
   the number of sheets. Classes `.EchoStack`, `-sheet`, `-blue`, `-sky`,
   `-top`, `-base`.
+- `Headline` (`patterns/Headline`, boards 01 and 02, #119): the front
+  page's three tiers of headlines, the lead (red kicker, headline, echo
+  stack, height, a trend line that draws itself once) and ranks 2 and 3,
+  then 4 to 6, in newspaper columns. A headline's size is `base + height ÷
+  200 × span` per tier (`HEADLINE` in the supplement), set by its CSS from
+  the title's three-digit `data-height`, so no style attribute. It takes
+  finished text. Classes `.Headline`, `-lead`, `-story`, `-second`,
+  `-third`, `-columns`, `-title`, `-fading`, `-link`, `-number`, `-new`,
+  `-kicker`, `-figures`, `-trend`, `-chart`, `-note`, `-meta`, `-key`.
+- `Index` (`patterns/Index`, an island, boards 01 and 02, #120) and
+  `IndexRow` (`patterns/IndexRow`): the whole ranking beside the headlines,
+  one row per wave (rank, short title, dotted leader, change, height), the
+  row a link. Desktop shows every row and fills the front band's right
+  rail; phones show the first `INDEX_PHONE_ROWS` (8) and a button that
+  shows the rest, the one thing the island does. A wave formed today has a
+  red number and change. Values the type scale lacks are `INDEX` in the
+  supplement (`--index-*`). Classes `.Index`, `-head`, `-name`, `-order`,
+  `-list`, `-open`, `-item`, `-note`, `-more`; `.IndexRow`, `-rank`,
+  `-title`, `-leader`, `-change`, `-number`, `-new`.
 - `LanguageMenu` (`patterns/LanguageMenu`, boards 01 and 02, #107): links to
   the same page in each language inside a `<details>`, so it opens without
   JavaScript; the current one has `aria-current`. It takes finished text:
   the button's label and each language's own name. On phones the button is
-  the globe alone. `open` starts it open, for the catalog's `open` and
+  the globe alone. A drop-down menu (`data-menu`): Esc closes it. `open` starts it open, for the catalog's `open` and
   `long` states; pages leave it out. Classes `.LanguageMenu`, `-details`,
   `-button`, `-icon`, `-current`, `-chevron`, `-list`, `-link`.
+- `Notice` (`primitives/Notice`, #122): the double-ruled notice, in its
+  ebb form: a ripple whose amplitude follows the height (`RIPPLE`), the
+  topic's name, an obituary-style sentence and the height now, all as
+  finished text. `FadingNotices` (`patterns/FadingNotices`) is the front
+  page's section of them in a `Band`, the rail's link and sunset passed
+  through the band's `rail`; with no notice it is one sentence. Classes
+  `.Notice`, `-ripple`, `-ripple-line`, `-title`, `-link`, `-text`,
+  `-now`; `.FadingNotices`, `-rail`, `-flat`, `-sunset`, `-list`,
+  `-item`, `-none`.
+- `SourceTile` (`patterns/SourceTile`, boards 01 and 03, #113): the small
+  square before a source's name, solid where the story started and
+  outlined for a later source, with the site's favicon or a generic icon
+  by kind (`kindOf(category)`). Plain markup without a favicon; with one,
+  the `SourceTile` island. The generic icon shows by default; the favicon
+  is hidden until the island marks it `data-loaded`, so a failed one, or
+  any with JavaScript off, never draws a broken-image mark. Props `name`, `fill`, `kind`, `favicon`, `label` (finished text;
+  without it the tile is `aria-hidden`), `size` (`small` in the
+  classifieds). Classes `.SourceTile`, `-tile`, `-favicon`, `-glyph`,
+  `-name`. `SPEC.md` in its folder.
+- `Footer` (`patterns/Footer`, boards 01 and 02, #111): the footer every
+  public page ends with: the subscribe form (left out with no `subscribe`
+  prop, when the site sends no email), the links, the lighthouse drawing
+  with its CSS-only motion (still under reduced motion), and the solid
+  bar. On phones the drawing shows its right half. Classes `.Footer`,
+  `-top`, `-form`, `-label`, `-field`, `-submit`, `-nav`, `-link`,
+  `-long`, `-short`, `-art`, `-svg`, `-bar`, `-notes`, `-note`; in the
+  drawing `-beam`, `-gulls`, `-solid`, `-edge`, `-tower`, `-red`, `-lamp`,
+  `-drift` (`-drift-back`, `-drift-mid`, `-drift-front`), `-sky`, `-blue`,
+  `-hatch`, `-boat`, `-mast`, `-jib`. Its timings, angles, beam opacity
+  and link weight are `--footer-*` (`FOOTER` in `supplement.ts`); the
+  field's id is unique per footer (`useId`). `SPEC.md` in its folder.
 - `ThemeSwitch` (`primitives/ThemeSwitch`, an island): the masthead's
   square icon button (#105) that flips `<html data-theme>` and stores the
   choice. Props `toDark` and `toLight`, its name in each theme, as finished
   text (the site passes them from its string tables); the stylesheet shows
   the one that applies. `SPEC.md` in its folder.
+- `Button` (`primitives/Button`, #112): the one button shape, a link with
+  `href`, else a `<button>`. `variant` `default` (2px, 48px high), `solid`
+  (the page's main action) or `secondary` (1px, 44px, small type), written
+  as `data-variant`. An icon before the text is `.Button-icon`.
+- `SearchEntry` (`primitives/SearchEntry`, #112): the secondary button with
+  a magnifier that links to the search page; on phones the magnifier
+  alone, its label read out. Classes `.SearchEntry`, `-label`.
+- `Filters` (`primitives/Filters`, #112): a list page's filter items, each
+  its own URL, the current one `aria-current="page"`, `ink` behind `paper`.
+  Classes `.Filters`, `-item`.
+- No control is shorter than `--control-min-height`: `controlHeights`
+  (`styles/checks.ts`) reads the sheet for every link, button and menu
+  button class the catalog renders (`apps/web/src/local/controls.test.tsx`).
+- `Stamp`, `TicketStub`, `TicketStubs`, `VerdictMark`, `VerdictMarks`
+  (`patterns`, boards 01, 03, 06 and 07, #115): how a 14-day test and its
+  verdict are shown. A stamp's kind (`data-kind`) is told by its text and
+  its frame, a mark's by its shape, never by colour alone; a hovered stamp
+  or stub wobbles the stamp for 0.2 seconds, unless motion is reduced. The
+  values the design gives only in prose are `STAMP`, `STUB` and `MARK` in
+  `supplement.ts`. `SPEC.md` in each folder.
 
 ## `@bd/ui/styles` and `@bd/ui/build`
 
@@ -119,11 +200,19 @@ no Bun or Cloudflare types, so emails and share cards can import it.
   export changes, run `bun run --filter @bd/ui tokens` and commit the result;
   `scripts/generate-tokens.test.ts` fails while the two differ.
 - `supplement.ts` holds the values the design states only in prose or not at
-  all (the phone gutter and section size, the control height, the icon
-  size and stroke, the theme switch's icon size, the tide table's height,
-  surface and dot, the two-column breakpoint), each with the text it comes
-  from. No other file holds a design value. All but the breakpoint are also
-  CSS variables: `--phone-*`, `--control-*`, `--icon-*`, `--tide-*`.
+  all (the phone gutter and section size, the control height, outline and
+  padding, the focus ring, the icon size and stroke, the theme switch's
+  icon size, the source tile's sizes, the echo stack's and the headlines'
+  sizes, the footer's timings, angles, beam opacity and link weight, the
+  index's values and phone row count, the tide table's height, surface and
+  dot, the two-column breakpoint, the ebb
+  notice's ripple rule and cycle, the illustration line width, the CJK
+  weight in place of italic), each with the text it comes from. No other
+  file holds a design value. All but the breakpoint, the index's row count
+  and the ripple's numbers are also CSS variables: `--phone-*`,
+  `--control-*`, `--focus-*`, `--icon-*`, `--source-tile-*`,
+  `--echo-stack-*`, `--headline-*`, `--footer-*`, `--index-*`,
+  `--tide-*`, `--ripple-cycle`, `--illustration-stroke`, `--cjk-emphasis-weight`.
 - `contrast.test.ts` computes the WCAG 2.2 contrast of every text and
   background pair the design uses, in both themes: 4.5:1 for text, 3:1 for
   a control's outline. A new colour token fails it until it is placed.

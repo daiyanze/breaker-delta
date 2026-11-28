@@ -41,7 +41,7 @@ describe("/_catalog", () => {
     const html = await (await get(CATALOG_PATH)).text();
     expect(html).toContain('<html lang="en" data-theme="light">');
     expect(html).toContain("ThemeSwitch</a> (primitives): default, long, zh, ja");
-    expect(html).toContain("Band</a> (patterns): default, note, long, zh, ja");
+    expect(html).toContain("Band</a> (patterns): default, note, long, zh, ja, front");
     expect(html).toContain("LanguageMenu</a> (patterns): default, open, long, zh, ja");
   });
 

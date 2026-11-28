@@ -8,7 +8,24 @@
  * Themes: the system's choice by default, and `<html data-theme="light|dark">`
  * overrides it either way.
  */
-import { CONTROL, ECHO_STACK, ICON, PHONE, TIDE } from "./supplement.ts";
+import {
+  CJK,
+  CONTROL,
+  ECHO_STACK,
+  FOCUS,
+  FOOTER,
+  HEADLINE,
+  ICON,
+  ILLUSTRATION,
+  INDEX,
+  MARK,
+  PHONE,
+  RIPPLE,
+  SOURCE_TILE,
+  STAMP,
+  STUB,
+  TIDE,
+} from "./supplement.ts";
 import {
   COLORS,
   type ColorToken,
@@ -25,7 +42,26 @@ import {
 } from "./tokens.gen.ts";
 
 export { FONT_FILES, type FontFile, fontFaceCss } from "./fonts.ts";
-export { CONTROL, ECHO_STACK, ICON, PHONE, TIDE, TWO_COLUMNS_FROM } from "./supplement.ts";
+export {
+  CJK,
+  CONTROL,
+  ECHO_STACK,
+  FOCUS,
+  FOOTER,
+  HEADLINE,
+  ICON,
+  ILLUSTRATION,
+  INDEX,
+  INDEX_PHONE_ROWS,
+  MARK,
+  PHONE,
+  RIPPLE,
+  SOURCE_TILE,
+  STAMP,
+  STUB,
+  TIDE,
+  TWO_COLUMNS_FROM,
+} from "./supplement.ts";
 export type {
   ColorToken,
   FontFamily,
@@ -113,9 +149,24 @@ function staticVars(): string {
   for (const [name, v] of Object.entries(PHONE)) out.push(decl(`phone-${kebab(name)}`, v.value));
   for (const [name, v] of Object.entries(CONTROL)) out.push(decl(`control-${kebab(name)}`, v));
   for (const [name, v] of Object.entries(ICON)) out.push(decl(`icon-${kebab(name)}`, v));
+  out.push(decl("ripple-cycle", RIPPLE.cycle));
+  for (const [name, v] of Object.entries(ILLUSTRATION)) {
+    out.push(decl(`illustration-${kebab(name)}`, v));
+  }
+  for (const [name, v] of Object.entries(CJK)) out.push(decl(`cjk-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(SOURCE_TILE)) {
+    out.push(decl(`source-tile-${kebab(name)}`, v));
+  }
+  for (const [name, v] of Object.entries(STAMP)) out.push(decl(`stamp-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(STUB)) out.push(decl(`stub-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(MARK)) out.push(decl(`mark-${kebab(name)}`, v));
   for (const [name, v] of Object.entries(ECHO_STACK)) {
     out.push(decl(`echo-stack-${kebab(name)}`, v));
   }
+  for (const [name, v] of Object.entries(HEADLINE)) out.push(decl(`headline-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(INDEX)) out.push(decl(`index-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(FOOTER)) out.push(decl(`footer-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(FOCUS)) out.push(decl(`focus-${kebab(name)}`, v));
   for (const [name, v] of Object.entries(TIDE)) out.push(decl(`tide-${kebab(name)}`, v));
   return out.join("");
 }

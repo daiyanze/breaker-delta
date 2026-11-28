@@ -1,0 +1,43 @@
+/*
+ * A verdict mark (#115, VerdictMark README): 26px across. Colours by kind,
+ * as the README lists them: `ink` for a hit and a partial, `red` for a
+ * miss, `ink-2` for undecided, `sun` filled and `ink` ringed under review,
+ * `hair` for a test not due yet. Lines are drawn in the mark's own units
+ * (`VerdictMark.tsx`), so they scale with it. The markup is
+ * `VerdictMark.tsx`.
+ */
+@layer patterns {
+  .VerdictMark {
+    --mark-ink: var(--ink);
+
+    display: block;
+    flex: none;
+    width: var(--mark-size);
+    height: var(--mark-size);
+  }
+
+  .VerdictMark-fill {
+    fill: var(--mark-ink);
+  }
+
+  .VerdictMark-line {
+    fill: none;
+    stroke: var(--mark-ink);
+  }
+
+  .VerdictMark-filled {
+    fill: var(--sun);
+  }
+
+  .VerdictMark[data-mark="miss"] {
+    --mark-ink: var(--red);
+  }
+
+  .VerdictMark[data-mark="undetermined"] {
+    --mark-ink: var(--ink-2);
+  }
+
+  .VerdictMark[data-mark="waiting"] {
+    --mark-ink: var(--hair);
+  }
+}

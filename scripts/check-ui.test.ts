@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { type Exception, SPEC_HEADINGS, uiProblems } from "./check-ui.ts";
+import { type Exception, listFiles, SPEC_HEADINGS, uiProblems } from "./check-ui.ts";
 
 let root = "";
 afterEach(() => {
@@ -126,6 +126,22 @@ describe("check-ui (issue 259)", () => {
       'apps/web/src/core/pages/q.tsx:2: app-css: "style=" in an app: use a @bd/ui component',
       'apps/web/src/core/pages/q.tsx:3: app-css: ".hero {" is CSS in an app: use a @bd/ui component',
       'apps/web/src/core/pages/q.tsx:4: app-css: "<style" in an app: use a @bd/ui component',
+    ]);
+  });
+
+  test("files come out in byte order whatever order the file system lists them in (#298)", () => {
+    const r = tree({
+      "apps/web/src/core/page.css": "",
+      "apps/web/src/core/pages/q.tsx": "",
+      "apps/web/src/core/r.ts": "",
+      "packages/ui/src/a.ts": "",
+    });
+    const reversed = (path: string) => readdirSync(path).sort().reverse();
+    expect(listFiles(r, reversed)).toEqual([
+      "apps/web/src/core/page.css",
+      "apps/web/src/core/pages/q.tsx",
+      "apps/web/src/core/r.ts",
+      "packages/ui/src/a.ts",
     ]);
   });
 
