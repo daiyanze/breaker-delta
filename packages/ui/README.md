@@ -60,7 +60,10 @@ under no rule and fails `check-deps`.
   catalog; the props are checked against the component's.
 - `Band` (`patterns/Band`): a section with its name in the rail. Classes
   `.Band` and `.Band-rail`, `.Band-name`, `.Band-note`, `.Band-body`; the
-  heading's id is `band-<id>`.
+  heading's id is `band-<id>`. `highlight` puts the name on `sun`
+  (`.Band-mark`); `link` ends the band with one link (`.Band-link`, the
+  section `data-link`), under the note on desktop and after the content on
+  phones (#123).
 - `EchoStack` (`patterns/EchoStack`, boards 01 to 03, #114): the stack of
   sheets beside a wave-height number, an SVG of `echoStackLayers(height)`
   sheets (height ÷ 200 × 12, 3 to 15) that drop in on a CSS loop when

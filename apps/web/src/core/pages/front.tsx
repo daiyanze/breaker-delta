@@ -6,7 +6,8 @@
  * the theme switch's two names included. The switch is its one island
  * (#105); it moves into the masthead's top bar with #110. The tallest wave
  * has the echo stack beside its height (#114, board 01); the lead's own
- * layout comes with the headlines (#119).
+ * layout comes with the headlines (#119). "Were we right?" comes before the
+ * classifieds, as on board 01 (#123, `verdicts.tsx`).
  */
 import type { Language, RankRow } from "@bd/contracts";
 import { Band, EchoStack, echoStackLayers } from "@bd/ui/patterns";
@@ -17,6 +18,7 @@ import { pathIn } from "../languages.ts";
 import type { RouteContext } from "../routes.ts";
 import { type Translate, translator } from "../strings/index.ts";
 import { pageLanguages } from "./head.tsx";
+import { verdictsBand } from "./verdicts.tsx";
 
 /** The model headline in `lang` when there is one, else the source's own headline. */
 function headline(row: Pick<RankRow, "headlines" | "sourceHeadline">, lang: Language) {
@@ -34,6 +36,10 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
   const edition = await ctx.queries.edition();
   const t = translator(ctx.lang);
   const languages = pageLanguages(ctx, meta);
+  const verdicts =
+    edition === null
+      ? null
+      : await verdictsBand(edition, meta, ctx.lang, t, () => ctx.queries.trackRecord());
   const bands =
     edition === null ? (
       <Band id="front" name={t("front.flat.name")}>
@@ -71,6 +77,7 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
             })}
           </ol>
         </Band>
+        {verdicts}
         <Band id="classifieds" name={t("classifieds.name")}>
           <ul>
             {edition.classifieds.items.map((echo) => (

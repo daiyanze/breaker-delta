@@ -4,6 +4,12 @@
  * column, the rail as a heading above the content; from the two-column
  * breakpoint (`TWO_COLUMNS_FROM`) two columns and a sticky rail. The markup
  * is `Band.tsx`.
+ *
+ * A band with a link (`data-link`, #123) ends with it: after the content on
+ * phones (board 02), under the note on desktop (board 01), where the content
+ * spans both rows. Its rail is not sticky there, so it never slides over
+ * the link. A highlighted name sits on `sun`, the design system's
+ * "栏目名高亮".
  */
 @layer patterns {
   :root {
@@ -57,12 +63,52 @@
     color: var(--ink-2);
   }
 
+  .Band-mark {
+    background: var(--sun);
+    color: var(--on-sun);
+    box-shadow: 0 0 0 var(--space-1) var(--sun);
+    box-decoration-break: clone;
+  }
+
+  .Band-link {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    min-height: var(--control-min-height);
+
+    @media (min-width: 960px) {
+      grid-column: 1;
+      grid-row: 2;
+      align-self: start;
+    }
+  }
+
   .Band-body {
     min-width: 0;
 
     /* The content's first line lines up with the section name. */
     & > :first-child {
       margin-top: 0;
+    }
+  }
+
+  .Band[data-link] {
+    @media (min-width: 960px) {
+      grid-template-rows: auto 1fr;
+      row-gap: var(--space-3);
+    }
+
+    & > .Band-rail {
+      @media (min-width: 960px) {
+        position: static;
+      }
+    }
+
+    & > .Band-body {
+      @media (min-width: 960px) {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+      }
     }
   }
 }
