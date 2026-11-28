@@ -12,6 +12,14 @@ export default states(Band, {
     note: "What formed.",
     children: <p>Rising, falling, flat.</p>,
   },
+  link: {
+    id: "verdicts",
+    name: "Were we right?",
+    note: "Every wave gets one test, checked 14 days later.",
+    highlight: true,
+    link: { href: "/record", text: "Open the track record" },
+    children: <p>The first test comes due on Nov 26.</p>,
+  },
   long: {
     id: "long",
     name: "Everything that formed, rose and went flat since the last edition",

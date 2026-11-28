@@ -45,6 +45,7 @@ describe("no control is shorter than 44px (issue 112)", () => {
     expect(found.filter((c) => c in TEXT_LINKS)).toEqual(Object.keys(TEXT_LINKS).sort());
     const classes = found.filter((c) => !(c in TEXT_LINKS));
     expect(classes).toEqual([
+      "Band-link",
       "Button",
       "FadingNotices-flat",
       "Filters-item",

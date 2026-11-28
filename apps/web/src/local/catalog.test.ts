@@ -41,7 +41,7 @@ describe("/_catalog", () => {
     const html = await (await get(CATALOG_PATH)).text();
     expect(html).toContain('<html lang="en" data-theme="light">');
     expect(html).toContain("ThemeSwitch</a> (primitives): default, long, zh, ja");
-    expect(html).toContain("Band</a> (patterns): default, note, long, zh, ja, front");
+    expect(html).toContain("Band</a> (patterns): default, note, link, long, zh, ja, front");
     expect(html).toContain("LanguageMenu</a> (patterns): default, open, long, zh, ja");
   });
 
@@ -49,7 +49,7 @@ describe("/_catalog", () => {
     const en = await (await get(catalogHref("light", "en"))).text();
     expect(en).toContain("<h1>Catalog</h1>");
     expect(en).toContain("This page: light, English.");
-    expect(en).toContain("<p>patterns, 5 states</p>");
+    expect(en).toContain("<p>patterns, 6 states</p>");
     const ja = await (await get(catalogHref("dark", "ja"))).text();
     expect(ja).toContain("<title>カタログ</title>");
     expect(ja).toContain("<h1>カタログ</h1>");

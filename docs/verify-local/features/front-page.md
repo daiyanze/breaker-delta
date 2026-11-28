@@ -27,6 +27,15 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
   no horizontal scrollbar. An edition with no notice: the band is its name
   and "No wave is going out." (`apps/web/src/local/pages.test.ts`; no
   fixture set has one).
+- The "Were we right?" band (#123), between the fading notices
+  and the Classifieds: its name on `sun`, then on `busy` a ticket stub per test
+  coming due ("Due Nov 26", "Day 7 of 14") and per recent verdict ("Hit",
+  "Partial", "Confirmed Nov 19"), each linking to its topic, and the link
+  "Open the track record" to `/record` (`/zh/record`, `/ja/record`; that
+  page comes with #130). On `quiet`, with no stub, the note ends "No
+  verdicts yet." and the band says "The first test comes due on Nov 26.";
+  it is never blank. In a browser at 1440 the link sits under the note in
+  the rail; at 390 the stubs are one column and the link follows them.
 - `get "/?set=fresh"`: "The sea is flat." and the next scan time.
 - `get /ja/` on `busy`: `<html lang="ja">`, Japanese headlines where
   the set has them, the source's own headline elsewhere.

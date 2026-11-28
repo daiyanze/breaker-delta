@@ -259,6 +259,44 @@ describe("page width and band spacing (moved from apps/web layout.test.ts)", () 
     expect(cssValue(at(".Band", true), "column-gap")).toBe("var(--space-8)");
   });
 
+  test("a band's link (issue 123): after the content on phones, under the note on desktop, the rail not sticky there", () => {
+    const decl = (selector: string, wide: boolean) =>
+      Object.fromEntries(at(selector, wide).declarations);
+    expect(decl(".Band-link", false)).toEqual({
+      display: "inline-flex",
+      "align-items": "center",
+      "justify-self": "start",
+      "min-height": "var(--control-min-height)",
+    });
+    expect(decl(".Band-link", true)).toEqual({
+      "grid-column": "1",
+      "grid-row": "2",
+      "align-self": "start",
+    });
+    expect(decl(".Band[data-link]", true)).toEqual({
+      "grid-template-rows": "auto 1fr",
+      "row-gap": "var(--space-3)",
+    });
+    expect(decl(".Band[data-link] > .Band-body", true)).toEqual({
+      "grid-column": "2",
+      "grid-row": "1 / span 2",
+    });
+    expect(decl(".Band[data-link] > .Band-rail", true)).toEqual({ position: "static" });
+    // On phones nothing moves: the link follows the content in the one column.
+    for (const sel of [".Band[data-link]", ".Band[data-link] > .Band-body"]) {
+      expect(decl(sel, false)).toEqual({});
+    }
+  });
+
+  test("a highlighted band name sits on sun, in on-sun text, on every line", () => {
+    expect(Object.fromEntries(at(".Band-mark", false).declarations)).toEqual({
+      background: "var(--sun)",
+      color: "var(--on-sun)",
+      "box-shadow": "0 0 0 var(--space-1) var(--sun)",
+      "box-decoration-break": "clone",
+    });
+  });
+
   test("no layout rule sets a fixed width that could overflow a phone", () => {
     for (const sel of [".page", ".Band", ".Band-rail", ".Band-body", ".Band-name"]) {
       for (const r of rules.filter((x) => x.selector === sel)) {

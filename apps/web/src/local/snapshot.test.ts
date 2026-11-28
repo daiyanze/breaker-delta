@@ -21,7 +21,9 @@ import { handle, type SiteVars } from "../select.ts";
 // rail, every wave a row, in place of the plain list of ranks 7 on. #122
 // changed it on purpose: the front page has the fading notices band
 // between the front page and the classifieds. #121 changed it on purpose:
-// the busy front page has the tide table band after the front band. Update with `bun test --update-snapshots`
+// the busy front page has the tide table band after the front band. #123
+// changed it on purpose: the front page has the "Were we right?" band
+// between the fading notices and the classifieds. Update with `bun test --update-snapshots`
 // only when a change to the output is intended, and say so in the PR.
 
 async function render(path: string, vars: SiteVars): Promise<string> {

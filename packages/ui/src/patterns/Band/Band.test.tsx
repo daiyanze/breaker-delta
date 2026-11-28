@@ -49,6 +49,26 @@ describe("band markup", () => {
     expect(renderToString(<Band id="a" name="A" />)).not.toContain("Band-note");
   });
 
+  test("a highlighted name is marked inside its heading; a plain one is not", () => {
+    expect(renderToString(<Band id="a" name="A?" highlight />)).toContain(
+      '<h2 id="band-a" class="Band-name"><span class="Band-mark">A?</span></h2>',
+    );
+    expect(renderToString(<Band id="a" name="A" />)).not.toContain("Band-mark");
+  });
+
+  test("a link comes after the content, and marks the band", () => {
+    const html = renderToString(
+      <Band id="a" name="A" link={{ href: "/record", text: "Open the track record" }}>
+        <p>x</p>
+      </Band>,
+    );
+    expect(html).toStartWith('<section class="Band" aria-labelledby="band-a" data-link>');
+    expect(html).toEndWith(
+      '<div class="Band-body"><p>x</p></div><a class="Band-link" href="/record">Open the track record</a></section>',
+    );
+    expect(renderToString(<Band id="a" name="A" />)).not.toContain("data-link");
+  });
+
   test("the rail's own content follows the note, inside the rail, issue 122", () => {
     const html = renderToString(
       <Band id="a" name="A" note="N" rail={<a href="/x">More</a>}>

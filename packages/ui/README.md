@@ -73,6 +73,9 @@ under no rule and fails `check-deps`.
   heading's id is `band-<id>`. With `aside` it is the front page's band
   (`data-variant="front"`, #120): the content left, the aside (`.Band-aside`,
   the index) in the right rail, the name read out but not shown.
+  `highlight` puts the name on `sun` (`.Band-mark`); `link` ends the band
+  with one link (`.Band-link`, the section `data-link`), under the note on
+  desktop and after the content on phones (#123).
 - `EchoStack` (`patterns/EchoStack`, boards 01 to 03, #114): the stack of
   sheets beside a wave-height number, an SVG of `echoStackLayers(height)`
   sheets (height ÷ 200 × 12, 3 to 15) that drop in on a CSS loop when

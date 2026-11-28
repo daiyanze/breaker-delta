@@ -148,6 +148,160 @@ describe("the echo stack, issue 114", () => {
   });
 });
 
+describe("were we right?, issue 123", () => {
+  /** The "Were we right?" band of a page, from its section to the next. */
+  const band = (html: string) => {
+    const start = html.indexOf('<section class="Band" aria-labelledby="band-verdicts"');
+    if (start < 0) throw new Error("no verdicts band");
+    return html.slice(start, html.indexOf("</section>", start) + 10);
+  };
+
+  test("busy: a stub per test coming due and per recent verdict, the name on sun, a link to the track record", async () => {
+    const q = createFixtureReadQueries("busy");
+    const edition = await q.edition();
+    if (edition === null) throw new Error("busy has an edition");
+    const page = await front(q);
+    const html = band(page);
+    expect(html).toStartWith(
+      '<section class="Band" aria-labelledby="band-verdicts" data-link><div class="Band-rail"><h2 id="band-verdicts" class="Band-name"><span class="Band-mark">Were we right?</span></h2>',
+    );
+    const { due, recent } = edition.verdicts;
+    expect(html.match(/<article class="TicketStub" data-size="small">/g)).toHaveLength(
+      due.length + recent.length,
+    );
+    expect(html.match(/data-kind="due" data-loud>Due Nov 26</g)).toHaveLength(due.length);
+    expect(html).toContain('<span class="Stamp" data-kind="hit">Hit</span>');
+    expect(html).toContain('<span class="Stamp" data-kind="partial">Partial</span>');
+    expect(html).toContain("Day 7 of 14");
+    expect(html).toContain("Confirmed Nov 19");
+    // The busy set's partial verdict was revised.
+    expect(html).toContain("Revised Nov 18");
+    expect(html).toContain(
+      'href="/topic/chipmaker-board-founder-ceo" lang="en">Founder CEO ousted</a>',
+    );
+    // Verdicts are in, so the note does not say there are none.
+    expect(html).not.toContain("No verdicts yet");
+    expect(html).toEndWith(
+      '</ul></div><a class="Band-link" href="/record">Open the track record</a></section>',
+    );
+    // After the fading notices and before the classifieds, as on boards 01 and 02.
+    expect(page.indexOf("band-verdicts")).toBeGreaterThan(page.indexOf("band-fading"));
+    expect(page.indexOf("band-verdicts")).toBeLessThan(page.indexOf("band-classifieds"));
+  });
+
+  test("in each language: the band's name, the stamps and the link's path", async () => {
+    const q = createFixtureReadQueries("busy");
+    const zh = band(await front(q, "zh"));
+    expect(zh).toContain('<span class="Band-mark">我们说对了吗？</span>');
+    expect(zh).toContain(">11月26日到期<");
+    expect(zh).toContain('<a class="Band-link" href="/zh/record">查看战绩</a>');
+    const ja = band(await front(q, "ja"));
+    expect(ja).toContain('<span class="Band-mark">当たったか？</span>');
+    expect(ja).toContain(">11月26日 期限<");
+    expect(ja).toContain('<a class="Band-link" href="/ja/record">的中記録を見る</a>');
+  });
+
+  test("quiet: before any verdict and with nothing due, the first due date; never blank", async () => {
+    const q = createFixtureReadQueries("quiet");
+    const edition = await q.edition();
+    expect(edition?.verdicts).toEqual({ due: [], recent: [] });
+    expect((await q.trackRecord()).firstDueAt).toBe("2026-11-26T18:00:00+09:00");
+    const html = band(await front(q));
+    expect(html).toContain(
+      '<p class="Band-note">Every wave gets one test, locked the moment it forms and checked 14 days later against outside reporting. No verdicts yet. When they land, each stub gets stamped.</p>',
+    );
+    expect(html).toContain(
+      '<div class="Band-body"><p>The first test comes due on Nov 26.</p></div><a class="Band-link" href="/record">Open the track record</a>',
+    );
+    expect(html).not.toContain("TicketStubs");
+  });
+
+  test("with verdicts but none recent and nothing listed as due, that none is due", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    if (plain === null) throw new Error("busy has an edition");
+    expect((await base.trackRecord()).firstDueAt).toBeNull();
+    const q = { ...base, edition: async () => ({ ...plain, verdicts: { due: [], recent: [] } }) };
+    const html = band(await front(q));
+    expect(html).toContain(
+      '<div class="Band-body"><p>No test is due right now. Every verdict so far is in the track record.</p></div>',
+    );
+    expect(html).not.toContain("No verdicts yet");
+  });
+
+  test("with no test registered or waiting, it says so", async () => {
+    const base = createFixtureReadQueries("quiet");
+    const plain = await base.trackRecord();
+    const none = {
+      ...base,
+      trackRecord: async () => ({ ...plain, firstDueAt: null, registered: 0 }),
+    };
+    expect(band(await front(none))).toContain(
+      "<p>No wave has formed yet, so no test is locked.</p>",
+    );
+    const done = {
+      ...base,
+      trackRecord: async () => ({
+        ...plain,
+        firstDueAt: null,
+        score: { ...plain.score, confirmed: 2, hit: 2 },
+      }),
+    };
+    expect(band(await front(done))).toContain("<p>No test is due right now.");
+  });
+
+  test("the track record is read only when the edition lists no recent verdict", async () => {
+    const base = createFixtureReadQueries("busy");
+    let reads = 0;
+    const counted = {
+      ...base,
+      trackRecord: async () => {
+        reads += 1;
+        return base.trackRecord();
+      },
+    };
+    await front(counted);
+    expect(reads).toBe(0);
+    const quiet = createFixtureReadQueries("quiet");
+    await front({ ...quiet, trackRecord: counted.trackRecord });
+    expect(reads).toBe(1);
+  });
+
+  test("a test past its due date with no verdict is under review, on its last day", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    const first = plain?.verdicts.due[0];
+    if (plain === null || first === undefined) throw new Error("busy has a due test");
+    const late = { ...first, dueAt: "2026-11-19T10:00:00+09:00" };
+    const q = {
+      ...base,
+      edition: async () => ({ ...plain, verdicts: { due: [late], recent: plain.verdicts.recent } }),
+    };
+    const html = band(await front(q));
+    expect(html).toContain('<span class="Stamp" data-kind="under_review">Under review</span>');
+    expect(html).not.toContain("data-loud");
+    expect(html).toContain("Day 7 of 7");
+  });
+
+  test("a test with markup renders as text", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    const first = plain?.verdicts.due[0];
+    if (plain === null || first === undefined) throw new Error("busy has a due test");
+    const marked = {
+      ...first,
+      criterion: { ...first.criterion, text: "<img src=x onerror=alert(1)>" },
+    };
+    const q = {
+      ...base,
+      edition: async () => ({ ...plain, verdicts: { ...plain.verdicts, due: [marked] } }),
+    };
+    const html = band(await front(q));
+    expect(html).not.toContain("<img");
+    expect(html).toContain("&lt;img src=x onerror=alert(1)>");
+  });
+});
+
 describe("the three tiers of headlines, issue 119", () => {
   const titles = (html: string, tier: string) =>
     [
@@ -174,7 +328,8 @@ describe("the three tiers of headlines, issue 119", () => {
     // In the front band, a headline links each of the six tallest waves and
     // the index (#120) links every wave once. A falling wave is linked again
     // from its fading notice further down (issue 122), and a wave formed
-    // today from the tide table (#121), both outside this band: the slice
+    // today from the tide table (#121), and some from their ticket stubs in
+    // "Were we right?" (#123), all outside this band: the slice
     // ends where the next band starts.
     const start = en.indexOf('aria-labelledby="band-front"');
     const band = en.slice(start, en.indexOf('<section class="Band"', start));
@@ -334,8 +489,9 @@ describe("model text renders as text", () => {
     expect(body(html)).not.toContain("<script");
     expect(html).not.toContain("<img");
     const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
-    // The site's own links: topics, and the changes that went flat (#122).
-    expect(main).not.toMatch(/href="(?!\/topic\/|https:\/\/|\/changes\?type=went_flat")/);
+    // The site's own links: topics, the changes that went flat (#122) and the
+    // track record (#123).
+    expect(main).not.toMatch(/href="(?!\/topic\/|https:\/\/|\/changes\?type=went_flat"|\/record")/);
     expect(html).not.toContain('" onmouseover');
     expect(html).toContain("&lt;img src=x onerror=alert(1)>");
   });
@@ -373,9 +529,11 @@ describe("the tide table", () => {
     const html = await front(createFixtureReadQueries("busy"));
     const main = html.slice(html.indexOf("<main"));
     expect(main.indexOf('id="band-front"')).toBeLessThan(main.indexOf('id="band-tide"'));
-    // Board 01's order: front page, tide table, fading notices, classifieds.
+    // Boards 01 and 02's order: front page, tide table, fading notices,
+    // "Were we right?" (#123), classifieds.
     expect(main.indexOf('id="band-tide"')).toBeLessThan(main.indexOf('id="band-fading"'));
-    expect(main.indexOf('id="band-fading"')).toBeLessThan(main.indexOf('id="band-classifieds"'));
+    expect(main.indexOf('id="band-fading"')).toBeLessThan(main.indexOf('id="band-verdicts"'));
+    expect(main.indexOf('id="band-verdicts"')).toBeLessThan(main.indexOf('id="band-classifieds"'));
     expect(main).toContain('<h2 id="band-tide" class="Band-name">Tide table</h2>');
     expect(main).toContain('aria-label="5 stories became waves today, between 08:00 and 14:00."');
     expect(main.match(/<circle class="TideTable-dot"/g)?.length).toBe(5);

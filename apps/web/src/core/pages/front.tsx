@@ -8,7 +8,8 @@
  * waves are the headlines in three tiers (#119, boards 01 and 02), the lead
  * with the echo stack (#114). Beside them, the index (#120) lists every
  * wave, the six included, in the front band's right rail. The tide table
- * (#121) follows the front band, before the fading notices (board 01).
+ * (#121) follows the front band, before the fading notices, then "Were we
+ * right?" (#123, `verdicts.tsx`) and the classifieds (boards 01 and 02).
  */
 import type { Edition, Language, RankRow, SiteMeta } from "@bd/contracts";
 import {
@@ -32,6 +33,7 @@ import { type Translate, translator } from "../strings/index.ts";
 import { siteFooter } from "./footer.tsx";
 import { pageLanguages } from "./head.tsx";
 import { tideBand } from "./tide.tsx";
+import { verdictsBand } from "./verdicts.tsx";
 
 /** The model headline in `lang` when there is one, else the source's own headline. */
 function headline(row: Pick<RankRow, "headlines" | "sourceHeadline">, lang: Language) {
@@ -253,6 +255,10 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
   const edition = await ctx.queries.edition();
   const t = translator(ctx.lang);
   const languages = pageLanguages(ctx, meta);
+  const verdicts =
+    edition === null
+      ? null
+      : await verdictsBand(edition, meta, ctx.lang, t, () => ctx.queries.trackRecord());
   const href = (row: RankRow) => pathIn(`/topic/${row.slug}`, ctx.lang, meta);
   const tiers = (e: Edition): Tiers => ({
     edition: e,
@@ -286,6 +292,7 @@ export async function frontPage(ctx: RouteContext): Promise<{ document: VNode }>
         </Band>
         {tideBand(edition, meta, ctx.lang, t, (row) => headline(row, ctx.lang))}
         <FadingNotices {...fadingNotices(edition.ebb, meta, ctx.lang, t)} />
+        {verdicts}
         <Band id="classifieds" name={t("classifieds.name")}>
           <ul>
             {edition.classifieds.items.map((echo) => (
