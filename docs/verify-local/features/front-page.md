@@ -15,6 +15,27 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
   milestone M3".
 - `up --fixtures busy`, `get /`: "The ... edition. Sea state: ...", an
   ordered list of topics linking to `/topic/<slug>`, and a Classifieds list.
+- On `busy`, a "Fading notices" band (#122) between the front page and
+  the classifieds: one `<article class="Notice">` per wave in the
+  edition's `ebb.notices`, each "A wave since Nov 13. Peaked at 188.
+  Survived by 22 echoes." and "Now 144, down 18% in 24 hours" from the
+  data, its title linking to `/topic/<slug>`; in the rail "Read the 1
+  that went flat" (`/changes?type=went_flat`) and a sunset. On `/zh/` and
+  `/ja/` the sentence is the same pattern in that language ("11月13日成浪。
+  最高 188。身后留下 22 条回波。"). In a browser: the ripple drifts (none
+  with reduced motion); three notices to a row at 1440 wide, two at 390;
+  no horizontal scrollbar. An edition with no notice: the band is its name
+  and "No wave is going out." (`apps/web/src/local/pages.test.ts`; no
+  fixture set has one).
+- The "Were we right?" band (#123), between the fading notices
+  and the Classifieds: its name on `sun`, then on `busy` a ticket stub per test
+  coming due ("Due Nov 26", "Day 7 of 14") and per recent verdict ("Hit",
+  "Partial", "Confirmed Nov 19"), each linking to its topic, and the link
+  "Open the track record" to `/record` (`/zh/record`, `/ja/record`; that
+  page comes with #130). On `quiet`, with no stub, the note ends "No
+  verdicts yet." and the band says "The first test comes due on Nov 26.";
+  it is never blank. In a browser at 1440 the link sits under the note in
+  the rail; at 390 the stubs are one column and the link follows them.
 - `get "/?set=fresh"`: "The sea is flat." and the next scan time.
 - `get /ja/` on `busy`: `<html lang="ja">`, Japanese headlines where
   the set has them, the source's own headline elsewhere.
@@ -63,6 +84,29 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
 - `--sun` computes to the same colour in both themes. At 1440 and 390
   wide, `document.documentElement.scrollWidth` equals the window's
   `innerWidth`: no horizontal scrollbar.
+- The tide table (#121), on `busy` after the front band: `<h2
+  id="band-tide">Tide table</h2>`, a chart `<svg class="TideTable-svg"
+  role="img" aria-label="5 stories became waves today, between 08:00 and
+  14:00.">` with five red dots, and under it an `<ol>` of the same five
+  waves, latest first, each linking to `/topic/<slug>`. On `/zh/` and
+  `/ja/` its text is in that language ("潮汐表", "满潮 09:30"). Not on
+  `quiet` (one new wave, board 19) or `fresh`. In a browser: the sea
+  rises from the waterline over 1.2 seconds on load, its surface one smooth
+  curve; at 1440, 1000 and 390 wide no horizontal scrollbar, and the
+  labels keep their size (heights on the chart and the 03:00, 09:00, ...
+  labels from the two-column width only).
+- The front page ends with the footer (#111), `</main><footer
+  class="Footer">`: on `busy`, which sends email, the subscribe form
+  ("One email a day, with the new waves.", posting to `/subscribe`);
+  on `?set=fresh` and `?set=quiet` no form, as the site sends no email.
+  Then four links (three to `/about#height`, `#own`, `#open`, one to the
+  repository), the lighthouse drawing and the bar "Breaker Delta is open
+  source."; on `/zh/` and `/ja/` in that language. In a browser: the waves
+  drift and loop without a gap, the beam sweeps without being cut at the
+  top; under reduced motion nothing moves. At 390 wide only the drawing's
+  right half shows (the lighthouse and the boat's side) and the links sit
+  two to a row with their short labels. In the dark theme the rock and the
+  front wave are darker than the page.
 - The placeholder (`up` with no fixtures) has no island: its network list
   holds `loader.js` and no other JavaScript.
 

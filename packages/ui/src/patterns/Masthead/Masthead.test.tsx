@@ -56,10 +56,10 @@ describe("masthead", () => {
 
   test("on phones the links are in a disclosure, closed unless told to start open", () => {
     expect(body(<Masthead {...state("default")} />)).toContain(
-      '<details class="Masthead-sections"><summary class="Masthead-button">Sections<svg',
+      '<details class="Masthead-sections" data-menu><summary class="Masthead-button">Sections<svg',
     );
     expect(body(<Masthead {...state("open")} />)).toContain(
-      '<details class="Masthead-sections" open>',
+      '<details class="Masthead-sections" data-menu open>',
     );
   });
 

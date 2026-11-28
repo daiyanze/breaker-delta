@@ -65,6 +65,7 @@ const TEXT_PAIRS: readonly { text: Paint; on: ColorToken; where: string }[] = [
 const CONTROL_PAIRS: readonly { mark: ColorToken; on: ColorToken; where: string }[] = [
   { mark: "ink", on: "paper", where: "the secondary button's outline and icon" },
   { mark: "paper", on: "ink", where: "the hovered button's icon" },
+  { mark: "blue", on: "paper", where: "the keyboard focus ring, outside every control (#112)" },
 ];
 
 /**

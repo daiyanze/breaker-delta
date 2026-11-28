@@ -1,0 +1,97 @@
+/*
+ * The fading notices (boards 01 and 02, #122): the notices side by side,
+ * wrapping, each at least about a third of the content column on desktop
+ * and half of it on phones; the rail's link and sunset under the note. On
+ * phones the sunset is small and sits at the rail's end, beside the link;
+ * from the two-column breakpoint (`TWO_COLUMNS_FROM`) it is under the link,
+ * at board 01's width. The markup is `FadingNotices.tsx`.
+ */
+@layer patterns {
+  .FadingNotices-rail {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-3);
+
+    @media (min-width: 960px) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .FadingNotices-flat {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-min-height);
+  }
+
+  .FadingNotices-sunset {
+    flex: none;
+    /* Board 02's 96px. */
+    width: calc(var(--space-8) + var(--space-5));
+    height: auto;
+    margin-inline-start: auto;
+
+    @media (min-width: 960px) {
+      /* Board 01's 240px. */
+      width: calc(var(--space-8) * 3 + var(--space-5));
+      margin-inline-start: 0;
+      margin-top: var(--space-2);
+    }
+  }
+
+  .FadingNotices-sun,
+  .FadingNotices-ink,
+  .FadingNotices-glint {
+    stroke-width: var(--illustration-stroke);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .FadingNotices-sun {
+    fill: var(--sun);
+    stroke: var(--ink);
+  }
+
+  .FadingNotices-ink {
+    fill: none;
+    stroke: var(--ink);
+  }
+
+  .FadingNotices-glint {
+    fill: none;
+    stroke: var(--blue);
+  }
+
+  .FadingNotices-none {
+    margin: 0;
+  }
+
+  .FadingNotices-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    @media (min-width: 960px) {
+      gap: var(--space-5);
+    }
+  }
+
+  .FadingNotices-item {
+    display: flex;
+    min-width: 0;
+    /* About board 02's 150px: two to a row on a phone. */
+    flex: 1 1 calc(var(--rail) / 2 - var(--space-5));
+
+    @media (min-width: 960px) {
+      /* About board 01's 230px: three to a row at the content's width. */
+      flex-basis: calc(var(--rail) * 2 / 3);
+    }
+
+    & > .Notice {
+      flex: 1;
+    }
+  }
+}

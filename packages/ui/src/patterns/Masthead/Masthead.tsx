@@ -5,11 +5,13 @@
  * theme switch), then the One ink round mark and the wordmark as one link to
  * the front page, the navigation, and under them a wave line with a small
  * sailboat riding it. On phones the navigation folds into a "Sections"
- * disclosure, which opens without JavaScript. Not an island: the wave and
- * the boat move by CSS alone, and stand still under reduced motion.
- * Styles: `Masthead.css`.
+ * disclosure, which opens without JavaScript; it is a drop-down menu
+ * (`MENU_ATTRIBUTE`, #112), so Esc or a click outside closes it once the
+ * loader runs. Not an island: the wave and the boat move by CSS alone, and
+ * only when motion is allowed. Styles: `Masthead.css`.
  */
 import type { ComponentChildren, VNode } from "preact";
+import { MENU_ATTRIBUTE } from "../../runtime/menu.ts";
 
 export interface MastheadLink {
   href: string;
@@ -183,7 +185,7 @@ export function Masthead(props: MastheadProps): VNode {
         <nav class="Masthead-nav" aria-label={props.navLabel}>
           {links(props.links, "Masthead-link")}
         </nav>
-        <details class="Masthead-sections" open={props.open === true}>
+        <details class="Masthead-sections" {...{ [MENU_ATTRIBUTE]: "" }} open={props.open === true}>
           <summary class="Masthead-button">
             {props.sectionsLabel}
             <svg class="Masthead-chevron" viewBox="0 0 12 8" aria-hidden="true">

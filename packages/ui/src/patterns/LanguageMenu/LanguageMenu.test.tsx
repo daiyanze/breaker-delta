@@ -19,7 +19,9 @@ describe("language menu", () => {
     const zh = menuStates.states.zh;
     if (zh === undefined) throw new Error("the zh state");
     const html = body(<LanguageMenu {...zh} />);
-    expect(html).toStartWith('<div class="LanguageMenu"><details class="LanguageMenu-details">');
+    expect(html).toStartWith(
+      '<div class="LanguageMenu"><details class="LanguageMenu-details" data-menu>',
+    );
     expect(html).toContain('<summary class="LanguageMenu-button" aria-label="语言：中文">');
     expect(html).toContain('<span class="LanguageMenu-current">中文</span>');
     expect(html).toContain(
@@ -48,9 +50,11 @@ describe("language menu", () => {
   test("closed unless told to start open", () => {
     const { default: closed, open } = menuStates.states;
     if (closed === undefined || open === undefined) throw new Error("the default and open states");
-    expect(body(<LanguageMenu {...closed} />)).toContain('<details class="LanguageMenu-details">');
+    expect(body(<LanguageMenu {...closed} />)).toContain(
+      '<details class="LanguageMenu-details" data-menu>',
+    );
     expect(body(<LanguageMenu {...open} />)).toContain(
-      '<details class="LanguageMenu-details" open>',
+      '<details class="LanguageMenu-details" data-menu open>',
     );
   });
 

@@ -1,0 +1,27 @@
+/*
+ * Stubs side by side (#115, board 01): as many columns as fit, each at
+ * least two thirds of the rail wide (board 01's 230px) or the whole width
+ * when that is narrower. Three fit from a 728px column (board 01's 1440
+ * wide page), two at narrower desktop widths, one on phones. A stub left
+ * over on the last row keeps its column's width; stubs in a row are equally
+ * tall. The markup is `TicketStubs.tsx`.
+ */
+@layer patterns {
+  .TicketStubs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--rail) * 2 / 3)), 1fr));
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .TicketStubs-item {
+    display: flex;
+    min-width: 0;
+
+    & > .TicketStub {
+      flex: 1 1 auto;
+    }
+  }
+}

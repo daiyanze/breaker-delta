@@ -6,7 +6,7 @@ import { CSS_FILES } from "./index.ts";
 const file = CSS_FILES.find((f) => f.path === "patterns/Masthead/Masthead.css");
 const rules = cssRules(parseCss(file?.text ?? ""));
 const WIDE = "(min-width: 960px)";
-const STILL = "(prefers-reduced-motion: reduce)";
+const MOVING = "(prefers-reduced-motion: no-preference)";
 
 /** The declarations of `selector`, outside any media query or inside `media`, normalized. */
 function decls(selector: string, media?: string): Record<string, string> {
@@ -32,22 +32,19 @@ describe("the masthead's stylesheet", () => {
     );
   });
 
-  test("with reduced motion on, everything that moves stands still", () => {
-    const animation = (r: (typeof rules)[number]) =>
-      r.declarations.find(([p]) => p === "animation")?.[1];
-    const stopped = rules
-      .filter((r) => r.media.join() === STILL && animation(r) === "none")
-      .flatMap((r) => r.selector.split(/,\s*/));
+  // The sheet-wide rule (every animation waits for motion) is `styles.test.ts`;
+  // here, which parts move and where the boat rests when nothing does.
+  test("the wave and the boat move only when motion is allowed; at rest the boat is in view", () => {
     const moving = rules
-      .filter((r) => r.media.length === 0 && animation(r) !== undefined)
-      .map((r) => r.selector);
+      .filter((r) => r.declarations.some(([p]) => p.startsWith("animation")))
+      .map((r) => [r.selector, r.media.join()]);
     expect(moving.sort()).toEqual([
-      ".Masthead-pitch",
-      ".Masthead-rise",
-      ".Masthead-swell",
-      ".Masthead-voyage",
+      [".Masthead-pitch", MOVING],
+      [".Masthead-rise", MOVING],
+      [".Masthead-swell", MOVING],
+      [".Masthead-voyage", MOVING],
     ]);
-    expect(stopped.sort()).toEqual(moving);
+    expect(decls(".Masthead-voyage").transform).toBe("translateX(25%)");
   });
 
   test("phones get the disclosure and the simplest mark; the breakpoint unfolds the navigation", () => {

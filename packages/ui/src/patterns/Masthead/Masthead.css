@@ -11,8 +11,9 @@
  * wide as the page's content at most and as tall as the band, sliced from
  * its start, so it never stretches. It drifts left by four of its periods a
  * loop, so the loop has no seam. The boat rides a layer of its own across
- * the band's width. Under reduced motion nothing moves and the boat rests a
- * quarter of the way along. The markup is `Masthead.tsx`.
+ * the band's width. Every animation waits for
+ * `prefers-reduced-motion: no-preference`; otherwise nothing moves and the
+ * boat rests a quarter of the way along. The markup is `Masthead.tsx`.
  */
 @layer patterns {
   .Masthead {
@@ -254,19 +255,25 @@
     stroke: var(--ink);
     stroke-width: var(--masthead-wave-stroke);
     stroke-linecap: round;
-    animation: Masthead-drift var(--masthead-wave-loop) linear infinite;
+    @media (prefers-reduced-motion: no-preference) {
+      animation: Masthead-drift var(--masthead-wave-loop) linear infinite;
+    }
   }
 
   /*
    * As wide as the band. The boat starts just before its start and ends
-   * just past its end, so it leaves the band before it comes back.
+   * just past its end, so it leaves the band before it comes back. At rest
+   * (reduced motion) it stands a quarter of the way along.
    */
   .Masthead-voyage {
     position: absolute;
     inset-block: 0;
     inset-inline-start: 0;
     inline-size: 100%;
-    animation: Masthead-sail var(--masthead-crossing) linear infinite;
+    transform: translateX(25%);
+    @media (prefers-reduced-motion: no-preference) {
+      animation: Masthead-sail var(--masthead-crossing) linear infinite;
+    }
   }
 
   .Masthead-boat {
@@ -281,14 +288,18 @@
 
   /* Up and down once a wave, a quarter beat ahead of the pitch, as on the boards. */
   .Masthead-rise {
-    animation: Masthead-rise var(--masthead-boat-beat) ease-in-out
-      calc(var(--masthead-boat-beat) * -0.75) infinite;
+    @media (prefers-reduced-motion: no-preference) {
+      animation: Masthead-rise var(--masthead-boat-beat) ease-in-out
+        calc(var(--masthead-boat-beat) * -0.75) infinite;
+    }
   }
 
   .Masthead-pitch {
     transform-box: fill-box;
     transform-origin: 50% 100%;
-    animation: Masthead-pitch var(--masthead-boat-beat) ease-in-out infinite;
+    @media (prefers-reduced-motion: no-preference) {
+      animation: Masthead-pitch var(--masthead-boat-beat) ease-in-out infinite;
+    }
   }
 
   @keyframes Masthead-drift {
@@ -298,6 +309,10 @@
   }
 
   @keyframes Masthead-sail {
+    from {
+      transform: translateX(0);
+    }
+
     to {
       transform: translateX(calc(100% + var(--masthead-boat-size)));
     }
@@ -322,19 +337,6 @@
 
     50% {
       transform: rotate(var(--masthead-boat-pitch));
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .Masthead-swell,
-    .Masthead-voyage,
-    .Masthead-rise,
-    .Masthead-pitch {
-      animation: none;
-    }
-
-    .Masthead-voyage {
-      transform: translateX(25%);
     }
   }
 }
