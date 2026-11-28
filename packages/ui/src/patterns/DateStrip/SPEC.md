@@ -21,11 +21,11 @@ switch, search). Not an island; the theme switch inside it is one.
   the display face at `body` size on phones and `kicker` size from the
   breakpoint (the board's 17px and 20px); the second line at `label`.
 - Spacing `space-1` to `space-5`; the row is at least `space-8` tall on
-  wide screens. Controls are `--control-min-height` square on phones and
-  the search icon is `--icon-size` (`src/tokens/supplement.ts`). The
+  wide screens. Controls are `--control-min-height` square on phones; the
+  search entry is the `SearchEntry` primitive (`src/tokens/supplement.ts` for the height). The
   breakpoint is `TWO_COLUMNS_FROM`.
 - On phones the date and its line are read out but not shown, the tag
-  shows its short line, and the search link is the icon alone.
+  shows its short line, and `SearchEntry` shows its icon alone.
 
 ## Props
 
@@ -36,8 +36,8 @@ switch, search). Not an island; the theme switch inside it is one.
 - `count`, `note`, `shortNote`: the tag's first line, its second line on
   wide screens, and its second line on phones. The site fills the numbers
   in from the read contracts.
-- `search`: the search link's `href` and its name.
-- `children`: the controls before the search link, in order: the language
+- `search`: the `SearchEntry`'s `href` and its name.
+- `children`: the controls before the search entry, in order: the language
   menu, then the theme switch.
 
 ## States

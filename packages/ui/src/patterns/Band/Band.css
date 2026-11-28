@@ -4,6 +4,12 @@
  * column, the rail as a heading above the content; from the two-column
  * breakpoint (`TWO_COLUMNS_FROM`) two columns and a sticky rail. The markup
  * is `Band.tsx`.
+ *
+ * A band with a link (`data-link`, #123) ends with it: after the content on
+ * phones (board 02), under the note on desktop (board 01), where the content
+ * spans both rows. Its rail is not sticky there, so it never slides over
+ * the link. A highlighted name sits on `sun`, the design system's
+ * "栏目名高亮".
  */
 @layer patterns {
   :root {
@@ -57,12 +63,83 @@
     color: var(--ink-2);
   }
 
+  .Band-mark {
+    background: var(--sun);
+    color: var(--on-sun);
+    box-shadow: 0 0 0 var(--space-1) var(--sun);
+    box-decoration-break: clone;
+  }
+
+  .Band-link {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    min-height: var(--control-min-height);
+
+    @media (min-width: 960px) {
+      grid-column: 1;
+      grid-row: 2;
+      align-self: start;
+    }
+  }
+
   .Band-body {
     min-width: 0;
 
     /* The content's first line lines up with the section name. */
     & > :first-child {
       margin-top: 0;
+    }
+  }
+
+  /*
+   * The front page's band (#120, "头版区例外：内容在左，索引在右"): the
+   * content on the left, the aside (the index) in a right rail at most
+   * `rail` wide and as tall as the content, not sticky. On phones the aside
+   * comes under the content. The name is read out, not shown: it covers the
+   * band and is clipped to nothing, as boards 01 and 02 show no name.
+   */
+  .Band[data-variant="front"] {
+    position: relative;
+    row-gap: var(--space-6);
+
+    @media (min-width: 960px) {
+      grid-template-columns: minmax(0, 1fr) minmax(0, var(--rail));
+    }
+
+    & > .Band-rail {
+      position: absolute;
+      inset: 0;
+      align-self: stretch;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  .Band-aside {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .Band[data-link] {
+    @media (min-width: 960px) {
+      grid-template-rows: auto 1fr;
+      row-gap: var(--space-3);
+    }
+
+    & > .Band-rail {
+      @media (min-width: 960px) {
+        position: static;
+      }
+    }
+
+    & > .Band-body {
+      @media (min-width: 960px) {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+      }
     }
   }
 }

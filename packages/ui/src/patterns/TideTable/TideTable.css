@@ -1,0 +1,233 @@
+/*
+ * The tide table (#121, boards 01 and 02): the chart, then the list of the
+ * same waves. Phones first; from the two-column breakpoint
+ * (`TWO_COLUMNS_FROM`) the desktop board's type, hour labels every three
+ * hours, each wave's height on the chart and a list in two columns. The
+ * surface rises from the waterline once, over 1.2 seconds (design system
+ * "图和动效清单"), and stands still with reduced motion. The markup is
+ * `TideTable.tsx`.
+ */
+@layer patterns {
+  .TideTable {
+    --tide-table-label: var(--type-body-size);
+    --tide-table-hour: var(--type-label-size);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    min-width: 0;
+
+    @media (min-width: 960px) {
+      --tide-table-label: var(--type-kicker-size);
+      --tide-table-hour: var(--type-small-size);
+    }
+  }
+
+  /* Room at each end for the labels centred on midnight, "now" and 24:00. */
+  .TideTable-chart {
+    padding-inline: var(--space-5);
+  }
+
+  .TideTable-svg {
+    display: block;
+    width: 100%;
+    height: var(--tide-height);
+    overflow: visible;
+  }
+
+  .TideTable-sea {
+    overflow: visible;
+  }
+
+  .TideTable-crest {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+
+    /* Only when motion is allowed, so at rest the sea is already up. */
+    @media (prefers-reduced-motion: no-preference) {
+      animation: TideTable-rise 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+  }
+
+  @keyframes TideTable-rise {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  .TideTable-area {
+    fill: var(--tint);
+  }
+
+  .TideTable-surface {
+    fill: none;
+    stroke: var(--blue);
+    stroke-width: var(--tide-surface);
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .TideTable-waterline {
+    stroke: var(--ink);
+    stroke-width: var(--rule-dashed);
+  }
+
+  .TideTable-tick {
+    stroke: var(--ink);
+    stroke-width: var(--rule-thin);
+  }
+
+  .TideTable-now {
+    stroke: var(--ink);
+    stroke-width: var(--rule-dashed);
+    stroke-dasharray: var(--space-1) var(--space-2);
+    stroke-linecap: round;
+  }
+
+  .TideTable-high {
+    display: none;
+    stroke: var(--ink-2);
+    stroke-width: var(--rule-thin);
+    stroke-dasharray: var(--rule-dashed) var(--space-2);
+    stroke-linecap: round;
+
+    @media (min-width: 960px) {
+      display: inline;
+    }
+  }
+
+  .TideTable-dot {
+    r: var(--tide-dot);
+    fill: var(--red);
+    stroke: var(--paper);
+    stroke-width: var(--rule-dashed);
+  }
+
+  .TideTable-nowLabel,
+  .TideTable-later,
+  .TideTable-highLabel {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--tide-table-label);
+
+    /* Chinese and Japanese have no italic: a weight instead (board 35, `--cjk-emphasis-weight`). */
+    &:lang(zh),
+    &:lang(ja) {
+      font-style: normal;
+      font-weight: var(--cjk-emphasis-weight);
+    }
+  }
+
+  .TideTable-nowLabel {
+    fill: var(--ink);
+    text-anchor: middle;
+  }
+
+  .TideTable-later {
+    fill: var(--ink-2);
+    text-anchor: middle;
+  }
+
+  .TideTable-highLabel {
+    fill: var(--ink-2);
+    font-size: var(--type-body-size);
+  }
+
+  /* A wave's height on the chart: desktop only, as on the boards. */
+  .TideTable-height {
+    display: none;
+    fill: var(--ink);
+    font-size: var(--type-small-size);
+    font-weight: 700;
+    text-anchor: middle;
+
+    @media (min-width: 960px) {
+      display: inline;
+    }
+  }
+
+  .TideTable-hour {
+    fill: var(--ink-2);
+    font-size: var(--tide-table-hour);
+    text-anchor: middle;
+  }
+
+  /* 03:00, 09:00, 15:00, 21:00: desktop only. */
+  .TideTable-hour-odd {
+    display: none;
+
+    @media (min-width: 960px) {
+      display: inline;
+    }
+  }
+
+  .TideTable-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    @media (min-width: 960px) {
+      columns: var(--rail) 2;
+      column-gap: var(--space-7);
+    }
+  }
+
+  .TideTable-item {
+    break-inside: avoid;
+    border-top: var(--rule-thin) solid var(--hair);
+
+    @media (min-width: 960px) {
+      border-top: none;
+    }
+  }
+
+  .TideTable-link {
+    display: flex;
+    gap: var(--space-3);
+    align-items: baseline;
+    min-height: var(--control-min-height);
+    padding-block: var(--space-3);
+    color: var(--ink);
+    text-decoration: none;
+
+    @media (min-width: 960px) {
+      gap: var(--space-4);
+      padding-block: 0 var(--space-4);
+    }
+
+    &:hover .TideTable-title {
+      text-decoration: underline;
+    }
+  }
+
+  .TideTable-at {
+    flex: none;
+    font-weight: 700;
+    color: var(--red);
+  }
+
+  .TideTable-title {
+    flex: 1 1 0;
+    min-width: 0;
+    font-family: var(--font-display);
+    font-size: var(--type-body-size);
+    line-height: var(--type-clip-headline-line);
+    font-weight: var(--type-clip-headline-weight);
+
+    /* Boards 02 and 01 set 19px and 21px: the nearest sizes of the scale. */
+    @media (min-width: 960px) {
+      font-size: var(--type-kicker-size);
+    }
+  }
+
+  .TideTable-wave {
+    flex: none;
+    font-family: var(--font-display);
+    font-size: var(--type-kicker-size);
+    font-weight: var(--type-wave-number-weight);
+  }
+}

@@ -48,6 +48,57 @@ describe("band markup", () => {
   test("no note, no empty paragraph", () => {
     expect(renderToString(<Band id="a" name="A" />)).not.toContain("Band-note");
   });
+
+  test("a highlighted name is marked inside its heading; a plain one is not", () => {
+    expect(renderToString(<Band id="a" name="A?" highlight />)).toContain(
+      '<h2 id="band-a" class="Band-name"><span class="Band-mark">A?</span></h2>',
+    );
+    expect(renderToString(<Band id="a" name="A" />)).not.toContain("Band-mark");
+  });
+
+  test("a link comes after the content, and marks the band", () => {
+    const html = renderToString(
+      <Band id="a" name="A" link={{ href: "/record", text: "Open the track record" }}>
+        <p>x</p>
+      </Band>,
+    );
+    expect(html).toStartWith('<section class="Band" aria-labelledby="band-a" data-link>');
+    expect(html).toEndWith(
+      '<div class="Band-body"><p>x</p></div><a class="Band-link" href="/record">Open the track record</a></section>',
+    );
+    expect(renderToString(<Band id="a" name="A" />)).not.toContain("data-link");
+  });
+
+  test("the rail's own content follows the note, inside the rail, issue 122", () => {
+    const html = renderToString(
+      <Band id="a" name="A" note="N" rail={<a href="/x">More</a>}>
+        <p>x</p>
+      </Band>,
+    );
+    expect(html).toContain(
+      '<div class="Band-rail"><h2 id="band-a" class="Band-name">A</h2><p class="Band-note">N</p><a href="/x">More</a></div><div class="Band-body">',
+    );
+  });
+
+  test("no aside, no right rail", () => {
+    const html = renderToString(<Band id="a" name="A" />);
+    expect(html).not.toContain("Band-aside");
+    expect(html).not.toContain("data-variant");
+  });
+
+  test("with an aside, the front band: still named by its heading, the aside after the content", () => {
+    const html = renderToString(
+      <Band id="front" name="Front page" aside={<aside>index</aside>}>
+        <p>x</p>
+      </Band>,
+    );
+    expect(html).toBe(
+      '<section class="Band" data-variant="front" aria-labelledby="band-front">' +
+        '<div class="Band-rail"><h2 id="band-front" class="Band-name">Front page</h2></div>' +
+        '<div class="Band-body"><p>x</p></div>' +
+        '<div class="Band-aside"><aside>index</aside></div></section>',
+    );
+  });
 });
 
 describe("band states", () => {

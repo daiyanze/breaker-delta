@@ -45,9 +45,9 @@ describe("date strip", () => {
       '<strong class="DateStrip-count">16 waves up</strong><span class="DateStrip-note">5 new today, scanned 14:00</span><span class="DateStrip-short">5 new today</span>',
     );
     expect(html).toContain(
-      '<div class="DateStrip-controls"><button type="button">menu</button><a class="DateStrip-search" href="/search">',
+      '<div class="DateStrip-controls"><button type="button">menu</button><span class="SearchEntry"><a class="Button',
     );
-    expect(html).toContain('<span class="DateStrip-search-name">Search</span></a></div></div>');
+    expect(html).toContain('<span class="SearchEntry-label">Search</span></a></span></div></div>');
     expect(html).not.toContain("style=");
   });
 
@@ -80,6 +80,5 @@ describe("date strip", () => {
     expect(block(".DateStrip-text")).toContain("clip-path: inset(50%)");
     expect(block(".DateStrip-text")).not.toMatch(/display:\s*none/);
     expect(block(".DateStrip-note")).toMatch(/display:\s*none/);
-    expect(block(".DateStrip-search-name")).toContain("clip-path: inset(50%)");
   });
 });

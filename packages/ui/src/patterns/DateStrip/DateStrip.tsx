@@ -5,7 +5,7 @@
  * calendar, the full date with the issue number and the sea state below it,
  * and the yellow wave-count tag; on the right the page's controls (the
  * language menu and the theme switch, passed as children) and the search
- * link. On phones the full date is read out but not shown, and the tag keeps
+ * entry (`SearchEntry`). On phones the full date is read out but not shown, and the tag keeps
  * its short second line. Styles: `DateStrip.css`.
  *
  * Every piece of text is finished text in the page's language: the site
@@ -13,6 +13,7 @@
  * string table and decides no number.
  */
 import type { ComponentChildren, VNode } from "preact";
+import { SearchEntry } from "../../primitives/SearchEntry/SearchEntry.tsx";
 
 export interface DateStripProps {
   /** The calendar's red header: the month, short ("Nov", "11月"). */
@@ -59,13 +60,7 @@ export function DateStrip(props: DateStripProps): VNode {
       </div>
       <div class="DateStrip-controls">
         {props.children}
-        <a class="DateStrip-search" href={props.search.href}>
-          <svg class="DateStrip-search-icon" viewBox="0 0 18 18" aria-hidden="true">
-            <circle cx="8" cy="8" r="5.5" />
-            <path d="M12.5 12.5 L16 16" />
-          </svg>
-          <span class="DateStrip-search-name">{props.search.label}</span>
-        </a>
+        <SearchEntry href={props.search.href} label={props.search.label} />
       </div>
     </div>
   );

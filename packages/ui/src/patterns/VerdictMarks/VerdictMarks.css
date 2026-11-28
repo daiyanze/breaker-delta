@@ -1,0 +1,65 @@
+/*
+ * The marks and their legend (#115, VerdictMark README, board 07): marks
+ * 8px apart (`space-2`), ten to a row on phones and fourteen from the
+ * two-column breakpoint (`TWO_COLUMNS_FROM`). A mark is 26px across
+ * (`--mark-size`) where the row has room, and shrinks with its column
+ * where it has not: ten 26px marks and their gaps need 332px, more than a
+ * 320px phone's content column, so the columns are `minmax(0, …)` and each
+ * mark fills its cell, square. The legend is small `ink-2` text, each name
+ * after its mark drawn at 16px (`space-4`), as on board 07. The markup is
+ * `VerdictMarks.tsx`.
+ */
+@layer patterns {
+  .VerdictMarks {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+
+  .VerdictMarks-list {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, var(--mark-size)));
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    @media (min-width: 960px) {
+      grid-template-columns: repeat(14, minmax(0, var(--mark-size)));
+    }
+
+    & > li {
+      min-width: 0;
+    }
+
+    & .VerdictMark {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1;
+    }
+  }
+
+  .VerdictMarks-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--type-small-size);
+    line-height: var(--type-small-line);
+    color: var(--ink-2);
+  }
+
+  .VerdictMarks-key {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+
+    & > .VerdictMark {
+      width: var(--space-4);
+      height: var(--space-4);
+    }
+  }
+}

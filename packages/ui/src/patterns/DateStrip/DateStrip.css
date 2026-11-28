@@ -4,7 +4,7 @@
  * -2°, then the controls at the row's end. The row wraps instead of
  * scrolling sideways. Below the two-column breakpoint (`TWO_COLUMNS_FROM`)
  * the date and its line are read out but not shown, the tag keeps its short
- * line, and the search link is the icon alone, a square control. The markup
+ * line, and the search entry (`SearchEntry`) shows its icon alone. The markup
  * is `DateStrip.tsx`.
  */
 @layer patterns {
@@ -157,55 +157,6 @@
     /* The language menu's own padding would make the row taller than the board's. */
     & .LanguageMenu {
       padding-block: 0;
-    }
-  }
-
-  /* The secondary button (`design/system/components/Button`): a 1px outline, inverted on hover. */
-  .DateStrip-search {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    min-height: var(--control-min-height);
-    min-width: var(--control-min-height);
-    border: var(--rule-thin) solid var(--ink);
-    color: var(--ink);
-    font-weight: var(--type-button-weight);
-    text-decoration: none;
-
-    &:hover {
-      background: var(--ink);
-      color: var(--paper);
-    }
-
-    @media (min-width: 960px) {
-      padding-inline: var(--space-3);
-    }
-  }
-
-  .DateStrip-search-icon {
-    flex: none;
-    width: var(--icon-size);
-    height: var(--icon-size);
-    fill: none;
-    stroke: currentcolor;
-    stroke-width: var(--icon-stroke);
-    stroke-linecap: round;
-  }
-
-  /* The link's name: read out on phones, where the link is the icon alone. */
-  .DateStrip-search-name {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-
-    @media (min-width: 960px) {
-      position: static;
-      overflow: visible;
-      clip-path: none;
     }
   }
 }
