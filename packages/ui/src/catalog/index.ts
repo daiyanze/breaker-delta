@@ -15,6 +15,11 @@ import bandStates from "../patterns/Band/Band.states.tsx";
 import echoStackStates from "../patterns/EchoStack/EchoStack.states.tsx";
 import headlineStates from "../patterns/Headline/Headline.states.tsx";
 import languageMenuStates from "../patterns/LanguageMenu/LanguageMenu.states.tsx";
+import stampStates from "../patterns/Stamp/Stamp.states.tsx";
+import ticketStubStates from "../patterns/TicketStub/TicketStub.states.tsx";
+import ticketStubsStates from "../patterns/TicketStubs/TicketStubs.states.tsx";
+import verdictMarkStates from "../patterns/VerdictMark/VerdictMark.states.tsx";
+import verdictMarksStates from "../patterns/VerdictMarks/VerdictMarks.states.tsx";
 import themeSwitchStates from "../primitives/ThemeSwitch/ThemeSwitch.states.tsx";
 import type { States } from "../runtime/index.ts";
 import type { Theme } from "../tokens/index.ts";
@@ -62,4 +67,9 @@ export const CATALOG: readonly CatalogEntry[] = [
   entry("EchoStack", "patterns", echoStackStates),
   entry("Headline", "patterns", headlineStates),
   entry("LanguageMenu", "patterns", languageMenuStates),
+  entry("Stamp", "patterns", stampStates),
+  entry("TicketStub", "patterns", ticketStubStates),
+  entry("TicketStubs", "patterns", ticketStubsStates),
+  entry("VerdictMark", "patterns", verdictMarkStates),
+  entry("VerdictMarks", "patterns", verdictMarksStates),
 ];

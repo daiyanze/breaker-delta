@@ -88,6 +88,13 @@ under no rule and fails `check-deps`.
   choice. Props `toDark` and `toLight`, its name in each theme, as finished
   text (the site passes them from its string tables); the stylesheet shows
   the one that applies. `SPEC.md` in its folder.
+- `Stamp`, `TicketStub`, `TicketStubs`, `VerdictMark`, `VerdictMarks`
+  (`patterns`, boards 01, 03, 06 and 07, #115): how a 14-day test and its
+  verdict are shown. A stamp's kind (`data-kind`) is told by its text and
+  its frame, a mark's by its shape, never by colour alone; a hovered stamp
+  or stub wobbles the stamp for 0.2 seconds, unless motion is reduced. The
+  values the design gives only in prose are `STAMP`, `STUB` and `MARK` in
+  `supplement.ts`. `SPEC.md` in each folder.
 
 ## `@bd/ui/styles` and `@bd/ui/build`
 
