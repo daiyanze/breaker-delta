@@ -15,6 +15,8 @@ import bandStates from "../patterns/Band/Band.states.tsx";
 import echoStackStates from "../patterns/EchoStack/EchoStack.states.tsx";
 import footerStates from "../patterns/Footer/Footer.states.tsx";
 import headlineStates from "../patterns/Headline/Headline.states.tsx";
+import indexStates from "../patterns/Index/Index.states.tsx";
+import indexRowStates from "../patterns/IndexRow/IndexRow.states.tsx";
 import languageMenuStates from "../patterns/LanguageMenu/LanguageMenu.states.tsx";
 import sourceTileStates from "../patterns/SourceTile/SourceTile.states.tsx";
 import stampStates from "../patterns/Stamp/Stamp.states.tsx";
@@ -74,6 +76,8 @@ export const CATALOG: readonly CatalogEntry[] = [
   entry("Band", "patterns", bandStates),
   entry("EchoStack", "patterns", echoStackStates),
   entry("Headline", "patterns", headlineStates),
+  entry("Index", "patterns", indexStates),
+  entry("IndexRow", "patterns", indexRowStates),
   entry("LanguageMenu", "patterns", languageMenuStates),
   entry("SourceTile", "patterns", sourceTileStates),
   entry("Footer", "patterns", footerStates),

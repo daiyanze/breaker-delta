@@ -25,6 +25,8 @@ export {
   type HeadlineTier,
   headlineSize,
 } from "./Headline/Headline.tsx";
+export { default as Index, type IndexProps } from "./Index/Index.island.tsx";
+export { IndexRow, type IndexRowProps } from "./IndexRow/IndexRow.tsx";
 export {
   type LanguageLink,
   LanguageMenu,

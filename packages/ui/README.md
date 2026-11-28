@@ -70,7 +70,9 @@ under no rule and fails `check-deps`.
   catalog; the props are checked against the component's.
 - `Band` (`patterns/Band`): a section with its name in the rail. Classes
   `.Band` and `.Band-rail`, `.Band-name`, `.Band-note`, `.Band-body`; the
-  heading's id is `band-<id>`.
+  heading's id is `band-<id>`. With `aside` it is the front page's band
+  (`data-variant="front"`, #120): the content left, the aside (`.Band-aside`,
+  the index) in the right rail, the name read out but not shown.
 - `EchoStack` (`patterns/EchoStack`, boards 01 to 03, #114): the stack of
   sheets beside a wave-height number, an SVG of `echoStackLayers(height)`
   sheets (height ÷ 200 × 12, 3 to 15) that drop in on a CSS loop when
@@ -86,6 +88,16 @@ under no rule and fails `check-deps`.
   finished text. Classes `.Headline`, `-lead`, `-story`, `-second`,
   `-third`, `-columns`, `-title`, `-fading`, `-link`, `-number`, `-new`,
   `-kicker`, `-figures`, `-trend`, `-chart`, `-note`, `-meta`, `-key`.
+- `Index` (`patterns/Index`, an island, boards 01 and 02, #120) and
+  `IndexRow` (`patterns/IndexRow`): the whole ranking beside the headlines,
+  one row per wave (rank, short title, dotted leader, change, height), the
+  row a link. Desktop shows every row and fills the front band's right
+  rail; phones show the first `INDEX_PHONE_ROWS` (8) and a button that
+  shows the rest, the one thing the island does. A wave formed today has a
+  red number and change. Values the type scale lacks are `INDEX` in the
+  supplement (`--index-*`). Classes `.Index`, `-head`, `-name`, `-order`,
+  `-list`, `-open`, `-item`, `-note`, `-more`; `.IndexRow`, `-rank`,
+  `-title`, `-leader`, `-change`, `-number`, `-new`.
 - `LanguageMenu` (`patterns/LanguageMenu`, boards 01 and 02, #107): links to
   the same page in each language inside a `<details>`, so it opens without
   JavaScript; the current one has `aria-current`. It takes finished text:
@@ -183,10 +195,11 @@ no Bun or Cloudflare types, so emails and share cards can import it.
   padding, the focus ring, the icon size and stroke, the theme switch's
   icon size, the source tile's sizes, the echo stack's and the headlines'
   sizes, the footer's timings, angles, beam opacity and link weight, the
-  two-column breakpoint), each with the text it comes from. No other file
-  holds a design value. All but the breakpoint are also CSS variables:
+  index's values and phone row count, the two-column breakpoint), each
+  with the text it comes from. No other file holds a design value. All but
+  the breakpoint and the index's row count are also CSS variables:
   `--phone-*`, `--control-*`, `--focus-*`, `--icon-*`, `--source-tile-*`,
-  `--echo-stack-*`, `--headline-*`, `--footer-*`.
+  `--echo-stack-*`, `--headline-*`, `--footer-*`, `--index-*`.
 - `contrast.test.ts` computes the WCAG 2.2 contrast of every text and
   background pair the design uses, in both themes: 4.5:1 for text, 3:1 for
   a control's outline. A new colour token fails it until it is placed.
