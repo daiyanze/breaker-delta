@@ -13,8 +13,18 @@
 import { type ComponentType, h, type VNode } from "preact";
 import bandStates from "../patterns/Band/Band.states.tsx";
 import echoStackStates from "../patterns/EchoStack/EchoStack.states.tsx";
+import footerStates from "../patterns/Footer/Footer.states.tsx";
+import headlineStates from "../patterns/Headline/Headline.states.tsx";
 import languageMenuStates from "../patterns/LanguageMenu/LanguageMenu.states.tsx";
 import sourceTileStates from "../patterns/SourceTile/SourceTile.states.tsx";
+import stampStates from "../patterns/Stamp/Stamp.states.tsx";
+import ticketStubStates from "../patterns/TicketStub/TicketStub.states.tsx";
+import ticketStubsStates from "../patterns/TicketStubs/TicketStubs.states.tsx";
+import verdictMarkStates from "../patterns/VerdictMark/VerdictMark.states.tsx";
+import verdictMarksStates from "../patterns/VerdictMarks/VerdictMarks.states.tsx";
+import buttonStates from "../primitives/Button/Button.states.tsx";
+import filtersStates from "../primitives/Filters/Filters.states.tsx";
+import searchEntryStates from "../primitives/SearchEntry/SearchEntry.states.tsx";
 import themeSwitchStates from "../primitives/ThemeSwitch/ThemeSwitch.states.tsx";
 import type { States } from "../runtime/index.ts";
 import type { Theme } from "../tokens/index.ts";
@@ -57,9 +67,19 @@ function entry<P>(name: string, layer: ComponentLayer, declared: States<P>): Cat
 
 /** Every component with its states, primitives first. */
 export const CATALOG: readonly CatalogEntry[] = [
+  entry("Button", "primitives", buttonStates),
+  entry("Filters", "primitives", filtersStates),
+  entry("SearchEntry", "primitives", searchEntryStates),
   entry("ThemeSwitch", "primitives", themeSwitchStates),
   entry("Band", "patterns", bandStates),
   entry("EchoStack", "patterns", echoStackStates),
+  entry("Headline", "patterns", headlineStates),
   entry("LanguageMenu", "patterns", languageMenuStates),
   entry("SourceTile", "patterns", sourceTileStates),
+  entry("Footer", "patterns", footerStates),
+  entry("Stamp", "patterns", stampStates),
+  entry("TicketStub", "patterns", ticketStubStates),
+  entry("TicketStubs", "patterns", ticketStubsStates),
+  entry("VerdictMark", "patterns", verdictMarkStates),
+  entry("VerdictMarks", "patterns", verdictMarksStates),
 ];
