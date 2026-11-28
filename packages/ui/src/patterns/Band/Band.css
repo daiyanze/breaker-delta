@@ -84,6 +84,7 @@
     & > .Band-rail {
       position: absolute;
       inset: 0;
+      align-self: stretch;
       overflow: hidden;
       clip-path: inset(50%);
       white-space: nowrap;

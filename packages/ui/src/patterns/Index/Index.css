@@ -3,7 +3,8 @@
  * a `rule-heavy` rule, then one `IndexRow` per wave. On phones it shows the
  * first rows (`INDEX_PHONE_ROWS`, 8: the ninth row on is hidden) and a
  * button that shows the rest; from the two-column breakpoint every row
- * shows, spread over the height of the column, and the key under them
+ * shows, spread over the height of the column up to a capped row height,
+ * and the key under them
  * replaces the button. The markup is `Index.island.tsx`.
  */
 @layer patterns {
@@ -48,7 +49,13 @@
     line-height: var(--type-small-line);
   }
 
-  /* Desktop: the rows fill the column, the space between them shared out. */
+  /*
+   * Desktop: the rows stack from the top and share out the column's spare
+   * height, each row growing to at most the control's height plus
+   * `space-5` (a row taller than that keeps its own height). So a full
+   * ranking fills the rail, as the IndexRow README asks, and a short one
+   * stays a list at the top instead of rows spread down the column.
+   */
   .Index-list {
     margin: 0;
     padding: 0;
@@ -56,9 +63,9 @@
 
     @media (min-width: 960px) {
       flex: 1 1 auto;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      display: grid;
+      grid-auto-rows: minmax(min-content, calc(var(--control-min-height) + var(--space-5)));
+      align-content: start;
     }
   }
 
@@ -82,7 +89,7 @@
 
   /*
    * The button of `design/system/components/Button`: a 2px `ink` outline
-   * (`rule-dashed` is the 2px line width), square, inverted on hover; at
+   * (`--control-outline`), square, inverted on hover; at
    * the control's height. Phones only: on desktop every row shows.
    */
   .Index-more {
@@ -92,7 +99,7 @@
     margin-top: var(--space-2);
     padding-block: var(--space-1);
     padding-inline: var(--space-5);
-    border: var(--rule-dashed) solid var(--ink);
+    border: var(--control-outline) solid var(--ink);
     border-radius: var(--radius-none);
     background: transparent;
     color: var(--ink);

@@ -473,6 +473,7 @@ describe("the index and the front band (issue 120)", () => {
     expect(decl('.Band[data-variant="front"] > .Band-rail')).toEqual({
       position: "absolute",
       inset: "0",
+      "align-self": "stretch",
       overflow: "hidden",
       "clip-path": "inset(50%)",
       "white-space": "nowrap",
@@ -495,14 +496,20 @@ describe("the index and the front band (issue 120)", () => {
     expect(decl(".Index-more", desktop).display).toBe("none");
   });
 
-  test("on desktop the rows fill the column, the space shared out between them", () => {
-    expect(decl(".Index-list", desktop)).toMatchObject({
+  // Review of #301: `space-between` set a two-wave ranking ~550px apart.
+  test("on desktop the rows stack from the top and share out the column, each growing to a capped height", () => {
+    expect(decl(".Index-list", desktop)).toEqual({
       flex: "1 1 auto",
-      display: "flex",
-      "flex-direction": "column",
-      "justify-content": "space-between",
+      display: "grid",
+      "grid-auto-rows": "minmax(min-content,calc(var(--control-min-height) + var(--space-5)))",
+      "align-content": "start",
     });
     expect(decl(".Index", desktop).flex).toBe("1 1 auto");
+    for (const r of own) expect(cssValue(r, "justify-content")).not.toBe("space-between");
+  });
+
+  test("the phone button's outline is the control outline", () => {
+    expect(decl(".Index-more").border).toBe("var(--control-outline) solid var(--ink)");
   });
 
   test("a row: the leader a 2px dotted hair line, the number in a fixed column, red only when formed today", () => {

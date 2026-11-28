@@ -4,7 +4,8 @@
 
 The full ranking beside the headlines (#120): a heading, one `IndexRow`
 per wave that is up, tallest first, and the key under them. On desktop it
-shows every row and fills the height of the front band's right rail; on
+shows every row and fills the height of the front band's right rail
+(rows capped in height, so a short ranking stays at the top); on
 phones it sits under the headlines and shows the first eight rows with a
 button that shows the rest. An island for that button:
 `/client/Index.island.js`. Used on the front page, in `Band`'s `aside`.
@@ -22,9 +23,14 @@ button that shows the rest. An island for that button:
 - The phone row count is `INDEX_PHONE_ROWS` in `src/tokens/supplement.ts`;
   `Index.css` hides the ninth row on, and `styles.test.ts` checks the two
   agree.
+- On desktop the rows stack from the top and share out the rail's spare
+  height, each growing to at most `--control-min-height` + `space-5`: a
+  full ranking fills the rail, a short one stays a list at the top. Where
+  the headline column is much taller than 16 such rows (a narrow desktop),
+  the rail keeps space below the rows rather than set them ~100px apart.
 - The button is the Button README's default: a 2px `ink` outline
-  (`rule-dashed`, the 2px line width), square, inverted on hover, at the
-  control's height (`--control-height`).
+  (`--control-outline`, `CONTROL.outline` in the supplement), square,
+  inverted on hover, at the control's height (`--control-height`).
 
 ## Props
 

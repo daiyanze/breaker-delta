@@ -419,6 +419,25 @@ describe("the index, issue 120", () => {
     expect(rows[7]).toMatchObject({ change: "", red: false });
   });
 
+  // Review of #301: the change is shown rounded, so a fraction under 0.5 is level.
+  test("the change is the rounded percent: 12.6 is +13%, -12.6 is −13%, ±0.4 is level", async () => {
+    const base = createFixtureReadQueries("busy");
+    const plain = await base.edition();
+    if (plain === null) throw new Error("busy has an edition");
+    const changes = new Map([
+      [0, 12.6],
+      [4, -12.6],
+      [7, 0.4],
+      [8, -0.4],
+    ]);
+    const ranking = plain.ranking.map((r, i) => {
+      const change24h = changes.get(i);
+      return change24h === undefined ? r : RankRowSchema.parse({ ...r, change24h });
+    });
+    const rows = rowsOf(await front({ ...base, edition: async () => ({ ...plain, ranking }) }));
+    expect([0, 4, 7, 8].map((i) => rows[i]?.change)).toEqual(["+13%", "−13%", "", ""]);
+  });
+
   test("the phone button shows all sixteen; the text follows the page's language, the titles keep theirs", async () => {
     const q = createFixtureReadQueries("busy");
     const en = indexOf(await front(q));
