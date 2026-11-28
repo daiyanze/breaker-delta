@@ -136,11 +136,17 @@ describe("switching language lands on the same page in the other language", () =
   });
 
   test("links on a page stay in its language", async () => {
+    // Every link in the page's content: the topics and the track record (#123).
     const { topics } = await read(await (await visit("/zh/")).text());
     expect(topics.length).toBeGreaterThan(0);
-    for (const href of topics) expect(href).toStartWith("/zh/topic/");
+    // Topic pages, the changes that went flat (issue 122) and the track
+    // record (issue 123).
+    const page = /^\/(?:topic\/[a-z0-9-]+|changes\?type=went_flat|record)$/;
+    expect(topics).toContain("/zh/record");
+    for (const href of topics) expect(href.replace(/^\/zh\//, "/")).toMatch(page);
+    for (const href of topics) expect(href).toStartWith("/zh/");
     const en = await read(await (await visit("/")).text());
-    for (const href of en.topics) expect(href).toStartWith("/topic/");
+    for (const href of en.topics) expect(href).toMatch(page);
   });
 
   test("choosing the default language from another one is not sent back by the browser's language", async () => {

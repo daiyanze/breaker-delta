@@ -44,7 +44,7 @@ The masthead's theme switch of boards 01 and 02 (#105). An island (ADR
 
 - Add a third "system" choice, or a text label beside the icon: the board
   has neither.
-- Style the focus ring here: it is the browser's own until the board's 3px
-  ring has a token.
+- Style the focus ring here: it is the page's (`styles/base.css`,
+  `--focus-*`, #112).
 - Read or write the theme anywhere else: `THEME_KEY` and `Document`'s
   script are the one other place that knows it.

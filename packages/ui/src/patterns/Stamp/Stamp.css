@@ -1,0 +1,85 @@
+/*
+ * The stamp (#115, TicketStub README): a 3px frame with the stamp radius,
+ * bold text. Each kind differs by its frame as well as its colour: a due
+ * stamp is dashed and upright, one under review is thin and upright, a hit
+ * is filled, and the verdicts are turned -4°. A due stamp on the front and
+ * topic pages is loud: a red frame turned -5°. On hover it wobbles once,
+ * 0.2 seconds, out to the turn and size boards 01, 03 and 06 give a hovered
+ * stamp and back; a stub wobbles its stamp too (`TicketStub.css`). Reduced
+ * motion keeps it still. The markup is `Stamp.tsx`.
+ */
+@layer patterns {
+  .Stamp {
+    --stamp-turn: var(--stamp-tilt);
+
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    padding: 0 var(--space-3);
+    border: var(--stamp-border) solid var(--ink);
+    border-radius: var(--radius-stamp);
+    color: var(--ink);
+    font-weight: bold;
+    /* Short labels sit on one line; a long one wraps rather than leave the page. */
+    max-width: 100%;
+    rotate: var(--stamp-turn);
+  }
+
+  .Stamp[data-kind="due"] {
+    --stamp-turn: 0deg;
+
+    border-width: var(--rule-dashed);
+    border-style: dashed;
+  }
+
+  .Stamp[data-loud] {
+    --stamp-turn: var(--stamp-due-tilt);
+
+    border-width: var(--stamp-border);
+    border-style: solid;
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .Stamp[data-kind="under_review"] {
+    --stamp-turn: 0deg;
+
+    border-width: var(--rule-dashed);
+    border-color: var(--ink-2);
+    color: var(--ink-2);
+  }
+
+  .Stamp[data-kind="hit"] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .Stamp[data-kind="partial"] {
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+
+  .Stamp[data-kind="miss"] {
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .Stamp[data-kind="undetermined"] {
+    border-style: dashed;
+    border-color: var(--ink-2);
+    color: var(--ink-2);
+  }
+
+  @keyframes Stamp-wobble {
+    50% {
+      rotate: var(--stamp-swing);
+      scale: var(--stamp-swing-scale);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .Stamp:hover {
+      animation: Stamp-wobble var(--stamp-wobble) ease-in-out;
+    }
+  }
+}

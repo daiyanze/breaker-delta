@@ -13,9 +13,37 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
 
 - `up` (no fixtures), `get /`: the placeholder, "The site arrives in
   milestone M3".
-- `up --fixtures busy`, `get /`: "The ... edition. Sea state: ...", an
+- `up --fixtures busy`, `get /`: the date strip first (#109): "Thursday,
+  November 19, 2026", "No. 323. Sea state: choppy.", "16 waves up", "5 new
+  today, scanned 14:00", then the language menu, the theme switch and the
+  search entry. In the saved file: "The ... edition. Sea state: ...", an
   ordered list of topics linking to `/topic/<slug>`, and a Classifieds list.
-- `get "/?set=fresh"`: "The sea is flat." and the next scan time.
+- `get "/?set=fresh"`: the strip with "Sea state: flat.", "0 waves up" and
+  "first scan at 15:00"; "The sea is flat." and the next scan time.
+- `get /zh/` on `busy`: the strip reads "2026年11月19日 星期四" and
+  "第 323 期。海况：有浪。"; `/ja/`: "2026年11月19日（木）" and
+  "第323号。海況：波あり。".
+- On `busy`, a "Fading notices" band (#122) between the front page and
+  the classifieds: one `<article class="Notice">` per wave in the
+  edition's `ebb.notices`, each "A wave since Nov 13. Peaked at 188.
+  Survived by 22 echoes." and "Now 144, down 18% in 24 hours" from the
+  data, its title linking to `/topic/<slug>`; in the rail "Read the 1
+  that went flat" (`/changes?type=went_flat`) and a sunset. On `/zh/` and
+  `/ja/` the sentence is the same pattern in that language ("11月13日成浪。
+  最高 188。身后留下 22 条回波。"). In a browser: the ripple drifts (none
+  with reduced motion); three notices to a row at 1440 wide, two at 390;
+  no horizontal scrollbar. An edition with no notice: the band is its name
+  and "No wave is going out." (`apps/web/src/local/pages.test.ts`; no
+  fixture set has one).
+- The "Were we right?" band (#123), between the fading notices
+  and the Classifieds: its name on `sun`, then on `busy` a ticket stub per test
+  coming due ("Due Nov 26", "Day 7 of 14") and per recent verdict ("Hit",
+  "Partial", "Confirmed Nov 19"), each linking to its topic, and the link
+  "Open the track record" to `/record` (`/zh/record`, `/ja/record`; that
+  page comes with #130). On `quiet`, with no stub, the note ends "No
+  verdicts yet." and the band says "The first test comes due on Nov 26.";
+  it is never blank. In a browser at 1440 the link sits under the note in
+  the rail; at 390 the stubs are one column and the link follows them.
 - `get /ja/` on `busy`: `<html lang="ja">`, Japanese headlines where
   the set has them, the source's own headline elsewhere.
 - `get "/ja/?set=quiet"` (English only): redirected to `/?set=quiet`,
@@ -38,7 +66,29 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
   `<script type="module" src="/client/loader.js">` (#272). `get
   /client/loader.js` and `get /client/ThemeSwitch.island.js`: 200
   `text/javascript`.
-- The front page's header holds the theme switch island (#105),
+- Every page's header holds the masthead (#110), `<div class="Masthead">`:
+  the round mark and "Breaker Delta" as one link home (the front page's
+  `<h1>`), the navigation (Front page, Changes, Echoes, Track record,
+  Sources, About; the front page's item with `aria-current="page"`), on
+  `/zh/` and `/ja/` in that language with `/zh/…` and `/ja/…` links, then
+  the wave line. On the front page of a fixture set the header opens with
+  the date strip (#109), `<header class="page"><div class="DateStrip">`,
+  and the masthead follows it in the same header; the placeholder's header
+  is the masthead alone. `get` prints a page only when the instance reads
+  fixtures (README, "Fetched content stays out of the session"), and
+  `preview` shortens the masthead to `<!-- masthead -->` and keeps the
+  strip: on `busy` the strip alone fills the 2000 characters (they end
+  inside the theme switch), and the saved file, read through `preview` with
+  no limit, has `…</div></div><!-- masthead --></header><main
+  class="page">`. On the placeholder `get` prints no body; its saved file,
+  read through `preview`, has `<header class="page"><!-- masthead
+  --></header>`. In a browser at 1440: the navigation at the wordmark's
+  right, a red line under "Front page", a boat sailing the wave. At 390: a
+  "Sections" button that opens the same links. With reduced motion on, the
+  wave and the boat stand still.
+- The date strip's controls hold the theme switch island (#105), once on
+  the page, after the language menu and before the search entry; the
+  masthead has no row of tools on the front page.
   `<bd-island name="ThemeSwitch" props="…"><button class="ThemeSwitch">`:
   a 44px square with a 1px outline and a half-filled circle (boards 01 and
   02), named "Switch to dark mode" in the light theme and "Switch to light
@@ -52,6 +102,29 @@ page: `/` is English, `/zh/` and `/ja/` the others (`languages.md`).
 - `--sun` computes to the same colour in both themes. At 1440 and 390
   wide, `document.documentElement.scrollWidth` equals the window's
   `innerWidth`: no horizontal scrollbar.
+- The tide table (#121), on `busy` after the front band: `<h2
+  id="band-tide">Tide table</h2>`, a chart `<svg class="TideTable-svg"
+  role="img" aria-label="5 stories became waves today, between 08:00 and
+  14:00.">` with five red dots, and under it an `<ol>` of the same five
+  waves, latest first, each linking to `/topic/<slug>`. On `/zh/` and
+  `/ja/` its text is in that language ("潮汐表", "满潮 09:30"). Not on
+  `quiet` (one new wave, board 19) or `fresh`. In a browser: the sea
+  rises from the waterline over 1.2 seconds on load, its surface one smooth
+  curve; at 1440, 1000 and 390 wide no horizontal scrollbar, and the
+  labels keep their size (heights on the chart and the 03:00, 09:00, ...
+  labels from the two-column width only).
+- The front page ends with the footer (#111), `</main><footer
+  class="Footer">`: on `busy`, which sends email, the subscribe form
+  ("One email a day, with the new waves.", posting to `/subscribe`);
+  on `?set=fresh` and `?set=quiet` no form, as the site sends no email.
+  Then four links (three to `/about#height`, `#own`, `#open`, one to the
+  repository), the lighthouse drawing and the bar "Breaker Delta is open
+  source."; on `/zh/` and `/ja/` in that language. In a browser: the waves
+  drift and loop without a gap, the beam sweeps without being cut at the
+  top; under reduced motion nothing moves. At 390 wide only the drawing's
+  right half shows (the lighthouse and the boat's side) and the links sit
+  two to a row with their short labels. In the dark theme the rock and the
+  front wave are darker than the page.
 - The placeholder (`up` with no fixtures) has no island: its network list
   holds `loader.js` and no other JavaScript.
 

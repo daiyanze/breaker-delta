@@ -1,0 +1,162 @@
+/*
+ * The date strip (#109; boards 01 and 02): a tear-off calendar turned -4°
+ * with a red month header, the date and its line, the sun-yellow tag turned
+ * -2°, then the controls at the row's end. The row wraps instead of
+ * scrolling sideways. Below the two-column breakpoint (`TWO_COLUMNS_FROM`)
+ * the date and its line are read out but not shown, the tag keeps its short
+ * line, and the search entry (`SearchEntry`) shows its icon alone. The markup
+ * is `DateStrip.tsx`.
+ */
+@layer patterns {
+  .DateStrip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+    font-size: var(--type-small-size);
+
+    @media (min-width: 960px) {
+      gap: var(--space-2) var(--space-4);
+      min-height: var(--space-8);
+    }
+  }
+
+  .DateStrip-when {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    margin-inline-end: auto;
+    min-width: 0;
+
+    @media (min-width: 960px) {
+      gap: var(--space-3) var(--space-5);
+    }
+  }
+
+  .DateStrip-calendar {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    min-inline-size: var(--control-min-height);
+    border: calc(var(--rule-thin) * 1.5) solid var(--ink);
+    background: var(--paper);
+    box-shadow: var(--shadow-paper);
+    text-align: center;
+    transform: rotate(-4deg);
+  }
+
+  .DateStrip-month {
+    padding-inline: var(--space-1);
+    background: var(--red);
+    color: var(--paper);
+    font-size: var(--type-label-size);
+    font-weight: bold;
+    line-height: var(--type-body-line);
+    white-space: nowrap;
+  }
+
+  .DateStrip-day {
+    padding-inline: var(--space-1);
+    font-family: var(--font-display);
+    font-size: var(--type-kicker-size);
+    font-weight: var(--type-masthead-weight);
+    line-height: var(--type-clip-headline-line);
+
+    @media (min-width: 960px) {
+      font-size: var(--type-clip-headline-size);
+    }
+  }
+
+  /*
+   * Read out on phones, not shown: it covers the row's left part and is
+   * clipped to nothing, so it never widens the page.
+   */
+  .DateStrip-text {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+
+    @media (min-width: 960px) {
+      position: static;
+      inset: auto;
+      overflow: visible;
+      clip-path: none;
+      white-space: normal;
+      display: flex;
+      flex-direction: column;
+      line-height: var(--type-label-line);
+    }
+  }
+
+  .DateStrip-date {
+    font-weight: bold;
+  }
+
+  .DateStrip-line {
+    color: var(--ink-2);
+  }
+
+  .DateStrip-tag {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-1) var(--space-2);
+    background: var(--sun);
+    color: var(--on-sun);
+    box-shadow: var(--shadow-paper);
+    line-height: var(--type-label-line);
+    transform: rotate(-2deg);
+
+    @media (min-width: 960px) {
+      padding-inline: var(--space-3);
+    }
+  }
+
+  .DateStrip-count {
+    font-family: var(--font-display);
+    font-size: var(--type-body-size);
+    font-weight: var(--type-masthead-weight);
+
+    @media (min-width: 960px) {
+      font-size: var(--type-kicker-size);
+    }
+  }
+
+  .DateStrip-note,
+  .DateStrip-short {
+    font-size: var(--type-label-size);
+    font-weight: var(--type-label-weight);
+  }
+
+  .DateStrip-note {
+    display: none;
+
+    @media (min-width: 960px) {
+      display: inline;
+    }
+  }
+
+  .DateStrip-short {
+    @media (min-width: 960px) {
+      display: none;
+    }
+  }
+
+  /* At the row's end, also when it wraps onto a line of its own. */
+  .DateStrip-controls {
+    margin-inline-start: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+
+    /* The language menu's own padding would make the row taller than the board's. */
+    & .LanguageMenu {
+      padding-block: 0;
+    }
+  }
+}

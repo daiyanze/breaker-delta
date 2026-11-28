@@ -13,7 +13,23 @@ import { handle, type SiteVars } from "../select.ts";
 // language has the language menu, and a language is a path (`/zh/`), not
 // `?lang=`; `/en/` redirects to `/`. #272 changed it on purpose: every
 // page's head holds the theme script and the island loader, and the front
-// page's header the theme switch island. Update with `bun test --update-snapshots`
+// page's header the theme switch island. #114 and #119 changed it on
+// purpose: the front page's six tallest waves are the three tiers of
+// headlines, the lead with the echo stack. #111 changed it on purpose: the
+// front page ends with the footer, its form only where mail is on. #120
+// changed it on purpose: the front band holds the index island in its right
+// rail, every wave a row, in place of the plain list of ranks 7 on. #122
+// changed it on purpose: the front page has the fading notices band
+// between the front page and the classifieds. #121 changed it on purpose:
+// the busy front page has the tide table band after the front band. #123
+// changed it on purpose: the front page has the "Were we right?" band
+// between the fading notices and the classifieds. #110 changed it on
+// purpose: every page's header is the masthead (the mark and the wordmark
+// as the `<h1>` link home, the navigation, the wave), the language menu
+// and the theme switch in its row of tools. #109 changed it on purpose:
+// the front page's header opens with the date strip, which holds the
+// language menu, the theme switch and the search entry, above a masthead
+// with no row of tools. Update with `bun test --update-snapshots`
 // only when a change to the output is intended, and say so in the PR.
 
 async function render(path: string, vars: SiteVars): Promise<string> {

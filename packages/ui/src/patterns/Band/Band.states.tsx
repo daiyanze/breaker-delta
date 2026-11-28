@@ -12,6 +12,14 @@ export default states(Band, {
     note: "What formed.",
     children: <p>Rising, falling, flat.</p>,
   },
+  link: {
+    id: "verdicts",
+    name: "Were we right?",
+    note: "Every wave gets one test, checked 14 days later.",
+    highlight: true,
+    link: { href: "/record", text: "Open the track record" },
+    children: <p>The first test comes due on Nov 26.</p>,
+  },
   long: {
     id: "long",
     name: "Everything that formed, rose and went flat since the last edition",
@@ -34,5 +42,16 @@ export default states(Band, {
     name: "一面",
     note: "今日できた波。",
     children: <p>今日の海のようす。</p>,
+  },
+  // The front page's band (#120): the content left, the aside in the right rail.
+  front: {
+    id: "front-aside",
+    name: "Front page",
+    aside: (
+      <aside aria-label="The index">
+        <p>The whole ranking, on the right.</p>
+      </aside>
+    ),
+    children: <p>The headlines, on the left. The section's name is read out, not shown.</p>,
   },
 });

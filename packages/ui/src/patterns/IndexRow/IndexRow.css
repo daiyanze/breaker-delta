@@ -1,0 +1,69 @@
+/*
+ * One row of the index (#120, `design/system/components/IndexRow`, boards
+ * 01 and 02): the rank in italic `ink-2`, the short title at weight 600, a
+ * 2px dotted `hair` leader, the change in `small`, and the height
+ * right-aligned in a fixed column. A wave formed today has a red number and
+ * change. The whole row is the link, at least the control's height; hovered,
+ * it turns `blue` like the boards' plain links. The values the type scale
+ * lacks are `--index-*` (`src/tokens/supplement.ts`). The markup is
+ * `IndexRow.tsx`.
+ */
+@layer patterns {
+  .IndexRow {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    min-block-size: var(--control-min-height);
+    padding-block: var(--space-1);
+    color: var(--ink);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--blue);
+    }
+  }
+
+  .IndexRow-rank {
+    flex: 0 0 var(--index-phone-rank-column);
+    color: var(--ink-2);
+    font-family: var(--font-display);
+    font-style: italic;
+
+    @media (min-width: 960px) {
+      flex-basis: var(--index-rank-column);
+    }
+  }
+
+  .IndexRow-title {
+    min-width: 0;
+    font-weight: var(--index-title-weight);
+  }
+
+  /* The leader takes the room left over, at least `space-4`, a little above the baseline. */
+  .IndexRow-leader {
+    flex: 1 1 var(--space-4);
+    border-bottom: var(--index-leader) dotted var(--hair);
+    transform: translateY(calc(-1 * var(--space-1)));
+  }
+
+  .IndexRow-change {
+    color: var(--ink-2);
+    font-size: var(--type-small-size);
+    line-height: var(--type-small-line);
+    white-space: nowrap;
+  }
+
+  .IndexRow-number {
+    flex: 0 0 var(--index-number-column);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: var(--index-number-size);
+    font-weight: var(--type-wave-number-weight);
+    text-align: right;
+  }
+
+  .IndexRow-change.IndexRow-new,
+  .IndexRow-number.IndexRow-new {
+    color: var(--red);
+  }
+}

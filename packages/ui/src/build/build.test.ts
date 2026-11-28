@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { ISLAND_TAG, type Island } from "../runtime/index.ts";
+import { OPEN_MENUS } from "../runtime/menu.ts";
 import { buildClient, islandFiles } from "./index.ts";
 
 const files = await buildClient();
@@ -43,7 +44,17 @@ describe("buildClient (ADR 0020, section 11)", () => {
     expect(loader).not.toMatch(STATIC_IMPORT);
     // Preact and the island come by dynamic import, only for a <bd-island>.
     expect(loader).toMatch(/\bimport\(/);
-    expect(loader).toContain(`customElements.define("${ISLAND_TAG}"`);
+    // The minifier keeps the tag in a variable once the loader holds more
+    // than the element (issue 112), so the name and the call are read apart.
+    expect(loader).toContain(`"${ISLAND_TAG}"`);
+    expect(loader).toContain("customElements.define(");
+  });
+
+  test("the loader closes the drop-down menus with Esc, bundled in, not a chunk (issue 112)", () => {
+    const loader = text("loader.js");
+    expect(loader).toContain(`"${OPEN_MENUS}"`);
+    expect(loader).toContain('"Escape"');
+    expect(loader).toContain('"keydown"');
   });
 
   test("islands share Preact through a chunk, and Document reaches no browser file", () => {

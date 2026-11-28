@@ -28,6 +28,24 @@ import {
 } from "@bd/contracts";
 import { type FixtureSetName, RAW_SETS } from "./sets.ts";
 
+/**
+ * The sea state of a run, by the design's rule (`design/system/README.md`,
+ * "数据驱动的规则"; #109): four or more waves formed today is choppy, two or
+ * three moderate, otherwise calm. "flat" is what a page shows before any
+ * run, never a run's own state.
+ */
+export function seaStateFor(formedToday: number): "calm" | "moderate" | "choppy" {
+  if (formedToday >= 4) return "choppy";
+  if (formedToday >= 2) return "moderate";
+  return "calm";
+}
+
+/** An edition whose sea state follows `seaStateFor`, or no edition. */
+const EditionWithSea = EditionSchema.refine((e) => e.seaState === seaStateFor(e.formedToday), {
+  message: "seaState does not follow the rule for formedToday",
+  path: ["seaState"],
+});
+
 export interface ContractCheck {
   name: string;
   schema: { parse(value: unknown): unknown };
@@ -47,7 +65,7 @@ export interface ReadProbes {
 export function readContractChecks(q: ReadQueries, probes: ReadProbes): ContractCheck[] {
   const checks: ContractCheck[] = [
     { name: "siteMeta()", schema: SiteMetaSchema, run: () => q.siteMeta() },
-    { name: "edition()", schema: EditionSchema.nullable(), run: () => q.edition() },
+    { name: "edition()", schema: EditionWithSea.nullable(), run: () => q.edition() },
     { name: "editionList()", schema: EditionListSchema.nullable(), run: () => q.editionList() },
     { name: "changes()", schema: ChangesSchema, run: () => q.changes() },
     {
@@ -64,7 +82,7 @@ export function readContractChecks(q: ReadQueries, probes: ReadProbes): Contract
   for (const slot of probes.slots) {
     checks.push({
       name: `edition(${slot})`,
-      schema: EditionSchema,
+      schema: EditionWithSea,
       run: () => q.edition({ slot }),
     });
   }
