@@ -18,6 +18,7 @@ import headlineStates from "../patterns/Headline/Headline.states.tsx";
 import indexStates from "../patterns/Index/Index.states.tsx";
 import indexRowStates from "../patterns/IndexRow/IndexRow.states.tsx";
 import languageMenuStates from "../patterns/LanguageMenu/LanguageMenu.states.tsx";
+import sourceTileStates from "../patterns/SourceTile/SourceTile.states.tsx";
 import stampStates from "../patterns/Stamp/Stamp.states.tsx";
 import ticketStubStates from "../patterns/TicketStub/TicketStub.states.tsx";
 import ticketStubsStates from "../patterns/TicketStubs/TicketStubs.states.tsx";
@@ -78,6 +79,7 @@ export const CATALOG: readonly CatalogEntry[] = [
   entry("Index", "patterns", indexStates),
   entry("IndexRow", "patterns", indexRowStates),
   entry("LanguageMenu", "patterns", languageMenuStates),
+  entry("SourceTile", "patterns", sourceTileStates),
   entry("Footer", "patterns", footerStates),
   entry("Stamp", "patterns", stampStates),
   entry("TicketStub", "patterns", ticketStubStates),

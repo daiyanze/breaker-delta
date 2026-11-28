@@ -91,6 +91,21 @@ export const ICON = {
 } as const;
 
 /**
+ * The source tile (#113): `design/system/components/SourceTile/README.md`,
+ * "尺寸 34px（分类广告里 30px），1.5px 描边" (34px, 30px in the classifieds,
+ * a 1.5px outline). Its icon is 20 × 20 in the 34px tile on board 03
+ * (`<svg width="20" height="20">`); in the 30px tile of board 01's
+ * classifieds it is 18 × 18, the interface icon size (`ICON.size`).
+ * `tokens.test.ts` checks that the README and both boards still say so.
+ */
+export const SOURCE_TILE = {
+  size: "34px",
+  smallSize: "30px",
+  border: "1.5px",
+  icon: "20px",
+} as const;
+
+/**
  * The stamp on a ticket stub (#115): `design/system/components/TicketStub/README.md`,
  * "印章：3px 框" (a 3px frame), "旋转 -4°" (turned -4°) for a verdict, and
  * "待到期的章用 `red` 框并旋转 -5°" on the front and topic pages. Its hover

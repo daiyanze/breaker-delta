@@ -14,6 +14,7 @@ import {
   INDEX_PHONE_ROWS,
   MARK,
   PHONE,
+  SOURCE_TILE,
   STAMP,
   STUB,
   size,
@@ -226,6 +227,32 @@ describe("supplement: values the design states only in prose", () => {
   test("the icon size and stroke are the ones the design system README states", async () => {
     const readme = await Bun.file(`${import.meta.dir}/../../../../design/system/README.md`).text();
     expect(readme).toContain(`线宽约 ${ICON.stroke}，${ICON.size} 画板`);
+  });
+
+  test("the source tile's sizes are the ones its README and boards 01 and 03 state", async () => {
+    const design = `${import.meta.dir}/../../../../design`;
+    const readme = await Bun.file(`${design}/system/components/SourceTile/README.md`).text();
+    expect(readme).toContain(
+      `尺寸 ${SOURCE_TILE.size}（分类广告里 ${SOURCE_TILE.smallSize}），${SOURCE_TILE.border} 描边`,
+    );
+    const icon = Number.parseFloat(SOURCE_TILE.icon);
+    const topic = await Bun.file(`${design}/boards/Topic2.dc.html`).text();
+    expect(topic).toContain(
+      `width: ${SOURCE_TILE.size}; height: ${SOURCE_TILE.size}; border: ${SOURCE_TILE.border} solid`,
+    );
+    expect(topic).toContain(`<svg width="${icon}" height="${icon}" viewBox="0 0 18 18"`);
+    const small = Number.parseFloat(ICON.size);
+    const front = await Bun.file(`${design}/boards/Front2.dc.html`).text();
+    expect(front).toContain(
+      `width: ${SOURCE_TILE.smallSize}; height: ${SOURCE_TILE.smallSize}; border: ${SOURCE_TILE.border} solid currentColor; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center"><svg width="${small}" height="${small}"`,
+    );
+  });
+
+  test("the source tile's values are variables for its CSS", () => {
+    expect(root).toContain(`--source-tile-size:${SOURCE_TILE.size};`);
+    expect(root).toContain(`--source-tile-small-size:${SOURCE_TILE.smallSize};`);
+    expect(root).toContain(`--source-tile-border:${SOURCE_TILE.border};`);
+    expect(root).toContain(`--source-tile-icon:${SOURCE_TILE.icon};`);
   });
 
   test("the stamp's frame, turns and wobble are the ones the READMEs and boards state", async () => {

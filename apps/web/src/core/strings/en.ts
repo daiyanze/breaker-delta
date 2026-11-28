@@ -20,6 +20,8 @@ export const en = {
   "language.menu": "Language: {language}",
   "theme.toDark": "Switch to dark mode",
   "theme.toLight": "Switch to light mode",
+  "source.started": "Source where the story started",
+  "source.later": "Source that picked it up later",
   "echoStack.label": "Echoes stacking into a wave, {layers} layers high",
   "headline.kicker.tallest": "Tallest wave right now",
   "headline.kicker.formed": "Formed today, already the tallest",

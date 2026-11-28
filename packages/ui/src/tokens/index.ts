@@ -18,6 +18,7 @@ import {
   INDEX,
   MARK,
   PHONE,
+  SOURCE_TILE,
   STAMP,
   STUB,
 } from "./supplement.ts";
@@ -48,6 +49,7 @@ export {
   INDEX_PHONE_ROWS,
   MARK,
   PHONE,
+  SOURCE_TILE,
   STAMP,
   STUB,
   TWO_COLUMNS_FROM,
@@ -139,6 +141,9 @@ function staticVars(): string {
   for (const [name, v] of Object.entries(PHONE)) out.push(decl(`phone-${kebab(name)}`, v.value));
   for (const [name, v] of Object.entries(CONTROL)) out.push(decl(`control-${kebab(name)}`, v));
   for (const [name, v] of Object.entries(ICON)) out.push(decl(`icon-${kebab(name)}`, v));
+  for (const [name, v] of Object.entries(SOURCE_TILE)) {
+    out.push(decl(`source-tile-${kebab(name)}`, v));
+  }
   for (const [name, v] of Object.entries(STAMP)) out.push(decl(`stamp-${kebab(name)}`, v));
   for (const [name, v] of Object.entries(STUB)) out.push(decl(`stub-${kebab(name)}`, v));
   for (const [name, v] of Object.entries(MARK)) out.push(decl(`mark-${kebab(name)}`, v));

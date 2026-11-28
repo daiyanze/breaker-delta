@@ -301,6 +301,64 @@ describe("the theme switch", () => {
   });
 });
 
+// The source tile (#113); its markup: `patterns/SourceTile/SourceTile.test.tsx`.
+describe("the source tile", () => {
+  const own = (selector: string) =>
+    Object.fromEntries(
+      rules
+        .filter((r) => r.layer === "patterns" && r.selector === selector && r.media.length === 0)
+        .flatMap((r) => r.declarations),
+    );
+
+  test("solid and outlined differ by a filled ground, kept in forced colours", () => {
+    expect(own('.SourceTile-tile[data-fill="solid"]')).toEqual({
+      "border-color": "var(--ink)",
+      background: "var(--ink)",
+      color: "var(--paper)",
+      "forced-color-adjust": "none",
+    });
+    const tile = own(".SourceTile-tile");
+    expect(tile.background).toBe("transparent");
+    expect(tile.color).toBe("inherit");
+    expect(tile.border).toBe("var(--source-tile-border) solid currentcolor");
+    expect(tile["border-radius"]).toBe("var(--radius-tile)");
+  });
+
+  test("34px with a 20px icon, or 30px with the interface icon in the classifieds", () => {
+    expect(own(".SourceTile")["--source-tile-box"]).toBe("var(--source-tile-size)");
+    expect(own(".SourceTile")["--source-tile-glyph"]).toBe("var(--source-tile-icon)");
+    const small = own('.SourceTile[data-size="small"]');
+    expect(small["--source-tile-box"]).toBe("var(--source-tile-small-size)");
+    expect(small["--source-tile-glyph"]).toBe("var(--icon-size)");
+    expect(own(".SourceTile-tile")["inline-size"]).toBe("var(--source-tile-box)");
+    expect(own(".SourceTile-tile")["block-size"]).toBe("var(--source-tile-box)");
+  });
+
+  test("a favicon is drawn only once marked loaded, and only then hides the generic icon", () => {
+    // Not loaded (failed, still loading, or JavaScript off): nothing drawn,
+    // so no broken-image mark, and the generic icon stays.
+    expect(own(".SourceTile-favicon").display).toBe("none");
+    expect(own(".SourceTile-glyph").display).toBeUndefined();
+    expect(own(".SourceTile-favicon[data-loaded]")).toEqual({ display: "block" });
+    expect(own(".SourceTile-favicon[data-loaded] + .SourceTile-glyph")).toEqual({
+      display: "none",
+    });
+    // No other rule hides the generic icon.
+    const hides = rules.filter(
+      (r) => r.selector.includes("SourceTile-glyph") && cssValue(r, "display") === "none",
+    );
+    expect(hides.map((r) => r.selector)).toEqual([
+      ".SourceTile-favicon[data-loaded] + .SourceTile-glyph",
+    ]);
+  });
+
+  test("the tile keeps its size and the name may shrink, so a long name wraps", () => {
+    expect(own(".SourceTile-tile").flex).toBe("none");
+    expect(own(".SourceTile-name")["min-width"]).toBe("0");
+    expect(own(".SourceTile")["min-width"]).toBe("0");
+  });
+});
+
 describe("the echo stack", () => {
   const own = rules.filter((r) => r.layer === "patterns" && r.selector.startsWith(".EchoStack"));
   const decl = (selector: string, media: string[] = []) =>

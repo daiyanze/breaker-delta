@@ -23,9 +23,10 @@ other data file, not even one in `src/tokens`.
 | `build` | `buildClient()`: the client files, bundled with Bun | everything above, `bun`, `node:` |
 
 `tokens` (#269), `styles` and `build` (#270), `runtime` and `patterns`
-(#271) and `primitives` (#272) exist today; `patterns` holds `Band` and
-`LanguageMenu`, `primitives` `Button`, `Filters`, `SearchEntry` and the
-`ThemeSwitch` island; `catalog` (#258) lists them. A file directly under `src/` is
+(#271) and `primitives` (#272) exist today; `patterns` holds `Band`,
+`LanguageMenu` and `SourceTile` (with its island), `primitives` `Button`,
+`Filters`, `SearchEntry` and the `ThemeSwitch` island; `catalog` (#258)
+lists them. A file directly under `src/` is
 under no rule and fails `check-deps`.
 
 ## `@bd/ui/runtime` and `@bd/ui/patterns`
@@ -104,6 +105,16 @@ under no rule and fails `check-deps`.
   the globe alone. A drop-down menu (`data-menu`): Esc closes it. `open` starts it open, for the catalog's `open` and
   `long` states; pages leave it out. Classes `.LanguageMenu`, `-details`,
   `-button`, `-icon`, `-current`, `-chevron`, `-list`, `-link`.
+- `SourceTile` (`patterns/SourceTile`, boards 01 and 03, #113): the small
+  square before a source's name, solid where the story started and
+  outlined for a later source, with the site's favicon or a generic icon
+  by kind (`kindOf(category)`). Plain markup without a favicon; with one,
+  the `SourceTile` island. The generic icon shows by default; the favicon
+  is hidden until the island marks it `data-loaded`, so a failed one, or
+  any with JavaScript off, never draws a broken-image mark. Props `name`, `fill`, `kind`, `favicon`, `label` (finished text;
+  without it the tile is `aria-hidden`), `size` (`small` in the
+  classifieds). Classes `.SourceTile`, `-tile`, `-favicon`, `-glyph`,
+  `-name`. `SPEC.md` in its folder.
 - `Footer` (`patterns/Footer`, boards 01 and 02, #111): the footer every
   public page ends with: the subscribe form (left out with no `subscribe`
   prop, when the site sends no email), the links, the lighthouse drawing
@@ -182,13 +193,13 @@ no Bun or Cloudflare types, so emails and share cards can import it.
 - `supplement.ts` holds the values the design states only in prose or not at
   all (the phone gutter and section size, the control height, outline and
   padding, the focus ring, the icon size and stroke, the theme switch's
-  icon size, the echo stack's and the headlines' sizes, the footer's
-  timings, angles, beam opacity and link weight, the index's values and
-  phone row count, the two-column breakpoint), each with the text it comes
-  from. No other file holds a design value. All but the breakpoint and the
-  index's row count are also CSS variables: `--phone-*`, `--control-*`,
-  `--focus-*`, `--icon-*`, `--echo-stack-*`, `--headline-*`, `--footer-*`,
-  `--index-*`.
+  icon size, the source tile's sizes, the echo stack's and the headlines'
+  sizes, the footer's timings, angles, beam opacity and link weight, the
+  index's values and phone row count, the two-column breakpoint), each
+  with the text it comes from. No other file holds a design value. All but
+  the breakpoint and the index's row count are also CSS variables:
+  `--phone-*`, `--control-*`, `--focus-*`, `--icon-*`, `--source-tile-*`,
+  `--echo-stack-*`, `--headline-*`, `--footer-*`, `--index-*`.
 - `contrast.test.ts` computes the WCAG 2.2 contrast of every text and
   background pair the design uses, in both themes: 4.5:1 for text, 3:1 for
   a control's outline. A new colour token fails it until it is placed.
